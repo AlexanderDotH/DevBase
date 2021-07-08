@@ -1,0 +1,12 @@
+E:\Coding\Github\DevBase\DevBaseLive\bin\Debug\DevBaseLive.exe.config
+E:\Coding\Github\DevBase\DevBaseLive\bin\Debug\DevBaseLive.exe
+E:\Coding\Github\DevBase\DevBaseLive\bin\Debug\DevBaseLive.pdb
+E:\Coding\Github\DevBase\DevBaseLive\bin\Debug\DevBase.dll
+E:\Coding\Github\DevBase\DevBaseLive\bin\Debug\DevBase.pdb
+E:\Coding\Github\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.AssemblyReference.cache
+E:\Coding\Github\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.CoreCompileInputs.cache
+E:\Coding\Github\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.CopyComplete
+E:\Coding\Github\DevBase\DevBaseLive\obj\Debug\DevBaseLive.exe
+E:\Coding\Github\DevBase\DevBaseLive\obj\Debug\DevBaseLive.pdb
+E:\Coding\Github\DevBase\DevBaseLive\bin\Debug\Newtonsoft.Json.dll
+E:\Coding\Github\DevBase\DevBaseLive\bin\Debug\Newtonsoft.Json.xml

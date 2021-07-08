@@ -1,0 +1,14 @@
+E:\Coding\Github\DevBase\DevBase\bin\Debug\DevBase.dll
+E:\Coding\Github\DevBase\DevBase\bin\Debug\DevBase.pdb
+E:\Coding\Github\DevBase\DevBase\bin\Debug\System.Text.Json.dll
+E:\Coding\Github\DevBase\DevBase\bin\Debug\System.Memory.dll
+E:\Coding\Github\DevBase\DevBase\bin\Debug\System.Text.Encodings.Web.dll
+E:\Coding\Github\DevBase\DevBase\bin\Debug\System.Numerics.Vectors.dll
+E:\Coding\Github\DevBase\DevBase\bin\Debug\System.Threading.Tasks.Extensions.dll
+E:\Coding\Github\DevBase\DevBase\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+E:\Coding\Github\DevBase\DevBase\bin\Debug\System.Buffers.dll
+E:\Coding\Github\DevBase\DevBase\obj\Debug\DevBase.csproj.CoreCompileInputs.cache
+E:\Coding\Github\DevBase\DevBase\obj\Debug\DevBase.csproj.CopyComplete
+E:\Coding\Github\DevBase\DevBase\obj\Debug\DevBase.dll
+E:\Coding\Github\DevBase\DevBase\obj\Debug\DevBase.pdb
+E:\Coding\Github\DevBase\DevBase\obj\Debug\DevBase.csproj.AssemblyReference.cache

@@ -1,0 +1,55 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using DevBase.Web.RequestData;
+using System.Net;
+using System.IO;
+
+namespace DevBase.Web
+{
+    public class Request
+    {
+        private RequestData.RequestData _requestData;
+
+        public Request(RequestData.RequestData requestData)
+        {
+            this._requestData = requestData;
+        }
+
+        public Request(string url) : this(new RequestData.RequestData(url, string.Empty)) {}
+
+        public ResponseData.ResponseData GetResponse()
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this._requestData.Uri);
+
+            request.Method = this._requestData.RequestMethod.ToString();
+            request.ContentType = this._requestData.ConvertFromContentType(this._requestData.ContentType);
+            request.ContentLength = this._requestData.Content.Length;
+            request.UserAgent = this._requestData.UserAgent;
+            request.Accept = this._requestData.Accept;
+            request.Headers = this._requestData.Header;
+            
+            if (this._requestData.RequestMethod == RequestMethod.POST)
+            {
+                using (Stream requestStream = request.GetRequestStream())
+                {
+                    requestStream.Write(this._requestData.Content, 0, this._requestData.Content.Length);
+                }
+            }
+
+            ResponseData.ResponseData responseData = new ResponseData.ResponseData(string.Empty, HttpStatusCode.NoContent);
+
+            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
+            Stream stream = response.GetResponseStream();
+            
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                responseData = new ResponseData.ResponseData(reader.ReadToEnd(), response.StatusCode);
+            }
+
+            return responseData;
+        }
+    }
+}

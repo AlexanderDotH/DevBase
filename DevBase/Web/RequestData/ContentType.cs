@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DevBase
+namespace DevBase.Web.RequestData
 {
-    public class Class1
+    public enum ContentType
     {
+        HTML, JSON, FORM
     }
 }
