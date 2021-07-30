@@ -18,23 +18,30 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
+            DevBaseData.DataGenerator generator = new DevBaseData.DataGenerator(100, 10, new DevBaseData.DataType[] { DevBaseData.DataType.Email, DevBaseData.DataType.Password });
 
-            Data d1 = new Data
+            foreach (string item in generator.GeneratedData)
             {
-                Neger = "dawd"
-            };
+                Console.WriteLine(item);
+            }
 
-            string json = JsonConvert.SerializeObject(d1);
-
-            DevBase.Web.RequestData.RequestData data = new DevBase.Web.RequestData.RequestData(
-                new Uri("https://webhook.site/5ab2f26b-7d1a-4b70-b179-a06d85bdd557"), 
-                RequestMethod.POST, 
-                ContentType.JSON, 
-                json, "neger");
-
-            DevBase.Web.Request request = new DevBase.Web.Request(data);
-            Console.WriteLine(request.GetResponse().GetContentAsString());
             Console.ReadKey();
+            //Data d1 = new Data
+            //{
+            //    Neger = "dawd"
+            //};
+
+            //string json = JsonConvert.SerializeObject(d1);
+
+            //DevBase.Web.RequestData.RequestData data = new DevBase.Web.RequestData.RequestData(
+            //    new Uri("https://webhook.site/5ab2f26b-7d1a-4b70-b179-a06d85bdd557"), 
+            //    RequestMethod.POST, 
+            //    ContentType.JSON, 
+            //    json, "neger");
+
+            //DevBase.Web.Request request = new DevBase.Web.Request(data);
+            //Console.WriteLine(request.GetResponse().GetContentAsString());
+            //Console.ReadKey();
         }
     }
 }

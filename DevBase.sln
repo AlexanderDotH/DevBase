@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseTests", "DevBaseTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseLive", "DevBaseLive\DevBaseLive.csproj", "{171C777A-2802-4EDA-9164-A2A857A7D6EB}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseData", "DevBaseData\DevBaseData.csproj", "{69727032-9FAF-4E60-8517-F07C9EFA22A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{171C777A-2802-4EDA-9164-A2A857A7D6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{171C777A-2802-4EDA-9164-A2A857A7D6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{171C777A-2802-4EDA-9164-A2A857A7D6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69727032-9FAF-4E60-8517-F07C9EFA22A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69727032-9FAF-4E60-8517-F07C9EFA22A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69727032-9FAF-4E60-8517-F07C9EFA22A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69727032-9FAF-4E60-8517-F07C9EFA22A0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -10,3 +10,17 @@ E:\Coding\Github\DevBase\DevBaseLive\obj\Debug\DevBaseLive.exe
 E:\Coding\Github\DevBase\DevBaseLive\obj\Debug\DevBaseLive.pdb
 E:\Coding\Github\DevBase\DevBaseLive\bin\Debug\Newtonsoft.Json.dll
 E:\Coding\Github\DevBase\DevBaseLive\bin\Debug\Newtonsoft.Json.xml
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\bin\Debug\DevBaseLive.exe.config
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\bin\Debug\DevBaseLive.exe
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\bin\Debug\DevBaseLive.pdb
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\bin\Debug\DevBase.dll
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\bin\Debug\DevBaseData.dll
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\bin\Debug\Newtonsoft.Json.dll
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\bin\Debug\DevBaseData.pdb
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\bin\Debug\DevBase.pdb
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\bin\Debug\Newtonsoft.Json.xml
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.AssemblyReference.cache
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.CoreCompileInputs.cache
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.CopyComplete
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\obj\Debug\DevBaseLive.exe
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseLive\obj\Debug\DevBaseLive.pdb

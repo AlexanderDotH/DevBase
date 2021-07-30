@@ -54,6 +54,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DevBaseData\DevBaseData.csproj">
+      <Project>{69727032-9faf-4e60-8517-f07c9efa22a0}</Project>
+      <Name>DevBaseData</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DevBase\DevBase.csproj">
       <Project>{9ec3bc10-4816-432a-9d63-a30c07c31a2d}</Project>
       <Name>DevBase</Name>

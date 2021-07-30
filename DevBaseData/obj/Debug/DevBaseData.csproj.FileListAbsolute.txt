@@ -1,0 +1,9 @@
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseData\bin\Debug\DevBaseData.dll
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseData\bin\Debug\DevBaseData.pdb
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseData\bin\Debug\DevBase.dll
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseData\bin\Debug\DevBase.pdb
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseData\obj\Debug\DevBaseData.csproj.AssemblyReference.cache
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseData\obj\Debug\DevBaseData.csproj.CoreCompileInputs.cache
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseData\obj\Debug\DevBaseData.csproj.CopyComplete
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseData\obj\Debug\DevBaseData.dll
+C:\Users\alexander.heuschkel\Documents\GitHub\DevBase\DevBaseData\obj\Debug\DevBaseData.pdb
