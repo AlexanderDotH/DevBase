@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DevBase.Generic;
 
 namespace DevBaseData.Generators
 {
@@ -14,21 +15,34 @@ namespace DevBaseData.Generators
         private int _amount;
         private int _passwordSize;
 
-        public PasswordGenerator(int amount, int passwordSize)
+        private bool _randomSize;
+
+        public PasswordGenerator(int amount, int passwordSize, bool randomSize)
         {
             this._amount = amount;
             this._passwordSize = passwordSize;
+
+            this._randomSize = randomSize;
         }
 
-        public List<string> GenerateData()
+        public PasswordGenerator(int amount, int passwordSize) : this(amount, passwordSize, false) {}
+
+        public GenericList<string> GenerateData()
         {
-            List<string> generatedData = new List<string>();
+            GenericList<string> generatedData = new GenericList<string>();
 
             Random random = new Random();
 
             for (int i = 0; i < this._amount; i++)
             {
-                generatedData.Add(StringUtils.RandomString(this._passwordSize));
+                if (this._randomSize)
+                {
+                    generatedData.Add(StringUtils.RandomString(random.Next(1, this._passwordSize)));
+                }
+                else
+                {
+                    generatedData.Add(StringUtils.RandomString(this._passwordSize));
+                }
             }
 
             return generatedData;

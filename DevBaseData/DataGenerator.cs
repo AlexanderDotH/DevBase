@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DevBase.Generic;
+using DevBase.Utilities;
 
 namespace DevBaseData
 {
@@ -15,40 +16,55 @@ namespace DevBaseData
         private List<string> _generatedData;
         private List<IGenerator> _generators;
 
-        public DataGenerator(int dataAmount, int dataSize, DataType[] dataTypes)
+        private bool _randomSize;
+
+        public DataGenerator(int dataAmount, int dataSize, DataType[] dataTypes, bool randomSize)
         {
             this._dataTypes = dataTypes;
 
             this._generators = new List<IGenerator>();
-            this._generators.Add(new EmailGenerator(dataAmount, dataSize, true));
-            this._generators.Add(new PasswordGenerator(dataAmount, dataSize));
+            this._generators.Add(new EmailGenerator(dataAmount, dataSize, true, randomSize));
+            this._generators.Add(new PasswordGenerator(dataAmount, dataSize, randomSize));
+
+            this._randomSize = randomSize;
 
             this._generatedData = GenerateData();
         }
 
+        public DataGenerator(int dataAmount, int dataSize, DataType[] dataTypes) : this(dataAmount, dataSize, dataTypes, false) { }
+
         private List<string> GenerateData()
         {
             GenericList<string> generatedData = new GenericList<string>();
+
+            GenericList<string> emailData = null;
+            GenericList<string> passwordData = null;
 
             for (int i = 0; i < this._dataTypes.Length; i++)
             {
                 switch(this._dataTypes[i])
                 {
                     case DataType.Email:
-                        generatedData.AddRange(GetGenerator("EmailGenerator").GenerateData());
+                        emailData = GetGenerator("EmailGenerator").GenerateData();
+                        generatedData.AddRange(emailData);
                         break;
                     case DataType.Password:
-                        generatedData.AddRange(GetGenerator("PasswordGenerator").GenerateData());
+                        passwordData = GetGenerator("PasswordGenerator").GenerateData();
+                        generatedData.AddRange(passwordData);
                         break;
                 }
             }
 
-            if (this._dataTypes.Length > 0)
+            if (this._dataTypes != null)
             {
                 if (this._dataTypes.Contains(DataType.Email) && 
                     this._dataTypes.Contains(DataType.Password)) 
                 {
-
+                    if (emailData != null && 
+                        passwordData != null)
+                    {
+                        generatedData = CollectionUtils.MergeList(emailData, passwordData, ":");
+                    }
                 }
             }
                  

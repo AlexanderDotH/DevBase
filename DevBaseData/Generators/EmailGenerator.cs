@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DevBase.Generic;
 using DevBase.Utilities;
 
 namespace DevBaseData.Generators
@@ -15,20 +16,26 @@ namespace DevBaseData.Generators
 
         private string[] _mailProviders;
 
+        private bool _randomSize;
+
         public string Name() => "EmailGenerator";
 
-        public EmailGenerator(int amount, int emailSize, bool randomProviders)
+        public EmailGenerator(int amount, int emailSize, bool randomProviders, bool randomSize)
         {
             this._amount = amount;
             this._emailSize = emailSize;
             this._randomProviders = randomProviders;
 
             this._mailProviders = new string[] { "gmail.com", "yahoo.com", "gmx.com" };
+
+            this._randomSize = randomSize;
         }
 
-        public List<string> GenerateData()
+        public EmailGenerator(int amount, int emailSize, bool randomProviders) : this(amount, emailSize, randomProviders, false) { }
+
+        public GenericList<string> GenerateData()
         {
-            List<string> generatedData = new List<string>();
+            GenericList<string> generatedData = new GenericList<string>();
 
             Random random = new Random();
 
@@ -36,7 +43,15 @@ namespace DevBaseData.Generators
             {
                 StringBuilder emailAdress = new StringBuilder();
 
-                emailAdress.Append(StringUtils.RandomString(this._emailSize));
+                if (this._randomSize)
+                {
+                    emailAdress.Append(StringUtils.RandomString(random.Next(1, _emailSize)));
+                }
+                else
+                {
+                    emailAdress.Append(StringUtils.RandomString(this._emailSize));
+                }
+
                 emailAdress.Append("@");
 
                 if (this._randomProviders)

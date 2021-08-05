@@ -50,6 +50,7 @@
     <Compile Include="IO\AFile.cs" />
     <Compile Include="IO\AFileObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Utilities\CollectionUtils.cs" />
     <Compile Include="Utilities\StringUtils.cs" />
     <Compile Include="Web\Request.cs" />
     <Compile Include="Web\RequestData\RequestData.cs" />

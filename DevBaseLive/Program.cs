@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DevBase.Web.RequestData;
+using DevBaseData;
 using Newtonsoft.Json;
 
 namespace DevBaseLive
@@ -18,7 +19,7 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
-            DevBaseData.DataGenerator generator = new DevBaseData.DataGenerator(100, 10, new DevBaseData.DataType[] { DevBaseData.DataType.Email, DevBaseData.DataType.Password });
+            DevBaseData.DataGenerator generator = new DevBaseData.DataGenerator(1000, 10, new DevBaseData.DataType[] { DevBaseData.DataType.Email, DataType.Password }, true);
 
             foreach (string item in generator.GeneratedData)
             {
