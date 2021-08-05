@@ -8,22 +8,13 @@ namespace DevBase.Utilities
 {
     public class StringUtils
     {
-        public static string RandomString(int size)
+
+        private static Random random = new Random();
+        public static string RandomString(int length)
         {
-            StringBuilder builder = new StringBuilder();
-
-            string buildSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvxyz";
-
-            Random r = new Random();
-
-            for (int i = 0; i < size; i++)
-            {
-                builder.Append(buildSet[r.Next(0, buildSet.Length)]);
-            }
-
-            Console.WriteLine(builder.ToString());
-
-            return builder.ToString();
+            const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+            return new string(Enumerable.Repeat(chars, length)
+                .Select(s => s[random.Next(s.Length)]).ToArray());
         }
     }
 }

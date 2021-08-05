@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DevBase.Generic;
 
 namespace DevBaseData
 {
@@ -27,11 +28,11 @@ namespace DevBaseData
 
         private List<string> GenerateData()
         {
-            List<string> generatedData = new List<string>();
+            GenericList<string> generatedData = new GenericList<string>();
 
             for (int i = 0; i < this._dataTypes.Length; i++)
             {
-                switch(_dataTypes[i])
+                switch(this._dataTypes[i])
                 {
                     case DataType.Email:
                         generatedData.AddRange(GetGenerator("EmailGenerator").GenerateData());
@@ -42,6 +43,15 @@ namespace DevBaseData
                 }
             }
 
+            if (this._dataTypes.Length > 0)
+            {
+                if (this._dataTypes.Contains(DataType.Email) && 
+                    this._dataTypes.Contains(DataType.Password)) 
+                {
+
+                }
+            }
+                 
             return generatedData;
         }
 

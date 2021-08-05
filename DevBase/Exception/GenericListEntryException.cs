@@ -18,12 +18,17 @@ namespace DevBase.Exception
                 {
                     throw new System.Exception("GenericListEntry not found");
                 }
+                case Type.ListNotEqual:
+                {
+                    throw new System.Exception("GenericListEntry size is not equal to given list size");
+                }
             }
         }
 
         public enum Type
         {
-            EntryNotFound
+            EntryNotFound,
+            ListNotEqual
         }
     }
 }
