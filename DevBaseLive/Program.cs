@@ -26,7 +26,7 @@ namespace DevBaseLive
             }
 
             Console.ReadKey();
-            //Data d1 = new Data
+            //Data d1 = new Datad
             //{
             //    Neger = "dawd"
             //};
