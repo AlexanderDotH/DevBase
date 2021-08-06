@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using DevBase.Web.RequestData;
 using DevBaseData;
 using Newtonsoft.Json;
+using DevBaseServices.Mailcow;
+using DevBaseServices.Mailcow.Requests;
+using DevBase.Utilities;
 
 namespace DevBaseLive
 {
@@ -19,13 +22,35 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
-            DevBaseData.DataGenerator generator = new DevBaseData.DataGenerator(1000, 10, new DevBaseData.DataType[] { DevBaseData.DataType.Email, DataType.Password }, true);
+            //DevBaseData.DataGenerator generator = new DevBaseData.DataGenerator(1000, 10, new DevBaseData.DataType[] { DevBaseData.DataType.Email, DataType.Password }, true);
 
-            foreach (string item in generator.GeneratedData)
+            //foreach (string item in generator.GeneratedData)
+            //{
+            //    Console.WriteLine(item);
+            //}
+
+            //Console.ReadKey();
+
+            MailcowService ms = new MailcowService(new Uri("https://mail.einfacheinalex.eu"), "B90DDF-D23A3D-576F65-2DC396-670507");
+
+            string passwd = StringUtils.RandomString(64);
+
+            CreateMailBoxObject cmbo = new CreateMailBoxObject()
             {
-                Console.WriteLine(item);
-            }
+                active = true,
+                domain = "einfacheinalex.eu",
+                local_part = "testmail",
+                name = "test",
+                password = passwd,
+                password2 = passwd,
+                quota = 10,
+                force_pw_update = false,
+                tls_enforce_in = true,
+                tls_enforce_out = true
+            };
+            CreateMailBox createMailBox = new CreateMailBox(cmbo);
 
+            Console.WriteLine(ms.SendApiRequest(createMailBox));
             Console.ReadKey();
             //Data d1 = new Datad
             //{

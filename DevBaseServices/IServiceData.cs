@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DevBaseServices
 {
-    interface IServiceData
+    public interface IServiceData
     {
         string EndpointDirectory();
         string RequestString();

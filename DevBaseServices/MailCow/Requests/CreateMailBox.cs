@@ -5,11 +5,11 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace DevBaseServices.MailCow.Requests
+namespace DevBaseServices.Mailcow.Requests
 {
-    class CreateMailBox : IServiceData
+    public class CreateMailBox : IServiceData
     {
-        public string EndpointDirectory() => "/api/v1/add/mailbox";
+        public string EndpointDirectory() => "api/v1/add/mailbox";
 
         private CreateMailBoxObject _createMailBoxObject;
 

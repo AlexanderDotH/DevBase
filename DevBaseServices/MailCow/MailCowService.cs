@@ -6,15 +6,15 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace DevBaseServices.MailCow
+namespace DevBaseServices.Mailcow
 {
     //Untested
-    class MailCowService
+    public class MailcowService
     {
         private Uri _serverUri;
         private string _apiKey;
 
-        public MailCowService(Uri serverUri, string apiKey)
+        public MailcowService(Uri serverUri, string apiKey)
         {
             this._serverUri = serverUri;
             this._apiKey = apiKey;
@@ -23,7 +23,7 @@ namespace DevBaseServices.MailCow
         public string SendApiRequest(IServiceData serviceData)
         {
             RequestData requestData = new RequestData(
-                new Uri(_serverUri, serviceData.EndpointDirectory(), false), 
+                new Uri(_serverUri + serviceData.EndpointDirectory()), 
                 RequestMethod.POST, 
                 ContentType.JSON, 
                 serviceData.RequestString());

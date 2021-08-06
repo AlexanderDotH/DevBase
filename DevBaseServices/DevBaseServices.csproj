@@ -33,6 +33,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Runtime.CompilerServices.Unsafe, Version=5.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="System.Text.Json, Version=4.0.1.0, Culture=neutral, PublicKeyToken=cc7b13ffcd2ddd51, processorArchitecture=MSIL" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -44,13 +45,13 @@
   <ItemGroup>
     <Compile Include="IServiceData.cs" />
     <Compile Include="IServiceResponse.cs" />
-    <Compile Include="MailCow\MailCowService.cs" />
-    <Compile Include="MailCow\Requests\CreateMailBox.cs" />
-    <Compile Include="MailCow\Requests\CreateMailBoxObject.cs" />
+    <Compile Include="Mailcow\MailcowService.cs" />
+    <Compile Include="Mailcow\Requests\CreateMailBox.cs" />
+    <Compile Include="Mailcow\Requests\CreateMailBoxObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="MailCow\Responses\" />
+    <Folder Include="Mailcow\Responses\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DevBase\DevBase.csproj">

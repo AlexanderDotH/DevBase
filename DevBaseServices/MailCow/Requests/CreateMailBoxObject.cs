@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DevBaseServices.MailCow.Requests
+namespace DevBaseServices.Mailcow.Requests
 {
-    class CreateMailBoxObject
+    public class CreateMailBoxObject
     {
         public bool active;
         public string domain;
