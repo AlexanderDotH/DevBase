@@ -2,27 +2,22 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
-
-<<<<<<< HEAD
+using System.Text.Json.Serialization;
 namespace DevBaseServices.Mailcow.Requests
 {
     public class CreateMailBoxObject
-=======
-namespace DevBaseServices.MailCow.Requests
-{
-    class CreateMailBoxObject
->>>>>>> a61ac4cc39ea53ad39e806c8a1999a890eecc0dd
     {
-        public bool active;
-        public string domain;
-        public string local_part;
-        public string name;
-        public string password;
-        public string password2;
-        public int quota;
-        public bool force_pw_update;
-        public bool tls_enforce_in;
-        public bool tls_enforce_out;
+        public string active { get; set; }
+        public string domain { get; set; }
+        public string local_part { get; set; }
+        public string name { get; set; }
+        public string password { get; set; }
+        public string password2 { get; set; }
+        public string quota { get; set; }
+        public string force_pw_update { get; set; }
+        public string tls_enforce_in { get; set; }
+        public string tls_enforce_out { get; set; }
     }
 }

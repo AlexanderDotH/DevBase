@@ -35,7 +35,6 @@ C:\Users\Alex\Source\Repos\DevBase\DevBase\bin\Debug\System.Numerics.Vectors.dll
 C:\Users\Alex\Source\Repos\DevBase\DevBase\bin\Debug\System.Threading.Tasks.Extensions.dll
 C:\Users\Alex\Source\Repos\DevBase\DevBase\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
 C:\Users\Alex\Source\Repos\DevBase\DevBase\bin\Debug\System.Buffers.dll
-C:\Users\Alex\Source\Repos\DevBase\DevBase\obj\Debug\DevBase.csproj.AssemblyReference.cache
 C:\Users\Alex\Source\Repos\DevBase\DevBase\obj\Debug\DevBase.csproj.CoreCompileInputs.cache
 C:\Users\Alex\Source\Repos\DevBase\DevBase\obj\Debug\DevBase.csproj.CopyComplete
 C:\Users\Alex\Source\Repos\DevBase\DevBase\obj\Debug\DevBase.dll
@@ -54,3 +53,4 @@ C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBase\obj\Debug\DevBase.cspr
 C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBase\obj\Debug\DevBase.csproj.CopyComplete
 C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBase\obj\Debug\DevBase.dll
 C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBase\obj\Debug\DevBase.pdb
+C:\Users\Alex\Source\repos\DevBase\DevBase\obj\Debug\DevBase.csproj.AssemblyReference.cache

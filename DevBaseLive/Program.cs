@@ -35,18 +35,18 @@ namespace DevBaseLive
 
             string passwd = StringUtils.RandomString(64);
 
-            CreateMailBoxObject cmbo = new CreateMailBoxObject()
+            CreateMailBoxObject cmbo = new CreateMailBoxObject
             {
-                active = true,
+                active = "1",
                 domain = "einfacheinalex.eu",
                 local_part = "testmail",
                 name = "test",
                 password = passwd,
                 password2 = passwd,
-                quota = 10,
-                force_pw_update = false,
-                tls_enforce_in = true,
-                tls_enforce_out = true
+                quota = "10",
+                force_pw_update = "1",
+                tls_enforce_in = "1",
+                tls_enforce_out = "1"
             };
             CreateMailBox createMailBox = new CreateMailBox(cmbo);
 

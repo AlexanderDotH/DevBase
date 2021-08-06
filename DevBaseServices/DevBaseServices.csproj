@@ -51,14 +51,10 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Mailcow\Responses\" />
-    <Compile Include="MailCow\MailCowService.cs" />
-    <Compile Include="MailCow\Requests\CreateMailBox.cs" />
-    <Compile Include="MailCow\Requests\CreateMailBoxObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="MailCow\Responses\" />
+    <Folder Include="Mailcow\Responses\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DevBase\DevBase.csproj">

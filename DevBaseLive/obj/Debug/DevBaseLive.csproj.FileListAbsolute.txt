@@ -63,3 +63,14 @@ C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBaseLive\bin\Debug\DevBase.
 C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBaseLive\bin\Debug\Newtonsoft.Json.xml
 C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.CopyComplete
 C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBaseLive\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\DevBaseServices.dll
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\System.Runtime.CompilerServices.Unsafe.dll
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\System.Text.Json.dll
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\System.Memory.dll
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\System.Text.Encodings.Web.dll
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\System.Numerics.Vectors.dll
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\System.Threading.Tasks.Extensions.dll
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\System.Buffers.dll
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\DevBaseServices.pdb
+C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\obj\Debug\DevBaseLive.exe.config

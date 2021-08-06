@@ -24,13 +24,13 @@ namespace DevBase.Web
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this._requestData.Uri);
 
+            request.Headers = this._requestData.Header;
             request.Method = this._requestData.RequestMethod.ToString();
             request.ContentType = this._requestData.ConvertFromContentType(this._requestData.ContentType);
             request.ContentLength = this._requestData.Content.Length;
             request.UserAgent = this._requestData.UserAgent;
             request.Accept = this._requestData.Accept;
-            request.Headers = this._requestData.Header;
-            
+
             if (this._requestData.RequestMethod == RequestMethod.POST)
             {
                 using (Stream requestStream = request.GetRequestStream())
