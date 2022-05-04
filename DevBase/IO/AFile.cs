@@ -4,10 +4,11 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Win32.SafeHandles;
 
 namespace DevBase.IO
 {
-    class AFile
+    public class AFile
     {
         public static List<AFileObject> GetFiles(string directory, bool readContent = false, string filter = "*.*")
         {
@@ -35,6 +36,17 @@ namespace DevBase.IO
             }
 
             return fileHolders;
+        }
+
+        public static AFileObject ReadFile(FileInfo file)
+        {
+            byte[] binary = File.ReadAllBytes(file.FullName);
+            return new AFileObject(file, binary);
+        }
+
+        public static AFileObject ReadFile(string filePath)
+        {
+            return ReadFile(new FileInfo(filePath));
         }
     }
 }

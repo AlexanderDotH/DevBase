@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DevBase</RootNamespace>
     <AssemblyName>DevBase</AssemblyName>
-    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -47,10 +48,14 @@
     <Compile Include="Async\Multithreading.cs" />
     <Compile Include="Exception\GenericListEntryException.cs" />
     <Compile Include="Generic\GenericList.cs" />
+    <Compile Include="IO\ADirectory.cs" />
+    <Compile Include="IO\ADirectoryObject.cs" />
     <Compile Include="IO\AFile.cs" />
     <Compile Include="IO\AFileObject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Typography\AString.cs" />
     <Compile Include="Utilities\CollectionUtils.cs" />
+    <Compile Include="Utilities\EncodingUtils.cs" />
     <Compile Include="Utilities\StringUtils.cs" />
     <Compile Include="Web\Request.cs" />
     <Compile Include="Web\RequestData\RequestData.cs" />

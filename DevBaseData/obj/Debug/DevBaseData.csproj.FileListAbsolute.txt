@@ -25,3 +25,12 @@ C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBaseData\obj\Debug\DevBaseD
 C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBaseData\obj\Debug\DevBaseData.csproj.CopyComplete
 C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBaseData\obj\Debug\DevBaseData.dll
 C:\Users\alexander.heuschkel\Source\Repos\DevBase\DevBaseData\obj\Debug\DevBaseData.pdb
+F:\Coding\Active Projects\DevBase\DevBaseData\bin\Debug\DevBaseData.dll
+F:\Coding\Active Projects\DevBase\DevBaseData\bin\Debug\DevBaseData.pdb
+F:\Coding\Active Projects\DevBase\DevBaseData\bin\Debug\DevBase.dll
+F:\Coding\Active Projects\DevBase\DevBaseData\bin\Debug\DevBase.pdb
+F:\Coding\Active Projects\DevBase\DevBaseData\obj\Debug\DevBaseData.csproj.AssemblyReference.cache
+F:\Coding\Active Projects\DevBase\DevBaseData\obj\Debug\DevBaseData.csproj.CoreCompileInputs.cache
+F:\Coding\Active Projects\DevBase\DevBaseData\obj\Debug\DevBaseData.csproj.CopyComplete
+F:\Coding\Active Projects\DevBase\DevBaseData\obj\Debug\DevBaseData.dll
+F:\Coding\Active Projects\DevBase\DevBaseData\obj\Debug\DevBaseData.pdb

@@ -74,3 +74,30 @@ C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\Microsoft.Bcl.AsyncInte
 C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\System.Buffers.dll
 C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\bin\Debug\DevBaseServices.pdb
 C:\Users\Alex\Source\Repos\DevBase\DevBaseLive\obj\Debug\DevBaseLive.exe.config
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBaseLive.exe.config
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBaseLive.exe
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBaseLive.pdb
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBase.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBaseData.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBaseFormat.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBaseServices.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\Newtonsoft.Json.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\System.Text.Json.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\System.Memory.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\System.Text.Encodings.Web.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\System.Numerics.Vectors.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\System.Threading.Tasks.Extensions.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\System.Buffers.dll
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBaseData.pdb
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBaseFormat.pdb
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBaseServices.pdb
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\DevBase.pdb
+F:\Coding\Active Projects\DevBase\DevBaseLive\bin\Debug\Newtonsoft.Json.xml
+F:\Coding\Active Projects\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.AssemblyReference.cache
+F:\Coding\Active Projects\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.SuggestedBindingRedirects.cache
+F:\Coding\Active Projects\DevBase\DevBaseLive\obj\Debug\DevBaseLive.exe.config
+F:\Coding\Active Projects\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.CoreCompileInputs.cache
+F:\Coding\Active Projects\DevBase\DevBaseLive\obj\Debug\DevBaseLive.csproj.CopyComplete
+F:\Coding\Active Projects\DevBase\DevBaseLive\obj\Debug\DevBaseLive.exe
+F:\Coding\Active Projects\DevBase\DevBaseLive\obj\Debug\DevBaseLive.pdb

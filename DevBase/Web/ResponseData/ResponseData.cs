@@ -11,18 +11,27 @@ namespace DevBase.Web.ResponseData
     {
         private byte[] _content;
         private HttpStatusCode _httpStatusCode;
-    
-        public ResponseData(byte[] content, HttpStatusCode httpStatusCode)
+        private HttpWebResponse _response;
+
+        public ResponseData(HttpWebResponse response, byte[] content, HttpStatusCode httpStatusCode)
         {
             this._content = content;
             this._httpStatusCode = httpStatusCode;
+            this._response = response;
         }
 
-        public ResponseData(string content, HttpStatusCode httpStatusCode) : this(Encoding.ASCII.GetBytes(content), httpStatusCode) { }
+        public ResponseData(HttpWebResponse response, string content, HttpStatusCode httpStatusCode) : this(response, Encoding.Default.GetBytes(content), httpStatusCode) { }
+
+        public HttpWebResponse Response
+        {
+            get { return this._response; }
+            set { this._response = value; }
+        }
 
         public string GetContentAsString()
         {
-            return Encoding.ASCII.GetString(this._content);
+            Encoding encoding = Encoding.GetEncoding(this._response.CharacterSet);
+            return encoding.GetString(this._content);
         }
 
         public byte[] Content

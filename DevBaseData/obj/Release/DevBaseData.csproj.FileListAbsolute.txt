@@ -1,0 +1,9 @@
+F:\Coding\Active Projects\DevBase\DevBaseData\bin\Release\DevBaseData.dll
+F:\Coding\Active Projects\DevBase\DevBaseData\bin\Release\DevBaseData.pdb
+F:\Coding\Active Projects\DevBase\DevBaseData\bin\Release\DevBase.dll
+F:\Coding\Active Projects\DevBase\DevBaseData\bin\Release\DevBase.pdb
+F:\Coding\Active Projects\DevBase\DevBaseData\obj\Release\DevBaseData.csproj.AssemblyReference.cache
+F:\Coding\Active Projects\DevBase\DevBaseData\obj\Release\DevBaseData.csproj.CoreCompileInputs.cache
+F:\Coding\Active Projects\DevBase\DevBaseData\obj\Release\DevBaseData.csproj.CopyComplete
+F:\Coding\Active Projects\DevBase\DevBaseData\obj\Release\DevBaseData.dll
+F:\Coding\Active Projects\DevBase\DevBaseData\obj\Release\DevBaseData.pdb

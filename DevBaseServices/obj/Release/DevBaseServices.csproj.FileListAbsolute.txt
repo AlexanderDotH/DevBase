@@ -1,0 +1,14 @@
+F:\Coding\Active Projects\DevBase\DevBaseServices\obj\Release\DevBaseServices.csproj.AssemblyReference.cache
+F:\Coding\Active Projects\DevBase\DevBaseServices\obj\Release\DevBaseServices.csproj.CoreCompileInputs.cache
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Release\DevBaseServices.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Release\DevBaseServices.pdb
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Release\DevBase.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Release\System.Text.Json.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Release\System.Memory.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Release\System.Text.Encodings.Web.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Release\Microsoft.Bcl.AsyncInterfaces.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Release\System.Buffers.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Release\DevBase.pdb
+F:\Coding\Active Projects\DevBase\DevBaseServices\obj\Release\DevBaseServices.csproj.CopyComplete
+F:\Coding\Active Projects\DevBase\DevBaseServices\obj\Release\DevBaseServices.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\obj\Release\DevBaseServices.pdb

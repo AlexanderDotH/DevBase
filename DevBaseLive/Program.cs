@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using DevBase.Web.RequestData;
 using DevBaseData;
@@ -9,6 +11,9 @@ using Newtonsoft.Json;
 using DevBaseServices.Mailcow;
 using DevBaseServices.Mailcow.Requests;
 using DevBase.Utilities;
+using DevBaseFormat;
+using DevBaseFormat.Formats.LrcFormat;
+using DevBaseFormat.Structure;
 
 namespace DevBaseLive
 {
@@ -22,6 +27,29 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
+            Thread.Sleep(1000);
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            FileFormatParser<LrcObject> fileFormatParser =
+                new FileFormatParser<LrcObject>(new LrcParser<LrcObject>());
+
+            LrcObject lrcObject = fileFormatParser.FormatFromFile("C:\\Users\\Alex\\Downloads\\fse.lrc");
+
+            Console.WriteLine(lrcObject.Artist);
+            Console.WriteLine(lrcObject.Album);
+            Console.WriteLine(lrcObject.Title);
+            Console.WriteLine(lrcObject.Author);
+            Console.WriteLine(lrcObject.By);
+            Console.WriteLine(lrcObject.Offset);
+            Console.WriteLine(lrcObject.Re);
+            Console.WriteLine(lrcObject.Version);
+
+            lrcObject.Lyrics.ForEach(t => Console.WriteLine(t.Line + ":" + t.TimeStamp));
+
+            Console.WriteLine(sw.ElapsedMilliseconds + "ms");
+
+            Console.ReadKey();
+
             //DevBaseData.DataGenerator generator = new DevBaseData.DataGenerator(1000, 10, new DevBaseData.DataType[] { DevBaseData.DataType.Email, DataType.Password }, true);
 
             //foreach (string item in generator.GeneratedData)
@@ -31,27 +59,27 @@ namespace DevBaseLive
 
             //Console.ReadKey();
 
-            MailcowService ms = new MailcowService(new Uri("https://mail.einfacheinalex.eu"), "B90DDF-D23A3D-576F65-2DC396-670507");
+            //MailcowService ms = new MailcowService(new Uri("https://mail.einfacheinalex.eu"), "B90DDF-D23A3D-576F65-2DC396-670507");
 
-            string passwd = StringUtils.RandomString(64);
+            //string passwd = StringUtils.RandomString(64);
 
-            CreateMailBoxObject cmbo = new CreateMailBoxObject
-            {
-                active = "1",
-                domain = "einfacheinalex.eu",
-                local_part = "testmail",
-                name = "test",
-                password = passwd,
-                password2 = passwd,
-                quota = "10",
-                force_pw_update = "1",
-                tls_enforce_in = "1",
-                tls_enforce_out = "1"
-            };
-            CreateMailBox createMailBox = new CreateMailBox(cmbo);
+            //CreateMailBoxObject cmbo = new CreateMailBoxObject
+            //{
+            //    active = "1",
+            //    domain = "einfacheinalex.eu",
+            //    local_part = "testmail",
+            //    name = "test",
+            //    password = passwd,
+            //    password2 = passwd,
+            //    quota = "10",
+            //    force_pw_update = "1",
+            //    tls_enforce_in = "1",
+            //    tls_enforce_out = "1"
+            //};
+            //CreateMailBox createMailBox = new CreateMailBox(cmbo);
 
-            Console.WriteLine(ms.SendApiRequest(createMailBox));
-            Console.ReadKey();
+            //Console.WriteLine(ms.SendApiRequest(createMailBox));
+            //Console.ReadKey();
             //Data d1 = new Datad
             //{
             //    Neger = "dawd"

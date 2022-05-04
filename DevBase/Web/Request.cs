@@ -39,14 +39,15 @@ namespace DevBase.Web
                 }
             }
 
-            ResponseData.ResponseData responseData = new ResponseData.ResponseData(string.Empty, HttpStatusCode.NoContent);
 
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             Stream stream = response.GetResponseStream();
-            
+
+            ResponseData.ResponseData responseData = new ResponseData.ResponseData(response, string.Empty, HttpStatusCode.NoContent);
+
             using (StreamReader reader = new StreamReader(stream))
             {
-                responseData = new ResponseData.ResponseData(reader.ReadToEnd(), response.StatusCode);
+                responseData = new ResponseData.ResponseData(response, reader.ReadToEnd(), response.StatusCode);
             }
 
             return responseData;

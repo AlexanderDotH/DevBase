@@ -32,3 +32,18 @@ C:\Users\Alex\Source\repos\DevBase\DevBaseServices\bin\Debug\Microsoft.Bcl.Async
 C:\Users\Alex\Source\repos\DevBase\DevBaseServices\bin\Debug\System.Buffers.dll
 C:\Users\Alex\Source\repos\DevBase\DevBaseServices\bin\Debug\DevBase.pdb
 C:\Users\Alex\Source\repos\DevBase\DevBaseServices\obj\Debug\DevBaseServices.csproj.CopyComplete
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Debug\DevBaseServices.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Debug\DevBaseServices.pdb
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Debug\DevBase.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Debug\System.Memory.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Debug\System.Text.Encodings.Web.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Debug\System.Numerics.Vectors.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Debug\System.Threading.Tasks.Extensions.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Debug\Microsoft.Bcl.AsyncInterfaces.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Debug\System.Buffers.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\bin\Debug\DevBase.pdb
+F:\Coding\Active Projects\DevBase\DevBaseServices\obj\Debug\DevBaseServices.csproj.AssemblyReference.cache
+F:\Coding\Active Projects\DevBase\DevBaseServices\obj\Debug\DevBaseServices.csproj.CoreCompileInputs.cache
+F:\Coding\Active Projects\DevBase\DevBaseServices\obj\Debug\DevBaseServices.csproj.CopyComplete
+F:\Coding\Active Projects\DevBase\DevBaseServices\obj\Debug\DevBaseServices.dll
+F:\Coding\Active Projects\DevBase\DevBaseServices\obj\Debug\DevBaseServices.pdb

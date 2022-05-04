@@ -1,11 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Text;
-using System.Text.Json;
-using System.Threading.Tasks;
-using System.Web;
 
 namespace DevBase.Web.RequestData
 {
@@ -34,7 +29,7 @@ namespace DevBase.Web.RequestData
                 uri,
                 requestMethod,
                 contentType,
-                Encoding.ASCII.GetBytes(content),
+                Encoding.Default.GetBytes(content),
                 userAgent
                 ) { }
 
@@ -43,7 +38,7 @@ namespace DevBase.Web.RequestData
                 uri, 
                 requestMethod, 
                 contentType, 
-                Encoding.ASCII.GetBytes(content), 
+                Encoding.Default.GetBytes(content), 
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                 ) { }
 
@@ -52,7 +47,7 @@ namespace DevBase.Web.RequestData
                 new Uri(uri), 
                 RequestMethod.GET, 
                 Web.RequestData.ContentType.HTML, 
-                Encoding.ASCII.GetBytes(content), 
+                Encoding.Default.GetBytes(content), 
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                 ) { }
 
@@ -61,7 +56,7 @@ namespace DevBase.Web.RequestData
                new Uri(uri), 
                RequestMethod.GET, 
                Web.RequestData.ContentType.HTML, 
-               Encoding.ASCII.GetBytes(string.Empty), 
+               Encoding.Default.GetBytes(string.Empty), 
                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                ) { }
 

@@ -1,0 +1,9 @@
+F:\Coding\Active Projects\DevBase\DevBaseFormat\bin\Debug\DevBaseFormat.dll
+F:\Coding\Active Projects\DevBase\DevBaseFormat\bin\Debug\DevBaseFormat.pdb
+F:\Coding\Active Projects\DevBase\DevBaseFormat\bin\Debug\DevBase.dll
+F:\Coding\Active Projects\DevBase\DevBaseFormat\bin\Debug\DevBase.pdb
+F:\Coding\Active Projects\DevBase\DevBaseFormat\obj\Debug\DevBaseFormat.csproj.AssemblyReference.cache
+F:\Coding\Active Projects\DevBase\DevBaseFormat\obj\Debug\DevBaseFormat.csproj.CoreCompileInputs.cache
+F:\Coding\Active Projects\DevBase\DevBaseFormat\obj\Debug\DevBaseFormat.csproj.CopyComplete
+F:\Coding\Active Projects\DevBase\DevBaseFormat\obj\Debug\DevBaseFormat.dll
+F:\Coding\Active Projects\DevBase\DevBaseFormat\obj\Debug\DevBaseFormat.pdb

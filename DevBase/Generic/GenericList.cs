@@ -11,9 +11,12 @@ namespace DevBase.Generic
 {
     public class GenericList<T> : List<T>
     {
-
         /// <summary>
         /// A faster and optimized way to search entries inside this generic list
+        ///
+        /// It iterates through the list and firstly checks
+        /// the size of the object to the corresponding searchObject.
+        /// 
         /// </summary>
         /// <param name="searchObject">The object to search for</param>
         /// <returns></returns>

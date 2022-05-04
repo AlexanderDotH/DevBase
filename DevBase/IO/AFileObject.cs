@@ -4,6 +4,8 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DevBase.Generic;
+using DevBase.Utilities;
 
 namespace DevBase.IO
 {
@@ -31,6 +33,37 @@ namespace DevBase.IO
         public byte[] BinaryData
         {
             get { return this._binaryData; }
+        }
+
+        public string ToStringData()
+        {
+            if (this._binaryData != null)
+            {
+                return EncodingUtils.GetEncoding(this._binaryData).GetString(this._binaryData);
+            }
+
+            return string.Empty;
+        }
+
+        public GenericList<string> ToList()
+        {
+            if (this._binaryData != null)
+            {
+                GenericList<string> genericList = new GenericList<string>();
+
+                using (StringReader reader = new StringReader(ToStringData()))
+                {
+                    string line;
+                    while ((line = reader.ReadLine()) != null)
+                    {
+                        genericList.Add(line);
+                    }
+                }
+
+                return genericList;
+            }
+
+            return null;
         }
     }
 }

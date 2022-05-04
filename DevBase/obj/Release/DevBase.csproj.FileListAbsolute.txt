@@ -1,0 +1,6 @@
+F:\Coding\Active Projects\DevBase\DevBase\bin\Release\DevBase.dll
+F:\Coding\Active Projects\DevBase\DevBase\bin\Release\DevBase.pdb
+F:\Coding\Active Projects\DevBase\DevBase\obj\Release\DevBase.csproj.AssemblyReference.cache
+F:\Coding\Active Projects\DevBase\DevBase\obj\Release\DevBase.csproj.CoreCompileInputs.cache
+F:\Coding\Active Projects\DevBase\DevBase\obj\Release\DevBase.dll
+F:\Coding\Active Projects\DevBase\DevBase\obj\Release\DevBase.pdb
