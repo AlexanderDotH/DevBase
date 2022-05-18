@@ -12,10 +12,14 @@ namespace DevBase.Generic
     public class GenericList<T>
     {
         private T[] _array;
-
         public GenericList()
         {
-            this._array = new T[] { };
+            this._array = new T[0];
+        }
+
+        public GenericList(List<T> list) : this()
+        {
+            this.AddRange(list);
         }
 
         /// <summary>
@@ -110,15 +114,8 @@ namespace DevBase.Generic
         /// <param name="item">The new item</param>
         public void Add(T item)
         {
-            T[] newArray = new T[this._array.Length + 1];
-
-            for (int i = 0; i < this._array.Length; i++)
-            {
-                newArray[i] = this._array[i];
-            }
-
-            newArray[this._array.Length + 1] = item;
-            this._array = newArray;
+            Array.Resize(ref this._array, this._array.Length + 1);
+            this._array[this._array.Length - 1] = item;
         }
 
         /// <summary>
@@ -145,11 +142,18 @@ namespace DevBase.Generic
             }
         }
 
+        /// <summary>
+        /// Converts this Generic list array to an List<T>
+        /// </summary>
+        /// <returns></returns>
         public List<T> GetAsList()
         {
             return new List<T>(this._array);
         }
 
+        /// <summary>
+        /// Returns the length of this list
+        /// </summary>
         public int Length
         {
             get { return this._array.Length; }

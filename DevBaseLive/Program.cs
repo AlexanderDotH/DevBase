@@ -31,18 +31,17 @@ namespace DevBaseLive
             //Console.WriteLine(response);
             //Console.ReadKey();
 
-            GenericList<string> genericList = new GenericList<string>();
-            genericList.Add("fenneg");
-            genericList.Add("fenneg1");
-            genericList.Add("fenneg2");
-            genericList.Add("fenneg3");
-            genericList.Add("fenneg4");
+            List<string> list = new List<string>();
+            list.Add("fenneg1");
+            list.Add("fenneg2");
+            list.Add("fenneg3");
+            list.Add("fenneg4");
 
-            string fenneg2 = genericList.Get(2);
+            GenericList<string> genericList = new GenericList<string>(list);
 
-            List<string> val = genericList.GetRangeAsList(2, 4);
-
-            Console.WriteLine(fenneg2);
+            Console.WriteLine("" +
+                              "fenneg2" +
+                              "");
             Console.ReadKey();
 
             //Thread.Sleep(1000);
