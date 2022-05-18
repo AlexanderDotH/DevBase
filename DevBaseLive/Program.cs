@@ -5,9 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DevBase.Generic;
 using DevBase.Web.RequestData;
 using DevBaseData;
-using Newtonsoft.Json;
 using DevBaseServices.Mailcow;
 using DevBaseServices.Mailcow.Requests;
 using DevBase.Utilities;
@@ -27,28 +27,46 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
-            Thread.Sleep(1000);
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
-            FileFormatParser<LrcObject> fileFormatParser =
-                new FileFormatParser<LrcObject>(new LrcParser<LrcObject>());
+            //string response = new DevBase.Web.Request("https://music.xianqiao.wang/neteaseapiv2/lyric?id=24912403").GetResponse().GetContentAsString();
+            //Console.WriteLine(response);
+            //Console.ReadKey();
 
-            LrcObject lrcObject = fileFormatParser.FormatFromFile("C:\\Users\\Alex\\Downloads\\fse.lrc");
+            GenericList<string> genericList = new GenericList<string>();
+            genericList.Add("fenneg");
+            genericList.Add("fenneg1");
+            genericList.Add("fenneg2");
+            genericList.Add("fenneg3");
+            genericList.Add("fenneg4");
 
-            Console.WriteLine(lrcObject.Artist);
-            Console.WriteLine(lrcObject.Album);
-            Console.WriteLine(lrcObject.Title);
-            Console.WriteLine(lrcObject.Author);
-            Console.WriteLine(lrcObject.By);
-            Console.WriteLine(lrcObject.Offset);
-            Console.WriteLine(lrcObject.Re);
-            Console.WriteLine(lrcObject.Version);
+            string fenneg2 = genericList.Get(2);
 
-            lrcObject.Lyrics.ForEach(t => Console.WriteLine(t.Line + ":" + t.TimeStamp));
+            List<string> val = genericList.GetRangeAsList(2, 4);
 
-            Console.WriteLine(sw.ElapsedMilliseconds + "ms");
-
+            Console.WriteLine(fenneg2);
             Console.ReadKey();
+
+            //Thread.Sleep(1000);
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
+            //FileFormatParser<LrcObject> fileFormatParser =
+            //    new FileFormatParser<LrcObject>(new LrcParser<LrcObject>());
+
+            //LrcObject lrcObject = fileFormatParser.FormatFromFile("C:\\Users\\Alex\\Downloads\\fse.lrc");
+
+            //Console.WriteLine(lrcObject.Artist);
+            //Console.WriteLine(lrcObject.Album);
+            //Console.WriteLine(lrcObject.Title);
+            //Console.WriteLine(lrcObject.Author);
+            //Console.WriteLine(lrcObject.By);
+            //Console.WriteLine(lrcObject.Offset);
+            //Console.WriteLine(lrcObject.Re);
+            //Console.WriteLine(lrcObject.Version);
+
+            //lrcObject.Lyrics.ForEach(t => Console.WriteLine(t.Line + ":" + t.TimeStamp));
+
+            //Console.WriteLine(sw.ElapsedMilliseconds + "ms");
+
+            //Console.ReadKey();
 
             //DevBaseData.DataGenerator generator = new DevBaseData.DataGenerator(1000, 10, new DevBaseData.DataType[] { DevBaseData.DataType.Email, DataType.Password }, true);
 

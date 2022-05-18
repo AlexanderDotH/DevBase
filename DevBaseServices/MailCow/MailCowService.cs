@@ -24,7 +24,8 @@ namespace DevBaseServices.Mailcow
             RequestData requestData = new RequestData(
                 new Uri(_serverUri + serviceData.EndpointDirectory()),
                 RequestMethod.POST,
-                ContentType.JSON,
+                new ContentType[] { ContentType.JSON },
+                new EncodingType[] { EncodingType.UTF8 },
                 serviceData.RequestString());
 
             requestData.Header.Add("X-API-Key", this._apiKey);

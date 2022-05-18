@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -24,7 +25,11 @@ namespace DevBase.Exception
                 }
                 case Type.OutOfBounds:
                 {
-                    throw new System.Exception("GenericListEntry the given index is out of bounds");
+                    throw new System.Exception("The given index is out of bounds");
+                }
+                case Type.InvalidRange:
+                {
+                    throw new System.Exception("Given range is invalid");
                 }
             }
         }
@@ -33,7 +38,8 @@ namespace DevBase.Exception
         {
             EntryNotFound,
             ListNotEqual,
-            OutOfBounds
+            OutOfBounds,
+            InvalidRange
         }
     }
 }

@@ -29,14 +29,14 @@ namespace DevBaseFormat.Formats.LrcFormat
 
                 LrcObject fullLrcObject = null;
 
-                if (linesGenericList.Count > 7)
+                if (linesGenericList.Length > 7)
                 {
-                    fullLrcObject = ParseMetaData(linesGenericList.GetRange(0, 7));
+                    fullLrcObject = ParseMetaData(linesGenericList.GetRangeAsList(0, 7));
                 }
 
-                for (int i = 0; i < linesGenericList.Count; i++)
+                for (int i = 0; i < linesGenericList.Length; i++)
                 {
-                    string lineInList = linesGenericList[i];
+                    string lineInList = linesGenericList.Get(i);
 
                     LyricElement lyricElement = ParseStringToLyrics(lineInList);
                     if (lyricElement != null)

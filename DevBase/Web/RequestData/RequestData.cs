@@ -7,37 +7,41 @@ namespace DevBase.Web.RequestData
     public class RequestData
     {
         private RequestMethod _requestMethod;
-        private ContentType _contentType;
+        private ContentType[] _contentType;
+        private EncodingType[] _encodingType;
         private byte[] _content;
         private Uri _uri;
         private string _userAgent;
         private string _accept;
         private WebHeaderCollection _header;
 
-        public RequestData(Uri uri, RequestMethod requestMethod, ContentType contentType, byte[] content, string userAgent)
+        public RequestData(Uri uri, RequestMethod requestMethod, ContentType[] contentType, EncodingType[] encodingType, byte[] content, string userAgent)
         {
             this._uri = uri;
             this._content = content;
             this._requestMethod = requestMethod;
             this._contentType = contentType;
+            this._encodingType = encodingType;
             this._userAgent = userAgent;
             this._header = new WebHeaderCollection();
         }
 
-        public RequestData(Uri uri, RequestMethod requestMethod, ContentType contentType, string content, string userAgent) :
+        public RequestData(Uri uri, RequestMethod requestMethod, ContentType[] contentType, EncodingType[] encodingType, string content, string userAgent) :
             this(
                 uri,
                 requestMethod,
                 contentType,
+                encodingType,
                 Encoding.Default.GetBytes(content),
                 userAgent
                 ) { }
 
-        public RequestData(Uri uri, RequestMethod requestMethod, ContentType contentType, string content) : 
+        public RequestData(Uri uri, RequestMethod requestMethod, ContentType[] contentType, EncodingType[] encodingType, string content) : 
             this(
                 uri, 
                 requestMethod, 
                 contentType, 
+                encodingType,
                 Encoding.Default.GetBytes(content), 
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                 ) { }
@@ -46,7 +50,8 @@ namespace DevBase.Web.RequestData
             this(
                 new Uri(uri), 
                 RequestMethod.GET, 
-                Web.RequestData.ContentType.HTML, 
+                new ContentType[] { Web.RequestData.ContentType.HTML }, 
+                new EncodingType[] { Web.RequestData.EncodingType.UTF8 },
                 Encoding.Default.GetBytes(content), 
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                 ) { }
@@ -54,24 +59,56 @@ namespace DevBase.Web.RequestData
         public RequestData(string uri) :
            this(
                new Uri(uri), 
-               RequestMethod.GET, 
-               Web.RequestData.ContentType.HTML, 
+               RequestMethod.GET,
+               new ContentType[] { Web.RequestData.ContentType.HTML },
+               new EncodingType[] { Web.RequestData.EncodingType.UTF8 },
                Encoding.Default.GetBytes(string.Empty), 
                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                ) { }
 
-        public string ConvertFromContentType(ContentType requestType)
+        public string ConvertFromContentType(string existingContentType, ContentType[] requestType)
         {
-            switch (requestType)
+            for (int i = 0; i < requestType.Length; i++)
+            {
+                existingContentType += ContentTypeToString(requestType[i]) + (i == requestType.Length ? string.Empty : "; ");
+            }
+
+            return existingContentType;
+        }
+
+        public string ConvertFromEncodingTypes(string existingContentType, EncodingType[] encodingType)
+        {
+            existingContentType += "charset=";
+            for (int i = 0; i < encodingType.Length; i++)
+            {
+                existingContentType += ContentEncodingType(encodingType[i]) + (i == encodingType.Length ? ";" : ", ");
+            }
+
+            return existingContentType;
+        }
+
+        private string ContentTypeToString(ContentType contentType)
+        {
+            switch (contentType)
             {
                 case Web.RequestData.ContentType.JSON:
                     return "application/json";
                 case Web.RequestData.ContentType.FORM:
                     return "application/x-www-form-urlencoded";
-
-                default:
-                    return "text/html";
             }
+
+            return string.Empty;
+        }
+
+        private string ContentEncodingType(EncodingType contentType)
+        {
+            switch (contentType)
+            {
+                case EncodingType.UTF8:
+                    return "utf-8";
+            }
+
+            return string.Empty;
         }
 
         public RequestMethod RequestMethod
@@ -110,10 +147,16 @@ namespace DevBase.Web.RequestData
             set { this._header = value; }
         }
 
-        public ContentType ContentType
+        public ContentType[] ContentType
         {
             get { return this._contentType; }
             set { this._contentType = value; }
+        }
+
+        public EncodingType[] EncodingTypes
+        {
+            get { return this._encodingType; }
+            set { this._encodingType = value; }
         }
     }
 }

@@ -46,11 +46,11 @@ namespace DevBaseData
                 {
                     case DataType.Email:
                         emailData = GetGenerator("EmailGenerator").GenerateData();
-                        generatedData.AddRange(emailData);
+                        generatedData.AddRange(emailData.GetAsList());
                         break;
                     case DataType.Password:
                         passwordData = GetGenerator("PasswordGenerator").GenerateData();
-                        generatedData.AddRange(passwordData);
+                        generatedData.AddRange(passwordData.GetAsList());
                         break;
                 }
             }
@@ -63,12 +63,12 @@ namespace DevBaseData
                     if (emailData != null && 
                         passwordData != null)
                     {
-                        generatedData = CollectionUtils.MergeList(emailData, passwordData, ":");
+                        generatedData = CollectionUtils.MergeList(emailData.GetAsList(), passwordData.GetAsList(), ":");
                     }
                 }
             }
                  
-            return generatedData;
+            return generatedData.GetAsList();
         }
 
         private IGenerator GetGenerator(string name)
