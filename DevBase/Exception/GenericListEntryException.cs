@@ -22,13 +22,18 @@ namespace DevBase.Exception
                 {
                     throw new System.Exception("GenericListEntry size is not equal to given list size");
                 }
+                case Type.OutOfBounds:
+                {
+                    throw new System.Exception("GenericListEntry the given index is out of bounds");
+                }
             }
         }
 
         public enum Type
         {
             EntryNotFound,
-            ListNotEqual
+            ListNotEqual,
+            OutOfBounds
         }
     }
 }

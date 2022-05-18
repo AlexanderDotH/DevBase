@@ -9,8 +9,15 @@ using DevBase.Exception;
 
 namespace DevBase.Generic
 {
-    public class GenericList<T> : List<T>
+    public class GenericList<T>
     {
+        private T[] _array;
+
+        public GenericList()
+        {
+            this._array = new T[] { };
+        }
+
         /// <summary>
         /// A faster and optimized way to search entries inside this generic list
         ///
@@ -24,18 +31,29 @@ namespace DevBase.Generic
         {
             int size = Marshal.SizeOf(searchObject);
 
-            for (int i = 0; i < this.Count; i++)
+            for (int i = 0; i < this._array.Length; i++)
             {
-                if (size == Marshal.SizeOf(this[i]))
+                if (size == Marshal.SizeOf(this.get(i)))
                 {
-                    if (searchObject.Equals(this[i]))
+                    if (searchObject.Equals(this.get(i)))
                     {
-                        return this[i];
+                        return this.get(i);
                     }
                 }
             }
 
             throw new GenericListEntryException(GenericListEntryException.Type.EntryNotFound);
         }
+
+        public T get(int index)
+        {
+            if (index > this._array.Length)
+                throw new GenericListEntryException(GenericListEntryException.Type.OutOfBounds);
+
+            return this._array[index];
+        }
+
+
+
     }
 }

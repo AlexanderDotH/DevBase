@@ -52,5 +52,39 @@ namespace DevBase.Web
 
             return responseData;
         }
+
+        public async Task<ResponseData.ResponseData> GetResponseAsync()
+        {
+            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this._requestData.Uri);
+
+            request.Headers = this._requestData.Header;
+            request.Method = this._requestData.RequestMethod.ToString();
+            request.ContentType = this._requestData.ConvertFromContentType(this._requestData.ContentType);
+            request.ContentLength = this._requestData.Content.Length;
+            request.UserAgent = this._requestData.UserAgent;
+            request.Accept = this._requestData.Accept;
+
+            if (this._requestData.RequestMethod == RequestMethod.POST)
+            {
+                using (Stream requestStream = await request.GetRequestStreamAsync())
+                {
+                    requestStream.Write(this._requestData.Content, 0, this._requestData.Content.Length);
+                }
+            }
+
+            WebResponse webResponse = await request.GetResponseAsync();
+            HttpWebResponse response = (HttpWebResponse)webResponse;
+
+            Stream stream = response.GetResponseStream();
+
+            ResponseData.ResponseData responseData = new ResponseData.ResponseData(response, string.Empty, HttpStatusCode.NoContent);
+
+            using (StreamReader reader = new StreamReader(stream))
+            {
+                responseData = new ResponseData.ResponseData(response, await reader.ReadToEndAsync(), response.StatusCode);
+            }
+
+            return responseData;
+        }
     }
 }

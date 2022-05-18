@@ -1,9 +1,0 @@
-F:\Coding\Active Projects\DevBase\DevBaseFormat\obj\Release\DevBaseFormat.csproj.AssemblyReference.cache
-F:\Coding\Active Projects\DevBase\DevBaseFormat\obj\Release\DevBaseFormat.csproj.CoreCompileInputs.cache
-F:\Coding\Active Projects\DevBase\DevBaseFormat\bin\Release\DevBaseFormat.dll
-F:\Coding\Active Projects\DevBase\DevBaseFormat\bin\Release\DevBaseFormat.pdb
-F:\Coding\Active Projects\DevBase\DevBaseFormat\bin\Release\DevBase.dll
-F:\Coding\Active Projects\DevBase\DevBaseFormat\bin\Release\DevBase.pdb
-F:\Coding\Active Projects\DevBase\DevBaseFormat\obj\Release\DevBaseFormat.csproj.CopyComplete
-F:\Coding\Active Projects\DevBase\DevBaseFormat\obj\Release\DevBaseFormat.dll
-F:\Coding\Active Projects\DevBase\DevBaseFormat\obj\Release\DevBaseFormat.pdb
