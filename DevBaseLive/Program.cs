@@ -42,6 +42,11 @@ namespace DevBaseLive
             Console.WriteLine("" +
                               "fenneg2" +
                               "");
+
+            //genericList.Remove("fenneg2");
+            
+            genericList.GetAsList().ForEach(t => Console.WriteLine(t));
+
             Console.ReadKey();
 
             //Thread.Sleep(1000);

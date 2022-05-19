@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.Design.Serialization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 using DevBase.Exception;
+using DevBase.Utilities;
 
 namespace DevBase.Generic
 {
@@ -42,11 +44,11 @@ namespace DevBase.Generic
         /// <returns></returns>
         public T FindEntry(T searchObject)
         {
-            int size = Marshal.SizeOf(searchObject);
+            long size = MemoryUtils.GetSize(searchObject);
 
             for (int i = 0; i < this._array.Length; i++)
             {
-                if (size == Marshal.SizeOf(this.Get(i)))
+                if (size == MemoryUtils.GetSize(this.Get(i)))
                 {
                     if (searchObject.Equals(this.Get(i)))
                     {
@@ -85,6 +87,12 @@ namespace DevBase.Generic
             Array.Sort<T>(this._array, index, count, comparer);
         }
 
+        public T this[int index]
+        {
+            get { return this.Get(index); }
+            set { this.Set(index, value); }
+        }
+
         /// <summary>
         /// Gets an T type from an given index
         /// </summary>
@@ -93,6 +101,16 @@ namespace DevBase.Generic
         public T Get(int index)
         {
             return this._array[index];
+        }
+
+        /// <summary>
+        /// Sets the value at a given index
+        /// </summary>
+        /// <param name="index">The given index</param>
+        /// <param name="value">The given value</param>
+        public void Set(int index, T value)
+        {
+            this._array[index] = value;
         }
 
         /// <summary>
