@@ -9,14 +9,23 @@ using DevBase.Exception;
 
 namespace DevBase.Generic
 {
+    //Make a Remove function
     public class GenericList<T>
     {
         private T[] _array;
+
+        /// <summary>
+        /// Constructs this class with an empty array
+        /// </summary>
         public GenericList()
         {
             this._array = new T[0];
         }
 
+        /// <summary>
+        /// Constructs this class and adds items from the given list
+        /// </summary>
+        /// <param name="list">The list which will be added</param>
         public GenericList(List<T> list) : this()
         {
             this.AddRange(list);
@@ -50,16 +59,39 @@ namespace DevBase.Generic
         }
 
         /// <summary>
+        /// Sorts this list with an comparer
+        /// </summary>
+        /// <param name="comparer">The given comparer</param>
+        public void Sort(IComparer<T> comparer)
+        {
+            this.Sort(0, this.Length, comparer);
+        }
+
+        /// <summary>
+        /// Sorts this list with an comparer
+        /// </summary>
+        /// <param name="comparer">The given comparer</param>
+        public void Sort(int index, int count, IComparer<T> comparer)
+        {
+            if (index < 0)
+                throw new GenericListEntryException(GenericListEntryException.Type.OutOfBounds);
+
+            if (count < 0)
+                throw new GenericListEntryException(GenericListEntryException.Type.OutOfBounds);
+
+            if (this._array.Length - index < count)
+                throw new GenericListEntryException(GenericListEntryException.Type.InvalidRange);
+
+            Array.Sort<T>(this._array, index, count, comparer);
+        }
+
+        /// <summary>
         /// Gets an T type from an given index
         /// </summary>
         /// <param name="index">The index of the array</param>
         /// <returns>A T-Object from the given index</returns>
-        /// <exception cref="GenericListEntryException">When the index is out of bounds</exception>
         public T Get(int index)
         {
-            if (index > this._array.Length)
-                throw new GenericListEntryException(GenericListEntryException.Type.OutOfBounds);
-
             return this._array[index];
         }
 

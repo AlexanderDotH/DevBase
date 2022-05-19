@@ -38,7 +38,7 @@ namespace DevBaseLive
             list.Add("fenneg4");
 
             GenericList<string> genericList = new GenericList<string>(list);
-
+            var f = genericList.GetRangeAsList(0, 4);
             Console.WriteLine("" +
                               "fenneg2" +
                               "");

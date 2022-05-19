@@ -51,6 +51,7 @@
     <Compile Include="Async\Multithreading.cs" />
     <Compile Include="Exception\GenericListEntryException.cs" />
     <Compile Include="Generic\GenericList.cs" />
+    <Compile Include="Generic\GenericTupleList.cs" />
     <Compile Include="IO\ADirectory.cs" />
     <Compile Include="IO\ADirectoryObject.cs" />
     <Compile Include="IO\AFile.cs" />
@@ -59,6 +60,7 @@
     <Compile Include="Typography\AString.cs" />
     <Compile Include="Utilities\CollectionUtils.cs" />
     <Compile Include="Utilities\EncodingUtils.cs" />
+    <Compile Include="Utilities\MemoryUtils.cs" />
     <Compile Include="Utilities\StringUtils.cs" />
     <Compile Include="Web\Request.cs" />
     <Compile Include="Web\RequestData\EncodingType.cs" />
