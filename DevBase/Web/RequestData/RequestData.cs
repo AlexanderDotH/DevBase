@@ -70,7 +70,12 @@ namespace DevBase.Web.RequestData
         {
             for (int i = 0; i < requestType.Length; i++)
             {
-                existingContentType += ContentTypeToString(requestType[i]) + (i == requestType.Length ? string.Empty : "; ");
+                string content = ContentTypeToString(requestType[i]);
+
+                if (!content.Equals(string.Empty))
+                {
+                    existingContentType += content + (i == requestType.Length ? string.Empty : "; ");
+                }
             }
 
             return existingContentType;
@@ -81,7 +86,12 @@ namespace DevBase.Web.RequestData
             existingContentType += "charset=";
             for (int i = 0; i < encodingType.Length; i++)
             {
-                existingContentType += ContentEncodingType(encodingType[i]) + (i == encodingType.Length ? ";" : ", ");
+                string content = ContentEncodingType(encodingType[i]);
+
+                if (!content.Equals(string.Empty))
+                {
+                    existingContentType += content + (i == encodingType.Length ? ", " : "");
+                }
             }
 
             return existingContentType;

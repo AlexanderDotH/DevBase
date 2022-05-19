@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DevBase.Web.RequestData;
 using System.Net;
 using System.IO;
+using DevBase.Utilities;
 
 namespace DevBase.Web
 {
@@ -26,8 +27,8 @@ namespace DevBase.Web
 
             request.Headers = this._requestData.Header;
             request.Method = this._requestData.RequestMethod.ToString();
-            request.ContentType = this._requestData.ConvertFromContentType(request.ContentType, this._requestData.ContentType);
-            request.ContentType = this._requestData.ConvertFromEncodingTypes(request.ContentType, this._requestData.EncodingTypes);
+            request.ContentType += this._requestData.ConvertFromContentType(request.ContentType, this._requestData.ContentType);
+            request.ContentType += this._requestData.ConvertFromEncodingTypes(request.ContentType, this._requestData.EncodingTypes);
             request.ContentLength = this._requestData.Content.Length;
             request.UserAgent = this._requestData.UserAgent;
             request.Accept = this._requestData.Accept;
@@ -46,7 +47,7 @@ namespace DevBase.Web
 
             ResponseData.ResponseData responseData = new ResponseData.ResponseData(response, string.Empty, HttpStatusCode.NoContent);
 
-            using (StreamReader reader = new StreamReader(stream))
+            using (StreamReader reader = new StreamReader(stream, Encoding.GetEncoding(responseData.Response.CharacterSet)))
             {
                 responseData = new ResponseData.ResponseData(response, reader.ReadToEnd(), response.StatusCode);
             }
@@ -60,8 +61,8 @@ namespace DevBase.Web
 
             request.Headers = this._requestData.Header;
             request.Method = this._requestData.RequestMethod.ToString();
-            request.ContentType = this._requestData.ConvertFromContentType(request.ContentType, this._requestData.ContentType);
-            request.ContentType = this._requestData.ConvertFromEncodingTypes(request.ContentType, this._requestData.EncodingTypes);
+            request.ContentType += this._requestData.ConvertFromContentType(request.ContentType, this._requestData.ContentType);
+            request.ContentType += this._requestData.ConvertFromEncodingTypes(request.ContentType, this._requestData.EncodingTypes);
             request.ContentLength = this._requestData.Content.Length;
             request.UserAgent = this._requestData.UserAgent;
             request.Accept = this._requestData.Accept;
@@ -81,7 +82,7 @@ namespace DevBase.Web
 
             ResponseData.ResponseData responseData = new ResponseData.ResponseData(response, string.Empty, HttpStatusCode.NoContent);
 
-            using (StreamReader reader = new StreamReader(stream))
+            using (StreamReader reader = new StreamReader(stream, Encoding.GetEncoding(responseData.Response.CharacterSet)))
             {
                 responseData = new ResponseData.ResponseData(response, await reader.ReadToEndAsync(), response.StatusCode);
             }

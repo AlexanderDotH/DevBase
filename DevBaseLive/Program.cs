@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
@@ -27,27 +28,28 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
-            //string response = new DevBase.Web.Request("https://music.xianqiao.wang/neteaseapiv2/lyric?id=24912403").GetResponse().GetContentAsString();
-            //Console.WriteLine(response);
-            //Console.ReadKey();
-
-            List<string> list = new List<string>();
-            list.Add("fenneg1");
-            list.Add("fenneg2");
-            list.Add("fenneg3");
-            list.Add("fenneg4");
-
-            GenericList<string> genericList = new GenericList<string>(list);
-            var f = genericList.GetRangeAsList(0, 4);
-            Console.WriteLine("" +
-                              "fenneg2" +
-                              "");
-
-            //genericList.Remove("fenneg2");
-            
-            genericList.GetAsList().ForEach(t => Console.WriteLine(t));
-
+            string response = new DevBase.Web.Request("https://music.xianqiao.wang/neteaseapiv2/lyric?id=1472893983").GetResponse().GetContentAsString();
+            File.WriteAllText("out.txt", response);
+            Console.WriteLine(response);
             Console.ReadKey();
+
+            //List<string> list = new List<string>();
+            //list.Add("fenneg1");
+            //list.Add("fenneg2");
+            //list.Add("fenneg3");
+            //list.Add("fenneg4");
+
+            //GenericList<string> genericList = new GenericList<string>(list);
+            //var f = genericList.GetRangeAsList(0, 4);
+            //Console.WriteLine("" +
+            //                  "fenneg2" +
+            //                  "");
+
+            ////genericList.Remove("fenneg2");
+            
+            //genericList.GetAsList().ForEach(t => Console.WriteLine(t));
+
+            //Console.ReadKey();
 
             //Thread.Sleep(1000);
             //Stopwatch sw = new Stopwatch();

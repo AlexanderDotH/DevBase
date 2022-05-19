@@ -20,7 +20,7 @@ namespace DevBase.Web.ResponseData
             this._response = response;
         }
 
-        public ResponseData(HttpWebResponse response, string content, HttpStatusCode httpStatusCode) : this(response, Encoding.Default.GetBytes(content), httpStatusCode) { }
+        public ResponseData(HttpWebResponse response, string content, HttpStatusCode httpStatusCode) : this(response, Encoding.GetEncoding(response.CharacterSet).GetBytes(content), httpStatusCode) { }
 
         public HttpWebResponse Response
         {
