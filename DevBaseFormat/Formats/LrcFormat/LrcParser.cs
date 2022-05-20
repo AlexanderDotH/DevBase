@@ -56,7 +56,7 @@ namespace DevBaseFormat.Formats.LrcFormat
             }
             else
             {
-                throw new Exception("Type is not supported use the \"LyricElement\" type");
+                throw new Exception("Type is not supported use the \"LrcObject\" type");
             }
         }
 
@@ -127,7 +127,7 @@ namespace DevBaseFormat.Formats.LrcFormat
                     {
                         string line = lyricLine.Replace(match.Groups[0].Value, String.Empty);
 
-                        string lyricElementLine = EditLine(line);
+                        string lyricElementLine = LyricsUtils.EditLine(line);
                         LyricElement lyricElement = new LyricElement(Convert.ToInt64(timeSpan.TotalMilliseconds), lyricElementLine);
                         return lyricElement;
                     }
@@ -135,28 +135,6 @@ namespace DevBaseFormat.Formats.LrcFormat
             }
 
             return null;
-        }
-
-        private string EditLine(string line)
-        {
-            if (line == null)
-            {
-                return "♪";
-            }
-
-            if (line.Length > 0)
-            {
-                if (line.Equals(""))
-                {
-                    line = line.Replace(string.Empty, "♪");
-                }
-            }
-            else
-            {
-                line = "♪";
-            }
-
-            return line;
         }
 
         private bool IsLyricLineTrash(string line)

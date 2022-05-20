@@ -46,6 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="FileFormatParser.cs" />
+    <Compile Include="Formats\MmlFormat\Json\MmlElement.cs" />
+    <Compile Include="Formats\MmlFormat\Json\MmlElementTime.cs" />
+    <Compile Include="Formats\MmlFormat\MmlParser.cs" />
+    <Compile Include="LyricsUtils.cs" />
     <Compile Include="Structure\LrcObject.cs" />
     <Compile Include="Structure\LyricElement.cs" />
     <Compile Include="Formats\LrcFormat\LrcParser.cs" />
@@ -61,5 +65,6 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

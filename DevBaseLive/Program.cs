@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DevBase.Generic;
+using DevBase.IO;
 using DevBase.Web.RequestData;
 using DevBaseData;
 using DevBaseServices.Mailcow;
@@ -14,6 +15,7 @@ using DevBaseServices.Mailcow.Requests;
 using DevBase.Utilities;
 using DevBaseFormat;
 using DevBaseFormat.Formats.LrcFormat;
+using DevBaseFormat.Formats.MmlFormat;
 using DevBaseFormat.Structure;
 
 namespace DevBaseLive
@@ -28,10 +30,20 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
-            string response = new DevBase.Web.Request("https://music.xianqiao.wang/neteaseapiv2/lyric?id=1472893983").GetResponse().GetContentAsString();
-            File.WriteAllText("out.txt", response);
-            Console.WriteLine(response);
+
+            var parser = new FileFormatParser<LrcObject>(new MmlParser<LrcObject>());
+            AFile.GetFiles("C:\\Users\\alexander.heuschkel\\source\\repos\\EinfachEinAlex\\DevBase\\DevBaseLive\\bin\\Debug").GetAsList().ForEach(t =>
+            {
+                var parsed = parser.FormatFromFile(t.FileInfo.FullName);
+                parsed.Lyrics.GetAsList().ForEach(l => Console.WriteLine(l.Line + ":" + l.TimeStamp));
+            });
+
             Console.ReadKey();
+
+            //string response = new DevBase.Web.Request("https://music.xianqiao.wang/neteaseapiv2/lyric?id=1472893983").GetResponse().GetContentAsString();
+            //File.WriteAllText("out.txt", response);
+            //Console.WriteLine(response);
+            //Console.ReadKey();
 
             //List<string> list = new List<string>();
             //list.Add("fenneg1");
@@ -46,7 +58,7 @@ namespace DevBaseLive
             //                  "");
 
             ////genericList.Remove("fenneg2");
-            
+
             //genericList.GetAsList().ForEach(t => Console.WriteLine(t));
 
             //Console.ReadKey();

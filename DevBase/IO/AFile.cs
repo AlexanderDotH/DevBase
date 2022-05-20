@@ -4,18 +4,19 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DevBase.Generic;
 using Microsoft.Win32.SafeHandles;
 
 namespace DevBase.IO
 {
     public class AFile
     {
-        public static List<AFileObject> GetFiles(string directory, bool readContent = false, string filter = "*.*")
+        public static GenericList<AFileObject> GetFiles(string directory, bool readContent = false, string filter = "*.txt")
         {
             if (!System.IO.Directory.Exists(directory))
                 throw new SystemException("Cannot get files from directory, because directory doesn't exist");
 
-            List<AFileObject> fileHolders = new List<AFileObject>();
+            GenericList<AFileObject> fileHolders = new GenericList<AFileObject>();
 
             DirectoryInfo di = new DirectoryInfo(directory);
 
