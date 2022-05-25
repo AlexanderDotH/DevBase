@@ -68,7 +68,7 @@ namespace DevBaseFormat.Formats.LrcFormat
 
                 if (line.Contains(string.Format("[{0}:", meta)))
                 {
-                    string regex = string.Format("(\\[{0}:(.*)\\])", meta);
+                    string regex = string.Format(RegexHolder.REGEX_METADATA, meta);
 
                     if (Regex.IsMatch(line, regex))
                     {
@@ -100,13 +100,13 @@ namespace DevBaseFormat.Formats.LrcFormat
         {
             if (lyricLine != null)
             {
-                Match match = Regex.Match(lyricLine, "\\[(([0-9]*)\\:([0-9]*)\\.([0-9]*))\\]");
+                Match match = Regex.Match(lyricLine, RegexHolder.REGEX_TIMESTAMP);
 
                 bool hasHours = false;
 
                 if (match.Length == 0)
                 {
-                    match = Regex.Match(lyricLine, "\\[(([0-9]*)\\:([0-9]*)\\:([0-9]*)\\.([0-9]*))\\]");
+                    match = Regex.Match(lyricLine, RegexHolder.REGEX_DETAILED_TIMESTAMP);
 
                     if (match.Success)
                     {
@@ -139,7 +139,7 @@ namespace DevBaseFormat.Formats.LrcFormat
 
         private bool IsLyricLineTrash(string line)
         {
-            return Regex.IsMatch(line, "\\D(\\?{0,2}).([:]).([\\w /]*)");
+            return Regex.IsMatch(line, RegexHolder.REGEX_GARBAGE);
         }
     }
 }

@@ -55,6 +55,7 @@
     <Compile Include="Formats\LrcFormat\LrcParser.cs" />
     <Compile Include="IFileFormat.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Structure\RegexHolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DevBase\DevBase.csproj">
