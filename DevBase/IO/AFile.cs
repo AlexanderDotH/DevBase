@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DevBase.Generic;
+using DevBase.Utilities;
 using Microsoft.Win32.SafeHandles;
+using Newtonsoft.Json.Bson;
 
 namespace DevBase.IO
 {
@@ -48,6 +50,23 @@ namespace DevBase.IO
         public static AFileObject ReadFile(string filePath)
         {
             return ReadFile(new FileInfo(filePath));
+        }
+
+        public static bool CanFileBeAccessed(FileInfo fileInfo)
+        {
+            if (!fileInfo.Exists)
+                return false;
+
+            try
+            {
+                fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+            }
+            catch (IOException e)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

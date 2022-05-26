@@ -16,5 +16,15 @@ namespace DevBase.Utilities
             return new string(Enumerable.Repeat(chars, length)
                 .Select(s => s[random.Next(s.Length)]).ToArray());
         }
+
+        public static string StringArrayToString(string[] array)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < array.Length; i++)
+                sb.Append(array[i]);
+
+            return sb.ToString();
+        }
     }
 }

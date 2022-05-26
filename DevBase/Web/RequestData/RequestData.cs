@@ -68,7 +68,7 @@ namespace DevBase.Web.RequestData
                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                ) { }
 
-        public string GetRandomUseragent()
+        public static string GetRandomUseragent()
         {
             GenericList<string> userAgents = new GenericList<string>();
             userAgents.Add("Mozilla/5.0 (iPad; CPU OS 7_2_1 like Mac OS X; en-US) AppleWebKit/531.43.4 (KHTML, like Gecko) Version/3.0.5 Mobile/8B112 Safari/6531.43.4");

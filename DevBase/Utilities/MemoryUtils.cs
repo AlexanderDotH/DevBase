@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace DevBase.Utilities
 {
-    class MemoryUtils
+    public class MemoryUtils
     {
         public static long GetSize(object obj)
         {
