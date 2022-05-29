@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="Async\AThread.cs" />
     <Compile Include="Async\Multithreading.cs" />
+    <Compile Include="Enums\EnumAuthType.cs" />
     <Compile Include="Exception\GenericListEntryException.cs" />
     <Compile Include="Generic\GenericList.cs" />
     <Compile Include="Generic\GenericTupleList.cs" />
@@ -63,14 +64,17 @@
     <Compile Include="Utilities\MemoryUtils.cs" />
     <Compile Include="Utilities\StringUtils.cs" />
     <Compile Include="Web\Request.cs" />
-    <Compile Include="Web\RequestData\EncodingType.cs" />
+    <Compile Include="Web\RequestData\Data\Auth.cs" />
+    <Compile Include="Enums\EnumEncodingType.cs" />
+    <Compile Include="Web\RequestData\Data\FormKeypair.cs" />
     <Compile Include="Web\RequestData\RequestData.cs" />
-    <Compile Include="Web\RequestData\RequestMethod.cs" />
-    <Compile Include="Web\RequestData\ContentType.cs" />
+    <Compile Include="Enums\EnumRequestMethod.cs" />
+    <Compile Include="Enums\EnumContentType.cs" />
     <Compile Include="Web\ResponseData\ResponseData.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

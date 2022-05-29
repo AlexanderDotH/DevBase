@@ -1,23 +1,27 @@
 ﻿using System;
+using System.Linq;
 using System.Net;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using DevBase.Enums;
 using DevBase.Generic;
+using DevBase.Web.RequestData.Data;
 
 namespace DevBase.Web.RequestData
 {
     public class RequestData
     {
-        private RequestMethod _requestMethod;
-        private ContentType[] _contentType;
-        private EncodingType[] _encodingType;
+        private EnumRequestMethod _requestMethod;
+        private EnumContentType[] _contentType;
+        private EnumEncodingType[] _encodingType;
         private byte[] _content;
         private Uri _uri;
         private string _userAgent;
         private string _accept;
         private WebHeaderCollection _header;
 
-        public RequestData(Uri uri, RequestMethod requestMethod, ContentType[] contentType, EncodingType[] encodingType, byte[] content, string userAgent)
+        public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType[] contentType, EnumEncodingType[] encodingType, byte[] content, string userAgent)
         {
             this._uri = uri;
             this._content = content;
@@ -28,32 +32,43 @@ namespace DevBase.Web.RequestData
             this._header = new WebHeaderCollection();
         }
 
-        public RequestData(Uri uri, RequestMethod requestMethod, ContentType[] contentType, EncodingType[] encodingType, string content, string userAgent) :
+        public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType[] contentType, EnumEncodingType[] encodingType, string content, string userAgent) :
             this(
                 uri,
                 requestMethod,
                 contentType,
                 encodingType,
-                Encoding.Default.GetBytes(content),
+                encodingType.Contains(EnumEncodingType.UTF8) ? Encoding.UTF8.GetBytes(content) : Encoding.Default.GetBytes(content),
                 userAgent
                 ) { }
 
-        public RequestData(Uri uri, RequestMethod requestMethod, ContentType[] contentType, EncodingType[] encodingType, string content) : 
+        public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType[] contentType, EnumEncodingType[] encodingType, string content) : 
             this(
                 uri, 
                 requestMethod, 
                 contentType, 
                 encodingType,
-                Encoding.Default.GetBytes(content), 
+                encodingType.Contains(EnumEncodingType.UTF8) ? Encoding.UTF8.GetBytes(content) : Encoding.Default.GetBytes(content), 
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                 ) { }
+
+        public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType[] contentType, EnumEncodingType[] encodingType, GenericList<FormKeypair> formData) :
+            this(
+                uri,
+                requestMethod,
+                contentType,
+                encodingType,
+                encodingType.Contains(EnumEncodingType.UTF8) ? Encoding.UTF8.GetBytes(ClampKeypairsToString(formData)) : Encoding.Default.GetBytes(ClampKeypairsToString(formData)),
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+            )
+        { }
 
         public RequestData(string uri, string content) : 
             this(
                 new Uri(uri), 
-                RequestMethod.GET, 
-                new ContentType[] { Web.RequestData.ContentType.HTML }, 
-                new EncodingType[] { Web.RequestData.EncodingType.UTF8 },
+                EnumRequestMethod.GET, 
+                new EnumContentType[] { Enums.EnumContentType.HTML }, 
+                new EnumEncodingType[] { EnumEncodingType.UTF8 },
                 Encoding.Default.GetBytes(content), 
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                 ) { }
@@ -61,9 +76,9 @@ namespace DevBase.Web.RequestData
         public RequestData(string uri) :
            this(
                new Uri(uri), 
-               RequestMethod.GET,
-               new ContentType[] { Web.RequestData.ContentType.HTML },
-               new EncodingType[] { Web.RequestData.EncodingType.UTF8 },
+               EnumRequestMethod.GET,
+               new EnumContentType[] { Enums.EnumContentType.HTML },
+               new EnumEncodingType[] { EnumEncodingType.UTF8 },
                Encoding.Default.GetBytes(string.Empty), 
                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                ) { }
@@ -98,7 +113,28 @@ namespace DevBase.Web.RequestData
             return userAgents.Get(new Random().Next(0, userAgents.Length));
         }
 
-        public string ConvertFromContentType(string existingContentType, ContentType[] requestType)
+        public static string ClampKeypairsToString(GenericList<FormKeypair> keypairs)
+        {
+            StringBuilder sb = new StringBuilder();
+
+            for (int i = 0; i < keypairs.Length; i++)
+            {
+                FormKeypair keypair = keypairs.Get(i);
+
+                if (i == 0)
+                {
+                    sb.Append(keypair.Key + "=" + keypair.Value);
+                }
+                else
+                {
+                    sb.Append("&" + keypair.Key + "=" + keypair.Value);
+                }
+            }
+
+            return sb.ToString();
+        }
+
+        public string ConvertFromContentType(string existingContentType, EnumContentType[] requestType)
         {
             for (int i = 0; i < requestType.Length; i++)
             {
@@ -113,7 +149,7 @@ namespace DevBase.Web.RequestData
             return existingContentType;
         }
 
-        public string ConvertFromEncodingTypes(string existingContentType, EncodingType[] encodingType)
+        public string ConvertFromEncodingTypes(string existingContentType, EnumEncodingType[] encodingType)
         {
             existingContentType += "charset=";
             for (int i = 0; i < encodingType.Length; i++)
@@ -129,31 +165,48 @@ namespace DevBase.Web.RequestData
             return existingContentType;
         }
 
-        private string ContentTypeToString(ContentType contentType)
+        private string ContentTypeToString(EnumContentType contentType)
         {
             switch (contentType)
             {
-                case Web.RequestData.ContentType.JSON:
+                case Enums.EnumContentType.JSON:
                     return "application/json";
-                case Web.RequestData.ContentType.FORM:
+                case Enums.EnumContentType.FORM:
                     return "application/x-www-form-urlencoded";
             }
 
             return string.Empty;
         }
 
-        private string ContentEncodingType(EncodingType contentType)
+        private string ContentEncodingType(EnumEncodingType contentType)
         {
             switch (contentType)
             {
-                case EncodingType.UTF8:
+                case EnumEncodingType.UTF8:
                     return "utf-8";
             }
 
             return string.Empty;
         }
 
-        public RequestMethod RequestMethod
+        private string ConvertToEnumString(EnumAuthType e)
+        {
+            if (e == EnumAuthType.BASIC)
+                return "Basic";
+
+            if (e == EnumAuthType.OAUTH2)
+                return "Bearer";
+
+            return string.Empty;
+        }
+
+        public void AddAuthMethod(Auth auth)
+        {
+            string enumString = ConvertToEnumString(auth.AuthType);
+            this.Header.Add("Authorization", enumString + " " + auth.Token);
+        }
+
+        public EnumRequestMethod RequestMethod
         {
             get { return this._requestMethod; }
             set { this._requestMethod = value; }
@@ -189,13 +242,13 @@ namespace DevBase.Web.RequestData
             set { this._header = value; }
         }
 
-        public ContentType[] ContentType
+        public EnumContentType[] ContentType
         {
             get { return this._contentType; }
             set { this._contentType = value; }
         }
 
-        public EncodingType[] EncodingTypes
+        public EnumEncodingType[] EncodingTypes
         {
             get { return this._encodingType; }
             set { this._encodingType = value; }

@@ -12,15 +12,24 @@ namespace DevBase.Web.ResponseData
         private byte[] _content;
         private HttpStatusCode _httpStatusCode;
         private HttpWebResponse _response;
+        private Encoding _encoding;
 
-        public ResponseData(HttpWebResponse response, byte[] content, HttpStatusCode httpStatusCode)
+        public ResponseData(HttpWebResponse response, byte[] content, Encoding encoding , HttpStatusCode httpStatusCode)
         {
-            this._content = content;
-            this._httpStatusCode = httpStatusCode;
             this._response = response;
+            this._content = content;
+            this._encoding = encoding;
+            this._httpStatusCode = httpStatusCode;
         }
 
-        public ResponseData(HttpWebResponse response, string content, HttpStatusCode httpStatusCode) : this(response, Encoding.GetEncoding(response.CharacterSet).GetBytes(content), httpStatusCode) { }
+        public ResponseData(HttpWebResponse response, string content, HttpStatusCode httpStatusCode) : 
+            this(response, 
+                string.IsNullOrEmpty(response.CharacterSet) ?
+                Encoding.Default.GetBytes(content) :
+                Encoding.GetEncoding(response.CharacterSet).GetBytes(content), 
+                string.IsNullOrEmpty(response.CharacterSet) ?
+                Encoding.Default :
+                Encoding.GetEncoding(response.CharacterSet), httpStatusCode) { }
 
         public HttpWebResponse Response
         {
@@ -30,7 +39,13 @@ namespace DevBase.Web.ResponseData
 
         public string GetContentAsString()
         {
-            Encoding encoding = Encoding.GetEncoding(this._response.CharacterSet);
+            Encoding encoding = Encoding.Default;
+
+            if (!string.IsNullOrEmpty(this._response.CharacterSet))
+            {
+                encoding = Encoding.GetEncoding(this._response.CharacterSet);
+            }
+
             return encoding.GetString(this._content);
         }
 
@@ -42,6 +57,11 @@ namespace DevBase.Web.ResponseData
         public HttpStatusCode StatusCode
         {
             get { return this._httpStatusCode; }
+        }
+
+        public Encoding Encoding
+        {
+            get => _encoding;
         }
     }
 }

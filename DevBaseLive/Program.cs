@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DevBase.Enums;
 using DevBase.Generic;
 using DevBase.IO;
 using DevBase.Web.RequestData;
@@ -13,6 +15,9 @@ using DevBaseData;
 using DevBaseServices.Mailcow;
 using DevBaseServices.Mailcow.Requests;
 using DevBase.Utilities;
+using DevBase.Web;
+using DevBase.Web.RequestData.Data;
+using DevBase.Web.ResponseData;
 using DevBaseFormat;
 using DevBaseFormat.Formats.LrcFormat;
 using DevBaseFormat.Formats.MmlFormat;
@@ -20,25 +25,57 @@ using DevBaseFormat.Structure;
 
 namespace DevBaseLive
 {
-
-    class Data
-    {
-        public string Neger { get; set; }
-    }
-
     class Program
     {
         static void Main(string[] args)
         {
-
-            var parser = new FileFormatParser<LrcObject>(new MmlParser<LrcObject>());
-            AFile.GetFiles("C:\\Users\\alexander.heuschkel\\source\\repos\\EinfachEinAlex\\DevBase\\DevBaseLive\\bin\\Debug").GetAsList().ForEach(t =>
+            Task.Factory.StartNew(async() =>
             {
-                var parsed = parser.FormatFromFile(t.FileInfo.FullName);
-                parsed.Lyrics.GetAsList().ForEach(l => Console.WriteLine(l.Line + ":" + l.TimeStamp));
+                try
+                {
+                    string clientID = "zU4XHVVkc2tDPo4t";
+                    string clientSecret = "VJKhDFqJPqvsPVNBV6ukXTJmwlvbttP7wlMlrc72se4=";
+
+                    GenericList<FormKeypair> formData = new GenericList<FormKeypair>();
+                    formData.Add(new FormKeypair("client_id", clientID));
+                    formData.Add(new FormKeypair("scope", "r_usr+w_usr+w_sub"));
+
+                    RequestData requestData = new RequestData(new Uri("https://auth.tidal.com/v1/oauth2/device_authorization"),
+                        EnumRequestMethod.POST,
+                        new EnumContentType[] { EnumContentType.FORM },
+                        new EnumEncodingType[] { EnumEncodingType.UTF8 },
+                        formData);
+
+                    string authToken = Convert.ToBase64String(Encoding.Default.GetBytes(clientID + ":" + clientSecret));
+                    requestData.AddAuthMethod(new Auth(authToken, EnumAuthType.BASIC));
+
+                    Request request = new Request(requestData);
+
+                    ResponseData response = await request.GetResponseAsync();
+
+                    Console.WriteLine(response.GetContentAsString());
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+
             });
 
+            Console.WriteLine("reached");
+
             Console.ReadKey();
+
+
+            //var parser = new FileFormatParser<LrcObject>(new MmlParser<LrcObject>());
+            //AFile.GetFiles("C:\\Users\\alexander.heuschkel\\source\\repos\\EinfachEinAlex\\DevBase\\DevBaseLive\\bin\\Debug").GetAsList().ForEach(t =>
+            //{
+            //    var parsed = parser.FormatFromFile(t.FileInfo.FullName);
+            //    parsed.Lyrics.GetAsList().ForEach(l => Console.WriteLine(l.Line + ":" + l.TimeStamp));
+            //});
+
+            //Console.ReadKey();
 
             //string response = new DevBase.Web.Request("https://music.xianqiao.wang/neteaseapiv2/lyric?id=1472893983").GetResponse().GetContentAsString();
             //File.WriteAllText("out.txt", response);

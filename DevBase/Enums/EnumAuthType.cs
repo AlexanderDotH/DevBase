@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DevBase.Web.RequestData
+namespace DevBase.Enums
 {
-    public enum EncodingType
+    public enum EnumAuthType
     {
-        UTF8
+        OAUTH2, BASIC
     }
 }

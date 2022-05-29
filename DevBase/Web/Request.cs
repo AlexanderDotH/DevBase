@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using DevBase.Web.RequestData;
 using System.Net;
 using System.IO;
+using DevBase.Enums;
 using DevBase.Utilities;
 
 namespace DevBase.Web
@@ -29,25 +30,28 @@ namespace DevBase.Web
             request.Method = this._requestData.RequestMethod.ToString();
             request.ContentType += this._requestData.ConvertFromContentType(request.ContentType, this._requestData.ContentType);
             request.ContentType += this._requestData.ConvertFromEncodingTypes(request.ContentType, this._requestData.EncodingTypes);
-            request.ContentLength = this._requestData.Content.Length;
             request.UserAgent = this._requestData.UserAgent;
             request.Accept = this._requestData.Accept;
 
-            if (this._requestData.RequestMethod == RequestMethod.POST)
+            if (this._requestData.RequestMethod == EnumRequestMethod.POST)
             {
+                request.ContentLength = this._requestData.Content.Length;
+
                 using (Stream requestStream = request.GetRequestStream())
                 {
                     requestStream.Write(this._requestData.Content, 0, this._requestData.Content.Length);
                 }
             }
 
-
             HttpWebResponse response = (HttpWebResponse)request.GetResponse();
             Stream stream = response.GetResponseStream();
 
+            if (stream == null)
+                return null;
+
             ResponseData.ResponseData responseData = new ResponseData.ResponseData(response, string.Empty, HttpStatusCode.NoContent);
 
-            using (StreamReader reader = new StreamReader(stream, Encoding.GetEncoding(responseData.Response.CharacterSet)))
+            using (StreamReader reader = new StreamReader(stream, responseData.Encoding))
             {
                 responseData = new ResponseData.ResponseData(response, reader.ReadToEnd(), response.StatusCode);
             }
@@ -63,28 +67,30 @@ namespace DevBase.Web
             request.Method = this._requestData.RequestMethod.ToString();
             request.ContentType += this._requestData.ConvertFromContentType(request.ContentType, this._requestData.ContentType);
             request.ContentType += this._requestData.ConvertFromEncodingTypes(request.ContentType, this._requestData.EncodingTypes);
-            request.ContentLength = this._requestData.Content.Length;
             request.UserAgent = this._requestData.UserAgent;
             request.Accept = this._requestData.Accept;
 
-            if (this._requestData.RequestMethod == RequestMethod.POST)
+            if (this._requestData.RequestMethod == EnumRequestMethod.POST)
             {
-                using (Stream requestStream = await request.GetRequestStreamAsync())
+                request.ContentLength = this._requestData.Content.Length;
+
+                using (Stream requestStream = request.GetRequestStream())
                 {
                     requestStream.Write(this._requestData.Content, 0, this._requestData.Content.Length);
                 }
             }
 
-            WebResponse webResponse = await request.GetResponseAsync();
-            HttpWebResponse response = (HttpWebResponse)webResponse;
-
+            HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
             Stream stream = response.GetResponseStream();
+
+            if (stream == null)
+                return null;
 
             ResponseData.ResponseData responseData = new ResponseData.ResponseData(response, string.Empty, HttpStatusCode.NoContent);
 
-            using (StreamReader reader = new StreamReader(stream, Encoding.GetEncoding(responseData.Response.CharacterSet)))
+            using (StreamReader reader = new StreamReader(stream, responseData.Encoding))
             {
-                responseData = new ResponseData.ResponseData(response, await reader.ReadToEndAsync(), response.StatusCode);
+                responseData = new ResponseData.ResponseData(response, reader.ReadToEnd(), response.StatusCode);
             }
 
             return responseData;

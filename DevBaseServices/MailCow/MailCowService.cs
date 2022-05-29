@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using DevBase.Enums;
 
 namespace DevBaseServices.Mailcow
 {
@@ -23,9 +24,9 @@ namespace DevBaseServices.Mailcow
         {
             RequestData requestData = new RequestData(
                 new Uri(_serverUri + serviceData.EndpointDirectory()),
-                RequestMethod.POST,
-                new ContentType[] { ContentType.JSON },
-                new EncodingType[] { EncodingType.UTF8 },
+                EnumRequestMethod.POST,
+                new EnumContentType[] { EnumContentType.JSON },
+                new EnumEncodingType[] { EnumEncodingType.UTF8 },
                 serviceData.RequestString());
 
             requestData.Header.Add("X-API-Key", this._apiKey);
