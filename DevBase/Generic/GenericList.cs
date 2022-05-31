@@ -87,6 +87,34 @@ namespace DevBase.Generic
             Array.Sort<T>(this._array, index, count, comparer);
         }
 
+        /// <summary>
+        /// Checks if this list contains a given item
+        /// </summary>
+        /// <param name="item">The given item</param>
+        /// <returns>True if the item is in the list. False if the item is not in the list</returns>
+        public bool Contains(T item)
+        {
+            long size = MemoryUtils.GetSize(item);
+
+            for (int i = 0; i < this._array.Length; i++)
+            {
+                if (size == MemoryUtils.GetSize(this.Get(i)))
+                {
+                    if (item.Equals(this.Get(i)))
+                    {
+                        return true;
+                    }
+                }
+            }
+
+            return false;
+        }
+
+        /// <summary>
+        /// Gets and sets the items with an given index
+        /// </summary>
+        /// <param name="index">The given index</param>
+        /// <returns>A requested item based on the index</returns>
         public T this[int index]
         {
             get { return this.Get(index); }
@@ -193,12 +221,76 @@ namespace DevBase.Generic
         }
 
         /// <summary>
+        /// Removes an item of the array with an given item as type
+        /// </summary>
+        /// <param name="item">The given item which will be removed</param>
+        public void Remove(T item)
+        {
+            if (!Contains(item))
+                return;
+
+            long sizeOfItem = MemoryUtils.GetSize(item);
+
+            T[] newArray = new T[this._array.Length - 1];
+
+            int position = 0;
+
+            for (int i = 0; i < this._array.Length; i++)
+            {
+                if (sizeOfItem == MemoryUtils.GetSize(this._array[i]))
+                {
+                    T currentItem = this._array[i];
+
+                    if (!item.Equals(currentItem))
+                    {
+                        newArray[position] = this._array[i];
+                        position++;
+                    }
+                }
+            }
+
+            Array.Resize(ref this._array, this._array.Length - 1);
+            Array.Copy(newArray, _array, newArray.Length);
+        }
+
+        /// <summary>
+        /// Removes an item of this list at an given index
+        /// </summary>
+        /// <param name="index">The given index</param>
+        public void Remove(int index)
+        {
+            if (index > this._array.Length)
+                return;
+
+            T[] newArray = new T[this._array.Length - 1];
+
+            int position = 0;
+
+            for (int i = 0; i < this._array.Length; i++)
+            {
+                if (i != index)
+                {
+                    newArray[position] = this._array[i];
+                    position++;
+                }
+            }
+
+            Array.Resize(ref this._array, this._array.Length - 1);
+            Array.Copy(newArray, _array, newArray.Length);
+        }
+
+        /// <summary>
         /// Converts this Generic list array to an List<T>
         /// </summary>
         /// <returns></returns>
         public List<T> GetAsList()
         {
             return new List<T>(this._array);
+        }
+
+        public T[] GetAsArray()
+        {
+            return this._array;
         }
 
         /// <summary>

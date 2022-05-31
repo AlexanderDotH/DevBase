@@ -29,43 +29,43 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
-            Task.Factory.StartNew(async() =>
-            {
-                try
-                {
-                    string clientID = "zU4XHVVkc2tDPo4t";
-                    string clientSecret = "VJKhDFqJPqvsPVNBV6ukXTJmwlvbttP7wlMlrc72se4=";
+            //Task.Factory.StartNew(async() =>
+            //{
+            //    try
+            //    {
+            //        string clientID = "zU4XHVVkc2tDPo4t";
+            //        string clientSecret = "VJKhDFqJPqvsPVNBV6ukXTJmwlvbttP7wlMlrc72se4=";
 
-                    GenericList<FormKeypair> formData = new GenericList<FormKeypair>();
-                    formData.Add(new FormKeypair("client_id", clientID));
-                    formData.Add(new FormKeypair("scope", "r_usr+w_usr+w_sub"));
+            //        GenericList<FormKeypair> formData = new GenericList<FormKeypair>();
+            //        formData.Add(new FormKeypair("client_id", clientID));
+            //        formData.Add(new FormKeypair("scope", "r_usr+w_usr+w_sub"));
 
-                    RequestData requestData = new RequestData(new Uri("https://auth.tidal.com/v1/oauth2/device_authorization"),
-                        EnumRequestMethod.POST,
-                        new EnumContentType[] { EnumContentType.FORM },
-                        new EnumEncodingType[] { EnumEncodingType.UTF8 },
-                        formData);
+            //        RequestData requestData = new RequestData(new Uri("https://auth.tidal.com/v1/oauth2/device_authorization"),
+            //            EnumRequestMethod.POST,
+            //            new EnumContentType[] { EnumContentType.FORM },
+            //            new EnumEncodingType[] { EnumEncodingType.UTF8 },
+            //            formData);
 
-                    string authToken = Convert.ToBase64String(Encoding.Default.GetBytes(clientID + ":" + clientSecret));
-                    requestData.AddAuthMethod(new Auth(authToken, EnumAuthType.BASIC));
+            //        string authToken = Convert.ToBase64String(Encoding.Default.GetBytes(clientID + ":" + clientSecret));
+            //        requestData.AddAuthMethod(new Auth(authToken, EnumAuthType.BASIC));
 
-                    Request request = new Request(requestData);
+            //        Request request = new Request(requestData);
 
-                    ResponseData response = await request.GetResponseAsync();
+            //        ResponseData response = await request.GetResponseAsync();
 
-                    Console.WriteLine(response.GetContentAsString());
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
+            //        Console.WriteLine(response.GetContentAsString());
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        Console.WriteLine(e);
+            //        throw;
+            //    }
 
-            });
+            //});
 
-            Console.WriteLine("reached");
+            //Console.WriteLine("reached");
 
-            Console.ReadKey();
+            //Console.ReadKey();
 
 
             //var parser = new FileFormatParser<LrcObject>(new MmlParser<LrcObject>());
@@ -82,23 +82,20 @@ namespace DevBaseLive
             //Console.WriteLine(response);
             //Console.ReadKey();
 
-            //List<string> list = new List<string>();
-            //list.Add("fenneg1");
-            //list.Add("fenneg2");
-            //list.Add("fenneg3");
-            //list.Add("fenneg4");
+            List<string> list = new List<string>();
+            list.Add("fenneg1");
+            list.Add("fenneg2");
+            list.Add("fenneg3");
+            list.Add("fenneg4");
 
-            //GenericList<string> genericList = new GenericList<string>(list);
-            //var f = genericList.GetRangeAsList(0, 4);
-            //Console.WriteLine("" +
-            //                  "fenneg2" +
-            //                  "");
+            GenericList<string> genericList = new GenericList<string>(list);
+            var f = genericList.GetRangeAsList(0, 4);
 
-            ////genericList.Remove("fenneg2");
+            genericList.Remove("fenneg3");
 
-            //genericList.GetAsList().ForEach(t => Console.WriteLine(t));
+            genericList.GetAsList().ForEach(t => Console.WriteLine(t));
 
-            //Console.ReadKey();
+            Console.ReadKey();
 
             //Thread.Sleep(1000);
             //Stopwatch sw = new Stopwatch();
