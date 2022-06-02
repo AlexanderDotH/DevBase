@@ -61,6 +61,18 @@ namespace DevBase.Generic
         }
 
         /// <summary>
+        /// Iterates through the list and executes an action
+        /// </summary>
+        /// <param name="action">The action</param>
+        public void ForEach(Action<T> action)
+        {
+            for (int i = 0; i < this._array.Length; i++)
+            {
+                action(this.Get(i));
+            }
+        }
+
+        /// <summary>
         /// Sorts this list with an comparer
         /// </summary>
         /// <param name="comparer">The given comparer</param>
@@ -111,6 +123,25 @@ namespace DevBase.Generic
         }
 
         /// <summary>
+        /// Checks if this list contains a given item
+        /// </summary>
+        /// <param name="item">The given item</param>
+        /// <returns>True if the item is in the list. False if the item is not in the list</returns>
+        public bool SafeContains(T item)
+        {
+            for (int i = 0; i < this._array.Length; i++)
+            {
+                if (item.Equals(this.Get(i)))
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+        /// <summary>
         /// Gets and sets the items with an given index
         /// </summary>
         /// <param name="index">The given index</param>
@@ -139,6 +170,14 @@ namespace DevBase.Generic
         public void Set(int index, T value)
         {
             this._array[index] = value;
+        }
+
+        /// <summary>
+        /// Clears the list
+        /// </summary>
+        public void Clear()
+        {
+            Array.Clear(this._array, 0, this._array.Length);
         }
 
         /// <summary>
@@ -251,6 +290,37 @@ namespace DevBase.Generic
 
             Array.Resize(ref this._array, this._array.Length - 1);
             Array.Copy(newArray, _array, newArray.Length);
+        }
+
+        /// <summary>
+        /// Removes an entry without checking the size before identifying it
+        /// </summary>
+        /// <param name="item">The item which will be deleted</param>
+        public void SafeRemove(T item)
+        {
+            if (!SafeContains(item))
+                return;
+
+            T[] newArray = new T[this._array.Length - 1];
+
+            int position = 0;
+
+            for (int i = 0; i < this._array.Length; i++)
+            {
+                T currentItem = this._array[i];
+
+                if (!item.Equals(currentItem))
+                {
+                    newArray[position] = this._array[i];
+                    position++;
+                }
+            }
+
+            Array.Copy(newArray, _array, newArray.Length);
+            Array.Resize(ref this._array, newArray.Length);
+
+
+
         }
 
         /// <summary>

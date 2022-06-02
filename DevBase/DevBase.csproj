@@ -47,8 +47,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Async\AThread.cs" />
-    <Compile Include="Async\Multithreading.cs" />
+    <Compile Include="Async\Task\TaskActionEntry.cs" />
+    <Compile Include="Async\Task\TaskRegister.cs" />
+    <Compile Include="Async\Thread\AThread.cs" />
+    <Compile Include="Async\Thread\Multithreading.cs" />
     <Compile Include="Enums\EnumAuthType.cs" />
     <Compile Include="Exception\GenericListEntryException.cs" />
     <Compile Include="Generic\GenericList.cs" />

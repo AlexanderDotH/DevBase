@@ -7,6 +7,7 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DevBase.Async.Task;
 using DevBase.Enums;
 using DevBase.Generic;
 using DevBase.IO;
@@ -25,6 +26,11 @@ using DevBaseFormat.Structure;
 
 namespace DevBaseLive
 {
+
+    class Type1{}
+    class Type2{}       
+    class Type3{}
+
     class Program
     {
         static void Main(string[] args)
@@ -82,20 +88,92 @@ namespace DevBaseLive
             //Console.WriteLine(response);
             //Console.ReadKey();
 
-            List<string> list = new List<string>();
-            list.Add("fenneg1");
-            list.Add("fenneg2");
-            list.Add("fenneg3");
-            list.Add("fenneg4");
+            TaskRegister register = new TaskRegister();
 
-            GenericList<string> genericList = new GenericList<string>(list);
-            var f = genericList.GetRangeAsList(0, 4);
+            object obj1 = new object();
+            object obj2 = new object();
+            object obj3 = new object();
 
-            genericList.Remove("fenneg3");
+            CancellationTokenSource cancellationToken = new CancellationTokenSource();
 
-            genericList.GetAsList().ForEach(t => Console.WriteLine(t));
+            register.RegisterTask(async () =>
+            {
+                while (true)
+                {
+                    if (register.IsCancelationRequested(obj1))
+                        return;
+
+                    await Task.Delay(100);
+                    Console.WriteLine("Hello from type1");
+                }
+            }, obj1, true);
+
+            register.RegisterTask(async () =>
+            {
+                while (true)
+                {
+                    if (register.IsCancelationRequested(obj2))
+                        return;
+
+                    await Task.Delay(100);
+
+                    Console.WriteLine("Hello from type2");
+                }
+            }, obj2, true);
+
+            register.RegisterTask(async () =>
+            {
+                while (true)
+                {
+                    if (register.IsCancelationRequested(obj3))
+                        return;
+
+                    await Task.Delay(100);
+                    
+                    Console.WriteLine("Hello from type3");
+                }
+            }, obj3, true);
+
+            register.Suspend(obj2);
+            register.Resume(obj2);
+
+            //register.RegisterTask(new Task(async () =>
+            //{
+            //    while (true)
+            //    {
+            //        await Task.Delay(100);
+            //        Console.WriteLine("Hello from type2");
+            //    }
+            //}), "test2", true);
+
+            //register.RegisterTask(new Task(async () =>
+            //{
+            //    while (true)
+            //    {
+            //        await Task.Delay(100);
+            //        Console.WriteLine("Hello from type3");
+            //    }
+            //}), "test3", true);
+
+            //register.Suspend("test2");
+            //register.Resume("test2");
 
             Console.ReadKey();
+
+            //List<string> list = new List<string>();
+            //list.Add("fenneg1");
+            //list.Add("fenneg2");
+            //list.Add("fenneg3");
+            //list.Add("fenneg4");
+
+            //GenericList<string> genericList = new GenericList<string>(list);
+            //var f = genericList.GetRangeAsList(0, 4);
+
+            //genericList.Remove("fenneg3");
+
+            //genericList.GetAsList().ForEach(t => Console.WriteLine(t));
+
+            //Console.ReadKey();
 
             //Thread.Sleep(1000);
             //Stopwatch sw = new Stopwatch();

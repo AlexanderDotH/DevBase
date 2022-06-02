@@ -12,6 +12,9 @@ namespace DevBase.Utilities
     {
         public static long GetSize(object obj)
         {
+            if (obj == null)
+                return 0;
+
             using (Stream s = new MemoryStream())
             {
                 BinaryFormatter formatter = new BinaryFormatter();
