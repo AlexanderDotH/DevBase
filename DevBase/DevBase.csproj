@@ -47,8 +47,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Async\Task\TaskActionEntry.cs" />
     <Compile Include="Async\Task\TaskRegister.cs" />
+    <Compile Include="Async\Task\TaskActionEntry.cs" />
+    <Compile Include="Async\Task\TaskSuspensionToken.cs" />
     <Compile Include="Async\Thread\AThread.cs" />
     <Compile Include="Async\Thread\Multithreading.cs" />
     <Compile Include="Enums\EnumAuthType.cs" />

@@ -34,6 +34,15 @@ namespace DevBase.Generic
         }
 
         /// <summary>
+        /// Constructs this class with the given array
+        /// </summary>
+        /// <param name="array">The given array</param>
+        public GenericList(T[] array)
+        {
+            this._array = array;
+        }
+
+        /// <summary>
         /// A faster and optimized way to search entries inside this generic list
         ///
         /// It iterates through the list and firstly checks
@@ -318,9 +327,6 @@ namespace DevBase.Generic
 
             Array.Copy(newArray, _array, newArray.Length);
             Array.Resize(ref this._array, newArray.Length);
-
-
-
         }
 
         /// <summary>

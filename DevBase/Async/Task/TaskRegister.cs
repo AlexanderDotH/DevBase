@@ -1,11 +1,7 @@
 ﻿using System;
-using System.CodeDom;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
-using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using DevBase.Generic;
 
@@ -13,136 +9,83 @@ namespace DevBase.Async.Task
 {
     public class TaskRegister
     {
-        private GenericTupleList<TaskActionEntry, Object> _actionList;
+        private GenericTupleList<TaskSuspensionToken, Object> _suspensionList;
         private GenericTupleList<System.Threading.Tasks.Task, Object> _taskList;
-        private GenericTupleList<CancellationTokenSource, Object> _tokenList;
 
         public TaskRegister()
         {
-            this._actionList = new GenericTupleList<TaskActionEntry, Object>();
-            this._tokenList = new GenericTupleList<CancellationTokenSource, Object>();
-            this._taskList = new GenericTupleList<System.Threading.Tasks.Task, Object>();
+            this._suspensionList = new GenericTupleList<TaskSuspensionToken, object>();
+            this._taskList = new GenericTupleList<System.Threading.Tasks.Task, object>();
         }
 
-        public void RegisterTask(Action action, Object type, bool startTask = true)
+        public void RegisterTask(out TaskSuspensionToken token, Action action, Object type, bool startAfterCreation = false)
         {
-            TaskActionEntry taskActionEntry = new TaskActionEntry(action, TaskCreationOptions.LongRunning);
-            RegisterTask(taskActionEntry, type, startTask);
+            System.Threading.Tasks.Task task = new System.Threading.Tasks.Task(action);
+            
+            if (startAfterCreation)
+                task.Start();
+
+            token = GenerateNewToken(type);
+
+            RegisterTask(task, type);
         }
 
-        public void RegisterTask(TaskActionEntry action, Object type, bool startTask = true)
+        public void RegisterTask(out TaskSuspensionToken token, System.Threading.Tasks.Task task, Object type, bool startAfterCreation = false)
         {
-            CancellationTokenSource token = FindTokenByType(type);
+            if (startAfterCreation)
+                task.Start();
+
+            token = GenerateNewToken(type);
+
+            RegisterTask(task, type);
+        }
+
+        private void RegisterTask(System.Threading.Tasks.Task task, Object type)
+        {
+            this._taskList.Add(new Tuple<System.Threading.Tasks.Task, object>(task, type));
+        }
+
+        public TaskSuspensionToken GenerateNewToken(Object type)
+        {
+            TaskSuspensionToken token = this._suspensionList.FindEntry(type);
 
             if (token == null)
             {
-                token = AddCancellationTokenSource(type);
+                TaskSuspensionToken taskSuspensionToken = new TaskSuspensionToken();
+                this._suspensionList.Add(new Tuple<TaskSuspensionToken, object>(taskSuspensionToken, type));
+                return taskSuspensionToken;
             }
 
-            if (token == null)
-                return;
+            return token;
+        }
 
-            Tuple<TaskActionEntry, Object> actionEntry = new Tuple<TaskActionEntry, Object>(action, type);
+        public TaskSuspensionToken GetTokenByType(Object type)
+        {
+            return this._suspensionList.FindEntry(type);
+        }
 
-            System.Threading.Tasks.Task t =
-                new System.Threading.Tasks.Task(action.Action, token.Token, action.CreationOptions);
-
-            if (startTask)
-                t.Start();
-
-            Tuple<System.Threading.Tasks.Task, Object> taskEntry = new Tuple<System.Threading.Tasks.Task, Object>(t, type);
-
-            this._taskList.Add(taskEntry);
-            this._tokenList.Add(new Tuple<CancellationTokenSource, object>(token, type));
-            this._actionList.Add(actionEntry);
+        public TaskSuspensionToken GetTokenByTask(System.Threading.Tasks.Task task)
+        {
+            Object type = this._taskList.FindEntry(task);
+            TaskSuspensionToken token = this._suspensionList.FindEntry(type);
+            return token;
         }
 
         public void Suspend(Object type)
         {
-            CancellationTokenSource tokenSource = FindTokenByType(type);
-
-            if (tokenSource != null)
-                tokenSource.Cancel();
-
-            this._taskList.FindEntries(type).ForEach(t =>
-            {
-                t.Wait(0);
-            });
-            this._tokenList.SafeRemove(new Tuple<CancellationTokenSource, object>(tokenSource, type));
+            TaskSuspensionToken token = this._suspensionList.FindEntry(type);
+            token.Suspend();
         }
 
         public void Resume(Object type)
         {
-            CancellationTokenSource token = FindTokenByType(type);
-
-            if (token == null)
-            {
-                token = AddCancellationTokenSource(type);
-            }
-
-            if (token == null)
-                return;
-
-            this._actionList.FindFullEntries(type).ForEach(t =>
-            {
-                System.Threading.Tasks.Task task =
-                    new System.Threading.Tasks.Task(t.Item1.Action, token.Token, t.Item1.CreationOptions);
-
-                this._taskList.Add(new Tuple<System.Threading.Tasks.Task, object>(task, type));
-                task.Start();
-            });
-
-            this._tokenList.Add(new Tuple<CancellationTokenSource, object>(token, type));
+            TaskSuspensionToken token = this._suspensionList.FindEntry(type);
+            token.Resume();
         }
 
-        public bool IsCancelationRequested(object type)
+        public void Kill(Object type)
         {
-            CancellationTokenSource cancellationTokenSource = FindTokenByType(type);
-
-            if (cancellationTokenSource == null)
-                return false;
-
-            return cancellationTokenSource.IsCancellationRequested;
-        }
-
-        private CancellationTokenSource FindTokenByType(object type)
-        {
-            for (int i = 0; i < this._tokenList.Length; i++)
-            {
-                Tuple<CancellationTokenSource, object> t = this._tokenList[i];
-
-                if (t.Item2.Equals(type))
-                {
-                    return t.Item1;
-                }
-            }
-
-            return null;
-        }
-
-        private bool ContainsToken(CancellationTokenSource token)
-        {
-
-            for (int i = 0; i < this._tokenList.Length; i++)
-            {
-                if (this._tokenList[i].Equals(token))
-                    return true;
-            }
-
-            return false;
-        }
-
-        private CancellationTokenSource AddCancellationTokenSource(Object type)
-        {
-            Tuple<CancellationTokenSource, Object> entry =
-                new Tuple<CancellationTokenSource, Object>(new CancellationTokenSource(), type);
-
-            CancellationTokenSource cancellationToken = FindTokenByType(type);
-
-            if (!ContainsToken(cancellationToken))
-                this._tokenList.Add(entry);
-
-            return entry.Item1;
+            this._taskList.FindEntries(type).ForEach(t => t.Wait(0));
         }
     }
 }
