@@ -18,19 +18,13 @@ namespace DevBase.Async.Task
             this._taskList = new GenericTupleList<System.Threading.Tasks.Task, object>();
         }
 
-        public void RegisterTask(out TaskSuspensionToken token, Action action, Object type, bool startAfterCreation = false)
+        public void RegisterTask(out TaskSuspensionToken token, Action action, Object type, bool startAfterCreation = true)
         {
             System.Threading.Tasks.Task task = new System.Threading.Tasks.Task(action);
-            
-            if (startAfterCreation)
-                task.Start();
-
-            token = GenerateNewToken(type);
-
-            RegisterTask(task, type);
+            RegisterTask(out token, task, startAfterCreation);
         }
 
-        public void RegisterTask(out TaskSuspensionToken token, System.Threading.Tasks.Task task, Object type, bool startAfterCreation = false)
+        public void RegisterTask(out TaskSuspensionToken token, System.Threading.Tasks.Task task, Object type, bool startAfterCreation = true)
         {
             if (startAfterCreation)
                 task.Start();
@@ -67,8 +61,16 @@ namespace DevBase.Async.Task
         public TaskSuspensionToken GetTokenByTask(System.Threading.Tasks.Task task)
         {
             Object type = this._taskList.FindEntry(task);
-            TaskSuspensionToken token = this._suspensionList.FindEntry(type);
+            TaskSuspensionToken token = GetTokenByType(type);
             return token;
+        }
+
+        public void Suspend(params Object[] types)
+        {
+            for (int i = 0; i < types.Length; i++)
+            {
+                Suspend(types[i]);
+            }
         }
 
         public void Suspend(Object type)
@@ -77,10 +79,26 @@ namespace DevBase.Async.Task
             token.Suspend();
         }
 
+        public void Resume(params Object[] types)
+        {
+            for (int i = 0; i < types.Length; i++)
+            {
+                Resume(types[i]);
+            }
+        }
+
         public void Resume(Object type)
         {
             TaskSuspensionToken token = this._suspensionList.FindEntry(type);
             token.Resume();
+        }
+
+        public void Kill(params Object[] types)
+        {
+            for (int i = 0; i < types.Length; i++)
+            {
+                Kill(types[i]);
+            }
         }
 
         public void Kill(Object type)
