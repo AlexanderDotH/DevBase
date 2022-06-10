@@ -12,35 +12,68 @@ namespace DevBase.Async.Task
         private CancellationTokenSource _tokenSource;
         private SemaphoreSlim _lock;
         private bool _suspended;
+        TaskCompletionSource<bool> _resumeRequestTcs;
 
         public TaskSuspensionToken(CancellationTokenSource cancellationToken)
         {
             this._tokenSource = cancellationToken;
             this._suspended = false;
             this._lock = new SemaphoreSlim(1);
+            this._resumeRequestTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
         }
 
         public TaskSuspensionToken() : this(new CancellationTokenSource()) { }
 
-        public async System.Threading.Tasks.Task WaitForRelease()
+        public async System.Threading.Tasks.Task WaitForRelease(CancellationToken token = default(CancellationToken))
         {
-            if (!this._suspended)
-                return;
+            System.Threading.Tasks.Task resumeRequestTask = null;
 
-            await this._lock.WaitAsync(this._tokenSource.Token);
-            this._lock.Release();
+            await _lock.WaitAsync(token);
+            try
+            {
+                if (!_suspended)
+                    return;
+
+                resumeRequestTask = WaitForResumeRequestAsync(token);
+            }
+            finally
+            {
+                _lock.Release();
+            }
+
+            await resumeRequestTask;
+        }
+
+        private async System.Threading.Tasks.Task WaitForResumeRequestAsync(CancellationToken token)
+        {
+            using (token.Register(() => _resumeRequestTcs.TrySetCanceled(), useSynchronizationContext: false))
+            {
+
+                if (_resumeRequestTcs != null)
+                {
+                    if (_resumeRequestTcs.Task != null)
+                    {
+                        await _resumeRequestTcs.Task;
+                    }
+                }
+            }
         }
 
         public void Suspend()
         {
             this._suspended = true;
-            this._lock.Wait();
+            this._resumeRequestTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+
         }
 
         public void Resume()
         {
             this._suspended = false;
-            this._lock.Release();
+
+            var resumeRequestTcs = _resumeRequestTcs;
+            _resumeRequestTcs = null;
+            resumeRequestTcs.TrySetResult(true);
         }
     }
 }

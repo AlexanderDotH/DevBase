@@ -18,6 +18,22 @@ namespace DevBase.Async.Task
             this._taskList = new GenericTupleList<System.Threading.Tasks.Task, object>();
         }
 
+        public void RegisterTask(Action action, Object type, bool startAfterCreation = true)
+        {
+            System.Threading.Tasks.Task task = new System.Threading.Tasks.Task(action);
+            RegisterTask(task, type, startAfterCreation);
+        }
+
+        public void RegisterTask(System.Threading.Tasks.Task task, Object type, bool startAfterCreation = true)
+        {
+            if (startAfterCreation)
+                task.Start();
+
+            GenerateNewToken(type);
+
+            RegisterTask(task, type);
+        }
+
         public void RegisterTask(out TaskSuspensionToken token, Action action, Object type, bool startAfterCreation = true)
         {
             System.Threading.Tasks.Task task = new System.Threading.Tasks.Task(action);
@@ -26,10 +42,10 @@ namespace DevBase.Async.Task
 
         public void RegisterTask(out TaskSuspensionToken token, System.Threading.Tasks.Task task, Object type, bool startAfterCreation = true)
         {
+            token = GenerateNewToken(type);
+
             if (startAfterCreation)
                 task.Start();
-
-            token = GenerateNewToken(type);
 
             RegisterTask(task, type);
         }

@@ -164,39 +164,15 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
-            //Task.Factory.StartNew(async() =>
-            //{
-            //    try
-            //    {
-            //        string clientID = "zU4XHVVkc2tDPo4t";
-            //        string clientSecret = "VJKhDFqJPqvsPVNBV6ukXTJmwlvbttP7wlMlrc72se4=";
 
-            //        GenericList<FormKeypair> formData = new GenericList<FormKeypair>();
-            //        formData.Add(new FormKeypair("client_id", clientID));
-            //        formData.Add(new FormKeypair("scope", "r_usr+w_usr+w_sub"));
+            PauseTokenSource pause = new PauseTokenSource();
 
-            //        RequestData requestData = new RequestData(new Uri("https://auth.tidal.com/v1/oauth2/device_authorization"),
-            //            EnumRequestMethod.POST,
-            //            new EnumContentType[] { EnumContentType.FORM },
-            //            new EnumEncodingType[] { EnumEncodingType.UTF8 },
-            //            formData);
 
-            //        string authToken = Convert.ToBase64String(Encoding.Default.GetBytes(clientID + ":" + clientSecret));
-            //        requestData.AddAuthMethod(new Auth(authToken, EnumAuthType.BASIC));
+            Task.Factory.StartNew(async () =>
+            {
+                await pause.PauseIfRequestedAsync();
 
-            //        Request request = new Request(requestData);
-
-            //        ResponseData response = await request.GetResponseAsync();
-
-            //        Console.WriteLine(response.GetContentAsString());
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        Console.WriteLine(e);
-            //        throw;
-            //    }
-
-            //});
+            });
 
             //Console.WriteLine("reached");
 
@@ -217,44 +193,44 @@ namespace DevBaseLive
             //Console.WriteLine(response);
             //Console.ReadKey();
 
-            TaskRegister register = new TaskRegister();
+            //TaskRegister register = new TaskRegister();
 
-            object obj1 = new object();
-            object obj2 = new object();
-            object obj3 = new object();
+            //object obj1 = new object();
+            //object obj2 = new object();
+            //object obj3 = new object();
 
 
-            TaskRegister newTaskRegister = new TaskRegister();
+            //TaskRegister newTaskRegister = new TaskRegister();
 
-            TaskSuspensionToken taskSuspensionToken = null;
+            //TaskSuspensionToken taskSuspensionToken = null;
 
-            newTaskRegister.RegisterTask(out taskSuspensionToken, async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(100);
-                    await taskSuspensionToken.WaitForRelease();
+            //newTaskRegister.RegisterTask(out taskSuspensionToken, async () =>
+            //{
+            //    while (true)
+            //    {
+            //        await Task.Delay(100);
+            //        await taskSuspensionToken.WaitForRelease();
 
-                    Console.WriteLine("Fenneg");
-                }
-            }, obj1);
+            //        Console.WriteLine("Fenneg");
+            //    }
+            //}, obj1);
 
-            bool suspend = false;
+            //bool suspend = false;
 
-            Console.WriteLine("Suspend");
-            newTaskRegister.Suspend(obj1);
+            //Console.WriteLine("Suspend");
+            //newTaskRegister.Suspend(obj1);
 
-            Console.WriteLine("Resume");
-            Thread.Sleep(1000);
-            newTaskRegister.Resume(obj1);
+            //Console.WriteLine("Resume");
+            //Thread.Sleep(1000);
+            //newTaskRegister.Resume(obj1);
 
-            Console.WriteLine("Suspend");
-            Thread.Sleep(3000);
-            newTaskRegister.Suspend(obj1);
+            //Console.WriteLine("Suspend");
+            //Thread.Sleep(3000);
+            //newTaskRegister.Suspend(obj1);
 
-            Console.WriteLine("Resume");
-            Thread.Sleep(3000);
-            newTaskRegister.Resume(obj1);
+            //Console.WriteLine("Resume");
+            //Thread.Sleep(3000);
+            //newTaskRegister.Resume(obj1);
 
 
             //CancellationTokenSource cancellationToken = new CancellationTokenSource();

@@ -33,5 +33,10 @@ namespace DevBase.Typography
 
             return genericList;
         }
+
+        public string CapitalizeFirst()
+        {
+            return this._value.Substring(0, 1).ToUpper() + this._value.Substring(1, this._value.Length - 1);
+        }
     }
 }
