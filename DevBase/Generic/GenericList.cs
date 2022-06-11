@@ -11,7 +11,6 @@ using DevBase.Utilities;
 
 namespace DevBase.Generic
 {
-    //Make a Remove function
     public class GenericList<T>
     {
         private T[] _array;
@@ -353,6 +352,23 @@ namespace DevBase.Generic
 
             Array.Resize(ref this._array, this._array.Length - 1);
             Array.Copy(newArray, _array, newArray.Length);
+        }
+
+        /// <summary>
+        /// Removes items in an given range
+        /// </summary>
+        /// <param name="min">Minimum range</param>
+        /// <param name="max">Maximum range</param>
+        /// <exception cref="GenericListEntryException">Throws if the range is invalid</exception>
+        public void RemoveRange(int min, int max)
+        {
+            if (min > max)
+                throw new GenericListEntryException(GenericListEntryException.Type.InvalidRange);
+
+            for (int i = min; i < max; i++)
+            {
+                Remove(i);
+            }
         }
 
         /// <summary>

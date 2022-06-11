@@ -81,6 +81,14 @@ namespace DevBase.Async.Task
             return token;
         }
 
+        public void SuspendByArray(Object[] types)
+        {
+            for (int i = 0; i < types.Length; i++)
+            {
+                Suspend(types[i]);
+            }
+        }
+
         public void Suspend(params Object[] types)
         {
             for (int i = 0; i < types.Length; i++)
@@ -93,6 +101,14 @@ namespace DevBase.Async.Task
         {
             TaskSuspensionToken token = this._suspensionList.FindEntry(type);
             token.Suspend();
+        }
+
+        public void ResumeByArray(params Object[] types)
+        {
+            for (int i = 0; i < types.Length; i++)
+            {
+                Resume(types[i]);
+            }
         }
 
         public void Resume(params Object[] types)
