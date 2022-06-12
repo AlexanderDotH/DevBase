@@ -103,7 +103,7 @@ namespace DevBase.Async.Task
             token.Suspend();
         }
 
-        public void ResumeByArray(params Object[] types)
+        public void ResumeByArray(Object[] types)
         {
             for (int i = 0; i < types.Length; i++)
             {

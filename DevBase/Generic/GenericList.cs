@@ -380,9 +380,22 @@ namespace DevBase.Generic
             return new List<T>(this._array);
         }
 
+        /// <summary>
+        /// Returns the internal array for this list
+        /// </summary>
+        /// <returns>An array from type T</returns>
         public T[] GetAsArray()
         {
             return this._array;
+        }
+
+        /// <summary>
+        /// Is empty check
+        /// </summary>
+        /// <returns>True, if this list is empty, False if not</returns>
+        public bool IsEmpty()
+        {
+            return this._array.Length == 0;
         }
 
         /// <summary>
