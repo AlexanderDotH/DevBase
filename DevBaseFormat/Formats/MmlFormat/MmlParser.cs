@@ -27,6 +27,9 @@ namespace DevBaseFormat.Formats.MmlFormat
 
                 MmlElement[] parsedElements = JsonConvert.DeserializeObject<MmlElement[]>(lyricString);
 
+                if (parsedElements == null)
+                    return (T)new object();
+
                 for (int i = 0; i < parsedElements.Length; i++)
                 {
                     MmlElement mmlElement = parsedElements[i];
@@ -34,8 +37,13 @@ namespace DevBaseFormat.Formats.MmlFormat
                     if (mmlElement == null)
                         continue;
 
+                    long timeStamp = 0;
+                    timeStamp += (long)TimeSpan.FromMinutes(mmlElement.Time.Minutes).TotalMilliseconds;
+                    timeStamp += (long)TimeSpan.FromSeconds(mmlElement.Time.Seconds).TotalMilliseconds;
+                    timeStamp += (long)TimeSpan.FromMilliseconds(mmlElement.Time.Hundredths).TotalMilliseconds;
+
                     lyricElements.Add(new LyricElement(
-                        (long)TimeSpan.FromSeconds(mmlElement.Time.Total).TotalMilliseconds, 
+                        timeStamp, 
                         LyricsUtils.EditLine(mmlElement.Text)));
                 }
 
