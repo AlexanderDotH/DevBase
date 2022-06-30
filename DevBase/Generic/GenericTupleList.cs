@@ -11,6 +11,22 @@ namespace DevBase.Generic
 {
     public class GenericTupleList<T1, T2> : GenericList<Tuple<T1, T2>>
     {
+        public GenericTupleList() { }
+
+        public GenericTupleList(GenericTupleList<T1, T2> list)
+        {
+            AddRange(list);
+        }
+
+        public void AddRange(GenericTupleList<T1, T2> anotherList)
+        {
+            for (int i = 0; i < anotherList.Length; i++)
+            {
+                Tuple<T1, T2> e = anotherList.Get(i);
+                this.Add(e);
+            }
+        }
+
         public Tuple<T1, T2> FindFullEntry(T1 t1)
         {
             long size = MemoryUtils.GetSize(t1);
@@ -162,6 +178,11 @@ namespace DevBase.Generic
             }
 
             return t2GenericList;
+        }
+
+        public void Add(T1 t1, T2 t2)
+        {
+            this.Add(new Tuple<T1, T2>(t1, t2));
         }
     }
 }
