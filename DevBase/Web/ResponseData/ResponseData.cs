@@ -7,6 +7,7 @@ using System.Net;
 
 namespace DevBase.Web.ResponseData
 {
+    [Serializable]
     public class ResponseData
     {
         private byte[] _content;

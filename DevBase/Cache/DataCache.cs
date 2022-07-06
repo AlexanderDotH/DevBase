@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DevBase.Generic;
+using DevBase.Web.RequestData;
 
 namespace DevBase.Cache
 {
@@ -30,12 +31,12 @@ namespace DevBase.Cache
         {
             RefreshExpirationDate();
 
-            CacheElement<V> element = this._cache.FindEntry(key);
+            CacheElement<V> element = this._cache.FindEntrySafe(key);
 
             if (element != null)
                 return element.Value;
 
-            return (V)new object();
+            return default;
         }
 
         public GenericList<V> DataFromCacheAsList(K key)
@@ -53,6 +54,13 @@ namespace DevBase.Cache
             return returnElements;
         }
 
+        public bool IsInCache(K key)
+        {
+            dynamic v = this._cache.FindEntrySafe(key);
+
+            return v != null;
+        }
+
         private void RefreshExpirationDate()
         {
             GenericTupleList<K, CacheElement<V>> _copyOfCache = new GenericTupleList<K, CacheElement<V>>(this._cache);
@@ -61,7 +69,7 @@ namespace DevBase.Cache
             {
                 Tuple<K, CacheElement<V>> currentElement = _copyOfCache.Get(i);
 
-                if (currentElement.Item2.ExpirationDate > DateTimeOffset.Now.ToUnixTimeMilliseconds())
+                if (DateTimeOffset.Now.ToUnixTimeMilliseconds() > currentElement.Item2.ExpirationDate)
                 {
                     if (this._cache.Contains(currentElement))
                     {

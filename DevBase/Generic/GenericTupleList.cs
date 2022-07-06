@@ -63,7 +63,7 @@ namespace DevBase.Generic
             return null;
         }
 
-        public T2 FindEntry(T1 t1)
+        public dynamic FindEntry(T1 t1)
         {
             long size = MemoryUtils.GetSize(t1);
 
@@ -78,10 +78,10 @@ namespace DevBase.Generic
                 }
             }
 
-            return (T2)new object();
+            return null;
         }
 
-        public T1 FindEntry(T2 t2)
+        public dynamic FindEntry(T2 t2)
         {
             long size = MemoryUtils.GetSize(t2);
 
@@ -96,9 +96,34 @@ namespace DevBase.Generic
                 }
             }
 
-            return default;
+            return null;
         }
 
+        public dynamic FindEntrySafe(T1 t1)
+        {
+            for (int i = 0; i < this.Length; i++)
+            {
+                if (t1.Equals(this.Get(i).Item1))
+                {
+                    return this.Get(i).Item2;
+                }
+            }
+
+            return null;
+        }
+
+        public dynamic FindEntrySafe(T2 t2)
+        {
+            for (int i = 0; i < this.Length; i++)
+            {
+                if (t2.Equals(this.Get(i).Item2))
+                {
+                    return this.Get(i).Item1;
+                }
+            }
+
+            return null;
+        }
 
         public GenericList<Tuple<T1, T2>> FindFullEntries(T2 t2)
         {

@@ -10,6 +10,7 @@ using DevBase.Web.RequestData.Data;
 
 namespace DevBase.Web.RequestData
 {
+    [Serializable]
     public class RequestData
     {
         private EnumRequestMethod _requestMethod;
@@ -20,6 +21,7 @@ namespace DevBase.Web.RequestData
         private string _userAgent;
         private string _accept;
         private WebHeaderCollection _header;
+        private CookieContainer _cookieContainer;
 
         public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType[] contentType, EnumEncodingType[] encodingType, byte[] content, string userAgent)
         {
@@ -29,6 +31,7 @@ namespace DevBase.Web.RequestData
             this._contentType = contentType;
             this._encodingType = encodingType;
             this._userAgent = userAgent;
+            this._cookieContainer = new CookieContainer();
             this._header = new WebHeaderCollection();
         }
 
@@ -204,6 +207,12 @@ namespace DevBase.Web.RequestData
         {
             string enumString = ConvertToEnumString(auth.AuthType);
             this.Header.Add("Authorization", enumString + " " + auth.Token);
+        }
+
+        public CookieContainer CookieContainer
+        {
+            get { return this._cookieContainer; }
+            set { this._cookieContainer = value; }
         }
 
         public EnumRequestMethod RequestMethod

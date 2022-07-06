@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace DevBase.Cache
 {
+    [Serializable]
     public class CacheElement<V>
     {
         private V _value;

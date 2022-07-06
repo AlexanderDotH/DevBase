@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 using DevBase.Web.RequestData;
 using System.Net;
 using System.IO;
+using System.Net.Cache;
 using DevBase.Enums;
 using DevBase.Utilities;
+using DevBase.Web.WebCache;
 
 namespace DevBase.Web
 {
@@ -22,8 +24,19 @@ namespace DevBase.Web
 
         public Request(string url) : this(new RequestData.RequestData(url, string.Empty)) {}
 
-        public ResponseData.ResponseData GetResponse()
+        public ResponseData.ResponseData GetResponse(bool allowCaching = true)
         {
+            if (allowCaching)
+            {
+                if (RequestCache.INSTANCE != null && RequestCache.INSTANCE.CachingAllowed)
+                {
+                    if (RequestCache.INSTANCE.IsInCache(this._requestData.Uri))
+                    {
+                        return RequestCache.INSTANCE.DataFromCache(this._requestData.Uri);
+                    }
+                }
+            }
+
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this._requestData.Uri);
 
             request.Headers = this._requestData.Header;
@@ -32,6 +45,7 @@ namespace DevBase.Web
             request.ContentType += this._requestData.ConvertFromEncodingTypes(request.ContentType, this._requestData.EncodingTypes);
             request.UserAgent = this._requestData.UserAgent;
             request.Accept = this._requestData.Accept;
+            request.CookieContainer = this._requestData.CookieContainer;
 
             if (this._requestData.RequestMethod == EnumRequestMethod.POST)
             {
@@ -56,11 +70,33 @@ namespace DevBase.Web
                 responseData = new ResponseData.ResponseData(response, reader.ReadToEnd(), response.StatusCode);
             }
 
+            if (allowCaching)
+            {
+                if (RequestCache.INSTANCE != null && RequestCache.INSTANCE.CachingAllowed)
+                {
+                    if (!RequestCache.INSTANCE.IsInCache(this._requestData.Uri))
+                    {
+                        RequestCache.INSTANCE.WriteToCache(this._requestData.Uri, responseData);
+                    }
+                }
+            }
+
             return responseData;
         }
 
-        public async Task<ResponseData.ResponseData> GetResponseAsync()
+        public async Task<ResponseData.ResponseData> GetResponseAsync(bool allowCaching = true)
         {
+            if (allowCaching)
+            {
+                if (RequestCache.INSTANCE != null && RequestCache.INSTANCE.CachingAllowed)
+                {
+                    if (RequestCache.INSTANCE.IsInCache(this._requestData.Uri))
+                    {
+                        return RequestCache.INSTANCE.DataFromCache(this._requestData.Uri);
+                    }
+                }
+            }
+
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this._requestData.Uri);
 
             request.Headers = this._requestData.Header;
@@ -69,6 +105,7 @@ namespace DevBase.Web
             request.ContentType += this._requestData.ConvertFromEncodingTypes(request.ContentType, this._requestData.EncodingTypes);
             request.UserAgent = this._requestData.UserAgent;
             request.Accept = this._requestData.Accept;
+            request.CookieContainer = this._requestData.CookieContainer;
 
             if (this._requestData.RequestMethod == EnumRequestMethod.POST)
             {
@@ -91,6 +128,17 @@ namespace DevBase.Web
             using (StreamReader reader = new StreamReader(stream, responseData.Encoding))
             {
                 responseData = new ResponseData.ResponseData(response, reader.ReadToEnd(), response.StatusCode);
+            }
+
+            if (allowCaching)
+            {
+                if (RequestCache.INSTANCE != null && RequestCache.INSTANCE.CachingAllowed)
+                {
+                    if (!RequestCache.INSTANCE.IsInCache(this._requestData.Uri))
+                    {
+                        RequestCache.INSTANCE.WriteToCache(this._requestData.Uri, responseData);
+                    }
+                }
             }
 
             return responseData;

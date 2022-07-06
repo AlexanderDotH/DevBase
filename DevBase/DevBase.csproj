@@ -22,7 +22,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -31,6 +31,9 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=13.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -68,6 +71,7 @@
     <Compile Include="Utilities\EncodingUtils.cs" />
     <Compile Include="Utilities\MemoryUtils.cs" />
     <Compile Include="Utilities\StringUtils.cs" />
+    <Compile Include="Web\Cookie\GlobalCookieContainer.cs" />
     <Compile Include="Web\Request.cs" />
     <Compile Include="Web\RequestData\Data\Auth.cs" />
     <Compile Include="Enums\EnumEncodingType.cs" />
@@ -76,6 +80,7 @@
     <Compile Include="Enums\EnumRequestMethod.cs" />
     <Compile Include="Enums\EnumContentType.cs" />
     <Compile Include="Web\ResponseData\ResponseData.cs" />
+    <Compile Include="Web\WebCache\RequestCache.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

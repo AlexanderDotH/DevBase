@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using DevBase.Async.Task;
@@ -19,10 +20,12 @@ using DevBase.Utilities;
 using DevBase.Web;
 using DevBase.Web.RequestData.Data;
 using DevBase.Web.ResponseData;
+using DevBase.Web.WebCache;
 using DevBaseFormat;
 using DevBaseFormat.Formats.LrcFormat;
 using DevBaseFormat.Formats.MmlFormat;
 using DevBaseFormat.Structure;
+using Newtonsoft.Json;
 
 namespace DevBaseLive
 {
@@ -160,19 +163,193 @@ namespace DevBaseLive
         }
     }
 
+    public class JsonTidalAccountRefreshAccess
+    {
+        [JsonProperty("access_token")]
+        public string AccessToken { get; set; }
+
+        [JsonProperty("token_type")]
+        public string TokenType { get; set; }
+
+        [JsonProperty("expires_in")]
+        public int ExpiresIn { get; set; }
+
+        [JsonProperty("user")]
+        public JsonTidalUser User { get; set; }
+    }
+
+    public class JsonTidalUser
+    {
+        [JsonProperty("userId")]
+        public int UserId { get; set; }
+
+        [JsonProperty("email")]
+        public object Email { get; set; }
+
+        [JsonProperty("countryCode")]
+        public string CountryCode { get; set; }
+
+        [JsonProperty("fullName")]
+        public object FullName { get; set; }
+
+        [JsonProperty("firstName")]
+        public object FirstName { get; set; }
+
+        [JsonProperty("lastName")]
+        public object LastName { get; set; }
+
+        [JsonProperty("nickname")]
+        public object Nickname { get; set; }
+
+        [JsonProperty("username")]
+        public string Username { get; set; }
+
+        [JsonProperty("address")]
+        public object Address { get; set; }
+
+        [JsonProperty("city")]
+        public object City { get; set; }
+
+        [JsonProperty("postalcode")]
+        public object Postalcode { get; set; }
+
+        [JsonProperty("usState")]
+        public object UsState { get; set; }
+
+        [JsonProperty("phoneNumber")]
+        public object PhoneNumber { get; set; }
+
+        [JsonProperty("birthday")]
+        public object Birthday { get; set; }
+
+        [JsonProperty("gender")]
+        public object Gender { get; set; }
+
+        [JsonProperty("imageId")]
+        public object ImageId { get; set; }
+
+        [JsonProperty("channelId")]
+        public int ChannelId { get; set; }
+
+        [JsonProperty("parentId")]
+        public int ParentId { get; set; }
+
+        [JsonProperty("acceptedEULA")]
+        public bool AcceptedEULA { get; set; }
+
+        [JsonProperty("created")]
+        public long Created { get; set; }
+
+        [JsonProperty("updated")]
+        public long Updated { get; set; }
+
+        [JsonProperty("facebookUid")]
+        public int FacebookUid { get; set; }
+
+        [JsonProperty("appleUid")]
+        public object AppleUid { get; set; }
+
+        [JsonProperty("googleUid")]
+        public object GoogleUid { get; set; }
+
+        [JsonProperty("newUser")]
+        public bool NewUser { get; set; }
+    }
+
+
     class Program
     {
+
+        public static async Task<JsonTidalAccountRefreshAccess> RefreshToken(string refreshToken)
+        {
+            string clientID = "zU4XHVVkc2tDPo4t";
+            string clientSecret = "VJKhDFqJPqvsPVNBV6ukXTJmwlvbttP7wlMlrc72se4=";
+
+            GenericList<FormKeypair> formData = new GenericList<FormKeypair>();
+            formData.Add(new FormKeypair("client_id", clientID));
+            formData.Add(new FormKeypair("refresh_token", refreshToken));
+            formData.Add(new FormKeypair("grant_type", "refresh_token"));
+            formData.Add(new FormKeypair("scope", "r_usr+w_usr+w_sub"));
+
+            RequestData requestData = new RequestData(new Uri("https://auth.tidal.com/v1/oauth2/token"),
+                EnumRequestMethod.POST,
+                new EnumContentType[] { EnumContentType.FORM },
+                new EnumEncodingType[] { EnumEncodingType.UTF8 },
+                formData);
+
+            requestData.Header.Add("accept-encoding", "gzip, deflate, br");
+            requestData.Accept = "*/*";
+
+            string authToken = Convert.ToBase64String(Encoding.Default.GetBytes(clientID + ":" + clientSecret));
+            requestData.AddAuthMethod(new Auth(authToken, EnumAuthType.BASIC));
+
+            JsonTidalAccountRefreshAccess accountAccess = null;
+
+            try
+            {
+                ResponseData response = await new Request(requestData).GetResponseAsync();
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                    return null;
+
+                if (response.GetContentAsString().Contains("authorization_pending"))
+                    return null;
+
+                accountAccess = JsonConvert.DeserializeObject<JsonTidalAccountRefreshAccess>(response.GetContentAsString());
+
+                if (accountAccess == null)
+                    return null;
+            }
+            catch (Exception e)
+            { }
+
+            return accountAccess;
+        }
+
         static void Main(string[] args)
         {
-
-            PauseTokenSource pause = new PauseTokenSource();
-
-
             Task.Factory.StartNew(async () =>
             {
-                await pause.PauseIfRequestedAsync();
+                string refreshToken =
+                    "eyJraWQiOiJoUzFKYTdVMCIsImFsZyI6IkVTNTEyIn0.eyJ0eXBlIjoibzJfcmVmcmVzaCIsInVpZCI6MTg3MzkyNzg2LCJzY29wZSI6Indfc3ViIHJfdXNyIHdfdXNyIiwiY2lkIjozMjM1LCJzVmVyIjowLCJnVmVyIjowLCJpc3MiOiJodHRwczovL2F1dGgudGlkYWwuY29tL3YxIn0.Ac7-qBekj52NS0hwgT0rOY8s_NsF5GOuDFhBqTu0XlV6z35YT6yJONzeCl7DcxF9rq_zVo5Zo7Oljk-rZNzPu0lSAODciz0vEfOrT57lazK0qEf3yQFvkvAXD-qUcEpQ_zWqgrglfON0ArLZo1YEZmNtX4iUwXrKgF6JQ3jR7ENJ8ElJ";
 
+                JsonTidalAccountRefreshAccess refresh =
+                    await RefreshToken(refreshToken);
+
+                //Console.WriteLine(refresh.AccessToken);
             });
+
+
+            //PauseTokenSource pause = new PauseTokenSource();
+
+
+            //Task.Factory.StartNew(async () =>
+            //{
+            //    await pause.PauseIfRequestedAsync();
+
+            //});
+
+            //RequestCache.INSTANCE.CachingAllowed = true;
+
+            //Stopwatch sw = new Stopwatch();
+            //sw.Start();
+
+            //RequestData requestData = new RequestData("https://google.com");
+            //Request r = new Request(requestData);
+            //r.GetResponse().GetContentAsString();
+
+            //sw.Stop();
+            //Console.WriteLine("1st try took " + sw.ElapsedMilliseconds);
+
+            //sw.Reset();
+            //sw.Start();
+
+            //RequestData requestData2 = new RequestData("https://google.com");
+            //Request r2 = new Request(requestData2);
+            //var fen = r2.GetResponse().GetContentAsString();
+
+            //sw.Stop();
+            //Console.WriteLine("2nd try took " + sw.ElapsedMilliseconds);
 
             //Console.WriteLine("reached");
 
