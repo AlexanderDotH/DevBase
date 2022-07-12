@@ -28,7 +28,7 @@ namespace DevBaseFormat.Formats.MmlFormat
                 MmlElement[] parsedElements = JsonConvert.DeserializeObject<MmlElement[]>(lyricString);
 
                 if (parsedElements == null)
-                    return (T)new object();
+                    return default;
 
                 for (int i = 0; i < parsedElements.Length; i++)
                 {

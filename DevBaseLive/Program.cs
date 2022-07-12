@@ -22,6 +22,7 @@ using DevBase.Web.RequestData.Data;
 using DevBase.Web.ResponseData;
 using DevBase.Web.WebCache;
 using DevBaseFormat;
+using DevBaseFormat.Formats.EnvFormat;
 using DevBaseFormat.Formats.LrcFormat;
 using DevBaseFormat.Formats.MmlFormat;
 using DevBaseFormat.Structure;
@@ -308,16 +309,16 @@ namespace DevBaseLive
 
         static void Main(string[] args)
         {
-            Task.Factory.StartNew(async () =>
-            {
-                string refreshToken =
-                    "eyJraWQiOiJoUzFKYTdVMCIsImFsZyI6IkVTNTEyIn0.eyJ0eXBlIjoibzJfcmVmcmVzaCIsInVpZCI6MTg3MzkyNzg2LCJzY29wZSI6Indfc3ViIHJfdXNyIHdfdXNyIiwiY2lkIjozMjM1LCJzVmVyIjowLCJnVmVyIjowLCJpc3MiOiJodHRwczovL2F1dGgudGlkYWwuY29tL3YxIn0.Ac7-qBekj52NS0hwgT0rOY8s_NsF5GOuDFhBqTu0XlV6z35YT6yJONzeCl7DcxF9rq_zVo5Zo7Oljk-rZNzPu0lSAODciz0vEfOrT57lazK0qEf3yQFvkvAXD-qUcEpQ_zWqgrglfON0ArLZo1YEZmNtX4iUwXrKgF6JQ3jR7ENJ8ElJ";
+            //Task.Factory.StartNew(async () =>
+            //{
+            //    string refreshToken =
+            //        "eyJraWQiOiJoUzFKYTdVMCIsImFsZyI6IkVTNTEyIn0.eyJ0eXBlIjoibzJfcmVmcmVzaCIsInVpZCI6MTg3MzkyNzg2LCJzY29wZSI6Indfc3ViIHJfdXNyIHdfdXNyIiwiY2lkIjozMjM1LCJzVmVyIjowLCJnVmVyIjowLCJpc3MiOiJodHRwczovL2F1dGgudGlkYWwuY29tL3YxIn0.Ac7-qBekj52NS0hwgT0rOY8s_NsF5GOuDFhBqTu0XlV6z35YT6yJONzeCl7DcxF9rq_zVo5Zo7Oljk-rZNzPu0lSAODciz0vEfOrT57lazK0qEf3yQFvkvAXD-qUcEpQ_zWqgrglfON0ArLZo1YEZmNtX4iUwXrKgF6JQ3jR7ENJ8ElJ";
 
-                JsonTidalAccountRefreshAccess refresh =
-                    await RefreshToken(refreshToken);
+            //    JsonTidalAccountRefreshAccess refresh =
+            //        await RefreshToken(refreshToken);
 
-                //Console.WriteLine(refresh.AccessToken);
-            });
+            //    //Console.WriteLine(refresh.AccessToken);
+            //});
 
 
             //PauseTokenSource pause = new PauseTokenSource();
