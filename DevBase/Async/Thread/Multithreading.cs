@@ -1,13 +1,14 @@
 ﻿using System.Collections.Concurrent;
+using DevBase.Generic;
 
 namespace DevBase.Async.Thread
 {
     public class Multithreading
     {
-        private List<AThread> _threads;
-        private ConcurrentQueue<AThread> _queueThreads;
+        private readonly GenericList<AThread> _threads;
+        private readonly ConcurrentQueue<AThread> _queueThreads;
 
-        private int _capacity;
+        private readonly int _capacity;
 
         /// <summary>
         /// Constructs the base of the multithreading system
@@ -15,7 +16,7 @@ namespace DevBase.Async.Thread
         /// <param name="capacity">Specifies a limit for active working threads</param>
         public Multithreading(int capacity = Int32.MaxValue)
         {
-            this._threads = new List<AThread>();
+            this._threads = new GenericList<AThread>();
             this._queueThreads = new ConcurrentQueue<AThread>();
 
             this._capacity = capacity;
@@ -32,12 +33,9 @@ namespace DevBase.Async.Thread
             {
                 while (true)
                 {
-                    foreach (AThread u in GetUnactiveThreads())
-                    {
-                        this._threads.Remove(u);
-                    }
+                    GetUnactiveThreads().ForEach(t => this._threads.Remove(t));
 
-                    if (this._threads.Count < this._capacity && this._queueThreads.Count != 0)
+                    if (this._threads.Length < this._capacity && this._queueThreads.Count != 0)
                     {
                         AThread aThreadDequeued = null;
 
@@ -60,15 +58,15 @@ namespace DevBase.Async.Thread
         /// Gets all active threads from thread list
         /// </summary>
         /// <returns>All active Threads from thread list</returns>
-        private List<AThread> GetActiveThreads()
+        private GenericList<AThread> GetActiveThreads()
         {
-            List<AThread> tList = new List<AThread>();
+            GenericList<AThread> tList = new GenericList<AThread>();
 
-            foreach (AThread t in this._threads)
+            this._threads.ForEach(t =>
             {
                 if (t.Thread.IsAlive)
                     tList.Add(t);
-            }
+            });
 
             return tList;
         }
@@ -77,15 +75,15 @@ namespace DevBase.Async.Thread
         /// Gets all unactive threads from thread list
         /// </summary>
         /// <returns>All unactive Threads from thread list</returns>
-        private List<AThread> GetUnactiveThreads()
+        private GenericList<AThread> GetUnactiveThreads()
         {
-            List<AThread> tList = new List<AThread>();
+            GenericList<AThread> tList = new GenericList<AThread>();
 
-            foreach (AThread t in this._threads)
+            this._threads.ForEach(t =>
             {
                 if (!t.Thread.IsAlive)
                     tList.Add(t);
-            }
+            });
 
             return tList;
         }
@@ -150,10 +148,7 @@ namespace DevBase.Async.Thread
         /// </summary>
         public void AbortAll()
         {
-            foreach (AThread t in _threads)
-            {
-                t.Thread.Abort();
-            }
+            this._threads.ForEach(t => t.Thread.Abort());
         }
 
         /// <summary>
@@ -179,9 +174,9 @@ namespace DevBase.Async.Thread
         /// <returns>
         /// Returns all active threads
         /// </returns>
-        public List<AThread> Threads
+        public GenericList<AThread> Threads
         {
-            get { return _threads; }
+            get { return this._threads; }
         }
     }
 }

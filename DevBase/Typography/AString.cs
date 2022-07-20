@@ -11,7 +11,7 @@ namespace DevBase.Typography
     public class AString
     {
 
-        private string _value;
+        private readonly string _value;
 
         public AString(string value)
         {

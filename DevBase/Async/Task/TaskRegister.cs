@@ -9,8 +9,8 @@ namespace DevBase.Async.Task
 {
     public class TaskRegister
     {
-        private GenericTupleList<TaskSuspensionToken, Object> _suspensionList;
-        private GenericTupleList<System.Threading.Tasks.Task, Object> _taskList;
+        private readonly GenericTupleList<TaskSuspensionToken, Object> _suspensionList;
+        private readonly GenericTupleList<System.Threading.Tasks.Task, Object> _taskList;
 
         public TaskRegister()
         {

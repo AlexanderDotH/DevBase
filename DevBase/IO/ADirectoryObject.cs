@@ -9,7 +9,7 @@ namespace DevBase.IO
 {
     public class ADirectoryObject
     {
-        private DirectoryInfo _directoryInfo;
+        private readonly DirectoryInfo _directoryInfo;
 
         public ADirectoryObject(DirectoryInfo directoryInfo)
         {

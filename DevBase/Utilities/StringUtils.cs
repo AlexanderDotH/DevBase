@@ -9,14 +9,14 @@ namespace DevBase.Utilities
     public class StringUtils
     {
 
-        private static Random random = new Random();
+        private readonly static Random Random = new Random();
         public static string RandomString(int length, string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
         {
             if (length < 0)
                 return string.Empty;
 
             return new string(Enumerable.Repeat(charset, length)
-                .Select(s => s[random.Next(s.Length)]).ToArray());
+                .Select(s => s[Random.Next(s.Length)]).ToArray());
         }
 
         public static string StringArrayToString(string[] array)

@@ -15,7 +15,7 @@ namespace DevBase.Web
 {
     public class Request
     {
-        private RequestData.RequestData _requestData;
+        private readonly RequestData.RequestData _requestData;
 
         public Request(RequestData.RequestData requestData)
         {
@@ -113,7 +113,7 @@ namespace DevBase.Web
 
                 using (Stream requestStream = request.GetRequestStream())
                 {
-                    requestStream.Write(this._requestData.Content, 0, this._requestData.Content.Length);
+                    await requestStream.WriteAsync(this._requestData.Content, 0, this._requestData.Content.Length);
                 }
             }
 
@@ -127,7 +127,7 @@ namespace DevBase.Web
 
             using (StreamReader reader = new StreamReader(stream, responseData.Encoding))
             {
-                responseData = new ResponseData.ResponseData(response, reader.ReadToEnd(), response.StatusCode);
+                responseData = new ResponseData.ResponseData(response, await reader.ReadToEndAsync(), response.StatusCode);
             }
 
             if (allowCaching)

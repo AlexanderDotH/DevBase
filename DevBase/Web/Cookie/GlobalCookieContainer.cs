@@ -13,7 +13,7 @@ namespace DevBase.Web.Cookie
     {
         private static GlobalCookieContainer _instance;
 
-        private GenericTupleList<Object, CookieContainer> _cookies;
+        private readonly GenericTupleList<Object, CookieContainer> _cookies;
 
         public GlobalCookieContainer()
         {

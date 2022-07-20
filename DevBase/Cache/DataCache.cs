@@ -10,9 +10,9 @@ namespace DevBase.Cache
 {
     public class DataCache<K,V>
     {
-        private int _expirationMS;
+        private readonly int _expirationMS;
 
-        private GenericTupleList<K, CacheElement<V>> _cache;
+        private readonly GenericTupleList<K, CacheElement<V>> _cache;
 
         public DataCache(int expirationMS)
         {

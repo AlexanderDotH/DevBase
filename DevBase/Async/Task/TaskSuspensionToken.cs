@@ -9,7 +9,7 @@ namespace DevBase.Async.Task
 {
     public class TaskSuspensionToken
     {
-        private SemaphoreSlim _lock;
+        private readonly SemaphoreSlim _lock;
         private bool _suspended;
         private TaskCompletionSource<bool> _resumeRequestTcs;
 

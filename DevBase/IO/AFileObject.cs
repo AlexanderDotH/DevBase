@@ -11,36 +11,18 @@ namespace DevBase.IO
 {
     public class AFileObject
     {
-        private FileInfo _fileInfo = null;
-        private byte[] _binaryData = new byte[0];
+        private readonly FileInfo _fileInfo;
+        private readonly byte[] _binaryData;
 
-        public AFileObject(FileInfo fi, byte[] bd)
+        public AFileObject(FileInfo fileInfo, byte[] binaryData)
         {
-            this._fileInfo = fi;
-            this._binaryData = bd;
+            this._fileInfo = fileInfo;
+            this._binaryData = binaryData;
         }
 
         public AFileObject(FileInfo fi)
         {
             this._fileInfo = fi;
-        }
-
-        public FileInfo FileInfo
-        {
-            get { return this._fileInfo; }
-        }
-
-        public byte[] BinaryData
-        {
-            get { return this._binaryData; }
-        }
-
-        public string ToStringData()
-        {
-            if (this._binaryData == null)
-                return string.Empty;
-
-            return EncodingUtils.GetEncoding(this._binaryData).GetString(this._binaryData);
         }
 
         public GenericList<string> ToList()
@@ -60,6 +42,24 @@ namespace DevBase.IO
             }
 
             return genericList;
+        }
+
+        public string ToStringData()
+        {
+            if (this._binaryData == null)
+                return string.Empty;
+
+            return EncodingUtils.GetEncoding(this._binaryData).GetString(this._binaryData);
+        }
+
+        public FileInfo FileInfo
+        {
+            get { return this._fileInfo; }
+        }
+
+        public byte[] BinaryData
+        {
+            get { return this._binaryData; }
         }
     }
 }

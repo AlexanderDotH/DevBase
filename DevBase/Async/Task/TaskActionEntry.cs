@@ -1,16 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-
-namespace DevBase.Async.Task
+﻿namespace DevBase.Async.Task
 {
     public class TaskActionEntry
     {
-        private Action _action;
-        private TaskCreationOptions _creationOptions;
+        private readonly Action _action;
+        private readonly TaskCreationOptions _creationOptions;
 
         public TaskActionEntry(Action action, TaskCreationOptions creationOptions)
         {
@@ -20,12 +13,12 @@ namespace DevBase.Async.Task
 
         public Action Action
         {
-            get => _action;
+            get => this._action;
         }
 
         public TaskCreationOptions CreationOptions
         {
-            get => _creationOptions;
+            get => this._creationOptions;
         }
     }
 }

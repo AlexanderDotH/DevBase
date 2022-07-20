@@ -2,7 +2,7 @@
 {
     public class AThread
     {
-        private System.Threading.Thread _thread;
+        private readonly System.Threading.Thread _thread;
         private bool _startAfterCreation;
 
         /// <summary>

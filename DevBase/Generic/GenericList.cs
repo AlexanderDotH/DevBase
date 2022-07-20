@@ -20,7 +20,7 @@ namespace DevBase.Generic
         /// </summary>
         public GenericList()
         {
-            this._array = new T[0];
+            this._array = Array.Empty<T>();
         }
 
         /// <summary>

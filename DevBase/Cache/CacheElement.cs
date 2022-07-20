@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 namespace DevBase.Cache
 {
     [Serializable]
-    public class CacheElement<V>
+    public class CacheElement<TV>
     {
-        private V _value;
+        private TV _value;
         private long _expirationDate;
 
-        public CacheElement(V value, long expirationDate)
+        public CacheElement(TV value, long expirationDate)
         {
             this._value = value;
             this._expirationDate = expirationDate;
         }
 
-        public V Value
+        public TV Value
         {
             get => this._value;
             set => this._value = value;
