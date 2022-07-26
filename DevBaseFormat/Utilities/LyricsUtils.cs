@@ -25,6 +25,12 @@ namespace DevBaseFormat.Utilities
                     line = Regex.Replace(line, RegexHolder.REGEX_TIMESTAMP, string.Empty);
                     line = Regex.Replace(line, RegexHolder.REGEX_DETAILED_TIMESTAMP, string.Empty);
                 }
+
+                if (line.Contains("\\n"))
+                    line = line.Replace("\\n", string.Empty);
+
+                line = line.Trim();
+
             }
             else
             {
