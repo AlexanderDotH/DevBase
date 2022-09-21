@@ -26,67 +26,8 @@ namespace DevBase.Web
 
         public ResponseData.ResponseData GetResponse(bool allowCaching = true)
         {
-            if (allowCaching)
-            {
-                if (RequestCache.INSTANCE != null && RequestCache.INSTANCE.CachingAllowed)
-                {
-                    if (RequestCache.INSTANCE.IsInCache(this._requestData.Uri))
-                    {
-                        return RequestCache.INSTANCE.DataFromCache(this._requestData.Uri);
-                    }
-                }
-            }
-
-            HttpWebRequest request = (HttpWebRequest)WebRequest.Create(this._requestData.Uri);
-
-            request.Headers = this._requestData.Header;
-            request.Method = this._requestData.RequestMethod.ToString();
-
-            string contentType =
-                this._requestData.ConvertFromContentType(request.ContentType, this._requestData.ContentType);
-            contentType =
-                this._requestData.ConvertFromEncodingTypes(contentType, this._requestData.EncodingTypes);
-
-            request.ContentType = contentType;
-            request.UserAgent = this._requestData.UserAgent;
-            request.Accept = this._requestData.Accept;
-            request.CookieContainer = this._requestData.CookieContainer;
-
-            if (this._requestData.RequestMethod == EnumRequestMethod.POST)
-            {
-                request.ContentLength = this._requestData.Content.Length;
-
-                using (Stream requestStream = request.GetRequestStream())
-                {
-                    requestStream.Write(this._requestData.Content, 0, this._requestData.Content.Length);
-                }
-            }
-
-            HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-            Stream stream = response.GetResponseStream();
-
-            if (stream == null)
-                return null;
-
-            ResponseData.ResponseData responseData = new ResponseData.ResponseData(response, string.Empty, HttpStatusCode.NoContent);
-
-            using (StreamReader reader = new StreamReader(stream, responseData.Encoding))
-            {
-                responseData = new ResponseData.ResponseData(response, reader.ReadToEnd(), response.StatusCode);
-            }
-
-            if (allowCaching)
-            {
-                if (RequestCache.INSTANCE != null && RequestCache.INSTANCE.CachingAllowed)
-                {
-                    if (!RequestCache.INSTANCE.IsInCache(this._requestData.Uri))
-                    {
-                        RequestCache.INSTANCE.WriteToCache(this._requestData.Uri, responseData);
-                    }
-                }
-            }
-
-            return responseData;
+            Task<ResponseData.ResponseData> response = GetResponseAsync(allowCaching);
+            return response.GetAwaiter().GetResult();
         }
 
         public async Task<ResponseData.ResponseData> GetResponseAsync(bool allowCaching = true)
