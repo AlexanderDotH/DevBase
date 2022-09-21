@@ -80,7 +80,7 @@ namespace DevBase.Web.RequestData
                new Uri(uri), 
                EnumRequestMethod.GET,
                new EnumContentType[] { Enums.EnumContentType.HTML },
-               new EnumEncodingType[] { EnumEncodingType.UTF8 },
+               new EnumEncodingType[] {  },
                Encoding.Default.GetBytes(string.Empty), 
                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
                ) { }
@@ -138,6 +138,12 @@ namespace DevBase.Web.RequestData
 
         public string ConvertFromContentType(string existingContentType, EnumContentType[] requestType)
         {
+            if (requestType == null)
+                return existingContentType;
+
+            if (requestType.Length == 0)
+                return existingContentType;
+
             for (int i = 0; i < requestType.Length; i++)
             {
                 string content = ContentTypeToString(requestType[i]);
@@ -153,6 +159,12 @@ namespace DevBase.Web.RequestData
 
         public string ConvertFromEncodingTypes(string existingContentType, EnumEncodingType[] encodingType)
         {
+            if (encodingType == null)
+                return existingContentType;
+
+            if (encodingType.Length == 0)
+                return existingContentType;
+
             existingContentType += "charset=";
             for (int i = 0; i < encodingType.Length; i++)
             {

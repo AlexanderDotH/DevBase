@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBaseFormat", "DevBaseFor
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBaseTests", "DevBaseTests\DevBaseTests.csproj", "{AF655BBA-AE0B-4204-A4D7-B156C992DEBA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseEnvironment", "DevBaseEnvironment\DevBaseEnvironment.csproj", "{3D6EF2BE-0A21-4B91-A004-E966759E1D83}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBaseEnvironment", "DevBaseEnvironment\DevBaseEnvironment.csproj", "{3D6EF2BE-0A21-4B91-A004-E966759E1D83}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseApi", "DevBaseApi\DevBaseApi.csproj", "{652E8342-E84F-43D4-8EC2-B6A874042AD8}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{3D6EF2BE-0A21-4B91-A004-E966759E1D83}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3D6EF2BE-0A21-4B91-A004-E966759E1D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3D6EF2BE-0A21-4B91-A004-E966759E1D83}.Release|Any CPU.Build.0 = Release|Any CPU
+		{652E8342-E84F-43D4-8EC2-B6A874042AD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{652E8342-E84F-43D4-8EC2-B6A874042AD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{652E8342-E84F-43D4-8EC2-B6A874042AD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{652E8342-E84F-43D4-8EC2-B6A874042AD8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

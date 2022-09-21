@@ -1,4 +1,7 @@
-﻿using DevBase.Generic;
+﻿using System.Diagnostics;
+using DevBase.Generic;
+using DevBaseApi.Apis.Tidal;
+using DevBaseApi.Apis.Tidal.Structure.Json;
 
 namespace DevBaseEnvironment
 {
@@ -21,33 +24,14 @@ namespace DevBaseEnvironment
     {
         static void Main(string[] args)
         {
+            TidalClient client = new TidalClient();
+            JsonTidalSession session = client.Login(
+                "eyJraWQiOiJ2OU1GbFhqWSIsImFsZyI6IkVTMjU2In0.eyJ0eXBlIjoibzJfYWNjZXNzIiwidWlkIjoxODczOTI3ODYsInNjb3BlIjoid19zdWIgcl91c3Igd191c3IiLCJnVmVyIjowLCJzVmVyIjowLCJjaWQiOjMyMzUsImV4cCI6MTY1OTYyODkyNSwic2lkIjoiNmM1YmJlZjEtODgwZi00M2Q3LTg5MjctMGQyODUzMGMxYjAzIiwiaXNzIjoiaHR0cHM6Ly9hdXRoLnRpZGFsLmNvbS92MSJ9.9Nbx5ImVvbxMDfgjXYk6Brf-7ZUw8iCmRjwAkP5W4aQ8oJlKYQPz5d-ehMXGuJckW7rV_Gs93d42pC8051_aIg").GetAwaiter().GetResult();
 
-            Results results = new Results();
-            
-            Track t1 = new Track();
-            t1.Name = "SUMMER OF MY LIFE";
-
-            Track t2 = new Track();
-            t2.Name = "Summer";
-
-            results.Tracks = new List<Results.TrackList>();
-
-            Results.TrackList results1 = new Results.TrackList();
-            results1.Track = t1;
-
-            Results.TrackList results2 = new Results.TrackList();
-            results2.Track = t2;
-
-            results.Tracks.Add(results1);
-            results.Tracks.Add(results2);
-
-            List<Track> merge = new GenericTypeConversion<Results.TrackList, Track>().MergeToList(results.Tracks, (input,tracks) => tracks.Add(input.Track));
-
-            foreach (Track t in merge)
-            {
-                Console.WriteLine(t.Name);
-            }
-
+            JsonTidalSearchResult result = client.Search(session, "Never Gonna give you up").GetAwaiter().GetResult();
+            Debug.WriteLine(result.TotalNumberOfItems);
         }
+
+        
     }
 }

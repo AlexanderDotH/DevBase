@@ -41,8 +41,13 @@ namespace DevBase.Web
 
             request.Headers = this._requestData.Header;
             request.Method = this._requestData.RequestMethod.ToString();
-            request.ContentType += this._requestData.ConvertFromContentType(request.ContentType, this._requestData.ContentType);
-            request.ContentType += this._requestData.ConvertFromEncodingTypes(request.ContentType, this._requestData.EncodingTypes);
+
+            string contentType =
+                this._requestData.ConvertFromContentType(request.ContentType, this._requestData.ContentType);
+            contentType =
+                this._requestData.ConvertFromEncodingTypes(contentType, this._requestData.EncodingTypes);
+
+            request.ContentType = contentType;
             request.UserAgent = this._requestData.UserAgent;
             request.Accept = this._requestData.Accept;
             request.CookieContainer = this._requestData.CookieContainer;
