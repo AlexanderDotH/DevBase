@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DevBase.Generic;
 using DevBase.IO;
@@ -43,9 +44,11 @@ namespace DevBaseFormat.Formats.MmlFormat
                     timeStamp += (long)TimeSpan.FromSeconds(mmlElement.Time.Seconds).TotalMilliseconds;
                     timeStamp += (long)TimeSpan.FromMilliseconds(mmlElement.Time.Hundredths).TotalMilliseconds;
 
-                    lyricElements.Add(new LyricElement(
-                        timeStamp, 
-                        LyricsUtils.EditLine(mmlElement.Text)));
+                    if (IsLyricLineTrash(mmlElement.Text))
+                        lyricElements.Add(new LyricElement(
+                            timeStamp, 
+                            LyricsUtils.EditLine(mmlElement.Text)));
+                    
                 }
 
                 LrcObject lrcObject = new LrcObject();
@@ -56,6 +59,11 @@ namespace DevBaseFormat.Formats.MmlFormat
             {
                 throw new Exception("Type is not supported use the \"LrcObject\" type");
             }
+        }
+        
+        private bool IsLyricLineTrash(string line)
+        {
+            return Regex.IsMatch(line, RegexHolder.REGEX_GARBAGE);
         }
     }
 }

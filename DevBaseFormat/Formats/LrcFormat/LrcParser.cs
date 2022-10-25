@@ -37,7 +37,7 @@ namespace DevBaseFormat.Formats.LrcFormat
             {
                 string lineInList = linesGenericList.Get(i);
 
-                LyricElement lyricElement = ParseStringToLyrics(lineInList);
+                LyricElement lyricElement = ParseStringToLyrics(lineInList, i, linesGenericList.Length);
                 if (lyricElement != null)
                 {
                     lyricElements.Add(lyricElement);
@@ -90,7 +90,7 @@ namespace DevBaseFormat.Formats.LrcFormat
             return lrcObject;
         }
 
-        private LyricElement? ParseStringToLyrics(string lyricLine)
+        private LyricElement? ParseStringToLyrics(string lyricLine, int lineIndex, int maxLines)
         {
             if (lyricLine == null)
                 return null;
@@ -119,11 +119,11 @@ namespace DevBaseFormat.Formats.LrcFormat
 
             TimeSpan timeSpan = TimeSpan.Parse(hour + ":" + minutes + ":" + seconds + "." + milliseconds);
 
-            if (IsLyricLineTrash(lyricLine))
-                return null;
-
             string line = lyricLine.Replace(match.Groups[0].Value, String.Empty);
 
+            if (IsLyricLineTrash(line))
+                return null;
+            
             string lyricElementLine = LyricsUtils.EditLine(line);
             LyricElement lyricElement = new LyricElement(Convert.ToInt64(timeSpan.TotalMilliseconds), lyricElementLine);
             return lyricElement;

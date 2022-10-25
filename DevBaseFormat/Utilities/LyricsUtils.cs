@@ -14,9 +14,9 @@ namespace DevBaseFormat.Utilities
 
             if (line.Length > 0)
             {
-                if (line.Equals(""))
+                if (line.Equals("") || line.Equals(" "))
                 {
-                    line = line.Replace(string.Empty, "♪");
+                    line = line.Replace(line, "♪");
                 }
 
                 if (Regex.IsMatch(line, RegexHolder.REGEX_TIMESTAMP) ||

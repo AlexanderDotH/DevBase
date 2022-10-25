@@ -22,8 +22,8 @@ namespace DevBaseTests.DevBaseFormat.Formats.LrcFormat
         [Test]
         public void TestFormatFromFile()
         {
-            LrcObject parsed = this._lrcParser.FormatFromFile("..\\..\\..\\DevBaseFormatData\\LRC\\Hero.lrc");
-            Assert.AreEqual(parsed.Lyrics.Get(0).Line, "Little girl only １７ years old");
+            LrcObject parsed = this._lrcParser.FormatFromFile("..\\..\\..\\DevBaseFormatData\\LRC\\BEST LIFE.lrc");
+            Assert.AreEqual(parsed.Lyrics.Get(0).Line, "Best life");
         }
     }
 }
