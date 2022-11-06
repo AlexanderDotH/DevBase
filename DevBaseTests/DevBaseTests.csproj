@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DevBaseApi\DevBaseApi.csproj" />
     <ProjectReference Include="..\DevBaseFormat\DevBaseFormat.csproj" />
     <ProjectReference Include="..\DevBase\DevBase.csproj" />
   </ItemGroup>
