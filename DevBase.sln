@@ -13,6 +13,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBaseEnvironment", "DevBa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseApi", "DevBaseApi\DevBaseApi.csproj", "{652E8342-E84F-43D4-8EC2-B6A874042AD8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseNative", "DevBaseNative\DevBaseNative.csproj", "{3F7BDD8C-13FC-4954-A381-5B9842E0EA82}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "X11 Testing", "X11 Testing\X11 Testing.csproj", "{8213580F-3929-4E94-8010-4B01E1B7C250}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{652E8342-E84F-43D4-8EC2-B6A874042AD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{652E8342-E84F-43D4-8EC2-B6A874042AD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{652E8342-E84F-43D4-8EC2-B6A874042AD8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F7BDD8C-13FC-4954-A381-5B9842E0EA82}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F7BDD8C-13FC-4954-A381-5B9842E0EA82}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F7BDD8C-13FC-4954-A381-5B9842E0EA82}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F7BDD8C-13FC-4954-A381-5B9842E0EA82}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8213580F-3929-4E94-8010-4B01E1B7C250}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8213580F-3929-4E94-8010-4B01E1B7C250}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8213580F-3929-4E94-8010-4B01E1B7C250}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8213580F-3929-4E94-8010-4B01E1B7C250}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
