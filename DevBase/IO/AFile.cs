@@ -27,7 +27,7 @@ namespace DevBase.IO
 
                 if (readContent)
                 {
-                    fileHolder = new AFileObject(f, File.ReadAllBytes(f.FullName));
+                    fileHolder = ReadFile(f);
                 }
                 else
                 {
