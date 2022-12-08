@@ -7,10 +7,25 @@ namespace DevBaseColor.Image;
 public class ColorCalculator
 {
     private Avalonia.Media.Color _brightestColor;
-
+    private double _colorRange;
+    private double _bigShift;
+    private double _smallShift;
+    private int _pixelSteps;
+    
     public ColorCalculator()
     {
         this._brightestColor = new Avalonia.Media.Color();
+
+        this._colorRange = 50;
+        this._bigShift = 1.5;
+        this._smallShift = 0.5;
+        this._pixelSteps = 10;
+    }
+
+    public ColorCalculator(double bigShift, double smallShift) : this()
+    {
+        this._bigShift = bigShift;
+        this._smallShift = smallShift;
     }
     
     public unsafe Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
@@ -18,15 +33,13 @@ public class ColorCalculator
         GenericList<Avalonia.Media.Color> pixels = GetPixels(bitmap);
         GenericList<Avalonia.Media.Color> additional = new GenericList<Avalonia.Media.Color>();
 
-        double colorRange = 50;
-
         for (int i = 0; i < pixels.Length; i++)
         {
             Avalonia.Media.Color p = pixels.Get(i);
 
-            if (IsInRange(p.R - colorRange, p.R + colorRange, this._brightestColor.R) &&
-                IsInRange(p.G - colorRange, p.G + colorRange, this._brightestColor.G) &&
-                IsInRange(p.B - colorRange, p.B + colorRange, this._brightestColor.B))
+            if (IsInRange(p.R - this._colorRange, p.R + this._colorRange, this._brightestColor.R) &&
+                IsInRange(p.G - this._colorRange, p.G + this._colorRange, this._brightestColor.G) &&
+                IsInRange(p.B - this._colorRange, p.B + this._colorRange, this._brightestColor.B))
             {
                 additional.Add(p);
             }
@@ -36,9 +49,6 @@ public class ColorCalculator
         double g = 0;
         double b = 0;
 
-        double bigShift = 1.5;
-        double smallShift = 0.5;
-        
         for (int i = 0; i < additional.Length; i++)
         {
             Avalonia.Media.Color pixel = additional.Get(i);
@@ -49,34 +59,30 @@ public class ColorCalculator
 
             if (red > Math.Max(green, blue))
             {
-                r += red * bigShift;
+                r += red * this._bigShift;
             }
             else
             {
-                r += red * smallShift;
+                r += red * this._smallShift;
             }
             
             if (green > Math.Max(red, blue))
             {
-                g += green * bigShift;
+                g += green * this._bigShift;
             }
             else
             {
-                g += green * smallShift;
+                g += green * this._smallShift;
             }
             
             if (blue > Math.Max(red, green))
             {
-                b += blue * bigShift;
+                b += blue * this._bigShift;
             }
             else
             {
-                b += blue * smallShift;
+                b += blue * this._smallShift;
             }
-            
-            /*r += pixel.R * 0.8;
-            g += pixel.G * 0.8;
-            b += pixel.B * 0.8;*/
         }
 
         r /= additional.Length;
@@ -113,7 +119,6 @@ public class ColorCalculator
         return new Avalonia.Media.Color(255, rB, gB, bB);
     }
 
-   
     private bool IsInRange(double min, double max, double current)
     {
         return min < current && max > current;
@@ -154,7 +159,7 @@ public class ColorCalculator
                         this._brightestColor = new Avalonia.Media.Color(alpha, red, green, blue);
                     }
 
-                    if (row % 10 == 0 && col % 10 == 0)
+                    if (row % this._pixelSteps == 0 && col % this._pixelSteps == 0)
                     {
                         colors.Add(new Avalonia.Media.Color(alpha, red, green, blue));
                     }
