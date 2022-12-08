@@ -44,6 +44,14 @@
                        VerticalAlignment="Top" 
                        HorizontalAlignment="Left" 
                        Margin="5,110,0,0"/>
+                
+                <Image Name="Image_DISPLAY"
+                       Width="50"
+                       Height="50"
+                       VerticalAlignment="Top"
+                       HorizontalAlignment="Left"
+                       Margin="60,110,0,0"/>
+                       
         </Grid>
         
 </Window>

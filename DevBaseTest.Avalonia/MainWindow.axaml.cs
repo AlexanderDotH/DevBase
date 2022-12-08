@@ -11,6 +11,7 @@ using DevBase.IO;
 using DevBaseColor.Image;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using Color = Avalonia.Media.Color;
+using Image = Avalonia.Controls.Image;
 
 namespace DevBaseTest.Avalonia
 {
@@ -30,13 +31,16 @@ namespace DevBaseTest.Avalonia
             Stream s = new MemoryStream(file.BinaryData);
             IBitmap map = new Bitmap(s);
 
-            Color c = new ColorCalculator().GetColorFromBitmap(map);
+            Color c = new BrightestColorCalculator().GetColorFromBitmap(map);
 
             Panel red = this.Find<Panel>(nameof(Panel_RED));
             Panel green = this.Find<Panel>(nameof(Panel_GREEN));
             Panel blue = this.Find<Panel>(nameof(Panel_BLUE));
             Panel color = this.Find<Panel>(nameof(Panel_COLOR));
+            Image image = this.Find<Image>(nameof(Image_DISPLAY));
 
+            image.Source = map;
+            
             red.Background = new SolidColorBrush(new Color(255, c.R, 0, 0));
             green.Background = new SolidColorBrush(new Color(255, 0, c.G, 0));
             blue.Background = new SolidColorBrush(new Color(255, 0, 0, c.B));

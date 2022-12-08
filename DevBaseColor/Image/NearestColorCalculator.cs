@@ -1,28 +1,32 @@
-﻿using Avalonia.Input;
+﻿using System.Diagnostics;
+using Avalonia.Input;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using DevBase.Generic;
 
 namespace DevBaseColor.Image;
 
-public class ColorCalculator
+public class NearestColorCalculator
 {
+    private Avalonia.Media.Color _smallestDiff;
     private Avalonia.Media.Color _brightestColor;
+
     private double _colorRange;
     private double _bigShift;
     private double _smallShift;
     private int _pixelSteps;
     
-    public ColorCalculator()
+    public NearestColorCalculator()
     {
-        this._brightestColor = new Avalonia.Media.Color();
+        this._smallestDiff = new Avalonia.Media.Color();
 
-        this._colorRange = 50;
-        this._bigShift = 1.5;
-        this._smallShift = 0.5;
+        this._colorRange = 30;
+        this._bigShift = 2.6;
+        this._smallShift = 2.8;
         this._pixelSteps = 10;
     }
 
-    public ColorCalculator(double bigShift, double smallShift) : this()
+    public NearestColorCalculator(double bigShift, double smallShift) : this()
     {
         this._bigShift = bigShift;
         this._smallShift = smallShift;
@@ -31,27 +35,14 @@ public class ColorCalculator
     public unsafe Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
     {
         GenericList<Avalonia.Media.Color> pixels = GetPixels(bitmap);
-        GenericList<Avalonia.Media.Color> additional = new GenericList<Avalonia.Media.Color>();
-
-        for (int i = 0; i < pixels.Length; i++)
-        {
-            Avalonia.Media.Color p = pixels.Get(i);
-
-            if (IsInRange(p.R - this._colorRange, p.R + this._colorRange, this._brightestColor.R) &&
-                IsInRange(p.G - this._colorRange, p.G + this._colorRange, this._brightestColor.G) &&
-                IsInRange(p.B - this._colorRange, p.B + this._colorRange, this._brightestColor.B))
-            {
-                additional.Add(p);
-            }
-        }
 
         double r = 0;
         double g = 0;
         double b = 0;
 
-        for (int i = 0; i < additional.Length; i++)
+        for (int i = 0; i < pixels.Length; i++)
         {
-            Avalonia.Media.Color pixel = additional.Get(i);
+            Avalonia.Media.Color pixel = pixels.Get(i);
 
             double red = pixel.R;
             double green = pixel.G;
@@ -85,9 +76,13 @@ public class ColorCalculator
             }
         }
 
-        r /= additional.Length;
-        g /= additional.Length;
-        b /= additional.Length;
+        r /= pixels.Length;
+        g /= pixels.Length;
+        b /= pixels.Length;
+
+        r *= 0.5;
+        g *= 0.5;
+        b *= 0.5;
 
         return CorrectColor(r, g, b);
     }
@@ -119,17 +114,20 @@ public class ColorCalculator
         return new Avalonia.Media.Color(255, rB, gB, bB);
     }
 
-    private bool IsInRange(double min, double max, double current)
+    private int CalculateDiff(int r1, int g1, int b1, int r2, int g2, int b2)
     {
-        return min < current && max > current;
+        int diffR = Math.Abs(r1 - r2);
+        int diffG = Math.Abs(g1 - g2);
+        int diffB = Math.Abs(b1 - b2);
+        return (diffR + diffG + diffB);
     }
-
+    
     private unsafe GenericList<Avalonia.Media.Color> GetPixels(IBitmap bitmap)
     {
         GenericList<Avalonia.Media.Color> colors = new GenericList<Avalonia.Media.Color>();
-        
-        double brightness = 0;
-       
+
+        double brightness = 100;
+
         using (var memoryStream = new MemoryStream())
         {
             bitmap.Save(memoryStream);
@@ -150,26 +148,58 @@ public class ColorCalculator
                     byte green = *bmpPtr++;
                     byte blue = *bmpPtr++;
                     byte alpha = *bmpPtr++;
+
+                    if (!(row % this._pixelSteps == 0 && col % this._pixelSteps == 0))
+                    {
+                        tempPtr = bmpPtr;
+                        bmpPtr = tempPtr;
+                        continue;
+                    }
+
+                    if (red < brightness || green < brightness || blue < brightness)
+                    {
+                        tempPtr = bmpPtr;
+                        bmpPtr = tempPtr;
+                        continue;
+                    }
                     
-                    double b = (red / 255.0) * 0.3 + (green / 255.0) * 0.59 + (blue / 255.0) * 0.11;
-
-                    if (b > brightness)
+                    if (colors.IsEmpty())
                     {
-                        brightness = b;
-                        this._brightestColor = new Avalonia.Media.Color(alpha, red, green, blue);
+                        Color color = new Color(255, red, green, blue);
+                        colors.Add(color);
                     }
-
-                    if (row % this._pixelSteps == 0 && col % this._pixelSteps == 0)
+                    else 
                     {
-                        colors.Add(new Avalonia.Media.Color(alpha, red, green, blue));
+                        for (int i = 0; i < colors.Length; i++)
+                        {
+                            Color color = colors.Get(i);
+                            
+                            int diff = CalculateDiff(color.R, color.G, color.B, red, green, blue);
+
+                            int colorSize = (color.R + color.G + color.B);
+                            int otherColorSize = (red + green + blue);
+                            
+                            if (diff > 100 && colorSize > otherColorSize)
+                            {
+                                colors.SafeRemove(color);
+                            }
+                            
+                            if (diff <= 50)
+                            {
+                                Color currentColor = new Color(255, red, green, blue);
+
+                                if (!colors.SafeContains(currentColor))
+                                {
+                                    colors.Add(currentColor);
+                                }
+                            }
+                        }
                     }
-                        
+                    
                     tempPtr = bmpPtr;
                     bmpPtr = tempPtr;
                 }
             }
-            
-            memoryStream.Close();
         }
 
         return colors;
