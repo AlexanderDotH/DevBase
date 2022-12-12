@@ -1,5 +1,7 @@
 ﻿using Avalonia.Input;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using DevBase.Color.Extensions;
 using DevBase.Generic;
 
 namespace DevBaseColor.Image;
@@ -123,7 +125,7 @@ public class BrightestColorCalculator
     {
         return min < current && max > current;
     }
-
+    
     private unsafe GenericList<Avalonia.Media.Color> GetPixels(IBitmap bitmap)
     {
         GenericList<Avalonia.Media.Color> colors = new GenericList<Avalonia.Media.Color>();
@@ -134,23 +136,24 @@ public class BrightestColorCalculator
         {
             bitmap.Save(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            var writeableBitmap = WriteableBitmap.Decode(memoryStream);
+            
+            WriteableBitmap writeableBitmap = WriteableBitmap.Decode(memoryStream);
             using var lockedBitmap = writeableBitmap.Lock();
 
-            byte* bmpPtr = (byte*) lockedBitmap.Address;
-            int width = writeableBitmap.PixelSize.Width;
-            int height = writeableBitmap.PixelSize.Height;
-            byte* tempPtr;
-
-            for (int row = 0; row < height; row++)
+            for (int y = 0; y < writeableBitmap.PixelSize.Height; y++)
             {
-                for (int col = 0; col < width; col++)
+                for (int x = 0; x < writeableBitmap.PixelSize.Width; x++)
                 {
-                    byte red = *bmpPtr++;
-                    byte green = *bmpPtr++;
-                    byte blue = *bmpPtr++;
-                    byte alpha = *bmpPtr++;
+                    var pixel = lockedBitmap.GetPixel(x, y);
+
+                    if (pixel.Length != 4)
+                        continue;
                     
+                    byte red = pixel[0];
+                    byte green = pixel[1];
+                    byte blue = pixel[2];
+                    byte alpha = pixel[3];
+
                     double b = (red / 255.0) * 0.3 + (green / 255.0) * 0.59 + (blue / 255.0) * 0.11;
 
                     if (b > brightness)
@@ -159,17 +162,12 @@ public class BrightestColorCalculator
                         this._brightestColor = new Avalonia.Media.Color(alpha, red, green, blue);
                     }
 
-                    if (row % this._pixelSteps == 0 && col % this._pixelSteps == 0)
+                    if (x % this._pixelSteps == 0 && y % this._pixelSteps == 0)
                     {
                         colors.Add(new Avalonia.Media.Color(alpha, red, green, blue));
                     }
-                        
-                    tempPtr = bmpPtr;
-                    bmpPtr = tempPtr;
                 }
             }
-            
-            memoryStream.Close();
         }
 
         return colors;

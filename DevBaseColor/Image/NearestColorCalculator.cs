@@ -2,6 +2,7 @@
 using Avalonia.Input;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using DevBase.Color.Extensions;
 using DevBase.Generic;
 
 namespace DevBaseColor.Image;
@@ -122,44 +123,41 @@ public class NearestColorCalculator
         return (diffR + diffG + diffB);
     }
     
-    private unsafe GenericList<Avalonia.Media.Color> GetPixels(IBitmap bitmap)
+    private GenericList<Avalonia.Media.Color> GetPixels(IBitmap bitmap)
     {
         GenericList<Avalonia.Media.Color> colors = new GenericList<Avalonia.Media.Color>();
-
-        double brightness = 100;
-
+        
+        double brightness = 0;
+       
         using (var memoryStream = new MemoryStream())
         {
             bitmap.Save(memoryStream);
             memoryStream.Seek(0, SeekOrigin.Begin);
-            var writeableBitmap = WriteableBitmap.Decode(memoryStream);
+            
+            WriteableBitmap writeableBitmap = WriteableBitmap.Decode(memoryStream);
             using var lockedBitmap = writeableBitmap.Lock();
 
-            byte* bmpPtr = (byte*) lockedBitmap.Address;
-            int width = writeableBitmap.PixelSize.Width;
-            int height = writeableBitmap.PixelSize.Height;
-            byte* tempPtr;
-
-            for (int row = 0; row < height; row++)
+            for (int y = 0; y < writeableBitmap.PixelSize.Height; y++)
             {
-                for (int col = 0; col < width; col++)
+                for (int x = 0; x < writeableBitmap.PixelSize.Width; x++)
                 {
-                    byte red = *bmpPtr++;
-                    byte green = *bmpPtr++;
-                    byte blue = *bmpPtr++;
-                    byte alpha = *bmpPtr++;
+                    var pixel = lockedBitmap.GetPixel(x, y);
 
-                    if (!(row % this._pixelSteps == 0 && col % this._pixelSteps == 0))
+                    if (pixel.Length != 4)
+                        continue;
+                    
+                    byte red = pixel[0];
+                    byte green = pixel[1];
+                    byte blue = pixel[2];
+                    byte alpha = pixel[3];
+
+                    if (!(x % this._pixelSteps == 0 && y % this._pixelSteps == 0))
                     {
-                        tempPtr = bmpPtr;
-                        bmpPtr = tempPtr;
                         continue;
                     }
 
                     if (red < brightness || green < brightness || blue < brightness)
                     {
-                        tempPtr = bmpPtr;
-                        bmpPtr = tempPtr;
                         continue;
                     }
                     
@@ -179,12 +177,12 @@ public class NearestColorCalculator
                             int colorSize = (color.R + color.G + color.B);
                             int otherColorSize = (red + green + blue);
                             
-                            if (diff > 100 && colorSize > otherColorSize)
+                            /*if (diff > 100 && colorSize > otherColorSize)
                             {
                                 colors.SafeRemove(color);
-                            }
+                            }*/
                             
-                            if (diff <= 50)
+                            if (diff <= 30)
                             {
                                 Color currentColor = new Color(255, red, green, blue);
 
@@ -195,9 +193,7 @@ public class NearestColorCalculator
                             }
                         }
                     }
-                    
-                    tempPtr = bmpPtr;
-                    bmpPtr = tempPtr;
+
                 }
             }
         }

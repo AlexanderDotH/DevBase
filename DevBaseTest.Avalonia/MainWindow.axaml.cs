@@ -31,7 +31,7 @@ namespace DevBaseTest.Avalonia
             Stream s = new MemoryStream(file.BinaryData);
             IBitmap map = new Bitmap(s);
 
-            Color c = new BrightestColorCalculator().GetColorFromBitmap(map);
+            Color c = new GroupColorCalculator().GetColorFromBitmap(map);
 
             Panel red = this.Find<Panel>(nameof(Panel_RED));
             Panel green = this.Find<Panel>(nameof(Panel_GREEN));
