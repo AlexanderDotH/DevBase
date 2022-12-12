@@ -12,6 +12,7 @@ public class GroupColorCalculator
     private double _bigShift;
     private double _smallShift;
     private int _pixelSteps;
+    private int _brightness;
     
     public GroupColorCalculator()
     {
@@ -19,6 +20,7 @@ public class GroupColorCalculator
         this._bigShift = 1.3;
         this._smallShift = 1;
         this._pixelSteps = 10;
+        this._brightness = 20;
     }
 
     public GroupColorCalculator(double bigShift, double smallShift) : this()
@@ -149,8 +151,6 @@ public class GroupColorCalculator
     {
         GenericTupleList<Avalonia.Media.Color, GenericList<Avalonia.Media.Color>> colorGroups = new GenericTupleList<Avalonia.Media.Color, GenericList<Avalonia.Media.Color>>();
         
-        double brightness = 20;
-       
         using (var memoryStream = new MemoryStream())
         {
             bitmap.Save(memoryStream);
@@ -177,7 +177,7 @@ public class GroupColorCalculator
                     {
                         Color c = new Avalonia.Media.Color(alpha, red, green, blue);
                         
-                        if (red < brightness || green < brightness || blue < brightness)
+                        if (red < this._brightness || green < this._brightness || blue < this._brightness)
                         {
                             continue;
                         }
@@ -227,5 +227,11 @@ public class GroupColorCalculator
     {
         get => _pixelSteps;
         set => _pixelSteps = value;
+    }
+
+    public int Brightness
+    {
+        get => _brightness;
+        set => _brightness = value;
     }
 }
