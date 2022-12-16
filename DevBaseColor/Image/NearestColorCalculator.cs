@@ -177,10 +177,10 @@ public class NearestColorCalculator
                             int colorSize = (color.R + color.G + color.B);
                             int otherColorSize = (red + green + blue);
                             
-                            /*if (diff > 100 && colorSize > otherColorSize)
+                            if (diff > 100 && colorSize > otherColorSize)
                             {
                                 colors.SafeRemove(color);
-                            }*/
+                            }
                             
                             if (diff <= 30)
                             {
@@ -199,5 +199,35 @@ public class NearestColorCalculator
         }
 
         return colors;
+    }
+
+    public Color SmallestDiff
+    {
+        get => _smallestDiff;
+        set => _smallestDiff = value;
+    }
+
+    public double ColorRange
+    {
+        get => _colorRange;
+        set => _colorRange = value;
+    }
+
+    public double BigShift
+    {
+        get => _bigShift;
+        set => _bigShift = value;
+    }
+
+    public double SmallShift
+    {
+        get => _smallShift;
+        set => _smallShift = value;
+    }
+
+    public int PixelSteps
+    {
+        get => _pixelSteps;
+        set => _pixelSteps = value;
     }
 }

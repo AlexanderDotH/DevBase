@@ -172,4 +172,28 @@ public class BrightestColorCalculator
 
         return colors;
     }
+
+    public double ColorRange
+    {
+        get => _colorRange;
+        set => _colorRange = value;
+    }
+
+    public double BigShift
+    {
+        get => _bigShift;
+        set => _bigShift = value;
+    }
+
+    public double SmallShift
+    {
+        get => _smallShift;
+        set => _smallShift = value;
+    }
+
+    public int PixelSteps
+    {
+        get => _pixelSteps;
+        set => _pixelSteps = value;
+    }
 }

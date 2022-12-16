@@ -239,8 +239,14 @@ namespace DevBase.Generic
         /// <param name="item">The new item</param>
         public void Add(T item)
         {
-            Array.Resize(ref this._array, this._array.Length + 1);
-            this._array[this._array.Length - 1] = item;
+            T[] newArray = new T[this._array.Length + 1];
+            this._array.CopyTo(newArray, 0);
+            newArray[this._array.Length] = item;
+            
+            this._array = newArray;
+
+            if (this._array.Length % 50 == 0)
+                GCHandle.Alloc(newArray, GCHandleType.Normal).Free();
         }
 
         /// <summary>
