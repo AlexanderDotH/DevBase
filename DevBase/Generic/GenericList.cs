@@ -241,7 +241,7 @@ namespace DevBase.Generic
         {
             T[] newArray = new T[this._array.Length + 1];
             this._array.CopyTo(newArray, 0);
-            newArray[this._array.Length] = item;
+            newArray[newArray.Length - 1] = item;
             
             this._array = newArray;
 
