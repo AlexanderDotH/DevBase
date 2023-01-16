@@ -6,6 +6,8 @@ using System.Text;
 using DevBase.Enums;
 using DevBase.Generic;
 using DevBase.Web.RequestData.Data;
+using DevBase.Web.RequestData.Types;
+using EnumContentType = DevBase.Enums.EnumContentType;
 
 namespace DevBase.Web.RequestData
 {
@@ -13,8 +15,9 @@ namespace DevBase.Web.RequestData
     public class RequestData
     {
         private EnumRequestMethod _requestMethod;
-        private EnumContentType[] _contentType;
-        private EnumEncodingType[] _encodingType;
+        private ContentTypeHolder _contentType;
+        private AcceptTypeHolder _acceptTypeHolder;
+        private FormDataHolder _formDataHolder;
         private byte[] _content;
         private Uri _uri;
         private string _userAgent;
@@ -22,67 +25,45 @@ namespace DevBase.Web.RequestData
         private WebHeaderCollection _header;
         private CookieContainer _cookieContainer;
 
-        public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType[] contentType, EnumEncodingType[] encodingType, byte[] content, string userAgent)
+        public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType contentType, string userAgent)
         {
             this._uri = uri;
-            this._content = content;
             this._requestMethod = requestMethod;
-            this._contentType = contentType;
-            this._encodingType = encodingType;
+
+            ContentTypeHolder contentTypeHolder = new ContentTypeHolder();
+            contentTypeHolder.Set(contentType);
+            this._contentType = contentTypeHolder;
+
+            AcceptTypeHolder acceptTypeHolder = new AcceptTypeHolder(contentTypeHolder);
+            this._acceptTypeHolder = acceptTypeHolder;
+
             this._userAgent = userAgent;
             this._cookieContainer = new CookieContainer();
             this._header = new WebHeaderCollection();
         }
 
-        public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType[] contentType, EnumEncodingType[] encodingType, string content, string userAgent) :
-            this(
-                uri,
-                requestMethod,
-                contentType,
-                encodingType,
-                encodingType.Contains(EnumEncodingType.UTF8) ? Encoding.UTF8.GetBytes(content) : Encoding.Default.GetBytes(content),
-                userAgent
-                ) { }
-
-        public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType[] contentType, EnumEncodingType[] encodingType, string content) : 
+        public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType contentType) : 
             this(
                 uri, 
                 requestMethod, 
-                contentType, 
-                encodingType,
-                encodingType.Contains(EnumEncodingType.UTF8) ? Encoding.UTF8.GetBytes(content) : Encoding.Default.GetBytes(content), 
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-                ) { }
-
-        public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType[] contentType, EnumEncodingType[] encodingType, GenericList<FormKeypair> formData) :
-            this(
-                uri,
-                requestMethod,
                 contentType,
-                encodingType,
-                encodingType.Contains(EnumEncodingType.UTF8) ? Encoding.UTF8.GetBytes(ClampKeypairsToString(formData)) : Encoding.Default.GetBytes(ClampKeypairsToString(formData)),
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-            )
-        { }
-
-        public RequestData(string uri, string content) : 
-            this(
-                new Uri(uri), 
-                EnumRequestMethod.GET, 
-                new EnumContentType[] { Enums.EnumContentType.HTML }, 
-                new EnumEncodingType[] { EnumEncodingType.UTF8 },
-                Encoding.Default.GetBytes(content), 
-                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+                GetRandomUseragent()
                 ) { }
 
+        public RequestData(string uri, EnumRequestMethod requestMethod) :
+            this(
+                new Uri(Uri.EscapeUriString(uri)), 
+                requestMethod,
+                EnumContentType.TEXT_HTML,
+                GetRandomUseragent()
+            ) { }
+        
         public RequestData(string uri) :
            this(
-               new Uri(uri), 
+               new Uri(Uri.EscapeUriString(uri)), 
                EnumRequestMethod.GET,
-               new EnumContentType[] { Enums.EnumContentType.HTML },
-               new EnumEncodingType[] {  },
-               Encoding.Default.GetBytes(string.Empty), 
-               "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
+               EnumContentType.TEXT_HTML,
+               GetRandomUseragent()
                ) { }
 
         public static string GetRandomUseragent()
@@ -115,111 +96,37 @@ namespace DevBase.Web.RequestData
             return userAgents.Get(new Random().Next(0, userAgents.Length));
         }
 
-        public static string ClampKeypairsToString(GenericList<FormKeypair> keypairs)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < keypairs.Length; i++)
-            {
-                FormKeypair keypair = keypairs.Get(i);
-
-                if (i == 0)
-                {
-                    sb.Append(keypair.Key + "=" + keypair.Value);
-                }
-                else
-                {
-                    sb.Append("&" + keypair.Key + "=" + keypair.Value);
-                }
-            }
-
-            return sb.ToString();
-        }
-
-        public string ConvertFromContentType(string existingContentType, EnumContentType[] requestType)
-        {
-            if (requestType == null)
-                return existingContentType;
-
-            if (requestType.Length == 0)
-                return existingContentType;
-
-            for (int i = 0; i < requestType.Length; i++)
-            {
-                string content = ContentTypeToString(requestType[i]);
-
-                if (!content.Equals(string.Empty))
-                {
-                    existingContentType += content + (i == requestType.Length ? string.Empty : "; ");
-                }
-            }
-
-            return existingContentType;
-        }
-
-        public string ConvertFromEncodingTypes(string existingContentType, EnumEncodingType[] encodingType)
-        {
-            if (encodingType == null)
-                return existingContentType;
-
-            if (encodingType.Length == 0)
-                return existingContentType;
-
-            existingContentType += "charset=";
-            for (int i = 0; i < encodingType.Length; i++)
-            {
-                string content = ContentEncodingType(encodingType[i]);
-
-                if (!content.Equals(string.Empty))
-                {
-                    existingContentType += content + (i == encodingType.Length ? ", " : "");
-                }
-            }
-
-            return existingContentType;
-        }
-
-        private string ContentTypeToString(EnumContentType contentType)
-        {
-            switch (contentType)
-            {
-                case Enums.EnumContentType.JSON:
-                    return "application/json";
-                case Enums.EnumContentType.FORM:
-                    return "application/x-www-form-urlencoded";
-            }
-
-            return string.Empty;
-        }
-
-        private string ContentEncodingType(EnumEncodingType contentType)
-        {
-            switch (contentType)
-            {
-                case EnumEncodingType.UTF8:
-                    return "utf-8";
-            }
-
-            return string.Empty;
-        }
-
-        private string ConvertToEnumString(EnumAuthType e)
-        {
-            if (e == EnumAuthType.BASIC)
-                return "Basic";
-
-            if (e == EnumAuthType.OAUTH2)
-                return "Bearer";
-
-            return string.Empty;
-        }
-
         public void AddAuthMethod(Auth auth)
         {
-            string enumString = ConvertToEnumString(auth.AuthType);
-            this.Header.Add("Authorization", enumString + " " + auth.Token);
+            this.Header.Add("Authorization", new AuthMethodHolder(auth).GetAuthData());
         }
 
+        public void AddFormData(GenericList<FormKeypair> formKeyPair)
+        {
+            FormDataHolder formDataHolder = new FormDataHolder();
+            formDataHolder.AddKeyPairs(formKeyPair);
+
+            this._contentType.Set(EnumContentType.APPLICATION_FORM_URLENCODED);
+            this._formDataHolder = formDataHolder;
+        }
+
+        public void AddContent(string content)
+        {
+            if (this._acceptTypeHolder.Contains(EnumCharsetType.UTF8))
+            {
+                this._content = Encoding.UTF8.GetBytes(content);
+            }
+            else
+            {
+                this._content = Encoding.Default.GetBytes(content);
+            }
+        }
+
+        public void SetContentType(EnumContentType contentType)
+        {
+            this._contentType.Set(contentType);
+        }
+        
         public CookieContainer CookieContainer
         {
             get { return this._cookieContainer; }
@@ -262,16 +169,14 @@ namespace DevBase.Web.RequestData
             set { this._header = value; }
         }
 
-        public EnumContentType[] ContentType
+        public ContentTypeHolder ContentTypeHolder
         {
-            get { return this._contentType; }
-            set { this._contentType = value; }
+            get => _contentType;
         }
 
-        public EnumEncodingType[] EncodingTypes
+        public AcceptTypeHolder AcceptTypeHolder
         {
-            get { return this._encodingType; }
-            set { this._encodingType = value; }
+            get => _acceptTypeHolder;
         }
     }
 }

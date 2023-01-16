@@ -43,9 +43,9 @@ namespace DevBaseApi.Apis.Tidal
 
             RequestData requestData = new RequestData(new Uri(string.Format("{0}/oauth2/device_authorization", this._authEndpoint)),
                 EnumRequestMethod.POST,
-                new EnumContentType[] { EnumContentType.FORM },
-                new EnumEncodingType[] { EnumEncodingType.UTF8 },
-                formData);
+                EnumContentType.APPLICATION_FORM_URLENCODED);
+            
+            requestData.AddFormData(formData);
 
             string authToken = Convert.ToBase64String(Encoding.Default.GetBytes(this._clientID + ":" + this._clientSecret));
             requestData.AddAuthMethod(new Auth(authToken, EnumAuthType.BASIC));
@@ -67,9 +67,9 @@ namespace DevBaseApi.Apis.Tidal
 
             RequestData requestData = new RequestData(new Uri(string.Format("{0}/oauth2/token", this._authEndpoint)),
                 EnumRequestMethod.POST,
-                new EnumContentType[] { EnumContentType.FORM },
-                new EnumEncodingType[] { EnumEncodingType.UTF8 },
-                formData);
+                EnumContentType.APPLICATION_FORM_URLENCODED);
+            
+            requestData.AddFormData(formData);
 
             try
             {
@@ -100,10 +100,8 @@ namespace DevBaseApi.Apis.Tidal
 
         public async Task<JsonTidalSession> Login(string accessToken)
         {
-            RequestData requestData = new RequestData(new Uri(string.Format("{0}/sessions", this._apiEndpoint)), EnumRequestMethod.GET, new EnumContentType[]
-                {
-                    EnumContentType.JSON
-                }, new EnumEncodingType[] { EnumEncodingType.UTF8 }, string.Empty, RequestData.GetRandomUseragent());
+            RequestData requestData = new RequestData(new Uri(string.Format("{0}/sessions", this._apiEndpoint)), EnumRequestMethod.GET, 
+                EnumContentType.APPLICATION_JSON, RequestData.GetRandomUseragent());
             
              requestData.Header.Add("Authorization", "Bearer " + accessToken);
 
@@ -159,10 +157,9 @@ namespace DevBaseApi.Apis.Tidal
             formData.Add(new FormKeypair("scope", "r_usr+w_usr+w_sub"));
 
             RequestData requestData = new RequestData(new Uri(string.Format("{0}/oauth2/token", this._authEndpoint)),
-                EnumRequestMethod.POST,
-                new EnumContentType[] { EnumContentType.FORM },
-                new EnumEncodingType[] { EnumEncodingType.UTF8 },
-                formData);
+                EnumRequestMethod.POST, EnumContentType.APPLICATION_FORM_URLENCODED);
+            
+            requestData.AddFormData(formData);
 
             string authToken = Convert.ToBase64String(Encoding.Default.GetBytes(this._clientID + ":" + this._clientSecret));
             requestData.AddAuthMethod(new Auth(authToken, EnumAuthType.BASIC));

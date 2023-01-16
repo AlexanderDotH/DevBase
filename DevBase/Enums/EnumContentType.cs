@@ -1,7 +1,9 @@
-﻿namespace DevBase.Enums
+﻿namespace DevBase.Enums;
+
+public enum EnumContentType
 {
-    public enum EnumContentType
-    {
-        HTML, JSON, FORM
-    }
+    APPLICATION_JSON,
+    APPLICATION_FORM_URLENCODED,
+    TEXT_PLAIN,
+    TEXT_HTML,
 }

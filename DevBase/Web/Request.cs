@@ -22,7 +22,7 @@ namespace DevBase.Web
             this._requestData = requestData;
         }
 
-        public Request(string url) : this(new RequestData.RequestData(url, string.Empty)) {}
+        public Request(string url) : this(new RequestData.RequestData(url)) {}
 
         public ResponseData.ResponseData GetResponse(bool allowCaching = true)
         {
@@ -47,13 +47,14 @@ namespace DevBase.Web
 
             request.Headers = this._requestData.Header;
             request.Method = this._requestData.RequestMethod.ToString();
-            request.ContentType += this._requestData.ConvertFromContentType(request.ContentType, this._requestData.ContentType);
-            request.ContentType += this._requestData.ConvertFromEncodingTypes(request.ContentType, this._requestData.EncodingTypes);
+            request.ContentType = this._requestData.ContentTypeHolder.ContentType;
             request.UserAgent = this._requestData.UserAgent;
-            request.Accept = this._requestData.Accept;
+            request.Accept = this._requestData.AcceptTypeHolder.GetAccept();
             request.CookieContainer = this._requestData.CookieContainer;
 
-            if (this._requestData.RequestMethod == EnumRequestMethod.POST)
+            if (this._requestData.RequestMethod == EnumRequestMethod.POST && 
+                this._requestData.Content != null &&
+                this._requestData.Content.Length != 0)
             {
                 request.ContentLength = this._requestData.Content.Length;
 

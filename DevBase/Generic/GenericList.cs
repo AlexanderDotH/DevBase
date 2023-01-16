@@ -260,6 +260,18 @@ namespace DevBase.Generic
                 this.Add(array[i]);
             }
         }
+        
+        /// <summary>
+        /// Adds a array of T values to the array
+        /// </summary>
+        /// <param name="array">The given array</param>
+        public void AddRange(GenericList<T> array)
+        {
+            for (int i = 0; i < array.Length; i++)
+            {
+                this.Add(array.Get(i));
+            }
+        }
 
         /// <summary>
         /// Adds a list if T values to the array
