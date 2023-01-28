@@ -127,6 +127,11 @@ namespace DevBase.Web.RequestData
             this._contentType.Set(contentType);
         }
         
+        public void SetAccept(EnumCharsetType charsetType)
+        {
+            this._acceptTypeHolder.SetCharSet(charsetType);
+        }
+        
         public CookieContainer CookieContainer
         {
             get { return this._cookieContainer; }

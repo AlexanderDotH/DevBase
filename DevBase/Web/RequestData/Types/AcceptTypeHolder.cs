@@ -19,6 +19,7 @@ public class AcceptTypeHolder
 
         this._charsetTypeDictionary = new GenericTupleList<EnumCharsetType, string>();
         this._charsetTypeDictionary.Add(EnumCharsetType.UTF8, "UTF-8");
+        this._charsetTypeDictionary.Add(EnumCharsetType.ALL, "*/*");
         
         this.AddCharSet(EnumCharsetType.UTF8);
     }
@@ -28,6 +29,12 @@ public class AcceptTypeHolder
         this._acceptTypes.Add(charSet);
     }
 
+    public void SetCharSet(EnumCharsetType charsetType)
+    {
+        this._acceptTypes.Clear();
+        this._acceptTypes.Add(GetCharSet(charsetType));
+    }
+    
     public void AddCharSet(EnumCharsetType charsetType)
     {
         this._acceptTypes.Add(GetCharSet(charsetType));

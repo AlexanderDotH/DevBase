@@ -2,5 +2,5 @@
 
 public enum EnumCharsetType
 {
-    UTF8
+    UTF8, ALL
 }
