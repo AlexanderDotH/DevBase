@@ -1,16 +1,13 @@
-﻿using System.Diagnostics;
-using Avalonia.Input;
-using Avalonia.Media;
-using Avalonia.Media.Imaging;
-using DevBase.Color.Extensions;
+﻿using Avalonia.Media.Imaging;
+using DevBase.Avalonia.Color.Extensions;
 using DevBase.Generic;
 
-namespace DevBaseColor.Image;
+namespace DevBase.Avalonia.Color.Image;
 
 public class NearestColorCalculator
 {
-    private Avalonia.Media.Color _smallestDiff;
-    private Avalonia.Media.Color _brightestColor;
+    private global::Avalonia.Media.Color _smallestDiff;
+    private  global::Avalonia.Media.Color _brightestColor;
 
     private double _colorRange;
     private double _bigShift;
@@ -19,7 +16,7 @@ public class NearestColorCalculator
     
     public NearestColorCalculator()
     {
-        this._smallestDiff = new Avalonia.Media.Color();
+        this._smallestDiff = new  global::Avalonia.Media.Color();
 
         this._colorRange = 30;
         this._bigShift = 2.6;
@@ -33,9 +30,9 @@ public class NearestColorCalculator
         this._smallShift = smallShift;
     }
     
-    public unsafe Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
+    public unsafe  global::Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
     {
-        GenericList<Avalonia.Media.Color> pixels = GetPixels(bitmap);
+        GenericList< global::Avalonia.Media.Color> pixels = GetPixels(bitmap);
 
         double r = 0;
         double g = 0;
@@ -43,7 +40,7 @@ public class NearestColorCalculator
 
         for (int i = 0; i < pixels.Length; i++)
         {
-            Avalonia.Media.Color pixel = pixels.Get(i);
+            global::Avalonia.Media.Color pixel = pixels.Get(i);
 
             double red = pixel.R;
             double green = pixel.G;
@@ -88,7 +85,7 @@ public class NearestColorCalculator
         return CorrectColor(r, g, b);
     }
 
-    private Avalonia.Media.Color CorrectColor(double r, double g, double b)
+    private global::Avalonia.Media.Color CorrectColor(double r, double g, double b)
     {
         if (Double.IsNaN(r))
             r = 0;
@@ -112,7 +109,7 @@ public class NearestColorCalculator
         byte gB = Convert.ToByte(g);
         byte bB = Convert.ToByte(b);
 
-        return new Avalonia.Media.Color(255, rB, gB, bB);
+        return new global::Avalonia.Media.Color(255, rB, gB, bB);
     }
 
     private int CalculateDiff(int r1, int g1, int b1, int r2, int g2, int b2)
@@ -123,9 +120,9 @@ public class NearestColorCalculator
         return (diffR + diffG + diffB);
     }
     
-    private GenericList<Avalonia.Media.Color> GetPixels(IBitmap bitmap)
+    private GenericList<global::Avalonia.Media.Color> GetPixels(IBitmap bitmap)
     {
-        GenericList<Avalonia.Media.Color> colors = new GenericList<Avalonia.Media.Color>();
+        GenericList<global::Avalonia.Media.Color> colors = new GenericList<global::Avalonia.Media.Color>();
         
         double brightness = 0;
        
@@ -163,14 +160,14 @@ public class NearestColorCalculator
                     
                     if (colors.IsEmpty())
                     {
-                        Color color = new Color(255, red, green, blue);
+                        global::Avalonia.Media.Color color = new global::Avalonia.Media.Color(255, red, green, blue);
                         colors.Add(color);
                     }
                     else 
                     {
                         for (int i = 0; i < colors.Length; i++)
                         {
-                            Color color = colors.Get(i);
+                            global::Avalonia.Media.Color color = colors.Get(i);
                             
                             int diff = CalculateDiff(color.R, color.G, color.B, red, green, blue);
 
@@ -184,7 +181,7 @@ public class NearestColorCalculator
                             
                             if (diff <= 30)
                             {
-                                Color currentColor = new Color(255, red, green, blue);
+                                global::Avalonia.Media.Color currentColor = new global::Avalonia.Media.Color(255, red, green, blue);
 
                                 if (!colors.SafeContains(currentColor))
                                 {
@@ -201,7 +198,7 @@ public class NearestColorCalculator
         return colors;
     }
 
-    public Color SmallestDiff
+    public global::Avalonia.Media.Color SmallestDiff
     {
         get => _smallestDiff;
         set => _smallestDiff = value;

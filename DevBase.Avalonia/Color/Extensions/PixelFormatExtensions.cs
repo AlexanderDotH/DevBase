@@ -1,6 +1,6 @@
 ﻿using Avalonia.Platform;
 
-namespace DevBase.Color.Extensions;
+namespace DevBase.Avalonia.Color.Extensions;
 
 public static class PixelFormatExtensions
 {

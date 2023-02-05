@@ -1,10 +1,8 @@
-﻿using Avalonia.Media;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
-using DevBase.Color.Extensions;
+﻿using Avalonia.Media.Imaging;
+using DevBase.Avalonia.Color.Extensions;
 using DevBase.Generic;
 
-namespace DevBaseColor.Image;
+namespace DevBase.Avalonia.Color.Image;
 
 public class GroupColorCalculator
 {
@@ -29,14 +27,14 @@ public class GroupColorCalculator
         this._smallShift = smallShift;
     }
     
-    public Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
+    public global::Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
     {
-        GenericTupleList<Avalonia.Media.Color, GenericList<Avalonia.Media.Color>> colorGroups = GetColorGroups(bitmap);
+        GenericTupleList<global::Avalonia.Media.Color, GenericList<global::Avalonia.Media.Color>> colorGroups = GetColorGroups(bitmap);
 
         if (colorGroups.IsEmpty())
-            return new Color();
+            return new  global::Avalonia.Media.Color();
         
-        GenericList<Avalonia.Media.Color> biggestGroup = colorGroups.Get(0).Item2;
+        GenericList< global::Avalonia.Media.Color> biggestGroup = colorGroups.Get(0).Item2;
 
         for (int i = 0; i < colorGroups.Length; i++)
         {
@@ -54,7 +52,7 @@ public class GroupColorCalculator
 
         for (int i = 0; i < biggestGroup.Length; i++)
         {
-            Avalonia.Media.Color pixel = biggestGroup.Get(i);
+            global::Avalonia.Media.Color pixel = biggestGroup.Get(i);
 
             double red = pixel.R;
             double green = pixel.G;
@@ -95,7 +93,7 @@ public class GroupColorCalculator
         return CorrectColor(r, g, b);
     }
 
-    private Avalonia.Media.Color CorrectColor(double r, double g, double b)
+    private global::Avalonia.Media.Color CorrectColor(double r, double g, double b)
     {
         if (Double.IsNaN(r))
             r = 0;
@@ -119,7 +117,7 @@ public class GroupColorCalculator
         byte gB = Convert.ToByte(g);
         byte bB = Convert.ToByte(b);
 
-        return new Avalonia.Media.Color(255, rB, gB, bB);
+        return new global::Avalonia.Media.Color(255, rB, gB, bB);
     }
 
     private bool IsInRange(double min, double max, double current)
@@ -127,14 +125,14 @@ public class GroupColorCalculator
         return min < current && max > current;
     }
 
-    private Color FindNearestColor(
-        GenericTupleList<Avalonia.Media.Color, GenericList<Avalonia.Media.Color>> colorGroups, Color color)
+    private global::Avalonia.Media.Color FindNearestColor(
+        GenericTupleList<global::Avalonia.Media.Color, GenericList<global::Avalonia.Media.Color>> colorGroups, global::Avalonia.Media.Color color)
     {
         for (int i = 0; i < colorGroups.Length; i++)
         {
             var entry = colorGroups.Get(i);
 
-            Color c = entry.Item1;
+            global::Avalonia.Media.Color c = entry.Item1;
 
             if (IsInRange(c.R - this._colorRange, c.R + this._colorRange, color.R) &&
                 IsInRange(c.G - this._colorRange, c.G + this._colorRange, color.G) &&
@@ -144,12 +142,12 @@ public class GroupColorCalculator
             }
         }
 
-        return new Color();
+        return new global::Avalonia.Media.Color();
     }
 
-    private GenericTupleList<Avalonia.Media.Color, GenericList<Avalonia.Media.Color>> GetColorGroups(IBitmap bitmap)
+    private GenericTupleList<global::Avalonia.Media.Color, GenericList<global::Avalonia.Media.Color>> GetColorGroups(IBitmap bitmap)
     {
-        GenericTupleList<Avalonia.Media.Color, GenericList<Avalonia.Media.Color>> colorGroups = new GenericTupleList<Avalonia.Media.Color, GenericList<Avalonia.Media.Color>>();
+        GenericTupleList<global::Avalonia.Media.Color, GenericList<global::Avalonia.Media.Color>> colorGroups = new GenericTupleList<global::Avalonia.Media.Color, GenericList<global::Avalonia.Media.Color>>();
         
         using (var memoryStream = new MemoryStream())
         {
@@ -175,20 +173,20 @@ public class GroupColorCalculator
                     
                     if (x % this._pixelSteps == 0 && y % this._pixelSteps == 0)
                     {
-                        Color c = new Avalonia.Media.Color(alpha, red, green, blue);
+                        global::Avalonia.Media.Color c = new global::Avalonia.Media.Color(alpha, red, green, blue);
                         
                         if (red < this._brightness || green < this._brightness || blue < this._brightness)
                         {
                             continue;
                         }
                         
-                        Color col1 = FindNearestColor(colorGroups, c);
+                        global::Avalonia.Media.Color col1 = FindNearestColor(colorGroups, c);
 
-                        GenericList<Avalonia.Media.Color> c1 = colorGroups.FindEntrySafe(col1);
+                        GenericList<global::Avalonia.Media.Color> c1 = colorGroups.FindEntrySafe(col1);
 
                         if (c1 == null)
                         {
-                            GenericList<Color> newColorList = new GenericList<Color>();
+                            GenericList<global::Avalonia.Media.Color> newColorList = new GenericList<global::Avalonia.Media.Color>();
                             newColorList.Add(c);
                             colorGroups.Add(c, newColorList);
                         }

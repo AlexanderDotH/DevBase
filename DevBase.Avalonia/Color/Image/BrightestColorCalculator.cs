@@ -1,14 +1,12 @@
-﻿using Avalonia.Input;
-using Avalonia.Media.Imaging;
-using Avalonia.Platform;
-using DevBase.Color.Extensions;
+﻿using Avalonia.Media.Imaging;
+using DevBase.Avalonia.Color.Extensions;
 using DevBase.Generic;
 
-namespace DevBaseColor.Image;
+namespace DevBase.Avalonia.Color.Image;
 
 public class BrightestColorCalculator
 {
-    private Avalonia.Media.Color _brightestColor;
+    private global::Avalonia.Media.Color _brightestColor;
     private double _colorRange;
     private double _bigShift;
     private double _smallShift;
@@ -16,7 +14,7 @@ public class BrightestColorCalculator
     
     public BrightestColorCalculator()
     {
-        this._brightestColor = new Avalonia.Media.Color();
+        this._brightestColor = new global::Avalonia.Media.Color();
 
         this._colorRange = 50;
         this._bigShift = 1.5;
@@ -30,14 +28,14 @@ public class BrightestColorCalculator
         this._smallShift = smallShift;
     }
     
-    public unsafe Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
+    public unsafe global::Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
     {
-        GenericList<Avalonia.Media.Color> pixels = GetPixels(bitmap);
-        GenericList<Avalonia.Media.Color> additional = new GenericList<Avalonia.Media.Color>();
+        GenericList<global::Avalonia.Media.Color> pixels = GetPixels(bitmap);
+        GenericList<global::Avalonia.Media.Color> additional = new GenericList<global::Avalonia.Media.Color>();
 
         for (int i = 0; i < pixels.Length; i++)
         {
-            Avalonia.Media.Color p = pixels.Get(i);
+            global::Avalonia.Media.Color p = pixels.Get(i);
 
             if (IsInRange(p.R - this._colorRange, p.R + this._colorRange, this._brightestColor.R) &&
                 IsInRange(p.G - this._colorRange, p.G + this._colorRange, this._brightestColor.G) &&
@@ -53,7 +51,7 @@ public class BrightestColorCalculator
 
         for (int i = 0; i < additional.Length; i++)
         {
-            Avalonia.Media.Color pixel = additional.Get(i);
+            global::Avalonia.Media.Color pixel = additional.Get(i);
 
             double red = pixel.R;
             double green = pixel.G;
@@ -94,7 +92,7 @@ public class BrightestColorCalculator
         return CorrectColor(r, g, b);
     }
 
-    private Avalonia.Media.Color CorrectColor(double r, double g, double b)
+    private global::Avalonia.Media.Color CorrectColor(double r, double g, double b)
     {
         if (Double.IsNaN(r))
             r = 0;
@@ -118,7 +116,7 @@ public class BrightestColorCalculator
         byte gB = Convert.ToByte(g);
         byte bB = Convert.ToByte(b);
 
-        return new Avalonia.Media.Color(255, rB, gB, bB);
+        return new global::Avalonia.Media.Color(255, rB, gB, bB);
     }
 
     private bool IsInRange(double min, double max, double current)
@@ -126,9 +124,9 @@ public class BrightestColorCalculator
         return min < current && max > current;
     }
     
-    private unsafe GenericList<Avalonia.Media.Color> GetPixels(IBitmap bitmap)
+    private unsafe GenericList<global::Avalonia.Media.Color> GetPixels(IBitmap bitmap)
     {
-        GenericList<Avalonia.Media.Color> colors = new GenericList<Avalonia.Media.Color>();
+        GenericList<global::Avalonia.Media.Color> colors = new GenericList<global::Avalonia.Media.Color>();
         
         double brightness = 0;
        
@@ -159,12 +157,12 @@ public class BrightestColorCalculator
                     if (b > brightness)
                     {
                         brightness = b;
-                        this._brightestColor = new Avalonia.Media.Color(alpha, red, green, blue);
+                        this._brightestColor = new  global::Avalonia.Media.Color(alpha, red, green, blue);
                     }
 
                     if (x % this._pixelSteps == 0 && y % this._pixelSteps == 0)
                     {
-                        colors.Add(new Avalonia.Media.Color(alpha, red, green, blue));
+                        colors.Add(new global::Avalonia.Media.Color(alpha, red, green, blue));
                     }
                 }
             }

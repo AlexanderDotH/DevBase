@@ -1,6 +1,6 @@
 ﻿using Avalonia.Platform;
 
-namespace DevBase.Color.Extensions;
+namespace DevBase.Avalonia.Color.Extensions;
 
 public static class LockedFramebufferExtensions
 {
@@ -23,7 +23,7 @@ public static class LockedFramebufferExtensions
         }
     }
 
-    public static void SetPixel(this ILockedFramebuffer framebuffer, int x, int y, Avalonia.Media.Color color)
+    public static void SetPixel(this ILockedFramebuffer framebuffer, int x, int y, global::Avalonia.Media.Color color)
     {
         var pixel = framebuffer.GetPixel(x, y);
 

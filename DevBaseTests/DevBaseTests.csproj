@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DevBaseColor\DevBaseColor.csproj" />
+    <ProjectReference Include="..\DevBase.Avalonia\DevBase.Avalonia.csproj" />
     <ProjectReference Include="..\DevBaseApi\DevBaseApi.csproj" />
     <ProjectReference Include="..\DevBaseFormat\DevBaseFormat.csproj" />
     <ProjectReference Include="..\DevBase\DevBase.csproj" />

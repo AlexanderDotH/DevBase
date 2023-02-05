@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBaseEnvironment", "DevBa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseApi", "DevBaseApi\DevBaseApi.csproj", "{652E8342-E84F-43D4-8EC2-B6A874042AD8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseColor", "DevBaseColor\DevBaseColor.csproj", "{1BC9268B-60C1-4232-97DA-8D3EC24BDCC1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Avalonia", "DevBase.Avalonia\DevBase.Avalonia.csproj", "{1BC9268B-60C1-4232-97DA-8D3EC24BDCC1}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseTest.Avalonia", "DevBaseTest.Avalonia\DevBaseTest.Avalonia.csproj", "{32DDE3F1-0874-446E-953C-898FD25BB9E9}"
 EndProject
