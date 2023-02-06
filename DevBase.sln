@@ -5,17 +5,15 @@ VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBase", "DevBase\DevBase.csproj", "{BC1B2E82-7084-4C64-8A53-E7090AD7F083}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBaseFormat", "DevBaseFormat\DevBaseFormat.csproj", "{2B781E60-0B9C-47D8-B3DB-E4A6814BCDB0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBase.Format", "DevBase.Format\DevBase.Format.csproj", "{2B781E60-0B9C-47D8-B3DB-E4A6814BCDB0}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBaseTests", "DevBaseTests\DevBaseTests.csproj", "{AF655BBA-AE0B-4204-A4D7-B156C992DEBA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBase.Test", "DevBase.Test\DevBase.Test.csproj", "{AF655BBA-AE0B-4204-A4D7-B156C992DEBA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevBaseEnvironment", "DevBaseEnvironment\DevBaseEnvironment.csproj", "{3D6EF2BE-0A21-4B91-A004-E966759E1D83}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseApi", "DevBaseApi\DevBaseApi.csproj", "{652E8342-E84F-43D4-8EC2-B6A874042AD8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Api", "DevBase.Api\DevBase.Api.csproj", "{652E8342-E84F-43D4-8EC2-B6A874042AD8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Avalonia", "DevBase.Avalonia\DevBase.Avalonia.csproj", "{1BC9268B-60C1-4232-97DA-8D3EC24BDCC1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseTest.Avalonia", "DevBaseTest.Avalonia\DevBaseTest.Avalonia.csproj", "{32DDE3F1-0874-446E-953C-898FD25BB9E9}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Test.Avalonia", "DevBase.Test.Avalonia\DevBase.Test.Avalonia.csproj", "{32DDE3F1-0874-446E-953C-898FD25BB9E9}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBaseLive", "DevBaseLive\DevBaseLive.csproj", "{E00AE28C-02C6-46EB-A458-E0CECE8F22C2}"
 EndProject
@@ -37,10 +35,6 @@ Global
 		{AF655BBA-AE0B-4204-A4D7-B156C992DEBA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AF655BBA-AE0B-4204-A4D7-B156C992DEBA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{AF655BBA-AE0B-4204-A4D7-B156C992DEBA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3D6EF2BE-0A21-4B91-A004-E966759E1D83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3D6EF2BE-0A21-4B91-A004-E966759E1D83}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3D6EF2BE-0A21-4B91-A004-E966759E1D83}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3D6EF2BE-0A21-4B91-A004-E966759E1D83}.Release|Any CPU.Build.0 = Release|Any CPU
 		{652E8342-E84F-43D4-8EC2-B6A874042AD8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{652E8342-E84F-43D4-8EC2-B6A874042AD8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{652E8342-E84F-43D4-8EC2-B6A874042AD8}.Release|Any CPU.ActiveCfg = Release|Any CPU
