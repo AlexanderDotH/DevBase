@@ -15,7 +15,7 @@ namespace DevBase.IO
         public static GenericList<AFileObject> GetFiles(string directory, bool readContent = false, string filter = "*.txt")
         {
             if (!System.IO.Directory.Exists(directory))
-                throw new SystemException("Cannot get files from directory, because directory doesn't exist");
+                throw new SystemException("Cannot get files from directory, because the directory does not exist");
 
             GenericList<AFileObject> fileHolders = new GenericList<AFileObject>();
 

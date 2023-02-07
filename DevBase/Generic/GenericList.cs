@@ -242,11 +242,7 @@ namespace DevBase.Generic
             T[] newArray = new T[this._array.Length + 1];
             this._array.CopyTo(newArray, 0);
             newArray[newArray.Length - 1] = item;
-            
             this._array = newArray;
-
-            if (this._array.Length % 50 == 0)
-                GCHandle.Alloc(newArray, GCHandleType.Normal).Free();
         }
 
         /// <summary>
