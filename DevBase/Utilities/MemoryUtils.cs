@@ -22,5 +22,14 @@ namespace DevBase.Utilities
                 return s.Length;
             }
         }
+        
+        public static byte[] StreamToBytes(Stream input)
+        {
+            using (MemoryStream ms = new MemoryStream())
+            {
+                input.CopyTo(ms);
+                return ms.ToArray();
+            }
+        }
     }
 }

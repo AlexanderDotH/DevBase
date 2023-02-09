@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\DevBase.Cryptography\DevBase.Cryptography.csproj" />
     <ProjectReference Include="..\DevBase\DevBase.csproj" />
   </ItemGroup>
 

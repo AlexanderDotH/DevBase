@@ -1,7 +1,10 @@
 ﻿using System.Net;
+using System.Text;
 using DevBase.Api.Apis.Deezer.Structure.Json;
 using DevBase.Api.Serializer;
+using DevBase.Cryptography.Blowfish;
 using DevBase.Enums;
+using DevBase.Generic;
 using DevBase.Web;
 using DevBase.Web.RequestData;
 using DevBase.Web.RequestData.Data;
@@ -73,37 +76,53 @@ public class Deezer
         return new JsonDeserializer<JsonDeezerLyricsResponse>().Deserialize(responseData.GetContentAsString());
     }
     
-    public async Task<JsonDeezerUserData> GetUserData()
+    public async Task<JsonDeezerUserData> GetUserData(int retries = 5)
     {
-        RequestData requestData = new RequestData(string.Format("{0}/ajax/gw-light.php?method=deezer.getUserData&api_version=1.0&input=3&api_token=&cid={1}", 
-            this._websiteEndpoint, 
-            new Random().Next(100000000, 999999999)), EnumRequestMethod.GET);
+        for (int i = 0; i < retries; i++)
+        {
+            RequestData requestData = new RequestData(string.Format("{0}/ajax/gw-light.php?method=deezer.getUserData&api_version=1.0&input=3&api_token=&cid={1}", 
+                this._websiteEndpoint, 
+                new Random().Next(100000000, 999999999)), EnumRequestMethod.GET);
         
-        requestData.CookieContainer = this._cookieContainer;
+            requestData.CookieContainer = this._cookieContainer;
             
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
-        
-        return new JsonDeserializer<JsonDeezerUserData>().Deserialize(responseData.GetContentAsString());
+            Request request = new Request(requestData);
+            ResponseData responseData = await request.GetResponseAsync();
+
+            string content = responseData.GetContentAsString();
+            
+            if (!content.Contains("https://www.deezer.com/deprecated?method=deezer.getUserData"))
+                return new JsonDeserializer<JsonDeezerUserData>().Deserialize(content);
+        }
+
+        return null;
     }
     
-    public async Task<JsonDeezerSongDetails> GetSongDetails(string trackID, string apiToken)
+    public async Task<JsonDeezerSongDetails> GetSongDetails(string trackID, string apiToken, int retries = 5)
     {
-        RequestData requestData = new RequestData(string.Format("{0}/ajax/gw-light.php?method=deezer.pageTrack&api_version=1.0&input=3&api_token={1}", 
-            this._websiteEndpoint, 
-            apiToken), EnumRequestMethod.POST);
+        for (int i = 0; i < retries; i++)
+        {
+            RequestData requestData = new RequestData(string.Format("{0}/ajax/gw-light.php?method=deezer.pageTrack&api_version=1.0&input=3&api_token={1}", 
+                this._websiteEndpoint, 
+                apiToken), EnumRequestMethod.POST);
 
-        string data = "{\r\n    \"sng_id\" : \"1424522622\"\r\n}".Replace("1424522622", trackID);
+            string data = "{\r\n    \"sng_id\" : \"1424522622\"\r\n}".Replace("1424522622", trackID);
         
-        requestData.AddContent(data);
-        requestData.SetContentType(EnumContentType.TEXT_PLAIN);
+            requestData.AddContent(data);
+            requestData.SetContentType(EnumContentType.TEXT_PLAIN);
         
-        requestData.CookieContainer = this._cookieContainer;
+            requestData.CookieContainer = this._cookieContainer;
         
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
-        
-        return new JsonDeserializer<JsonDeezerSongDetails>().Deserialize(responseData.GetContentAsString());
+            Request request = new Request(requestData);
+            ResponseData responseData = await request.GetResponseAsync();
+            
+            string content = responseData.GetContentAsString();
+            
+            if (!content.Contains("https://www.deezer.com/deprecated?method=deezer.pageTrack"))
+                return new JsonDeserializer<JsonDeezerSongDetails>().Deserialize(content);
+        }
+
+        return null;
     }
     
     public async Task<JsonDeezerSongSource> GetSongUrls(string trackToken, string licenseToken)
@@ -126,6 +145,94 @@ public class Deezer
         return new JsonDeserializer<JsonDeezerSongSource>().Deserialize(responseData.GetContentAsString());
     }
 
+    public async Task<byte[]> DownloadSong(string trackID)
+    {
+        JsonDeezerUserData userData = await this.GetUserData();
+
+        if (userData == null)
+            return null;
+        
+        JsonDeezerSongDetails songDetails = await this.GetSongDetails(trackID, userData.results.checkForm);
+
+        if (songDetails == null)
+            return null;
+        
+        JsonDeezerSongSource url = await this.GetSongUrls(songDetails.results.DATA.TRACK_TOKEN, userData.results.USER.OPTIONS.license_token);
+
+        if (url == null)
+            return null;
+
+        if (url.data.Count == 0)
+            return null;
+
+        for (int i = 0; i < url.data.Count; i++)
+        {
+            JsonDeezerSongSourceData data = url.data[i];
+
+            for (int j = 0; j < data.media.Count; j++)
+            {
+                JsonDeezerSongSourceDataMedia media = data.media[j];
+
+                for (int k = 0; k < media.sources.Count; k++)
+                {
+                    JsonDeezerSongSourceDataMediaSource source = media.sources[i];
+
+                    Request request = new Request(source.url);
+                    ResponseData responseData = await request.GetResponseAsync();
+                    
+                    byte[] buffer = responseData.Content;
+                    byte[] key = CalculateDecryptionKey(trackID);
+                    
+                    return DecryptSongData(buffer, key);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private byte[] CalculateDecryptionKey(string trackID)
+    {
+        string secret = "g4el58wc0zvf9na1";
+        
+        string hash = DevBase.Cryptography.MD5.MD5.ToMD5String(trackID);
+
+        StringBuilder key = new StringBuilder();
+            
+        for (int i = 0; i < 16; i++)
+        {
+            key.Append(Convert.ToChar(hash[i] ^ hash[i + 16] ^ secret[i]));
+        }
+
+        return Encoding.ASCII.GetBytes(key.ToString());
+    }
+    
+    private byte[] DecryptSongData(byte[] data, byte[] key)
+    {
+        int chunkSize = 2048;
+        List<byte> decryptedContent = new List<byte>();
+
+        Blowfish blowfish = new Blowfish(key);
+        byte[] iv = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 };
+
+        byte[][] chunks = data.Chunk(chunkSize).ToArray();
+
+        for (int i = 0; i < chunks.Length; i++)
+        {
+            byte[] currentChunk = chunks[i];
+
+            if (i % 3 == 0 && currentChunk.Length == chunkSize)
+            {
+                currentChunk = currentChunk.CopyAndPadIfNotAlreadyPadded();
+                blowfish.Decrypt(currentChunk, iv);
+            }
+            
+            decryptedContent.AddRange(currentChunk);
+        }
+
+        return decryptedContent.ToArray();
+    }
+    
     public async Task<JsonDeezerSearchResponse> Search(string query)
     {
         RequestData requestData = new RequestData(string.Format("{0}/search?q={1}", this._apiEndpoint, query));

@@ -65,17 +65,7 @@ namespace DevBase.Web
             }
 
             HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
-            Stream stream = response.GetResponseStream();
-
-            if (stream == null)
-                return null;
-
-            ResponseData.ResponseData responseData = new ResponseData.ResponseData(response, string.Empty, HttpStatusCode.NoContent);
-
-            using (StreamReader reader = new StreamReader(stream, responseData.Encoding))
-            {
-                responseData = new ResponseData.ResponseData(response, await reader.ReadToEndAsync(), response.StatusCode);
-            }
+            ResponseData.ResponseData responseData = new ResponseData.ResponseData(response);
 
             if (allowCaching)
             {

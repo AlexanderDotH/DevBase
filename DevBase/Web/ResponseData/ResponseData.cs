@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Net;
+using DevBase.Utilities;
 
 namespace DevBase.Web.ResponseData
 {
@@ -15,23 +16,14 @@ namespace DevBase.Web.ResponseData
         private HttpWebResponse _response;
         private Encoding _encoding;
 
-        public ResponseData(HttpWebResponse response, byte[] content, Encoding encoding , HttpStatusCode httpStatusCode)
+        public ResponseData(HttpWebResponse response)
         {
             this._response = response;
-            this._content = content;
-            this._encoding = encoding;
-            this._httpStatusCode = httpStatusCode;
+            this._content = MemoryUtils.StreamToBytes(response.GetResponseStream());
+            this._encoding =  Encoding.GetEncoding(string.IsNullOrWhiteSpace(this._response.CharacterSet) ? "UTF-8" : this._response.CharacterSet);
+            this._httpStatusCode = response.StatusCode;
         }
-
-        public ResponseData(HttpWebResponse response, string content, HttpStatusCode httpStatusCode) : 
-            this(response, 
-                string.IsNullOrEmpty(response.CharacterSet) ?
-                Encoding.Default.GetBytes(content) :
-                Encoding.GetEncoding(response.CharacterSet).GetBytes(content), 
-                string.IsNullOrEmpty(response.CharacterSet) ?
-                Encoding.Default :
-                Encoding.GetEncoding(response.CharacterSet), httpStatusCode) { }
-
+        
         public HttpWebResponse Response
         {
             get { return this._response; }
@@ -40,14 +32,7 @@ namespace DevBase.Web.ResponseData
 
         public string GetContentAsString()
         {
-            Encoding encoding = Encoding.Default;
-
-            if (!string.IsNullOrEmpty(this._response.CharacterSet))
-            {
-                encoding = Encoding.GetEncoding(this._response.CharacterSet);
-            }
-
-            return encoding.GetString(this._content);
+            return this._encoding.GetString(this._content);
         }
 
         public byte[] Content
