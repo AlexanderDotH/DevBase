@@ -91,7 +91,7 @@ public class Deezer
 
             string content = responseData.GetContentAsString();
             
-            if (!content.Contains("https://www.deezer.com/deprecated?method=deezer.getUserData"))
+            if (!content.Contains("deprecated?method=deezer.getUserData"))
                 return new JsonDeserializer<JsonDeezerUserData>().Deserialize(content);
         }
 
@@ -118,7 +118,7 @@ public class Deezer
             
             string content = responseData.GetContentAsString();
             
-            if (!content.Contains("https://www.deezer.com/deprecated?method=deezer.pageTrack"))
+            if (!content.Contains("deprecated?method=deezer.pageTrack"))
                 return new JsonDeserializer<JsonDeezerSongDetails>().Deserialize(content);
         }
 
