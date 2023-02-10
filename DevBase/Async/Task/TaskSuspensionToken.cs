@@ -22,8 +22,11 @@ namespace DevBase.Async.Task
 
         public TaskSuspensionToken() : this(new CancellationTokenSource()) { }
 
-        public async System.Threading.Tasks.Task WaitForRelease(CancellationToken token = default(CancellationToken))
+        public async System.Threading.Tasks.Task WaitForRelease(int delay = 0, CancellationToken token = default(CancellationToken))
         {
+            if (delay != 0)
+                await System.Threading.Tasks.Task.Delay(delay);
+            
             System.Threading.Tasks.Task resumeRequestTask = null;
 
             await _lock.WaitAsync(token);
