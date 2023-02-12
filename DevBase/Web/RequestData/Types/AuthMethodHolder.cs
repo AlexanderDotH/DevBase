@@ -1,5 +1,5 @@
 ﻿using DevBase.Enums;
-using DevBase.Generic;
+using DevBase.Generics;
 using DevBase.Web.RequestData.Data;
 
 namespace DevBase.Web.RequestData.Types;
@@ -8,13 +8,13 @@ public class AuthMethodHolder
 {
     private Auth _authData;
 
-    private GenericTupleList<EnumAuthType, string> _authDictionary;
+    private ATupleList<EnumAuthType, string> _authDictionary;
 
     public AuthMethodHolder(Auth auth)
     {
         this._authData = auth;
 
-        this._authDictionary = new GenericTupleList<EnumAuthType, string>();
+        this._authDictionary = new ATupleList<EnumAuthType, string>();
         this._authDictionary.Add(EnumAuthType.BASIC, "Basic");
         this._authDictionary.Add(EnumAuthType.OAUTH2, "Bearer");
     }

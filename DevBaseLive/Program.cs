@@ -10,7 +10,6 @@ using DevBase.Web.RequestData;
 using DevBase.Web.RequestData.Data;
 using DevBase.Web.RequestData.Types;
 using DevBase.Api.Apis.Deezer;
-using DevBase.Generic;
 using Newtonsoft.Json;
 
 namespace DevBaseLive

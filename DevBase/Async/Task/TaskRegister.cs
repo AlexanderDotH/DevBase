@@ -3,19 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DevBase.Generic;
+using DevBase.Generics;
 
 namespace DevBase.Async.Task
 {
     public class TaskRegister
     {
-        private readonly GenericTupleList<TaskSuspensionToken, Object> _suspensionList;
-        private readonly GenericTupleList<System.Threading.Tasks.Task, Object> _taskList;
+        private readonly ATupleList<TaskSuspensionToken, Object> _suspensionList;
+        private readonly ATupleList<System.Threading.Tasks.Task, Object> _taskList;
 
         public TaskRegister()
         {
-            this._suspensionList = new GenericTupleList<TaskSuspensionToken, object>();
-            this._taskList = new GenericTupleList<System.Threading.Tasks.Task, object>();
+            this._suspensionList = new ATupleList<TaskSuspensionToken, object>();
+            this._taskList = new ATupleList<System.Threading.Tasks.Task, object>();
         }
 
         public void RegisterTask(Action action, Object type, bool startAfterCreation = true)

@@ -1,6 +1,6 @@
 ﻿using Avalonia.Media.Imaging;
 using DevBase.Avalonia.Color.Extensions;
-using DevBase.Generic;
+using DevBase.Generics;
 
 namespace DevBase.Avalonia.Color.Image;
 
@@ -32,7 +32,7 @@ public class NearestColorCalculator
     
     public unsafe  global::Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
     {
-        GenericList< global::Avalonia.Media.Color> pixels = GetPixels(bitmap);
+        AList< global::Avalonia.Media.Color> pixels = GetPixels(bitmap);
 
         double r = 0;
         double g = 0;
@@ -120,9 +120,9 @@ public class NearestColorCalculator
         return (diffR + diffG + diffB);
     }
     
-    private GenericList<global::Avalonia.Media.Color> GetPixels(IBitmap bitmap)
+    private AList<global::Avalonia.Media.Color> GetPixels(IBitmap bitmap)
     {
-        GenericList<global::Avalonia.Media.Color> colors = new GenericList<global::Avalonia.Media.Color>();
+        AList<global::Avalonia.Media.Color> colors = new AList<global::Avalonia.Media.Color>();
         
         double brightness = 0;
        

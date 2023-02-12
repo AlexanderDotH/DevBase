@@ -3,7 +3,7 @@ using System.Text;
 using DevBase.Api.Apis.Tidal.Structure.Json;
 using DevBase.Api.Helper;
 using DevBase.Enums;
-using DevBase.Generic;
+using DevBase.Generics;
 using DevBase.Web;
 using DevBase.Web.RequestData;
 using DevBase.Web.RequestData.Data;
@@ -30,7 +30,7 @@ namespace DevBase.Api.Apis.Tidal
 
         public async Task<JsonTidalAuthDevice> RegisterDevice()
         {
-            GenericList<FormKeypair> formData = new GenericList<FormKeypair>();
+            AList<FormKeypair> formData = new AList<FormKeypair>();
             formData.Add(new FormKeypair("client_id", this._clientID));
             formData.Add(new FormKeypair("scope", "r_usr+w_usr+w_sub"));
 
@@ -52,7 +52,7 @@ namespace DevBase.Api.Apis.Tidal
 
         public async Task<JsonTidalAccountAccess> GetTokenFrom(JsonTidalAuthDevice authDevice)
         {
-            GenericList<FormKeypair> formData = new GenericList<FormKeypair>();
+            AList<FormKeypair> formData = new AList<FormKeypair>();
             formData.Add(new FormKeypair("client_id", this._clientID));
             formData.Add(new FormKeypair("device_code", authDevice.DeviceCode));
             formData.Add(new FormKeypair("grant_type", "urn:ietf:params:oauth:grant-type:device_code"));
@@ -143,7 +143,7 @@ namespace DevBase.Api.Apis.Tidal
 
         public async Task<JsonTidalAccountRefreshAccess> RefreshToken(string refreshToken)
         {
-            GenericList<FormKeypair> formData = new GenericList<FormKeypair>();
+            AList<FormKeypair> formData = new AList<FormKeypair>();
             formData.Add(new FormKeypair("client_id", this._clientID));
             formData.Add(new FormKeypair("refresh_token", refreshToken));
             formData.Add(new FormKeypair("grant_type", "refresh_token"));

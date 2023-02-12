@@ -1,6 +1,6 @@
 ﻿using Avalonia.Media.Imaging;
 using DevBase.Avalonia.Color.Extensions;
-using DevBase.Generic;
+using DevBase.Generics;
 
 namespace DevBase.Avalonia.Color.Image;
 
@@ -30,8 +30,8 @@ public class BrightestColorCalculator
     
     public unsafe global::Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
     {
-        GenericList<global::Avalonia.Media.Color> pixels = GetPixels(bitmap);
-        GenericList<global::Avalonia.Media.Color> additional = new GenericList<global::Avalonia.Media.Color>();
+        AList<global::Avalonia.Media.Color> pixels = GetPixels(bitmap);
+        AList<global::Avalonia.Media.Color> additional = new AList<global::Avalonia.Media.Color>();
 
         for (int i = 0; i < pixels.Length; i++)
         {
@@ -124,9 +124,9 @@ public class BrightestColorCalculator
         return min < current && max > current;
     }
     
-    private unsafe GenericList<global::Avalonia.Media.Color> GetPixels(IBitmap bitmap)
+    private unsafe AList<global::Avalonia.Media.Color> GetPixels(IBitmap bitmap)
     {
-        GenericList<global::Avalonia.Media.Color> colors = new GenericList<global::Avalonia.Media.Color>();
+        AList<global::Avalonia.Media.Color> colors = new AList<global::Avalonia.Media.Color>();
         
         double brightness = 0;
        

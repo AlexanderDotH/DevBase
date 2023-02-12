@@ -4,7 +4,6 @@ using DevBase.Api.Apis.Deezer.Structure.Json;
 using DevBase.Api.Serializer;
 using DevBase.Cryptography.Blowfish;
 using DevBase.Enums;
-using DevBase.Generic;
 using DevBase.Web;
 using DevBase.Web.RequestData;
 using DevBase.Web.RequestData.Data;

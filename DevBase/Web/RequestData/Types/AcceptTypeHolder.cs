@@ -1,13 +1,13 @@
 ﻿using System.Text;
 using DevBase.Enums;
-using DevBase.Generic;
+using DevBase.Generics;
 
 namespace DevBase.Web.RequestData.Types;
 
 public class AcceptTypeHolder
 {
-    private GenericList<string> _acceptTypes;
-    private GenericTupleList<EnumCharsetType, string> _charsetTypeDictionary;
+    private AList<string> _acceptTypes;
+    private ATupleList<EnumCharsetType, string> _charsetTypeDictionary;
 
     private ContentTypeHolder _contentTypeHolder;
     
@@ -15,9 +15,9 @@ public class AcceptTypeHolder
     {
         this._contentTypeHolder = contentTypeHolder;
         
-        this._acceptTypes = new GenericList<string>();
+        this._acceptTypes = new AList<string>();
 
-        this._charsetTypeDictionary = new GenericTupleList<EnumCharsetType, string>();
+        this._charsetTypeDictionary = new ATupleList<EnumCharsetType, string>();
         this._charsetTypeDictionary.Add(EnumCharsetType.UTF8, "UTF-8");
         this._charsetTypeDictionary.Add(EnumCharsetType.ALL, "*/*");
         

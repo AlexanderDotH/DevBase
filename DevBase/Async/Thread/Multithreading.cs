@@ -1,11 +1,11 @@
 ﻿using System.Collections.Concurrent;
-using DevBase.Generic;
+using DevBase.Generics;
 
 namespace DevBase.Async.Thread
 {
     public class Multithreading
     {
-        private readonly GenericList<AThread> _threads;
+        private readonly AList<AThread> _threads;
         private readonly ConcurrentQueue<AThread> _queueThreads;
 
         private readonly int _capacity;
@@ -16,7 +16,7 @@ namespace DevBase.Async.Thread
         /// <param name="capacity">Specifies a limit for active working threads</param>
         public Multithreading(int capacity = Int32.MaxValue)
         {
-            this._threads = new GenericList<AThread>();
+            this._threads = new AList<AThread>();
             this._queueThreads = new ConcurrentQueue<AThread>();
 
             this._capacity = capacity;
@@ -58,9 +58,9 @@ namespace DevBase.Async.Thread
         /// Gets all active threads from thread list
         /// </summary>
         /// <returns>All active Threads from thread list</returns>
-        private GenericList<AThread> GetActiveThreads()
+        private AList<AThread> GetActiveThreads()
         {
-            GenericList<AThread> tList = new GenericList<AThread>();
+            AList<AThread> tList = new AList<AThread>();
 
             this._threads.ForEach(t =>
             {
@@ -75,9 +75,9 @@ namespace DevBase.Async.Thread
         /// Gets all unactive threads from thread list
         /// </summary>
         /// <returns>All unactive Threads from thread list</returns>
-        private GenericList<AThread> GetUnactiveThreads()
+        private AList<AThread> GetUnactiveThreads()
         {
-            GenericList<AThread> tList = new GenericList<AThread>();
+            AList<AThread> tList = new AList<AThread>();
 
             this._threads.ForEach(t =>
             {
@@ -174,7 +174,7 @@ namespace DevBase.Async.Thread
         /// <returns>
         /// Returns all active threads
         /// </returns>
-        public GenericList<AThread> Threads
+        public AList<AThread> Threads
         {
             get { return this._threads; }
         }

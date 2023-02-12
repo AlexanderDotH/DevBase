@@ -1,16 +1,16 @@
 ﻿using System.Text;
-using DevBase.Generic;
+using DevBase.Generics;
 using DevBase.Web.RequestData.Data;
 
 namespace DevBase.Web.RequestData.Types;
 
 public class FormDataHolder
 {
-    private GenericList<FormKeypair> _formKeyPairs;
+    private AList<FormKeypair> _formKeyPairs;
 
     public FormDataHolder()
     {
-        this._formKeyPairs = new GenericList<FormKeypair>();
+        this._formKeyPairs = new AList<FormKeypair>();
     }
 
     public void AddKeyPair(FormKeypair formKeypair)
@@ -18,7 +18,7 @@ public class FormDataHolder
         this._formKeyPairs.Add(formKeypair);
     }
     
-    public void AddKeyPairs(GenericList<FormKeypair> formKeypair)
+    public void AddKeyPairs(AList<FormKeypair> formKeypair)
     {
         this._formKeyPairs.AddRange(formKeypair);
     }

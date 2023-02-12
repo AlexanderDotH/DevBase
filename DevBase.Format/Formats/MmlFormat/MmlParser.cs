@@ -2,7 +2,7 @@
 using DevBase.Format.Formats.MmlFormat.Json;
 using DevBase.Format.Structure;
 using DevBase.Format.Utilities;
-using DevBase.Generic;
+using DevBase.Generics;
 using DevBase.IO;
 using Newtonsoft.Json;
 
@@ -20,7 +20,7 @@ namespace DevBase.Format.Formats.MmlFormat
         {
             if (typeof(T) == typeof(LrcObject))
             {
-                GenericList<LyricElement> lyricElements = new GenericList<LyricElement>();
+                AList<LyricElement> lyricElements = new AList<LyricElement>();
 
                 MmlElement[] parsedElements = JsonConvert.DeserializeObject<MmlElement[]>(lyricString);
 

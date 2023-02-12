@@ -1,19 +1,20 @@
 ﻿using System.Diagnostics;
 using System.Text;
 using DevBase.Enums;
-using DevBase.Generic;
+using DevBase.Generics;
 
 namespace DevBase.Web.RequestData.Types;
 
 public class ContentTypeHolder
 {
     private string _contentType;
-    private GenericTupleList<EnumContentType, string> _contentTypeDictionary;
+    private ATupleList<EnumContentType, string> _contentTypeDictionary;
+    
     public ContentTypeHolder()
     {
         this._contentType = "text/html";
 
-        this._contentTypeDictionary = new GenericTupleList<EnumContentType, string>();
+        this._contentTypeDictionary = new ATupleList<EnumContentType, string>();
         this._contentTypeDictionary.Add(EnumContentType.APPLICATION_JSON, "application/json");
         this._contentTypeDictionary.Add(EnumContentType.TEXT_PLAIN, "text/plain");
         this._contentTypeDictionary.Add(EnumContentType.TEXT_HTML, "text/html");
@@ -37,7 +38,7 @@ public class ContentTypeHolder
         return this._contentTypeDictionary.FindEntry(contentType);
     }
 
-    public GenericTupleList<EnumContentType, string> ContentTypeDictionary
+    public ATupleList<EnumContentType, string> ContentTypeDictionary
     {
         get => _contentTypeDictionary;
     }

@@ -1,31 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using DevBase.Exception;
-using DevBase.Utilities;
+﻿using DevBase.Utilities;
 
-namespace DevBase.Generic
+namespace DevBase.Generics
 {
-    public class GenericTupleList<T1, T2> : GenericList<Tuple<T1, T2>>
+    public class ATupleList<T1, T2> : AList<Tuple<T1, T2>>
     {
-        public GenericTupleList() { }
+        public ATupleList() { }
 
-        public GenericTupleList(GenericTupleList<T1, T2> list)
+        public ATupleList(ATupleList<T1, T2> list)
         {
             AddRange(list);
         }
 
-        public void AddRange(GenericTupleList<T1, T2> anotherList)
-        {
-            for (int i = 0; i < anotherList.Length; i++)
-            {
-                Tuple<T1, T2> e = anotherList.Get(i);
-                this.Add(e);
-            }
-        }
+        public void AddRange(ATupleList<T1, T2> anotherList) => this.AddRange(anotherList);
 
         public Tuple<T1, T2> FindFullEntry(T1 t1)
         {
@@ -167,12 +153,12 @@ namespace DevBase.Generic
             return null;
         }
 
-        public GenericList<Tuple<T1, T2>> FindFullEntries(T2 t2)
+        public AList<Tuple<T1, T2>> FindFullEntries(T2 t2)
         {
             if (t2 == null)
                 return null;
 
-            GenericList<Tuple<T1, T2>> t2GenericList = new GenericList<Tuple<T1, T2>>();
+            AList<Tuple<T1, T2>> t2AList = new AList<Tuple<T1, T2>>();
 
             long size = MemoryUtils.GetSize(t2);
 
@@ -187,20 +173,20 @@ namespace DevBase.Generic
                 {
                     if (t2.Equals(t2Object))
                     {
-                        t2GenericList.Add(this.Get(i));
+                        t2AList.Add(this.Get(i));
                     }
                 }
             }
 
-            return t2GenericList;
+            return t2AList;
         }
 
-        public GenericList<Tuple<T1, T2>> FindFullEntries(T1 t1)
+        public AList<Tuple<T1, T2>> FindFullEntries(T1 t1)
         {
             if (t1 == null)
                 return null;
 
-            GenericList<Tuple<T1, T2>> t1GenericList = new GenericList<Tuple<T1, T2>>();
+            AList<Tuple<T1, T2>> t1AList = new AList<Tuple<T1, T2>>();
 
             long size = MemoryUtils.GetSize(t1);
 
@@ -215,20 +201,20 @@ namespace DevBase.Generic
                 {
                     if (t1.Equals(t1Object))
                     {
-                        t1GenericList.Add(this.Get(i));
+                        t1AList.Add(this.Get(i));
                     }
                 }
             }
 
-            return t1GenericList;
+            return t1AList;
         }
 
-        public GenericList<T1> FindEntries(T2 t2)
+        public AList<T1> FindEntries(T2 t2)
         {
             if (t2 == null)
                 return null;
 
-            GenericList<T1> t1GenericList = new GenericList<T1>();
+            AList<T1> t1AList = new AList<T1>();
 
             long size = MemoryUtils.GetSize(t2);
 
@@ -243,20 +229,20 @@ namespace DevBase.Generic
                 {
                     if (t2.Equals(t2Object))
                     {
-                        t1GenericList.Add(this.Get(i).Item1);
+                        t1AList.Add(this.Get(i).Item1);
                     }
                 }
             }
 
-            return t1GenericList;
+            return t1AList;
         }
 
-        public GenericList<T2> FindEntries(T1 t1)
+        public AList<T2> FindEntries(T1 t1)
         {
             if (t1 == null)
                 return null;
 
-            GenericList<T2> t2GenericList = new GenericList<T2>();
+            AList<T2> t2AList = new AList<T2>();
 
             long size = MemoryUtils.GetSize(t1);
 
@@ -271,12 +257,12 @@ namespace DevBase.Generic
                 {
                     if (t1.Equals(t1Object))
                     {
-                        t2GenericList.Add(this.Get(i).Item2);
+                        t2AList.Add(this.Get(i).Item2);
                     }
                 }
             }
 
-            return t2GenericList;
+            return t2AList;
         }
 
         public void Add(T1 t1, T2 t2)

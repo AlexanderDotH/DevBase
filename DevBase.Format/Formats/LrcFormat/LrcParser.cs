@@ -1,7 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using DevBase.Format.Structure;
 using DevBase.Format.Utilities;
-using DevBase.Generic;
+using DevBase.Generics;
 using DevBase.IO;
 using DevBase.Typography;
 
@@ -17,22 +17,22 @@ namespace DevBase.Format.Formats.LrcFormat
 
         public T FormatFromString(string lyricString)
         {
-            GenericList<LyricElement> lyricElements = new GenericList<LyricElement>();
+            AList<LyricElement> lyricElements = new AList<LyricElement>();
 
-            GenericList<string> linesGenericList = new AString(lyricString).AsList();
+            AList<string> linesAList = new AString(lyricString).AsList();
 
             LrcObject fullLrcObject = null;
 
-            if (linesGenericList.Length > 7)
+            if (linesAList.Length > 7)
             {
-                fullLrcObject = ParseMetaData(linesGenericList.GetRangeAsList(0, 7));
+                fullLrcObject = ParseMetaData(linesAList.GetRangeAsList(0, 7));
             }
 
-            for (int i = 0; i < linesGenericList.Length; i++)
+            for (int i = 0; i < linesAList.Length; i++)
             {
-                string lineInList = linesGenericList.Get(i);
+                string lineInList = linesAList.Get(i);
 
-                LyricElement lyricElement = ParseStringToLyrics(lineInList, i, linesGenericList.Length);
+                LyricElement lyricElement = ParseStringToLyrics(lineInList, i, linesAList.Length);
                 if (lyricElement != null)
                 {
                     lyricElements.Add(lyricElement);

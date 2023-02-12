@@ -1,24 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.Design.Serialization;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using DevBase.Exception;
+﻿using DevBase.Exception;
 using DevBase.Utilities;
 
-namespace DevBase.Generic
+namespace DevBase.Generics
 {
-    public class GenericList<T>
+    public class AList<T>
     {
         private T[] _array;
 
         /// <summary>
         /// Constructs this class with an empty array
         /// </summary>
-        public GenericList()
+        public AList()
         {
             this._array = Array.Empty<T>();
         }
@@ -27,7 +19,7 @@ namespace DevBase.Generic
         /// Constructs this class and adds items from the given list
         /// </summary>
         /// <param name="list">The list which will be added</param>
-        public GenericList(List<T> list) : this()
+        public AList(List<T> list) : this()
         {
             this.AddRange(list);
         }
@@ -36,7 +28,7 @@ namespace DevBase.Generic
         /// Constructs this class with the given array
         /// </summary>
         /// <param name="array">The given array</param>
-        public GenericList(params T[] array)
+        public AList(params T[] array)
         {
             this._array = array;
         }
@@ -65,7 +57,7 @@ namespace DevBase.Generic
                 }
             }
 
-            throw new GenericListEntryException(GenericListEntryException.Type.EntryNotFound);
+            throw new AListEntryException(AListEntryException.Type.EntryNotFound);
         }
 
         /// <summary>
@@ -96,13 +88,13 @@ namespace DevBase.Generic
         public void Sort(int index, int count, IComparer<T> comparer)
         {
             if (index < 0)
-                throw new GenericListEntryException(GenericListEntryException.Type.OutOfBounds);
+                throw new AListEntryException(AListEntryException.Type.OutOfBounds);
 
             if (count < 0)
-                throw new GenericListEntryException(GenericListEntryException.Type.OutOfBounds);
+                throw new AListEntryException(AListEntryException.Type.OutOfBounds);
 
             if (this._array.Length - index < count)
-                throw new GenericListEntryException(GenericListEntryException.Type.InvalidRange);
+                throw new AListEntryException(AListEntryException.Type.InvalidRange);
 
             Array.Sort<T>(this._array, index, count, comparer);
         }
@@ -194,11 +186,11 @@ namespace DevBase.Generic
         /// <param name="min">The minimum range</param>
         /// <param name="max">The maximum range</param>
         /// <returns>An array of type T from the given range</returns>
-        /// <exception cref="GenericListEntryException">When the min value is bigger than the max value</exception>
+        /// <exception cref="AListEntryException">When the min value is bigger than the max value</exception>
         public T[] GetRangeAsArray(int min, int max)
         {
             if (min > max)
-                throw new GenericListEntryException(GenericListEntryException.Type.InvalidRange);
+                throw new AListEntryException(AListEntryException.Type.InvalidRange);
 
             T[] newArray = new T[max - min + 1];
 
@@ -217,11 +209,11 @@ namespace DevBase.Generic
         /// <param name="min">The minimum range</param>
         /// <param name="max">The maximum range</param>
         /// <returns>An array of type T from the given range</returns>
-        /// <exception cref="GenericListEntryException">When the min value is bigger than the max value</exception>
+        /// <exception cref="AListEntryException">When the min value is bigger than the max value</exception>
         public List<T> GetRangeAsList(int min, int max)
         {
             if (min > max)
-                throw new GenericListEntryException(GenericListEntryException.Type.InvalidRange);
+                throw new AListEntryException(AListEntryException.Type.InvalidRange);
 
             return new List<T>(GetRangeAsArray(min, max));
         }
@@ -257,7 +249,7 @@ namespace DevBase.Generic
         /// Adds an array of T values to the array
         /// </summary>
         /// <param name="array">The given array</param>
-        public void AddRange(GenericList<T> array) => AddRange(array.GetAsArray());
+        public void AddRange(AList<T> array) => AddRange(array.GetAsArray());
 
         /// <summary>
         /// Adds a list if T values to the array
@@ -357,11 +349,11 @@ namespace DevBase.Generic
         /// </summary>
         /// <param name="min">Minimum range</param>
         /// <param name="max">Maximum range</param>
-        /// <exception cref="GenericListEntryException">Throws if the range is invalid</exception>
+        /// <exception cref="AListEntryException">Throws if the range is invalid</exception>
         public void RemoveRange(int min, int max)
         {
             if (min > max)
-                throw new GenericListEntryException(GenericListEntryException.Type.InvalidRange);
+                throw new AListEntryException(AListEntryException.Type.InvalidRange);
 
             for (int i = min; i < max; i++)
             {

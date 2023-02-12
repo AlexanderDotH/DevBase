@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using DevBase.Format.Structure;
-using DevBase.Generic;
+using DevBase.Generics;
 using DevBase.IO;
 using DevBase.Typography;
 
@@ -16,9 +16,9 @@ namespace DevBase.Format.Formats.EnvFormat
 
         public T FormatFromString(string environment)
         {
-            GenericList<string> lines = new AString(environment).AsList();
+            AList<string> lines = new AString(environment).AsList();
 
-            GenericTupleList<string, string> elements = new GenericTupleList<string, string>();
+            ATupleList<string, string> elements = new ATupleList<string, string>();
 
             lines.ForEach(s =>
             {

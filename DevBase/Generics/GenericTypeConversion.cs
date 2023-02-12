@@ -1,17 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace DevBase.Generic
+﻿namespace DevBase.Generics
 {
     public class GenericTypeConversion<F, T>
     {
-        public GenericList<T> MergeToList(GenericList<F> inputList, Action<F, GenericList<T>> action)
+        public AList<T> MergeToList(AList<F> inputList, Action<F, AList<T>> action)
         {
-            GenericList<T> convertToList = new GenericList<T>();
+            AList<T> convertToList = new AList<T>();
 
             for (int i = 0; i < inputList.Length; i++)
             {
@@ -22,9 +15,9 @@ namespace DevBase.Generic
             return convertToList;
         }
 
-        public GenericList<T> MergeToList(List<F> inputList, Action<F, GenericList<T>> action)
+        public AList<T> MergeToList(List<F> inputList, Action<F, AList<T>> action)
         {
-            GenericList<T> convertToList = new GenericList<T>();
+            AList<T> convertToList = new AList<T>();
 
             for (int i = 0; i < inputList.Count; i++)
             {

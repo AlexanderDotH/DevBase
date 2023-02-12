@@ -1,4 +1,4 @@
-﻿using DevBase.Generic;
+﻿using DevBase.Generics;
 using Newtonsoft.Json;
 
 namespace DevBase.Api.Helper
@@ -6,11 +6,11 @@ namespace DevBase.Api.Helper
     public class JsonHelper<T>
     {
         private JsonSerializerSettings _serializerSettings;
-        private GenericList<string> _errorList;
+        private AList<string> _errorList;
 
         public JsonHelper()
         {
-            this._errorList = new GenericList<string>();
+            this._errorList = new AList<string>();
 
             this._serializerSettings = new JsonSerializerSettings();
 
@@ -28,7 +28,7 @@ namespace DevBase.Api.Helper
             return JsonConvert.DeserializeObject<T>(input, this._serializerSettings);
         }
 
-        public GenericList<string> ErrorList
+        public AList<string> ErrorList
         {
             get => _errorList;
             set => _errorList = value;

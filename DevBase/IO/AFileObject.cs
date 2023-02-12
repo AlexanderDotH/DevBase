@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DevBase.Generic;
+using DevBase.Generics;
 using DevBase.Utilities;
 
 namespace DevBase.IO
@@ -25,12 +25,12 @@ namespace DevBase.IO
             this._fileInfo = fi;
         }
 
-        public GenericList<string> ToList()
+        public AList<string> ToList()
         {
             if (this._binaryData == null)
                 return null;
 
-            GenericList<string> genericList = new GenericList<string>();
+            AList<string> genericList = new AList<string>();
 
             using (StringReader reader = new StringReader(ToStringData()))
             {

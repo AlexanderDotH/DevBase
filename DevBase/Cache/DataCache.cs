@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DevBase.Generic;
+using DevBase.Generics;
 using DevBase.Web.RequestData;
 
 namespace DevBase.Cache
@@ -12,11 +12,11 @@ namespace DevBase.Cache
     {
         private readonly int _expirationMS;
 
-        private readonly GenericTupleList<K, CacheElement<V>> _cache;
+        private readonly ATupleList<K, CacheElement<V>> _cache;
 
         public DataCache(int expirationMS)
         {
-            this._cache = new GenericTupleList<K, CacheElement<V>>();
+            this._cache = new ATupleList<K, CacheElement<V>>();
             this._expirationMS = expirationMS;
         }
 
@@ -39,12 +39,12 @@ namespace DevBase.Cache
             return default;
         }
 
-        public GenericList<V> DataFromCacheAsList(K key)
+        public AList<V> DataFromCacheAsList(K key)
         {
             RefreshExpirationDate();
 
-            GenericList<CacheElement<V>> entries = this._cache.FindEntries(key);
-            GenericList<V> returnElements = new GenericList<V>();
+            AList<CacheElement<V>> entries = this._cache.FindEntries(key);
+            AList<V> returnElements = new AList<V>();
 
             for (int i = 0; i < entries.Length; i++)
             {
@@ -63,7 +63,7 @@ namespace DevBase.Cache
 
         private void RefreshExpirationDate()
         {
-            GenericTupleList<K, CacheElement<V>> _copyOfCache = new GenericTupleList<K, CacheElement<V>>(this._cache);
+            ATupleList<K, CacheElement<V>> _copyOfCache = new ATupleList<K, CacheElement<V>>(this._cache);
 
             for (int i = 0; i < _copyOfCache.Length; i++)
             {

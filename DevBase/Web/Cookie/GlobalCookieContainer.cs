@@ -5,7 +5,7 @@ using System.Net;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
-using DevBase.Generic;
+using DevBase.Generics;
 
 namespace DevBase.Web.Cookie
 {
@@ -13,11 +13,11 @@ namespace DevBase.Web.Cookie
     {
         private static GlobalCookieContainer _instance;
 
-        private readonly GenericTupleList<Object, CookieContainer> _cookies;
+        private readonly ATupleList<Object, CookieContainer> _cookies;
 
         public GlobalCookieContainer()
         {
-            this._cookies = new GenericTupleList<Object, CookieContainer>();
+            this._cookies = new ATupleList<Object, CookieContainer>();
         }
 
         public CookieContainer GetCookieContainer(Object obj)

@@ -5,7 +5,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using DevBase.Avalonia.Color.Image;
-using DevBase.Generic;
+using DevBase.Generics;
 using DevBase.IO;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;
 using Color = Avalonia.Media.Color;
@@ -24,7 +24,7 @@ namespace DevBase.Test.Avalonia
         {
             try
             {
-                GenericList<AFileObject> files = AFile.GetFiles("C:\\Users\\Alex\\AppData\\Roaming\\OpenLyricsClient\\Cache", true, filter:"*.png");
+                AList<AFileObject> files = AFile.GetFiles("C:\\Users\\Alex\\AppData\\Roaming\\OpenLyricsClient\\Cache", true, filter:"*.png");
                 AFileObject file = files.Get(new Random().Next(0, files.Length - 1));
                 Console.WriteLine(file.FileInfo.FullName);
 

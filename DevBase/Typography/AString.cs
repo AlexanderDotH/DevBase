@@ -4,7 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DevBase.Generic;
+using DevBase.Generics;
 
 namespace DevBase.Typography
 {
@@ -17,9 +17,9 @@ namespace DevBase.Typography
             this._value = value;
         }
 
-        public GenericList<string> AsList()
+        public AList<string> AsList()
         {
-            GenericList<string> genericList = new GenericList<string>();
+            AList<string> genericList = new AList<string>();
 
             using (StringReader reader = new StringReader(this._value))
             {

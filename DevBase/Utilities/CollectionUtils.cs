@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DevBase.Exception;
-using DevBase.Generic;
+using DevBase.Generics;
 
 namespace DevBase.Utilities
 {
@@ -14,16 +14,16 @@ namespace DevBase.Utilities
         /// Appends to every item inside this list a given item of the other list
         ///
         /// List sizes should be equal or it throws
-        /// <see cref="GenericListEntryException"/>
+        /// <see cref="AListEntryException"/>
         /// </summary>
         ///
         /// <returns>Returns a new list with the merged entries</returns>
-        public static GenericList<string> MergeList(List<string> first, List<string> second, string marker = "")
+        public static AList<string> MergeList(List<string> first, List<string> second, string marker = "")
         {
             if (first.Count != second.Count)
-                throw new GenericListEntryException(GenericListEntryException.Type.ListNotEqual);
+                throw new AListEntryException(AListEntryException.Type.ListNotEqual);
 
-            GenericList<string> returnList = new GenericList<string>();
+            AList<string> returnList = new AList<string>();
 
             for (int i = 0; i < first.Count; i++)
             {

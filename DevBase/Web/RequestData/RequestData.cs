@@ -4,7 +4,7 @@ using System.Net;
 using System.Runtime.CompilerServices;
 using System.Text;
 using DevBase.Enums;
-using DevBase.Generic;
+using DevBase.Generics;
 using DevBase.Web.RequestData.Data;
 using DevBase.Web.RequestData.Types;
 using EnumContentType = DevBase.Enums.EnumContentType;
@@ -68,7 +68,7 @@ namespace DevBase.Web.RequestData
 
         public static string GetRandomUseragent()
         {
-            GenericList<string> userAgents = new GenericList<string>();
+            AList<string> userAgents = new AList<string>();
             userAgents.Add("Mozilla/5.0 (iPad; CPU OS 7_2_1 like Mac OS X; en-US) AppleWebKit/531.43.4 (KHTML, like Gecko) Version/3.0.5 Mobile/8B112 Safari/6531.43.4");
             userAgents.Add("Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10_8_7) AppleWebKit/5351 (KHTML, like Gecko) Chrome/37.0.881.0 Mobile Safari/5351");
             userAgents.Add("Mozilla/5.0 (Windows CE) AppleWebKit/5330 (KHTML, like Gecko) Chrome/37.0.896.0 Mobile Safari/5330");
@@ -101,7 +101,7 @@ namespace DevBase.Web.RequestData
             this.Header.Add("Authorization", new AuthMethodHolder(auth).GetAuthData());
         }
 
-        public void AddFormData(GenericList<FormKeypair> formKeyPair)
+        public void AddFormData(AList<FormKeypair> formKeyPair)
         {
             FormDataHolder formDataHolder = new FormDataHolder();
             formDataHolder.AddKeyPairs(formKeyPair);

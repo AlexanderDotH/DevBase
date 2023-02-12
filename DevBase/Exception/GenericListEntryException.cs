@@ -9,19 +9,19 @@ using System.Runtime.Serialization;
 
 namespace DevBase.Exception
 {
-    public class GenericListEntryException : SystemException
+    public class AListEntryException : SystemException
     {
-        public GenericListEntryException(Type type)
+        public AListEntryException(Type type)
         {
             switch (type)
             {
                 case Type.EntryNotFound:
                 {
-                    throw new System.Exception("GenericListEntry not found");
+                    throw new System.Exception("AListEntry not found");
                 }
                 case Type.ListNotEqual:
                 {
-                    throw new System.Exception("GenericListEntry size is not equal to given list size");
+                    throw new System.Exception("AListEntry size is not equal to given list size");
                 }
                 case Type.OutOfBounds:
                 {
