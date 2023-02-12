@@ -9,7 +9,7 @@ using System.IO;
 using System.Net.Cache;
 using DevBase.Enums;
 using DevBase.Utilities;
-using DevBase.Web.WebCache;
+using DevBase.Web.Cache;
 
 namespace DevBase.Web
 {

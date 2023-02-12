@@ -19,7 +19,7 @@ namespace DevBase.Web.ResponseData
         public ResponseData(HttpWebResponse response)
         {
             this._response = response;
-            this._content = MemoryUtils.StreamToBytes(response.GetResponseStream());
+            this._content = MemoryUtils.StreamToByteArray(response.GetResponseStream());
             this._encoding =  Encoding.GetEncoding(string.IsNullOrWhiteSpace(this._response.CharacterSet) ? "UTF-8" : this._response.CharacterSet);
             this._httpStatusCode = response.StatusCode;
         }

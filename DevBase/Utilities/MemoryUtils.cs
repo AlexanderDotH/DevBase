@@ -23,7 +23,7 @@ namespace DevBase.Utilities
             }
         }
         
-        public static byte[] StreamToBytes(Stream input)
+        public static byte[] StreamToByteArray(Stream input)
         {
             using (MemoryStream ms = new MemoryStream())
             {

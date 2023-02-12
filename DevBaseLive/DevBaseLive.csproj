@@ -9,7 +9,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DevBase.Api\DevBase.Api.csproj" />
-      <ProjectReference Include="..\DevBaseApi\DevBaseApi.csproj" />
+      <ProjectReference Include="..\DevBase.Api\DevBase.Api.csproj" />
       <ProjectReference Include="..\DevBase\DevBase.csproj" />
     </ItemGroup>
 

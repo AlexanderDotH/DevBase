@@ -51,14 +51,14 @@ namespace DevBase.IO
             return ReadFile(new FileInfo(filePath));
         }
 
-        public static bool CanFileBeAccessed(FileInfo fileInfo)
+        public static bool CanFileBeAccessed(FileInfo fileInfo, FileAccess fileAccess = FileAccess.Read)
         {
             if (!fileInfo.Exists)
                 return false;
 
             try
             {
-                fileInfo.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+                fileInfo.Open(FileMode.Open, fileAccess, FileShare.None);
             }
             catch (IOException e)
             {

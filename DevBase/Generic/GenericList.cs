@@ -36,7 +36,7 @@ namespace DevBase.Generic
         /// Constructs this class with the given array
         /// </summary>
         /// <param name="array">The given array</param>
-        public GenericList(T[] array)
+        public GenericList(params T[] array)
         {
             this._array = array;
         }
@@ -223,14 +223,7 @@ namespace DevBase.Generic
             if (min > max)
                 throw new GenericListEntryException(GenericListEntryException.Type.InvalidRange);
 
-            List<T> list = new List<T>();
-
-            for (int i = min; i < max; i++)
-            {
-                list.Add(this.Get(i));
-            }
-
-            return list;
+            return new List<T>(GetRangeAsArray(min, max));
         }
 
         /// <summary>
@@ -246,40 +239,31 @@ namespace DevBase.Generic
         }
 
         /// <summary>
-        /// Adds a array of T values to the array
+        /// Adds an array of T values to this collection.
         /// </summary>
-        /// <param name="array">The given array</param>
-        public void AddRange(T[] array)
+        /// <param name="array"></param>
+        public void AddRange(params T[] array)
         {
+            T[] newArray = new T[this._array.Length + array.Length];
+            this._array.CopyTo(newArray, 0);
+
             for (int i = 0; i < array.Length; i++)
-            {
-                this.Add(array[i]);
-            }
+                newArray[this._array.Length + i] = array[i];
+
+            this._array = newArray;
         }
-        
+
         /// <summary>
-        /// Adds a array of T values to the array
+        /// Adds an array of T values to the array
         /// </summary>
         /// <param name="array">The given array</param>
-        public void AddRange(GenericList<T> array)
-        {
-            for (int i = 0; i < array.Length; i++)
-            {
-                this.Add(array.Get(i));
-            }
-        }
+        public void AddRange(GenericList<T> array) => AddRange(array.GetAsArray());
 
         /// <summary>
         /// Adds a list if T values to the array
         /// </summary>
         /// <param name="arrayList">The given list</param>
-        public void AddRange(List<T> arrayList)
-        {
-            for (int i = 0; i < arrayList.Count; i++)
-            {
-                this.Add(arrayList[i]);
-            }
-        }
+        public void AddRange(List<T> arrayList) => AddRange(arrayList.ToArray());
 
         /// <summary>
         /// Removes an item of the array with an given item as type

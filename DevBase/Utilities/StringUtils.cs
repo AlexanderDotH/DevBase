@@ -8,7 +8,6 @@ namespace DevBase.Utilities
 {
     public class StringUtils
     {
-
         private readonly static Random Random = new Random();
         public static string RandomString(int length, string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
         {

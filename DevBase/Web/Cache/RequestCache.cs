@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Text;
-using System.Threading.Tasks;
-using DevBase.Cache;
+﻿using DevBase.Cache;
 
-namespace DevBase.Web.WebCache
+namespace DevBase.Web.Cache
 {
     public class RequestCache : DataCache<Uri, ResponseData.ResponseData>
     {
