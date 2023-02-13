@@ -53,8 +53,11 @@ namespace DevBase.Format.Formats.LrcFormat
         {
             for (int i = 0; i < input.Count; i++)
             {
+                if (input[i] == null)
+                    continue;
+                
                 string line = input[i];
-
+                
                 if (line.Contains(string.Format("[{0}:", meta)))
                 {
                     string regex = string.Format(RegexHolder.REGEX_METADATA, meta);
