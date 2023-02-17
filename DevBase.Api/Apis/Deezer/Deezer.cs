@@ -4,6 +4,7 @@ using DevBase.Api.Apis.Deezer.Structure.Json;
 using DevBase.Api.Serializer;
 using DevBase.Cryptography.Blowfish;
 using DevBase.Enums;
+using DevBase.Generics;
 using DevBase.Web;
 using DevBase.Web.RequestData;
 using DevBase.Web.RequestData.Data;
@@ -209,7 +210,7 @@ public class Deezer
     private byte[] DecryptSongData(byte[] data, byte[] key)
     {
         int chunkSize = 2048;
-        List<byte> decryptedContent = new List<byte>();
+        AList<byte> decryptedContent = new AList<byte>();
 
         Blowfish blowfish = new Blowfish(key);
         byte[] iv = new byte[] { 0, 1, 2, 3, 4, 5, 6, 7 };
@@ -229,7 +230,7 @@ public class Deezer
             decryptedContent.AddRange(currentChunk);
         }
 
-        return decryptedContent.ToArray();
+        return decryptedContent.GetAsArray();
     }
     
     public async Task<JsonDeezerSearchResponse> Search(string query)
