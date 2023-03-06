@@ -47,7 +47,7 @@ public class Deezer
         requestData.SetContentType(EnumContentType.APPLICATION_JSON);
         
         ResponseData responseData = await new Request(requestData).GetResponseAsync();
-        return JsonConvert.DeserializeObject<JsonDeezerJwtToken>(responseData.GetContentAsString());
+        return new JsonDeserializer<JsonDeezerJwtToken>().Deserialize(responseData.GetContentAsString());
     }
 
     public async Task<JsonDeezerLyricsResponse> GetLyrics(string trackID)
@@ -236,9 +236,11 @@ public class Deezer
     public async Task<JsonDeezerSearchResponse> Search(string query)
     {
         RequestData requestData = new RequestData(string.Format("{0}/search?q={1}", this._apiEndpoint, query));
+        
         Request request = new Request(requestData);
         ResponseData responseData = await request.GetResponseAsync();
-        return JsonConvert.DeserializeObject<JsonDeezerSearchResponse>(responseData.GetContentAsString());
+        
+        return new JsonDeserializer<JsonDeezerSearchResponse>().Deserialize(responseData.GetContentAsString());
     }
 
 }
