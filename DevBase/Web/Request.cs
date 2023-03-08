@@ -47,22 +47,25 @@ namespace DevBase.Web
 
             request.Headers = this._requestData.Header;
             request.Method = this._requestData.RequestMethod.ToString();
-            request.ContentType = this._requestData.ContentTypeHolder.ContentType;
             request.UserAgent = this._requestData.UserAgent;
             request.Accept = this._requestData.AcceptTypeHolder.GetAccept();
             request.CookieContainer = this._requestData.CookieContainer;
 
+            byte[] content = this._requestData.Content;
+            
             if (this._requestData.RequestMethod == EnumRequestMethod.POST && 
-                this._requestData.Content != null &&
-                this._requestData.Content.Length != 0)
+                content != null &&
+                content.Length != 0)
             {
-                request.ContentLength = this._requestData.Content.Length;
+                request.ContentLength = content.Length;
 
                 using (Stream requestStream = request.GetRequestStream())
                 {
-                    await requestStream.WriteAsync(this._requestData.Content, 0, this._requestData.Content.Length);
+                    await requestStream.WriteAsync(content, 0, content.Length);
                 }
             }
+            
+            request.ContentType = this._requestData.ContentTypeHolder.ContentType;
 
             HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
             ResponseData.ResponseData responseData = new ResponseData.ResponseData(response);

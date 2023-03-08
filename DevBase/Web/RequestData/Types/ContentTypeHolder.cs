@@ -18,6 +18,7 @@ public class ContentTypeHolder
         this._contentTypeDictionary.Add(EnumContentType.APPLICATION_JSON, "application/json");
         this._contentTypeDictionary.Add(EnumContentType.TEXT_PLAIN, "text/plain");
         this._contentTypeDictionary.Add(EnumContentType.TEXT_HTML, "text/html");
+        this._contentTypeDictionary.Add(EnumContentType.MULTIPART_FORMDATA, "multipart/form-data");
         this._contentTypeDictionary.Add(EnumContentType.APPLICATION_FORM_URLENCODED, "application/x-www-form-urlencoded");
     }
 
@@ -26,11 +27,22 @@ public class ContentTypeHolder
         this._contentType = GetContentType(contentType);
         return this;
     }
+    
+    public ContentTypeHolder Set(EnumContentType contentType, string additional)
+    {
+        this._contentType = GetContentType(contentType) + "; " + additional;
+        return this;
+    }
 
     public string ContentType
     {
         get => _contentType;
         set => _contentType = value;
+    }
+
+    public EnumContentType ContentTypeAsEnum
+    {
+        get => _contentTypeDictionary.FindEntry(ContentType);
     }
 
     public string GetContentType(EnumContentType contentType)

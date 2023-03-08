@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using DevBase.Enums;
 using DevBase.Generics;
+using DevBase.IO;
 using DevBase.Web.RequestData.Data;
 using DevBase.Web.RequestData.Types;
 using EnumContentType = DevBase.Enums.EnumContentType;
@@ -18,6 +19,7 @@ namespace DevBase.Web.RequestData
         private ContentTypeHolder _contentType;
         private AcceptTypeHolder _acceptTypeHolder;
         private FormDataHolder _formDataHolder;
+        private MultipartFormHolder _multipartFormHolder;
         private byte[] _content;
         private Uri _uri;
         private string _userAgent;
@@ -109,6 +111,24 @@ namespace DevBase.Web.RequestData
             this._contentType.Set(EnumContentType.APPLICATION_FORM_URLENCODED);
             this._formDataHolder = formDataHolder;
         }
+        
+        public void AddMultipartFormData(AList<MultipartElement> multipartElements)
+        {
+            MultipartFormHolder multipartFormHolder = new MultipartFormHolder();
+
+            for (int i = 0; i < multipartElements.Length; i++)
+            {
+                MultipartElement element = multipartElements.Get(i);
+                
+                if (!(element.Data is string || element.Data is AFileObject))
+                    continue;
+                
+                multipartFormHolder.AddElement(element);
+            }
+
+            this._contentType.Set(EnumContentType.MULTIPART_FORMDATA);
+            this._multipartFormHolder = multipartFormHolder;
+        }
 
         public void AddContent(string content)
         {
@@ -146,7 +166,27 @@ namespace DevBase.Web.RequestData
 
         public byte[] Content
         {
-            get { return _content; }
+            get
+            {
+                switch (_contentType.ContentTypeAsEnum)
+                {
+                    case EnumContentType.APPLICATION_FORM_URLENCODED:
+                        return Encoding.UTF8.GetBytes(this._formDataHolder.GetKeyPairs());
+
+                    case EnumContentType.MULTIPART_FORMDATA:
+                    {
+                        byte[] content = this._multipartFormHolder.GenerateData();
+
+                        this._contentType.Set(EnumContentType.MULTIPART_FORMDATA,
+                            this._multipartFormHolder.BoundaryContentType);
+
+                        return content;
+                    }
+                    
+                    default: return this._content;
+                }
+                
+            }
             set { this._content = value; }
         }
 
