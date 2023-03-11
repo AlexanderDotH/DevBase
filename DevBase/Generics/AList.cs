@@ -123,6 +123,15 @@ namespace DevBase.Generics
         }
 
         /// <summary>
+        /// Returns a random object from the array 
+        /// </summary>
+        /// <returns>A random object</returns>
+        public T GetRandom()
+        {
+            return this.Get(new Random().Next(0, this.Length - 1));
+        }
+
+        /// <summary>
         /// Checks if this list contains a given item
         /// </summary>
         /// <param name="item">The given item</param>

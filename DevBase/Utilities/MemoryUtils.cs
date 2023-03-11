@@ -16,6 +16,9 @@ namespace DevBase.Utilities
         #pragma warning disable SYSLIB0011
         public static long GetSize(Object obj)
         {
+            if (!Globals.ALLOW_SERIALIZATION)
+                return 0;
+            
             if (obj == null)
                 return 0;
             

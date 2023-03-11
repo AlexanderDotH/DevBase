@@ -140,6 +140,8 @@ namespace DevBase.Web.RequestData
             {
                 this._content = Encoding.Default.GetBytes(content);
             }
+
+            this._requestMethod = EnumRequestMethod.POST;
         }
 
         public void SetContentType(EnumContentType contentType)
@@ -151,7 +153,7 @@ namespace DevBase.Web.RequestData
         {
             this._acceptTypeHolder.SetCharSet(charsetType);
         }
-        
+
         public CookieContainer CookieContainer
         {
             get { return this._cookieContainer; }
