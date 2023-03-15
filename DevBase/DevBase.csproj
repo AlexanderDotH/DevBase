@@ -4,6 +4,14 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <Title>DevBase</Title>
+    <Authors>AlexanderDotH</Authors>
+    <Description>DevBase is a Development base for everyones need</Description>
+    <Copyright>AlexanderDotH</Copyright>
+    <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
+    <RepositoryType>Public</RepositoryType>
   </PropertyGroup>
 
 </Project>

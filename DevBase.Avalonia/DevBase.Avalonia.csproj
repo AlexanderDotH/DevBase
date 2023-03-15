@@ -4,6 +4,12 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <Title>DevBase.Avalonia</Title>
+        <Authors>AlexanderDotH</Authors>
+        <Description>This is a special utility made for avalonia ui and has some helper functions</Description>
+        <Copyright>AlexanderDotH</Copyright>
+        <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
@@ -16,6 +22,7 @@
 
     <ItemGroup>
       <PackageReference Include="Avalonia" Version="0.10.18" />
+      <PackageReference Include="DevBase" Version="1.0.0" />
       <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     </ItemGroup>
 
