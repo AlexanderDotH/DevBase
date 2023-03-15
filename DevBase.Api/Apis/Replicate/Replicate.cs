@@ -26,8 +26,6 @@ public class Replicate
 
     public async Task<ReplicatePredictionResponse> Predict(string modelID, string linkToAudio, string model, string apiKey)
     {
-        Console.WriteLine("Token : " + apiKey);
-        
         JObject jObject = new JObject
         {
             {"version", modelID},

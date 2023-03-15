@@ -1,21 +1,8 @@
-﻿using System;
-using System.Diagnostics;
-using System.Net;
-using System.Net.Mime;
-using System.Runtime.InteropServices;
-using System.Text;
-using DevBase.Enums;
-using DevBase.Web;
-using DevBase.Web.RequestData;
-using DevBase.Web.RequestData.Data;
-using DevBase.Web.RequestData.Types;
-using DevBase.Api.Apis.Deezer;
-using DevBase.Api.Apis.Deezer.Structure.Json;
+﻿using System.Diagnostics;
+using DevBase.Api.Apis.Replicate;
+using DevBase.Api.Apis.Replicate.Structure;
 using DevBase.Generics;
-using DevBase.IO;
-using DevBase.Typography;
 using DevBase.Utilities;
-using Newtonsoft.Json;
 
 namespace DevBaseLive
 {
@@ -23,12 +10,33 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
-            string[] strings = GenerateTrash();
+            var _tokens = new AList<string>(
+                "ab6d730d3629ff370f8b33b1daf19eb9147951d1",
+                "caa411c67422912bead4cca0c94bf788c7e0a0f5",
+                "60ec6c9b8f5e6d6e9a89fc3bf78429ed77b1816a",
+                "026a3e5c1fdea8452683b58d771a4938983e8e72",
+                "4c2c19b8c3ed2d3b6094d91cda439ff4ee6c698f",
+                "1605bd7745c968810952aeb112e74f82bf4c5448");
+
+            var _replicate = new Replicate(_tokens);
+
+            /*var pred = _replicate.Predict("23241e5731b44fcb5de68da8ebddae1ad97c5094d24f94ccb11f7c1d33d661e2",
+                "https://audio.openlyricsclient.com/62ef0ce531fbe33fffe4fd9z4574576de39a7b0f",
+                "large-v2");*/
+
+            //ReplicatePredictionResponse resu = pred.GetAwaiter().GetResult();
+
+            var nick = _replicate.GetResult("kdt2umzwezbxbigs7sknoisfhq", "60ec6c9b8f5e6d6e9a89fc3bf78429ed77b1816a").GetAwaiter().GetResult();
+            Console.WriteLine(nick.output.transcription);
+            
+            //Console.WriteLine(pred.GetAwaiter().GetResult().id);
+
+            /*string[] strings = GenerateTrash();
             
             string searchFor = strings[50];
 
             TestDefault(strings, searchFor);
-            TestAList(strings, searchFor);
+            TestAList(strings, searchFor);*/
 
             /*RequestData requestData = new RequestData("http://localhost/upload.php",
                 EnumRequestMethod.POST);
