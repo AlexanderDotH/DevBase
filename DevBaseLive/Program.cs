@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using DevBase.Api.Apis.OpenLyricsClient;
 using DevBase.Api.Apis.Replicate;
 using DevBase.Api.Apis.Replicate.Structure;
 using DevBase.Generics;
@@ -10,7 +11,14 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
-            var _tokens = new AList<string>(
+            OpenLyricsClient olc = new OpenLyricsClient();
+            var n = olc.GetAccessToken(
+                    "AQBVPi3EZgLmii6Ty2OesIpJ5h02QiHtAro3Gvf1D5MI2XZXZZv3I_BRttQGXOAPrD8lJiFmaDEpBnywnV0oytSXkO3fUDzrnXcRvxnMSnXZC3Oel0nyCnkV8TqVfFW3JZg")
+                .GetAwaiter().GetResult();
+            
+            Console.WriteLine(n.AccessToken);
+
+            /*var _tokens = new AList<string>(
                 "ab6d730d3629ff370f8b33b1daf19eb9147951d1",
                 "caa411c67422912bead4cca0c94bf788c7e0a0f5",
                 "60ec6c9b8f5e6d6e9a89fc3bf78429ed77b1816a",
@@ -22,13 +30,13 @@ namespace DevBaseLive
 
             /*var pred = _replicate.Predict("23241e5731b44fcb5de68da8ebddae1ad97c5094d24f94ccb11f7c1d33d661e2",
                 "https://audio.openlyricsclient.com/62ef0ce531fbe33fffe4fd9z4574576de39a7b0f",
-                "large-v2");*/
+                "large-v2");#1#
 
             //ReplicatePredictionResponse resu = pred.GetAwaiter().GetResult();
 
             var nick = _replicate.GetResult("kdt2umzwezbxbigs7sknoisfhq", "60ec6c9b8f5e6d6e9a89fc3bf78429ed77b1816a").GetAwaiter().GetResult();
-            Console.WriteLine(nick.output.transcription);
-            
+            Console.WriteLine(nick.output.transcription);*/
+
             //Console.WriteLine(pred.GetAwaiter().GetResult().id);
 
             /*string[] strings = GenerateTrash();
