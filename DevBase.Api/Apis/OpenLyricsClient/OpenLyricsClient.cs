@@ -34,7 +34,7 @@ public class OpenLyricsClient
         return new JsonDeserializer<JsonOpenLyricsClientAccess>().Deserialize(responseData.GetContentAsString());
     } 
     
-    public async Task<JsonOpenLyricsClientAiPredictionResponse> SubmitAiSync(string title, string album, long duration, params string[] artists)
+    public async Task<JsonOpenLyricsClientAiPredictionResponse> SubmitAiSync(string title, string album, long duration, string model = "", params string[] artists)
     {
         RequestData data = new RequestData(string.Format("{0}/ai/submit", this._baseUrl));
 
@@ -44,6 +44,7 @@ public class OpenLyricsClient
         jObject["album"] = album;
         jObject["artists"] = new JArray(artists);
         jObject["duration"] = duration;
+        jObject["model"] = model;
         
         data.AddContent(jObject.ToString());
         data.SetContentType(EnumContentType.APPLICATION_JSON);
