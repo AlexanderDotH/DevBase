@@ -13,4 +13,8 @@
       <ProjectReference Include="..\DevBase\DevBase.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="SpotifyAPI.Web" Version="7.0.0" />
+    </ItemGroup>
+
 </Project>

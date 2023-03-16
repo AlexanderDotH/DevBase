@@ -24,7 +24,7 @@ public class Replicate
     
     public Replicate() : this(null) {}
 
-    public async Task<ReplicatePredictionResponse> Predict(string modelID, string linkToAudio, string model, string apiKey)
+    public async Task<ReplicatePredictionResponse> Predict(string modelID, string linkToAudio, string model, string apiKey, string webhook = "https://example.com")
     {
         JObject jObject = new JObject
         {
@@ -36,7 +36,8 @@ public class Replicate
                 {"model", model},
                 {"transcription", "srt"}
                 }
-            }
+            },
+            {"webhook", webhook}
         };
 
         RequestData requestData = new RequestData(string.Format("{0}/predictions", this._endpoint));
@@ -51,12 +52,12 @@ public class Replicate
         return new JsonDeserializer<ReplicatePredictionResponse>().Deserialize(responseData.GetContentAsString());
     }
 
-    public async Task<ReplicatePredictionResponse> Predict(string modelID, string linkToAudio, string model)
+    public async Task<ReplicatePredictionResponse> Predict(string modelID, string linkToAudio, string model, string webhook = "https://example.com")
     {
         if (this._tokens == null)
             return null;
         
-        return await Predict(modelID, linkToAudio, model, this._tokens.GetRandom());
+        return await Predict(modelID, linkToAudio, model, this._tokens.GetRandom(), webhook);
     }
 
     public async Task<ReplicatePredictionResult> GetResult(string predictionID, string apiKey)

@@ -37,9 +37,7 @@ namespace DevBase.Web
                 if (RequestCache.INSTANCE != null && RequestCache.INSTANCE.CachingAllowed)
                 {
                     if (RequestCache.INSTANCE.IsInCache(this._requestData.Uri))
-                    {
                         return RequestCache.INSTANCE.DataFromCache(this._requestData.Uri);
-                    }
                 }
             }
 
@@ -53,7 +51,7 @@ namespace DevBase.Web
 
             byte[] content = this._requestData.Content;
             
-            if (this._requestData.RequestMethod == EnumRequestMethod.POST && 
+            if (this._requestData.RequestMethod == EnumRequestMethod.POST &&
                 content != null &&
                 content.Length != 0)
             {
@@ -75,9 +73,7 @@ namespace DevBase.Web
                 if (RequestCache.INSTANCE != null && RequestCache.INSTANCE.CachingAllowed)
                 {
                     if (!RequestCache.INSTANCE.IsInCache(this._requestData.Uri))
-                    {
                         RequestCache.INSTANCE.WriteToCache(this._requestData.Uri, responseData);
-                    }
                 }
             }
 

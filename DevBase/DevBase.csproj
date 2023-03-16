@@ -12,6 +12,7 @@
     <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
     <RepositoryType>Public</RepositoryType>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
 </Project>
