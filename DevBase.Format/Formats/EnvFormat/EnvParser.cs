@@ -6,15 +6,15 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.EnvFormat
 {
-    public class EnvParser<T> : IFileFormat<T>
+    public class EnvParser : IFileFormat<ATupleList<string, string>>
     {
-        public T FormatFromFile(string filePath)
+        public ATupleList<string, string> FormatFromFile(string filePath)
         {
             AFileObject file = AFile.ReadFile(filePath);
             return FormatFromString(file.ToStringData());
         }
 
-        public T FormatFromString(string environment)
+        public ATupleList<string, string> FormatFromString(string environment)
         {
             AList<string> lines = new AString(environment).AsList();
 
@@ -33,10 +33,7 @@ namespace DevBase.Format.Formats.EnvFormat
                 }
             });
 
-            if (!elements.IsEmpty())
-                return (T)(object)elements;
-
-            return default;
+            return elements;
         }
     }
 }

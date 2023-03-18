@@ -2,6 +2,9 @@
 using DevBase.Api.Apis.OpenLyricsClient;
 using DevBase.Api.Apis.Replicate;
 using DevBase.Api.Apis.Replicate.Structure;
+using DevBase.Format;
+using DevBase.Format.Formats.MmlFormat;
+using DevBase.Format.Structure;
 using DevBase.Generics;
 using DevBase.Utilities;
 using SpotifyAPI.Web;
@@ -12,17 +15,26 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
+            AList<int> nick = new AList<int>(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17);
+
+            var a = nick.Slice(4);
+
+            Console.WriteLine(a.Get(1));
+            
+            a.ForEach(t=>t.ForEach(a=>Console.WriteLine(a)));
+            /*FileFormatParser<LrcObject> parser = new FileFormatParser<LrcObject>(new MmlParser());
+
             OpenLyricsClient olc = new OpenLyricsClient();
             
             AuthorizationCodeRefreshResponse response = new OAuthClient().RequestToken(
                 new AuthorizationCodeRefreshRequest("5506575c84334b25978bda35ee43e6fd", "af2957198b104760bdf4bb3a48915365", "AQBLp8AMBIkARE8yuaRoJ1I7BUql0-Z3K5d0HGt-Gj4s707XLZc9cADgqU9MSEtgUvkAfj404w-KSE4WPgcJS93QERaRl8TOnn7WD3rdeW9rj9FRlyA_yhK_tvBTn8HihDA")).GetAwaiter().GetResult();
 
-            Console.WriteLine(response.AccessToken);
-            
+            Console.WriteLine(response.AccessToken);*/
+
             /*var n = olc.GetAccessToken(
                     "AQBVPi3EZgLmii6Ty2OesIpJ5h02QiHtAro3Gvf1D5MI2XZXZZv3I_BRttQGXOAPrD8lJiFmaDEpBnywnV0oytSXkO3fUDzrnXcRvxnMSnXZC3Oel0nyCnkV8TqVfFW3JZg")
                 .GetAwaiter().GetResult();*/
-            
+
             //Console.WriteLine(olc.SubmitAiSync("nick", "joe", 0, "nick").GetAwaiter().GetResult().ID);
             //Console.WriteLine(olc.GetAiSyncResult("bd432c797574a1bea5e3ca96dawd54bb5032").GetAwaiter().GetResult().SRT);
 
@@ -39,7 +51,7 @@ namespace DevBaseLive
                 "large-v2", "1605bd7745c968810952aeb112e74f82bf4c5448", "https://openlyricsclient.com/api/ai/webhook");
 
             Console.WriteLine(pred.GetAwaiter().GetResult().id);*/
-            
+
             //ReplicatePredictionResponse resu = pred.GetAwaiter().GetResult();
 
             /*var nick = _replicate.GetResult("kdt2umzwezbxbigs7sknoisfhq", "60ec6c9b8f5e6d6e9a89fc3bf78429ed77b1816a").GetAwaiter().GetResult();

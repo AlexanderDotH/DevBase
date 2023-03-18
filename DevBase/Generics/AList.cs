@@ -132,6 +132,29 @@ namespace DevBase.Generics
         }
 
         /// <summary>
+        /// This function slices the list into smaller given pieces.
+        /// </summary>
+        /// <param name="size">Is the size of the chunks inside the list</param>
+        /// <returns>A freshly sliced list</returns>
+        public AList<AList<T>> Slice(int size)
+        {
+            AList<AList<T>> slicedArray = new AList<AList<T>>();
+
+            for (int i = 0; i < this._array.Length; i += size)
+            {
+                int remainingItems = this._array.Length - i;
+                int currentChunkSize = remainingItems < size ? remainingItems : size;
+                
+                T[] chunk = new T[currentChunkSize];
+                Array.Copy(this._array, i, chunk, 0, currentChunkSize);
+                
+                slicedArray.Add(new AList<T>(chunk));
+            }
+
+            return slicedArray;
+        }
+
+        /// <summary>
         /// Checks if this list contains a given item
         /// </summary>
         /// <param name="item">The given item</param>
@@ -211,6 +234,8 @@ namespace DevBase.Generics
 
             return newArray;
         }
+
+        public AList<T> GetRangeAsAList(int min, int max) => new AList<T>(GetRangeAsArray(min, max));
 
         /// <summary>
         /// Gets a range of item as list

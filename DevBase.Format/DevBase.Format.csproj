@@ -6,14 +6,14 @@
     <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <Title>DevBase.Format</Title>
     <Authors>AlexanderDotH</Authors>
-    <Description>This is a parser for file formats such as .lrc and .env </Description>
+    <Description>This is a parser for file formats such as .lrc, .srt and .env </Description>
     <Copyright>AlexanderDotH</Copyright>
     <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
+    <Version>1.2.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DevBase" Version="1.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
