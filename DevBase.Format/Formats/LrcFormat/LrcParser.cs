@@ -7,15 +7,15 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.LrcFormat
 {
-    public class LrcParser<T> : IFileFormat<T>
+    public class LrcParser<T> : IFileFormat<LrcObject>
     {
-        public T FormatFromFile(string filePath)
+        public LrcObject FormatFromFile(string filePath)
         {
             AFileObject file = AFile.ReadFile(filePath);
             return FormatFromString(file.ToStringData());
         }
 
-        public T FormatFromString(string lyricString)
+        public LrcObject FormatFromString(string lyricString)
         {
             AList<LyricElement> lyricElements = new AList<LyricElement>();
 
@@ -46,7 +46,7 @@ namespace DevBase.Format.Formats.LrcFormat
 
             fullLrcObject.Lyrics = lyricElements;
 
-            return (T)(object)fullLrcObject;
+            return fullLrcObject;
         }
 
         private string ParseMetaDataPart(List<string> input, string meta)

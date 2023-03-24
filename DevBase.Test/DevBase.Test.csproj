@@ -20,7 +20,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\DevBase.Avalonia\DevBase.Avalonia.csproj" />
-    <ProjectReference Include="..\DevBase.Api\DevBase.Api.csproj" />
     <ProjectReference Include="..\DevBase.Format\DevBase.Format.csproj" />
     <ProjectReference Include="..\DevBase\DevBase.csproj" />
   </ItemGroup>
