@@ -10,6 +10,7 @@ using DevBase.Web.RequestData;
 using DevBase.Web.RequestData.Data;
 using DevBase.Web.ResponseData;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DevBase.Api.Apis.Deezer;
 
@@ -56,16 +57,16 @@ public class Deezer
         
         RequestData requestData = new RequestData(string.Format("{0}/api", this._pipeEndpoint), EnumRequestMethod.POST);
 
-        string data = @"{
-            ""query"": ""query SynchronizedTrackLyrics($trackId: String!) {  track(trackId: $trackId) {    ...SynchronizedTrackLyrics    __typename  }}fragment SynchronizedTrackLyrics on Track {  id  lyrics {    ...Lyrics    __typename  }  album {    cover {      small: urls(pictureRequest: {width: 100, height: 100})      medium: urls(pictureRequest: {width: 264, height: 264})      large: urls(pictureRequest: {width: 800, height: 800})      explicitStatus      __typename    }    __typename  }  __typename}fragment Lyrics on Lyrics {  id  copyright  text  writers  synchronizedLines {    ...LyricsSynchronizedLines    __typename  }  __typename}fragment LyricsSynchronizedLines on LyricsSynchronizedLine {  lrcTimestamp  line  lineTranslated  milliseconds  duration  __typename}"",
-            ""variables"": {
-                ""trackId"": ""1762856547""
-            }
-        }".Replace("1762856547", trackID);
-        
+        JObject trackId = new JObject();
+        trackId["trackId"] = trackID;
+
+        JObject jObject = new JObject();
+        jObject["query"] = "query SynchronizedTrackLyrics($trackId: String!) {  track(trackId: $trackId) {    ...SynchronizedTrackLyrics    __typename  }}fragment SynchronizedTrackLyrics on Track {  id  lyrics {    ...Lyrics    __typename  }  album {    cover {      small: urls(pictureRequest: {width: 100, height: 100})      medium: urls(pictureRequest: {width: 264, height: 264})      large: urls(pictureRequest: {width: 800, height: 800})      explicitStatus      __typename    }    __typename  }  __typename}fragment Lyrics on Lyrics {  id  copyright  text  writers  synchronizedLines {    ...LyricsSynchronizedLines    __typename  }  __typename}fragment LyricsSynchronizedLines on LyricsSynchronizedLine {  lrcTimestamp  line  lineTranslated  milliseconds  duration  __typename}";
+        jObject["variables"] = trackId;
+
         requestData.CookieContainer = this._cookieContainer;
         
-        requestData.AddContent(data);
+        requestData.AddContent(jObject.ToString());
         
         requestData.SetContentType(EnumContentType.APPLICATION_JSON);
             
@@ -106,9 +107,10 @@ public class Deezer
                 this._websiteEndpoint, 
                 apiToken), EnumRequestMethod.POST);
 
-            string data = "{\r\n    \"sng_id\" : \"1424522622\"\r\n}".Replace("1424522622", trackID);
-        
-            requestData.AddContent(data);
+            JObject jObject = new JObject();
+            jObject["sng_id"] = trackID;
+            
+            requestData.AddContent(jObject.ToString());
             requestData.SetContentType(EnumContentType.TEXT_PLAIN);
         
             requestData.CookieContainer = this._cookieContainer;
@@ -129,12 +131,46 @@ public class Deezer
     {
         RequestData requestData = new RequestData(string.Format("{0}/v1/get_url", 
             this._mediaEndpoint), EnumRequestMethod.POST);
-
-        string data = "{\r\n  \"license_token\": \"(licenseToken)\",\r\n  \"media\": [\r\n    {\r\n      \"type\": \"FULL\",\r\n      \"formats\": [\r\n        {\r\n          \"cipher\": \"BF_CBC_STRIPE\",\r\n          \"format\": \"MP3_128\"\r\n        },\r\n        {\r\n          \"cipher\": \"BF_CBC_STRIPE\",\r\n          \"format\": \"MP3_64\"\r\n        },\r\n        {\r\n          \"cipher\": \"BF_CBC_STRIPE\",\r\n          \"format\": \"MP3_MISC\"\r\n        }\r\n      ]\r\n    }\r\n  ],\r\n  \"track_tokens\": [\r\n    \"(trackToken)\"\r\n  ]\r\n}"
-            .Replace("(licenseToken)", licenseToken)
-            .Replace("(trackToken)", trackToken);
         
-        requestData.AddContent(data);
+        JObject jObject = new JObject
+        {
+            {"license_token", licenseToken},
+            {"media", 
+                new JArray
+                {
+                    new JObject
+                    {
+                        {"type", "FULL"},
+                        {"formats", new JArray
+                        {
+                            new JObject
+                            {
+                                {"cipher","BF_CBC_STRIPE"},
+                                {"format","MP3_128"}
+                            },
+                            new JObject
+                            {
+                                {"cipher","BF_CBC_STRIPE"},
+                                {"format","MP3_64"}
+                            },
+                            new JObject
+                            {
+                                {"cipher","BF_CBC_STRIPE"},
+                                {"format","MP3_MISC"}
+                            }
+                        }}
+                    }
+                }
+            },
+            {"track_tokens", new JArray
+            {
+                trackToken
+            }}
+        };
+        
+        Console.WriteLine(jObject.ToString());
+        
+        requestData.AddContent(jObject.ToString());
         requestData.SetContentType(EnumContentType.APPLICATION_JSON);
         
         requestData.CookieContainer = this._cookieContainer;
