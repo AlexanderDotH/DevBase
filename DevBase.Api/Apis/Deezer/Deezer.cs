@@ -168,8 +168,6 @@ public class Deezer
             }}
         };
         
-        Console.WriteLine(jObject.ToString());
-        
         requestData.AddContent(jObject.ToString());
         requestData.SetContentType(EnumContentType.APPLICATION_JSON);
         
