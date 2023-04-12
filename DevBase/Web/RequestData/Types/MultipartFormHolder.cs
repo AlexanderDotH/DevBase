@@ -51,6 +51,20 @@ public class MultipartFormHolder
         {
             MultipartElement element = this._multipartElements.Get(i);
 
+            if (element.Data is byte[])
+            {
+                byte[] rawBytes = (byte[])element.Data;
+                
+                string formatedElement = string.Format("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n",
+                    element.Key, 
+                    "file.mp3", 
+                    MimeTypeMap.GetMimeType("mp3"));
+                
+                data.AddRange(boundaryData);
+                data.AddRange(Encoding.UTF8.GetBytes(formatedElement));
+                data.AddRange(rawBytes);
+            }
+            
             if (element.Data is AFileObject)
             {
                 AFileObject fileObject = (AFileObject)element.Data;

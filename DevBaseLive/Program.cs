@@ -1,9 +1,11 @@
 ﻿using System.Diagnostics;
 using DevBase.Api.Apis.Deezer;
+using DevBase.Api.Apis.OpenAi;
 using DevBase.Api.Apis.OpenLyricsClient;
 using DevBase.Api.Apis.Replicate;
 using DevBase.Api.Apis.Replicate.Structure;
 using DevBase.Generics;
+using DevBase.IO;
 using DevBase.Utilities;
 using SpotifyAPI.Web;
 
@@ -14,9 +16,15 @@ namespace DevBaseLive
         static void Main(string[] args)
         {
             Deezer api = new Deezer();
-            var lyrics = api.DownloadSong("1735279017").GetAwaiter().GetResult();
+
+            var search = api.Search("Midnight Sun");
             
-            File.WriteAllBytes("song.mp3", lyrics);
+            var lyrics = api.DownloadSong(search.GetAwaiter().GetResult().data[0].id.ToString()).GetAwaiter().GetResult();
+
+            OpenAi openAi = new OpenAi("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");
+
+            var result = openAi.Transcribe(lyrics).GetAwaiter().GetResult();
+            Console.WriteLine(result);
 
             /*OpenLyricsClient olc = new OpenLyricsClient();
             

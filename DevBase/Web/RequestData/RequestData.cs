@@ -120,7 +120,7 @@ namespace DevBase.Web.RequestData
             {
                 MultipartElement element = multipartElements.Get(i);
                 
-                if (!(element.Data is string || element.Data is AFileObject))
+                if (!(element.Data is string || element.Data is AFileObject || element.Data is byte[]))
                     continue;
                 
                 multipartFormHolder.AddElement(element);

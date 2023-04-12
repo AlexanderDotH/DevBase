@@ -1,7 +1,11 @@
 ﻿using DevBase.Api.Apis.OpenAi.Json;
+using DevBase.Api.Serializer;
+using DevBase.Enums;
 using DevBase.Generics;
+using DevBase.Web;
 using DevBase.Web.RequestData;
 using DevBase.Web.RequestData.Data;
+using DevBase.Web.ResponseData;
 
 namespace DevBase.Api.Apis.OpenAi;
 
@@ -18,11 +22,22 @@ public class OpenAi
 
     public async Task<OpenAiTranscription> Transcribe(byte[] audioFile)
     {
-        RequestData requestData = new RequestData(string.Format("{0}/audio/transcription", this._baseUrl));
+        RequestData requestData = new RequestData(string.Format("{0}/audio/transcriptions", this._baseUrl), EnumRequestMethod.POST);
 
-        AList<FormKeypair> formKeyPairs = new AList<FormKeypair>();
-        formKeyPairs.Add(new FormKeypair());
+        requestData.AddAuthMethod(new Auth(this._apiKey, EnumAuthType.OAUTH2));
+        
+        AList<MultipartElement> formData = new AList<MultipartElement>();
+        formData.Add(new MultipartElement("file", audioFile));
+        formData.Add(new MultipartElement("model", "whisper-1"));
+        formData.Add(new MultipartElement("response_format", "verbose_json"));
 
-        requestData.AddFormData();
+        requestData.AddMultipartFormData(formData);
+
+        requestData.SetAccept(EnumCharsetType.ALL);
+        
+        Request request = new Request(requestData);
+        ResponseData responseData = await request.GetResponseAsync();
+
+        return new JsonDeserializer<OpenAiTranscription>().Deserialize(responseData.GetContentAsString());
     }
 }
