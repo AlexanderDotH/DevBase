@@ -1,0 +1,28 @@
+DevBase License Agreement (DBLA) v1.0
+
+Copyright (C) 2023 Alexander Heuschkel (AlexanderDotH)
+
+Permission is hereby granted, free of charge, to any person or legal entity obtaining a copy of this software and associated documentation files (the "Software"), 
+to deal in the Software without restriction, including without limitation the rights to use, copy, modify, and merge, subject to the following conditions:
+
+1. No Commercial Use:
+The Software shall not be used for commercial purposes by any person or legal entity. This includes, 
+but is not limited to, the distribution, sale, lease, rental, or sublicense of the Software or any portion thereof. The use of the Software in connection with generating revenue for a business or any commercial entity is strictly prohibited.
+
+2. Free to Use for Everyone:
+The Software is made available free of charge for individual and non-commercial users, as well as legal entities acting in a non-commercial capacity. 
+All users are granted the right to use, copy, modify, and merge the Software for non-commercial purposes, subject to the terms and conditions of this License Agreement.
+
+3. Source Code Distribution:
+Redistribution of the source code or any portion thereof is prohibited, except on the official GitHub repository maintained by Alexander Heuschkel (AlexanderDotH). 
+Any attempts to upload or distribute the source code or any modified version of the source code on any other website, platform, or medium are strictly prohibited.
+
+4. Attribution:
+Redistributions of the Software in any form must retain the above copyright notice, this list of conditions, 
+and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, 
+THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, 
+INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; 
+OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS 
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
