@@ -4,6 +4,15 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <Authors>AlexanderDotH</Authors>
+        <Description>This is a wrapper for Bouncycastle</Description>
+        <Copyright>AlexanderDotH</Copyright>
+        <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/AlexanderDotH/DevBase/blob/master/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/AlexanderDotH/DevBase</RepositoryUrl>
+        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <Title>DevBase.Cryptography.BouncyCastle</Title>
     </PropertyGroup>
 
     <ItemGroup>
