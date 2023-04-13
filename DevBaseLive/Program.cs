@@ -1,13 +1,9 @@
 ﻿using System.Diagnostics;
-using DevBase.Api.Apis.Deezer;
-using DevBase.Api.Apis.OpenAi;
-using DevBase.Api.Apis.OpenLyricsClient;
-using DevBase.Api.Apis.Replicate;
-using DevBase.Api.Apis.Replicate.Structure;
+using DevBase.Cryptography.BouncyCastle.Identifier;
+using DevBase.Cryptography.BouncyCastle.Random;
 using DevBase.Generics;
-using DevBase.IO;
 using DevBase.Utilities;
-using SpotifyAPI.Web;
+using Random = DevBase.Cryptography.BouncyCastle.Random.Random;
 
 namespace DevBaseLive
 {
@@ -15,7 +11,7 @@ namespace DevBaseLive
     {
         static void Main(string[] args)
         {
-            Deezer api = new Deezer();
+            /*Deezer api = new Deezer();
 
             var search = api.Search("Midnight Sun");
             
@@ -23,8 +19,12 @@ namespace DevBaseLive
 
             OpenAi openAi = new OpenAi("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");
 
-            var result = openAi.Transcribe(lyrics).GetAwaiter().GetResult();
-            Console.WriteLine(result);
+            var result = openAi.Transcribe(lyrics).GetAwaiter().GetResult();*/
+
+            while (true)
+            {
+                Console.WriteLine(Identification.GenerateRandomId());
+            }
 
             /*OpenLyricsClient olc = new OpenLyricsClient();
             

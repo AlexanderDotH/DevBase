@@ -171,8 +171,7 @@ namespace DevBase.Generics
 
             return false;
         }
-
-
+        
         /// <summary>
         /// Gets and sets the items with an given index
         /// </summary>
