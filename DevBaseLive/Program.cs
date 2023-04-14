@@ -1,5 +1,7 @@
 ﻿using System.Diagnostics;
 using System.Text;
+using DevBase.Api.Apis.OpenLyricsClient;
+using DevBase.Api.Apis.OpenLyricsClient.Structure.Json;
 using DevBase.Cryptography.BouncyCastle.ECDH;
 using DevBase.Cryptography.BouncyCastle.Extensions;
 using DevBase.Cryptography.BouncyCastle.Identifier;
@@ -7,6 +9,7 @@ using DevBase.Cryptography.BouncyCastle.Random;
 using DevBase.Cryptography.BouncyCastle.Sealing;
 using DevBase.Generics;
 using DevBase.Utilities;
+using Newtonsoft.Json.Linq;
 using Random = DevBase.Cryptography.BouncyCastle.Random.Random;
 
 namespace DevBaseLive
@@ -25,7 +28,7 @@ namespace DevBaseLive
 
             var result = openAi.Transcribe(lyrics).GetAwaiter().GetResult();*/
 
-            string publicKey =
+            /*string publicKey =
                 "MIIBSzCCAQMGByqGSM49AgEwgfcCAQEwLAYHKoZIzj0BAQIhAP////8AAAABAAAAAAAAAAAAAAAA////////////////MFsEIP////8AAAABAAAAAAAAAAAAAAAA///////////////8BCBaxjXYqjqT57PrvVV2mIa8ZR0GsMxTsPY7zjw+J9JgSwMVAMSdNgiG5wSTamZ44ROdJreBn36QBEEEaxfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpZP40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABNaiUU4I4vMYBm+PLZ3a5qC4z9mYj5n+KKx/+MrPJq37pUW87mH3zWcrGb2O+QW/zr+TIR4cQbeBaktjsQBkiSM=";
 
             string privateKey = "jsp6E432kv5WzUclbRQcgnVqrx3UstjKBxggK7Hwbjs=";
@@ -50,14 +53,43 @@ namespace DevBaseLive
             Debug.WriteLine($"Sealed from Server {Convert.ToBase64String(seal2)}");
 
             byte[] unseal2 = client.UnSeal(seal2);
-            Debug.WriteLine($"UnSealed {Encoding.ASCII.GetString(unseal2)}");
+            Debug.WriteLine($"UnSealed {Encoding.ASCII.GetString(unseal2)}");*/
 
 
+            /*
+            JObject jObject = new JObject();
+            jObject["userID"] = "7fe53e7796ab5069eb558213d35857397344b594";
+            jObject["userSecret"] = "MNRzLr+IZjGSr///SL2qZLSCtp4=";
 
-            /*var bob = new ECDHEngineBuilder().GenerateKeyPair();
+            Debug.WriteLine(jObject.ToString());
+            */
+            
+            string publicKey = "MIIBSzCCAQMGByqGSM49AgEwgfcCAQEwLAYHKoZIzj0BAQIhAP////8AAAABAAAAAAAAAAAAAAAA////////////////MFsEIP////8AAAABAAAAAAAAAAAAAAAA///////////////8BCBaxjXYqjqT57PrvVV2mIa8ZR0GsMxTsPY7zjw+J9JgSwMVAMSdNgiG5wSTamZ44ROdJreBn36QBEEEaxfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpZP40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABBqSdbiWAMxcEig+rX1FlApI7pE/kPNUmejo5PXvElsf6pjHuDlBN4fYvpmaX6lncddAuNPnQmZ89Ogb95xwPnA=";
+
+            OpenLyricsClient openLyricsClient = new OpenLyricsClient(publicKey);
+
+            //var response = openLyricsClient.CreateSubscription().GetAwaiter().GetResult();
+
+            JsonOpenLyricsClientSubscription subscription = new JsonOpenLyricsClientSubscription
+            {
+                UserID = "0e65db204daf53b148eca6a0efb843b56716cf47",
+                UserSecret = "b/vExNSmPh1j+PBXPnf/LzYk2IY="
+            };
+            
+            var check = openLyricsClient.CheckSubscription(subscription).GetAwaiter().GetResult();
+            
+            Console.WriteLine(check.Model);
+            /*
+            Sealing sealing = new Sealing(publicKey);
+            
+            Debug.WriteLine(sealing.Seal(jObject.ToString()));*/
+
+            /*
+            var bob = new ECDHEngineBuilder().GenerateKeyPair();
             
             Debug.WriteLine($"PublicKey {Convert.ToBase64String(bob.PublicKey.PublicKeyToArray())}");
-            Debug.WriteLine($"PrivateKey {Convert.ToBase64String(bob.PrivateKey.PrivateKeyToArray())}");*/
+            Debug.WriteLine($"PrivateKey {Convert.ToBase64String(bob.PrivateKey.PrivateKeyToArray())}");
+            */
 
 
             /*var alice = new ECDHEngineBuilder().GenerateKeyPair();

@@ -15,8 +15,4 @@
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="DevBase" Version="1.0.1" />
-    </ItemGroup>
-
 </Project>

@@ -48,7 +48,7 @@ public class Sealing
         return memoryStream.ToArray();
     }
 
-    public string Seal(string unsealedMessage) => Convert.ToBase64String(Encoding.ASCII.GetBytes(unsealedMessage));
+    public string Seal(string unsealedMessage) => Convert.ToBase64String(Seal(Encoding.ASCII.GetBytes(unsealedMessage)));
     
     public byte[] UnSeal(byte[] sealedMessage)
     {
@@ -72,6 +72,6 @@ public class Sealing
         return unsealed;
     }
 
-    public string Unseal(string sealedMessage) =>
+    public string UnSeal(string sealedMessage) =>
         Encoding.ASCII.GetString(UnSeal(Convert.FromBase64String(sealedMessage)));
 }

@@ -1,7 +1,8 @@
 ﻿using System.Net;
+using DevBase.Api.Apis.OpenLyricsClient.Structure.Enum;
 using DevBase.Api.Apis.OpenLyricsClient.Structure.Json;
-using DevBase.Api.Apis.Tidal.Structure.Json;
 using DevBase.Api.Serializer;
+using DevBase.Cryptography.BouncyCastle.Sealing;
 using DevBase.Enums;
 using DevBase.Web;
 using DevBase.Web.RequestData;
@@ -14,10 +15,16 @@ namespace DevBase.Api.Apis.OpenLyricsClient;
 public class OpenLyricsClient
 {
     private readonly string _baseUrl;
+    private Sealing _sealing;
 
     public OpenLyricsClient()
     {
         this._baseUrl = "https://openlyricsclient.com/api";
+    }
+    
+    public OpenLyricsClient(string serverPublicKey) : this()
+    {
+        this._sealing = new Sealing(serverPublicKey);
     }
 
     public async Task<JsonOpenLyricsClientAccess> GetAccessToken(string refreshToken)
@@ -84,6 +91,47 @@ public class OpenLyricsClient
         }
 
         return null;
-    } 
-    
+    }
+
+    public async Task<JsonOpenLyricsClientSubscription> CreateSubscription()
+    {
+        CheckSealing();
+        
+        RequestData data = new RequestData(string.Format("{0}/subscription/create", this._baseUrl));
+        Request request = new Request(data);
+        ResponseData response = await request.GetResponseAsync();
+        return new JsonDeserializer<JsonOpenLyricsClientSubscription>().Deserialize(response.GetContentAsString());
+    }
+
+    public async Task<JsonOpenLyricsClientSubscriptionModel> CheckSubscription(JsonOpenLyricsClientSubscription subscription)
+    {
+        CheckSealing();
+        
+        RequestData data = new RequestData(string.Format("{0}/subscription/check", this._baseUrl));
+
+        JObject jObject = new JObject();
+        jObject["userID"] = subscription.UserID;
+        jObject["userSecret"] = subscription.UserSecret;
+
+        string secret = jObject.ToString();
+
+        string seal = this._sealing.Seal(secret);
+
+        JObject sealObject = new JObject();
+        sealObject["sealed"] = seal;
+        
+        data.AddContent(sealObject.ToString());
+        data.SetContentType(EnumContentType.APPLICATION_JSON);
+
+        Request request = new Request(data);
+        ResponseData response = await request.GetResponseAsync();
+        
+        return new JsonDeserializer<JsonOpenLyricsClientSubscriptionModel>().Deserialize(response.GetContentAsString());
+    }
+
+    private void CheckSealing()
+    {
+        if (this._sealing == null)
+            throw new System.Exception("You have to initialize the sealing");
+    }
 }

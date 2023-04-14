@@ -14,9 +14,13 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DevBase" Version="1.0.1" />
-    <PackageReference Include="DevBase.Cryptography" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\DevBase.Cryptography.BouncyCastle\DevBase.Cryptography.BouncyCastle.csproj" />
+    <ProjectReference Include="..\DevBase.Cryptography\DevBase.Cryptography.csproj" />
+    <ProjectReference Include="..\DevBase\DevBase.csproj" />
   </ItemGroup>
 
 </Project>
