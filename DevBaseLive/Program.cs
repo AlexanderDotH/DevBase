@@ -1,6 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Text;
+using DevBase.Cryptography.BouncyCastle.ECDH;
+using DevBase.Cryptography.BouncyCastle.Extensions;
 using DevBase.Cryptography.BouncyCastle.Identifier;
 using DevBase.Cryptography.BouncyCastle.Random;
+using DevBase.Cryptography.BouncyCastle.Sealing;
 using DevBase.Generics;
 using DevBase.Utilities;
 using Random = DevBase.Cryptography.BouncyCastle.Random.Random;
@@ -21,10 +25,53 @@ namespace DevBaseLive
 
             var result = openAi.Transcribe(lyrics).GetAwaiter().GetResult();*/
 
+            string publicKey =
+                "MIIBSzCCAQMGByqGSM49AgEwgfcCAQEwLAYHKoZIzj0BAQIhAP////8AAAABAAAAAAAAAAAAAAAA////////////////MFsEIP////8AAAABAAAAAAAAAAAAAAAA///////////////8BCBaxjXYqjqT57PrvVV2mIa8ZR0GsMxTsPY7zjw+J9JgSwMVAMSdNgiG5wSTamZ44ROdJreBn36QBEEEaxfR8uEsQkf4vOblY6RA8ncDfYEt6zOg9KE5RdiYwpZP40Li/hp/m47n60p8D54WK84zV2sxXs7LtkBoN79R9QIhAP////8AAAAA//////////+85vqtpxeehPO5ysL8YyVRAgEBA0IABNaiUU4I4vMYBm+PLZ3a5qC4z9mYj5n+KKx/+MrPJq37pUW87mH3zWcrGb2O+QW/zr+TIR4cQbeBaktjsQBkiSM=";
+
+            string privateKey = "jsp6E432kv5WzUclbRQcgnVqrx3UstjKBxggK7Hwbjs=";
+
+            Sealing client = new Sealing(publicKey);
+
+            string message = "Hello my boy!!";
+
+            byte[] seal = client.Seal(Encoding.ASCII.GetBytes(message));
+            
+            Debug.WriteLine($"Sealed {Convert.ToBase64String(seal)}");
+
+            Sealing server = new Sealing(publicKey, privateKey);
+            byte[] unsealed = server.UnSeal(seal);
+            
+            Debug.WriteLine($"UnSealed {Encoding.ASCII.GetString(unsealed)}");
+
+            //----------------------------------------
+
+            byte[] seal2 = server.Seal(Encoding.ASCII.GetBytes("Danke man du bist tooll!!"));
+            
+            Debug.WriteLine($"Sealed from Server {Convert.ToBase64String(seal2)}");
+
+            byte[] unseal2 = client.UnSeal(seal2);
+            Debug.WriteLine($"UnSealed {Encoding.ASCII.GetString(unseal2)}");
+
+
+
+            /*var bob = new ECDHEngineBuilder().GenerateKeyPair();
+            
+            Debug.WriteLine($"PublicKey {Convert.ToBase64String(bob.PublicKey.PublicKeyToArray())}");
+            Debug.WriteLine($"PrivateKey {Convert.ToBase64String(bob.PrivateKey.PrivateKeyToArray())}");*/
+
+
+            /*var alice = new ECDHEngineBuilder().GenerateKeyPair();
+
+            byte[] shared1 = bob.DeriveKeyPairs(alice.PublicKey);
+            byte[] shared2 = alice.DeriveKeyPairs(bob.PublicKey);
+            
+            Debug.WriteLine(Convert.ToBase64String(alice.PublicKey.ToArray()));*/
+            /*
             while (true)
             {
                 Console.WriteLine(Identification.GenerateRandomId());
             }
+            */
 
             /*OpenLyricsClient olc = new OpenLyricsClient();
             

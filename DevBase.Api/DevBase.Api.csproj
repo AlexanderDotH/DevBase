@@ -10,19 +10,13 @@
     <Copyright>AlexanderDotH</Copyright>
     <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
-    <Version>1.1.0</Version>
-    <PackageLicenseUrl>https://github.com/AlexanderDotH/DevBase/blob/master/LICENSE</PackageLicenseUrl>
-    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <Version>1.0.7</Version>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="DevBase" Version="1.0.1" />
     <PackageReference Include="DevBase.Cryptography" Version="1.0.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\DevBase\DevBase.csproj" />
   </ItemGroup>
 
 </Project>
