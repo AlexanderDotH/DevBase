@@ -13,6 +13,7 @@
         <RepositoryUrl>https://github.com/AlexanderDotH/DevBase</RepositoryUrl>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <Title>DevBase.Cryptography.BouncyCastle</Title>
+        <Version>1.1.0</Version>
     </PropertyGroup>
 
     <ItemGroup>

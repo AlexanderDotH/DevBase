@@ -1,6 +1,8 @@
-﻿using DevBase.Cryptography.BouncyCastle.AES;
+﻿using System.Text;
+using DevBase.Cryptography.BouncyCastle.AES;
 using DevBase.Cryptography.BouncyCastle.ECDH;
 using DevBase.Cryptography.BouncyCastle.Extensions;
+using Org.BouncyCastle.Bcpg;
 using Org.BouncyCastle.Tls;
 
 namespace DevBase.Cryptography.BouncyCastle.Sealing;
@@ -45,6 +47,8 @@ public class Sealing
         
         return memoryStream.ToArray();
     }
+
+    public string Seal(string unsealedMessage) => Convert.ToBase64String(Encoding.ASCII.GetBytes(unsealedMessage));
     
     public byte[] UnSeal(byte[] sealedMessage)
     {
@@ -67,4 +71,7 @@ public class Sealing
         byte[] unsealed = this._aesEngine.Decrypt(sealedByteSequence);
         return unsealed;
     }
+
+    public string Unseal(string sealedMessage) =>
+        Encoding.ASCII.GetString(UnSeal(Convert.FromBase64String(sealedMessage)));
 }
