@@ -7,6 +7,7 @@ using DevBase.Cryptography.BouncyCastle.Extensions;
 using DevBase.Cryptography.BouncyCastle.Identifier;
 using DevBase.Cryptography.BouncyCastle.Random;
 using DevBase.Cryptography.BouncyCastle.Sealing;
+using DevBase.Extensions;
 using DevBase.Generics;
 using DevBase.Utilities;
 using Newtonsoft.Json.Linq;
@@ -68,17 +69,26 @@ namespace DevBaseLive
 
             OpenLyricsClient openLyricsClient = new OpenLyricsClient(publicKey);
 
-            //var response = openLyricsClient.CreateSubscription().GetAwaiter().GetResult();
-
             JsonOpenLyricsClientSubscription subscription = new JsonOpenLyricsClientSubscription
             {
                 UserID = "0e65db204daf53b148eca6a0efb843b56716cf47",
                 UserSecret = "b/vExNSmPh1j+PBXPnf/LzYk2IY="
             };
             
-            var check = openLyricsClient.CheckSubscription(subscription).GetAwaiter().GetResult();
+            var check = openLyricsClient.AiSync(
+                subscription, 
+                "Never Gonna Give You Up", 
+                "The Best of Me", 
+                0, 
+                "large-v2", 
+                "Rick Astley").GetAwaiter().GetResult();
             
-            Console.WriteLine(check.Model);
+            check.ToAList().ForEach(t =>
+            {
+                Console.WriteLine($"{t.startTimestamp} --> {t.endTimeStamp} : {t.text}");
+            });
+            
+            Console.WriteLine(check);
             /*
             Sealing sealing = new Sealing(publicKey);
             

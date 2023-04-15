@@ -48,6 +48,7 @@ namespace DevBase.Web
             request.UserAgent = this._requestData.UserAgent;
             request.Accept = this._requestData.AcceptTypeHolder.GetAccept();
             request.CookieContainer = this._requestData.CookieContainer;
+            request.Timeout = (int)this._requestData.Timeout.TotalMilliseconds;
 
             byte[] content = this._requestData.Content;
             

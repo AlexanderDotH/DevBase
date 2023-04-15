@@ -26,6 +26,7 @@ namespace DevBase.Web.RequestData
         private string _accept;
         private WebHeaderCollection _header;
         private CookieContainer _cookieContainer;
+        private TimeSpan _timeout;
 
         public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType contentType, string userAgent)
         {
@@ -42,6 +43,8 @@ namespace DevBase.Web.RequestData
             this._userAgent = userAgent;
             this._cookieContainer = new CookieContainer();
             this._header = new WebHeaderCollection();
+
+            this._timeout = TimeSpan.FromSeconds(5);
         }
 
         public RequestData(Uri uri, EnumRequestMethod requestMethod, EnumContentType contentType) : 
@@ -224,6 +227,12 @@ namespace DevBase.Web.RequestData
         public AcceptTypeHolder AcceptTypeHolder
         {
             get => _acceptTypeHolder;
+        }
+
+        public TimeSpan Timeout
+        {
+            get => _timeout;
+            set => _timeout = value;
         }
     }
 }

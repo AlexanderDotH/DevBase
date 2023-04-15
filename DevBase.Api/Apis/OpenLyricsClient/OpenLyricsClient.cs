@@ -41,10 +41,10 @@ public class OpenLyricsClient
         return new JsonDeserializer<JsonOpenLyricsClientAccess>().Deserialize(responseData.GetContentAsString());
     } 
     
-    public async Task<JsonOpenLyricsClientAiPredictionResponse> SubmitAiSync(string title, string album, long duration, string model = "", params string[] artists)
+    public async Task<JsonOpenLyricsClientAiSyncItem[]> AiSync(JsonOpenLyricsClientSubscription subscription, string title, string album, long duration, string model = "", params string[] artists)
     {
-        RequestData data = new RequestData(string.Format("{0}/ai/submit", this._baseUrl));
-
+        RequestData data = new RequestData(string.Format("{0}/ai/sync", this._baseUrl));
+        
         JObject jObject = new JObject();
         
         jObject["title"] = title;
@@ -52,14 +52,17 @@ public class OpenLyricsClient
         jObject["artists"] = new JArray(artists);
         jObject["duration"] = duration;
         jObject["model"] = model;
-        
+        jObject["sealedAccess"] = ToSealedAccess(subscription);
+
+        data.Timeout = TimeSpan.FromMinutes(10);
         data.AddContent(jObject.ToString());
         data.SetContentType(EnumContentType.APPLICATION_JSON);
         
         ResponseData responseData = await new Request(data).GetResponseAsync();
-        return new JsonDeserializer<JsonOpenLyricsClientAiPredictionResponse>().Deserialize(responseData.GetContentAsString());
+        return new JsonDeserializer<JsonOpenLyricsClientAiSyncItem[]>().Deserialize(responseData.GetContentAsString());
     } 
     
+    [Obsolete("This api call only works with a older backend")]
     public async Task<JsonOpenLyricsClientAiPredictionResult> GetAiSyncResult(string songID)
     {
         RequestData data = new RequestData(string.Format("{0}/ai/result", this._baseUrl));
@@ -105,10 +108,21 @@ public class OpenLyricsClient
 
     public async Task<JsonOpenLyricsClientSubscriptionModel> CheckSubscription(JsonOpenLyricsClientSubscription subscription)
     {
+        RequestData data = new RequestData(string.Format("{0}/subscription/check", this._baseUrl));
+        
+        data.AddContent(ToSealedAccess(subscription).ToString());
+        data.SetContentType(EnumContentType.APPLICATION_JSON);
+
+        Request request = new Request(data);
+        ResponseData response = await request.GetResponseAsync();
+        
+        return new JsonDeserializer<JsonOpenLyricsClientSubscriptionModel>().Deserialize(response.GetContentAsString());
+    }
+
+    private JObject ToSealedAccess(JsonOpenLyricsClientSubscription subscription)
+    {
         CheckSealing();
         
-        RequestData data = new RequestData(string.Format("{0}/subscription/check", this._baseUrl));
-
         JObject jObject = new JObject();
         jObject["userID"] = subscription.UserID;
         jObject["userSecret"] = subscription.UserSecret;
@@ -119,16 +133,10 @@ public class OpenLyricsClient
 
         JObject sealObject = new JObject();
         sealObject["sealed"] = seal;
-        
-        data.AddContent(sealObject.ToString());
-        data.SetContentType(EnumContentType.APPLICATION_JSON);
 
-        Request request = new Request(data);
-        ResponseData response = await request.GetResponseAsync();
-        
-        return new JsonDeserializer<JsonOpenLyricsClientSubscriptionModel>().Deserialize(response.GetContentAsString());
+        return sealObject;
     }
-
+    
     private void CheckSealing()
     {
         if (this._sealing == null)

@@ -8,7 +8,7 @@ public class ReplicatePredictionResultOutputSegment
     public int id { get; set; }
 
     [JsonProperty("end")]
-    public int end { get; set; }
+    public double end { get; set; }
 
     [JsonProperty("seek")]
     public int seek { get; set; }
@@ -17,7 +17,7 @@ public class ReplicatePredictionResultOutputSegment
     public string text { get; set; }
 
     [JsonProperty("start")]
-    public int start { get; set; }
+    public double start { get; set; }
 
     [JsonProperty("tokens")]
     public List<int> tokens { get; set; }
