@@ -25,4 +25,18 @@ public class MD5
         
         return strBuilder.ToString();
     }
+    
+     public static string ToMD5(byte[] data)
+     {
+         MD5CryptoServiceProvider md5CryptoServiceProvider = new MD5CryptoServiceProvider();
+         byte[] compute = md5CryptoServiceProvider.ComputeHash(data);
+            
+         StringBuilder strBuilder = new StringBuilder();
+         for (int i = 0; i < compute.Length; i++)
+         {
+             strBuilder.Append(compute[i].ToString("x2"));
+         }
+            
+         return strBuilder.ToString();
+     }
 }

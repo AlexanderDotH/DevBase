@@ -34,6 +34,7 @@ public class OpenAi
         requestData.AddMultipartFormData(formData);
 
         requestData.SetAccept(EnumCharsetType.ALL);
+        requestData.Timeout = TimeSpan.FromMinutes(10);
         
         Request request = new Request(requestData);
         ResponseData responseData = await request.GetResponseAsync();
