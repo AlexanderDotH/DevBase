@@ -6,7 +6,7 @@ namespace DevBase.Async.Task;
 
 using Task = System.Threading.Tasks.Task;
 
-public class Multitasking : IDisposable
+public class Multitasking
 {
     private AList<(Task, CancellationTokenSource)> _activeTasks;
     private ConcurrentQueue<(Task, CancellationTokenSource)> _parkedTasks;
