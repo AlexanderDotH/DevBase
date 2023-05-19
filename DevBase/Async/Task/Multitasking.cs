@@ -49,13 +49,14 @@ public class Multitasking : IDisposable
 
     public async Task WaitAll()
     {
-        while (!this._disposed)
+        while (!this._disposed && 
+               !(this._parkedTasks.Count == 0 && this._activeTasks.Length == 0))
         {
             await Task.Delay(this._scheduleDelay);
             
             if (this._parkedTasks.Count != 0 && this._activeTasks.Length == 0)
                 continue;
-
+            
             for (int i = 0; i < this._activeTasks.Length; i++)
             {
                 (Task, CancellationTokenSource) taskToken = this._activeTasks.Get(i);
@@ -102,12 +103,13 @@ public class Multitasking : IDisposable
         }
     }
     
-    public void Register(Task task)
+    public Task Register(Task task)
     {
         this._parkedTasks.Enqueue((task, this._cancellationTokenSource));
+        return task;
     }
 
-    public void Register(Action action) => Register(new Task(action));
+    public Task Register(Action action) => Register(new Task(action));
 
     public void Dispose()
     {
