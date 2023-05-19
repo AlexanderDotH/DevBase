@@ -14,7 +14,7 @@ namespace DevBase.Async.Thread
         /// Constructs the base of the multithreading system
         /// </summary>
         /// <param name="capacity">Specifies a limit for active working threads</param>
-        public Multithreading(int capacity = Int32.MaxValue)
+        public Multithreading(int capacity = 10)
         {
             this._threads = new AList<AThread>();
             this._queueThreads = new ConcurrentQueue<AThread>();
@@ -33,7 +33,7 @@ namespace DevBase.Async.Thread
             {
                 while (true)
                 {
-                    GetUnactiveThreads().ForEach(t => this._threads.Remove(t));
+                    GetUnactiveThreads().ForEach(t => this._threads.SafeRemove(t));
 
                     if (this._threads.Length < this._capacity && this._queueThreads.Count != 0)
                     {

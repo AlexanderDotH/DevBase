@@ -1,5 +1,6 @@
 ﻿namespace DevBase.Async.Thread
 {
+    [Serializable]
     public class AThread
     {
         private readonly System.Threading.Thread _thread;

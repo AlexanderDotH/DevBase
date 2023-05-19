@@ -49,7 +49,6 @@ namespace DevBase.Async.Task
         {
             using (token.Register(() => _resumeRequestTcs.TrySetCanceled(), useSynchronizationContext: false))
             {
-
                 if (_resumeRequestTcs != null)
                 {
                     if (_resumeRequestTcs.Task != null)
