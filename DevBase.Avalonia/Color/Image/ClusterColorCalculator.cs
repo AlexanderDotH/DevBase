@@ -1,4 +1,5 @@
 ﻿using Accord.MachineLearning;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using DevBase.Avalonia.Color.Extensions;
 using DevBase.Avalonia.Color.Utils;
@@ -11,6 +12,15 @@ using Color = global::Avalonia.Media.Color;
 
 public class ClusterColorCalculator
 {
+    public double MinSaturation { get; set; } = 80d;
+    public double MinBrightness { get; set; } = 95d;
+    public double SmallShift { get; set; } = 1.0d;
+    public double BigShift { get; set; } = 1.0d;
+    public double Tolerance { get; set; } = 0.5d;
+    public int Clusters { get; set; } = 20;
+    public int MaxRange { get; set; } = 5;
+
+    public AList<Color> AdditionalColorDataset { get; set; } = new AList<Color>();
 
     public Color GetColorFromBitmap(IBitmap bitmap)
     {
@@ -22,20 +32,43 @@ public class ClusterColorCalculator
 
         AList<int> allowedCluster = new AList<int>(cluster.Decide(colors));
 
-        var mostCommonCluster = allowedCluster.GetAsArray().GroupBy(x => x).OrderByDescending(x => x.Count());
+        IOrderedEnumerable<IGrouping<int, int>> mostCommonCluster = allowedCluster.GetAsArray().GroupBy(x => x).OrderByDescending(x => x.Count());
 
+        return GetRangeAndCalcAverage(cluster, mostCommonCluster, this.MaxRange);
+    }
+
+    private KMeansClusterCollection InitCluster(AList<Color> colors)
+    {
+        AList<Color> dominantColorSet = new AList<Color>();
+        
+        dominantColorSet.AddRange(ClusterData.DATA);
+        dominantColorSet.AddRange(colors.FilterSaturation(MinSaturation));
+        dominantColorSet.AddRange(colors.FilterBrightness(MinBrightness));
+        dominantColorSet.AddRange(AdditionalColorDataset);
+
+        double[][] initialCentroids = dominantColorSet.GetAsArray().Select(x => new double[] { x.R, x.G, x.B }).ToArray();
+
+        KMeans means = new KMeans(k: this.Clusters)
+        {
+            Tolerance = this.Tolerance
+        };
+        
+        KMeansClusterCollection collection = means.Learn(initialCentroids);
+        return collection;
+    }
+
+    private Color GetRangeAndCalcAverage(KMeansClusterCollection cluster, IOrderedEnumerable<IGrouping<int, int>> clusters, int max)
+    {
         AList<Color> list = new AList<Color>();
 
-        var most = mostCommonCluster.ToList().GetRange(0, 10);
+        var values = clusters.ToList().GetRange(0, max);
         
-        for (var i = 0; i < most.Count; i++)
-        {
-            list.AddRange(ClusterToColor(cluster, most[i].Key).Shift(1, 1));
-        }
+        for (var i = 0; i < values.Count; i++)
+            list.AddRange(ClusterToColor(cluster, values[i].Key).Shift(this.SmallShift, this.BigShift));
 
         return list.Average();
     }
-
+    
     private Color ClusterToColor(KMeansClusterCollection cluster, int clusterID)
     {
         double[] dominantColor = cluster.Centroids[clusterID];
@@ -46,24 +79,4 @@ public class ClusterColorCalculator
 
         return new Color(255, r, g, b);
     }
-    
-    private KMeansClusterCollection InitCluster(AList<Color> colors)
-    {
-        AList<Color> dominantColorSet = new AList<Color>();
-        
-        dominantColorSet.AddRange(ClusterData.DATA);
-        dominantColorSet.AddRange(colors.FilterSaturation(80d));
-        dominantColorSet.AddRange(colors.FilterBrightness(90d));
-
-        double[][] initialCentroids = dominantColorSet.GetAsArray().Select(x => new double[] { x.R, x.G, x.B }).ToArray();
-
-        KMeans means = new KMeans(k: 20)
-        {
-            Tolerance = 0.5
-        };
-        
-        KMeansClusterCollection collection = means.Learn(initialCentroids);
-        return collection;
-    }
-    
 }
