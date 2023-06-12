@@ -34,8 +34,4 @@
       <ProjectReference Include="..\DevBase\DevBase.csproj" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Color\Utils" />
-    </ItemGroup>
-
 </Project>

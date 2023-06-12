@@ -1,6 +1,8 @@
 ﻿using Accord.MachineLearning;
 using Avalonia.Media.Imaging;
 using DevBase.Avalonia.Color.Extensions;
+using DevBase.Avalonia.Color.Utils;
+using DevBase.Avalonia.Data;
 using DevBase.Generics;
 
 namespace DevBase.Avalonia.Color.Image;
@@ -9,63 +11,59 @@ using Color = global::Avalonia.Media.Color;
 
 public class ClusterColorCalculator
 {
-    public global::Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
+
+    public Color GetColorFromBitmap(IBitmap bitmap)
     {
-        AList<global::Avalonia.Media.Color> pixels = GetPixels(bitmap);
-    
+        AList<Color> pixels = ColorUtils.GetPixels(bitmap);
+
         double[][] colors = pixels.GetAsArray().Select(x => new double[] { x.R, x.G, x.B }).ToArray();
+        
+        KMeansClusterCollection cluster = InitCluster(pixels);
 
-        KMeans kmeans = new KMeans(k: 1);
-        var clusters = kmeans.Learn(colors);
+        AList<int> allowedCluster = new AList<int>(cluster.Decide(colors));
 
-        int[] predicted = clusters.Decide(colors);
+        var mostCommonCluster = allowedCluster.GetAsArray().GroupBy(x => x).OrderByDescending(x => x.Count());
 
-        int mostCommonCluster = predicted.GroupBy(x => x).OrderByDescending(x => x.Count()).First().Key;
+        AList<Color> list = new AList<Color>();
 
-        double[] dominantColor = clusters.Centroids[mostCommonCluster];
+        var most = mostCommonCluster.ToList().GetRange(0, 10);
+        
+        for (var i = 0; i < most.Count; i++)
+        {
+            list.AddRange(ClusterToColor(cluster, most[i].Key).Shift(1, 1));
+        }
+
+        return list.Average();
+    }
+
+    private Color ClusterToColor(KMeansClusterCollection cluster, int clusterID)
+    {
+        double[] dominantColor = cluster.Centroids[clusterID];
 
         byte r = Convert.ToByte(dominantColor[0]);
         byte g = Convert.ToByte(dominantColor[1]);
         byte b = Convert.ToByte(dominantColor[2]);
 
-        return new global::Avalonia.Media.Color(255, r, g, b).Shift(1.0, 1.2);
+        return new Color(255, r, g, b);
     }
-
-    private AList<Color> GetPixels(IBitmap bitmap)
+    
+    private KMeansClusterCollection InitCluster(AList<Color> colors)
     {
-        AList<Color> colors = new AList<Color>();
+        AList<Color> dominantColorSet = new AList<Color>();
         
-        using (var memoryStream = new MemoryStream())
+        dominantColorSet.AddRange(ClusterData.DATA);
+        dominantColorSet.AddRange(colors.FilterSaturation(80d));
+        dominantColorSet.AddRange(colors.FilterBrightness(90d));
+
+        double[][] initialCentroids = dominantColorSet.GetAsArray().Select(x => new double[] { x.R, x.G, x.B }).ToArray();
+
+        KMeans means = new KMeans(k: 20)
         {
-            bitmap.Save(memoryStream);
-            memoryStream.Seek(0, SeekOrigin.Begin);
-            
-            WriteableBitmap writeableBitmap = WriteableBitmap.Decode(memoryStream);
-            using var lockedBitmap = writeableBitmap.Lock();
-
-            for (int y = 0; y < writeableBitmap.PixelSize.Height; y++)
-            {
-                Color[] c = new Color[writeableBitmap.PixelSize.Width];
-                
-                for (int x = 0; x < writeableBitmap.PixelSize.Width; x++)
-                {
-                    Span<byte> pixel = lockedBitmap.GetPixel(x, y);
-
-                    if (pixel.Length != 4)
-                        continue;
-                    
-                    byte red = pixel[0];
-                    byte green = pixel[1];
-                    byte blue = pixel[2];
-                    byte alpha = pixel[3];
-
-                    c[x] = new Color(alpha, red, green, blue);
-                }
-                
-                colors.AddRange(c);
-            }
-        }
-
-        return colors;
+            Tolerance = 0.5
+        };
+        
+        KMeansClusterCollection collection = means.Learn(initialCentroids);
+        return collection;
     }
+    
 }
