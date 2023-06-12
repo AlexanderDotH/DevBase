@@ -12,13 +12,17 @@ using Color = global::Avalonia.Media.Color;
 
 public class ClusterColorCalculator
 {
-    public double MinSaturation { get; set; } = 80d;
-    public double MinBrightness { get; set; } = 95d;
+    public double MinSaturation { get; set; } = 50d;
+    public double MinBrightness { get; set; } = 70d;
     public double SmallShift { get; set; } = 1.0d;
     public double BigShift { get; set; } = 1.0d;
     public double Tolerance { get; set; } = 0.5d;
     public int Clusters { get; set; } = 20;
     public int MaxRange { get; set; } = 5;
+
+    public bool PredefinedDataset { get; set; } = true;
+    public bool FilterSaturation { get; set; } = true;
+    public bool FilterBrightness { get; set; } = true;
 
     public AList<Color> AdditionalColorDataset { get; set; } = new AList<Color>();
 
@@ -41,9 +45,15 @@ public class ClusterColorCalculator
     {
         AList<Color> dominantColorSet = new AList<Color>();
         
-        dominantColorSet.AddRange(ClusterData.DATA);
-        dominantColorSet.AddRange(colors.FilterSaturation(MinSaturation));
-        dominantColorSet.AddRange(colors.FilterBrightness(MinBrightness));
+        if (this.PredefinedDataset)
+            dominantColorSet.AddRange(ClusterData.DATA);
+        
+        if (this.FilterSaturation)
+            dominantColorSet.AddRange(colors.FilterSaturation(MinSaturation));
+        
+        if (this.FilterBrightness)
+            dominantColorSet.AddRange(colors.FilterBrightness(MinBrightness));
+        
         dominantColorSet.AddRange(AdditionalColorDataset);
 
         double[][] initialCentroids = dominantColorSet.GetAsArray().Select(x => new double[] { x.R, x.G, x.B }).ToArray();
