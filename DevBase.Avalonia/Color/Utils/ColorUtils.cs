@@ -1,6 +1,4 @@
 ﻿using Avalonia.Media.Imaging;
-using Colourful;
-using DevBase.Avalonia.Color.Converter;
 using DevBase.Avalonia.Color.Extensions;
 using DevBase.Generics;
 
@@ -10,7 +8,7 @@ using Color = global::Avalonia.Media.Color;
 
 public class ColorUtils
 {
-    public static AList<LabColor> GetPixels(IBitmap bitmap)
+    public static AList<Color> GetPixels(IBitmap bitmap)
     {
         AList<Color> colors = new AList<Color>();
         
@@ -45,7 +43,6 @@ public class ColorUtils
             }
         }
 
-        RGBToLabConverter converter = new RGBToLabConverter();
-        return colors.ToRgbColor().ToLabColor(converter);
+        return colors;
     }
 }

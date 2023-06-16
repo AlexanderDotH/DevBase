@@ -5,6 +5,7 @@ using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using DevBase.Avalonia.Color.Image;
+using DevBase.Avalonia.Extension.Color.Image;
 using DevBase.Generics;
 using DevBase.IO;
 using Bitmap = Avalonia.Media.Imaging.Bitmap;

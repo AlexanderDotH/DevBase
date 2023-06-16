@@ -1,6 +1,6 @@
 ﻿using Colourful;
 
-namespace DevBase.Avalonia.Color.Converter;
+namespace DevBase.Avalonia.Extension.Converter;
 
 public class RGBToLabConverter
 {

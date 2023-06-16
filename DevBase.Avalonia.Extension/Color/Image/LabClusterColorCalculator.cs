@@ -1,19 +1,19 @@
 ﻿using Accord.MachineLearning;
-using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using Colourful;
 using DevBase.Avalonia.Color.Extensions;
 using DevBase.Avalonia.Color.Utils;
-using DevBase.Avalonia.Data;
+using DevBase.Avalonia.Extension.Converter;
+using DevBase.Avalonia.Extension.Extension;
 using DevBase.Generics;
 
-namespace DevBase.Avalonia.Color.Image;
+namespace DevBase.Avalonia.Extension.Color.Image;
 
 using Color = global::Avalonia.Media.Color;
 
-public class ClusterColorCalculator
+public class LabClusterColorCalculator
 {
-    public double MinChroma { get; set; } = 50d;
+    public double MinChroma { get; set; } = 70d;
     public double MinBrightness { get; set; } = 70d;
     public double SmallShift { get; set; } = 1.0d;
     public double BigShift { get; set; } = 1.0d;
@@ -25,13 +25,20 @@ public class ClusterColorCalculator
     public bool FilterSaturation { get; set; } = true;
     public bool FilterBrightness { get; set; } = true;
 
+    private RGBToLabConverter _converter;
+
     public AList<LabColor> AdditionalColorDataset { get; set; } = new AList<LabColor>();
+
+    public LabClusterColorCalculator()
+    {
+        this._converter = new RGBToLabConverter();
+    }
 
     public Color GetColorFromBitmap(IBitmap bitmap)
     {
-        AList<LabColor> pixels = ColorUtils.GetPixels(bitmap);
+        AList<LabColor> pixels = ColorUtils.GetPixels(bitmap).ToRgbColor().ToLabColor(this._converter);
 
-        double[][] colors = pixels.GetAsArray().Select(x => new double[] { x.L, x.a, x.b }).ToArray();
+        double[][] colors = pixels.GetAsArray().Select(x => new[] { x.L, x.a, x.b }).ToArray();
         
         KMeansClusterCollection cluster = InitCluster(pixels);
 
@@ -46,11 +53,6 @@ public class ClusterColorCalculator
     {
         AList<LabColor> dominantColorSet = new AList<LabColor>();
         
-        /*
-        if (this.PredefinedDataset)
-            dominantColorSet.AddRange(ClusterData.DATA);
-            */
-        
         if (this.FilterSaturation)
             dominantColorSet.AddRange(colors.FilterChroma(MinChroma));
         
@@ -59,7 +61,7 @@ public class ClusterColorCalculator
         
         dominantColorSet.AddRange(AdditionalColorDataset);
 
-        double[][] initialCentroids = dominantColorSet.GetAsArray().Select(x => new double[] { x.L, x.a, x.b }).ToArray();
+        double[][] initialCentroids = dominantColorSet.GetAsArray().Select(x => new[] { x.L, x.a, x.b }).ToArray();
 
         KMeans means = new KMeans(k: this.Clusters)
         {
@@ -85,11 +87,7 @@ public class ClusterColorCalculator
     private Color ClusterToColor(KMeansClusterCollection cluster, int clusterID)
     {
         double[] dominantColor = cluster.Centroids[clusterID];
-
-        byte r = Convert.ToByte(dominantColor[0]);
-        byte g = Convert.ToByte(dominantColor[1]);
-        byte b = Convert.ToByte(dominantColor[2]);
-
-        return new Color(255, r, g, b);
+        LabColor color = new LabColor(dominantColor[0], dominantColor[1], dominantColor[2]);
+        return color.ToRgbColor(this._converter).DeNormalize();
     }
 }

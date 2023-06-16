@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>DevBase.Avalonia.Extension</AssemblyName>
+        <RootNamespace>DevBase.Avalonia.Extension</RootNamespace>
+        <Title>DevBase.Avalonia.Extension</Title>
+        <Description>A high performance image color extractor based on image clusterization</Description>
+        <Copyright>AlexanderDotH</Copyright>
+        <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase</PackageProjectUrl>
+        <PackageLicenseUrl>https://github.com/AlexanderDotH/DevBase/blob/master/LICENSE</PackageLicenseUrl>
+        <RepositoryUrl>https://github.com/AlexanderDotH/DevBase</RepositoryUrl>
+        <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\DevBase.Avalonia\DevBase.Avalonia.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Accord.MachineLearning" Version="3.8.0" />
+      <PackageReference Include="Colourful" Version="3.1.0" />
+    </ItemGroup>
+
+</Project>

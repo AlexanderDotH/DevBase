@@ -25,6 +25,7 @@
         <PackageReference Include="XamlNameReferenceGenerator" Version="1.3.4" />
     </ItemGroup>
     <ItemGroup>
+      <ProjectReference Include="..\DevBase.Avalonia.Extension\DevBase.Avalonia.Extension.csproj" />
       <ProjectReference Include="..\DevBase.Avalonia\DevBase.Avalonia.csproj" />
       <ProjectReference Include="..\DevBase\DevBase.csproj" />
     </ItemGroup>

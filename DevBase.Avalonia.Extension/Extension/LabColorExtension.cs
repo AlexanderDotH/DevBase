@@ -1,13 +1,15 @@
 ﻿using Colourful;
-using DevBase.Avalonia.Color.Converter;
+using DevBase.Avalonia.Color.Extensions;
+using DevBase.Avalonia.Extension.Converter;
 using DevBase.Extensions;
 using DevBase.Generics;
-using Microsoft.Win32.SafeHandles;
 
-namespace DevBase.Avalonia.Color.Extensions;
+namespace DevBase.Avalonia.Extension.Extension;
 
 public static class LabColorExtension
 {
+    #region Brightness
+
     public static AList<LabColor> FilterBrightness(this AList<LabColor> colors, double percentage)
     {
         AList<LabColor> c = new AList<LabColor>();
@@ -31,6 +33,22 @@ public static class LabColorExtension
         c.AddRange(a.RemoveNullValues());
 
         return c;
+    }
+
+    #endregion
+
+    #region Chroma
+
+    public static double Chroma(this LabColor color)
+    {
+        double a = color.a;
+        double b = color.b;
+        return Math.Sqrt(a * a + b * b);
+    }
+    
+    public static double ChromaPercentage(this LabColor color)
+    {
+        return (color.Chroma() / 128) * 100;
     }
     
     public static AList<LabColor> FilterChroma(this AList<LabColor> colors, double percentage)
@@ -58,22 +76,25 @@ public static class LabColorExtension
         return c;
     }
 
-    public static double Chroma(this LabColor color)
-    {
-        double a = color.a;
-        double b = color.b;
-        return Math.Sqrt(a * a + b * b);
-    }
-    
-    public static double ChromaPercentage(this LabColor color)
-    {
-        return (color.Chroma() / 128) * 100;
-    }
-    
+    #endregion
+
+    #region Converter
+
     public static RGBColor ToRgbColor(this double[] normalized)
     {
         return new RGBColor(normalized[1], normalized[2], normalized[3]);
     }
+
+    public static LabColor ToLabColor(this RGBColor color, RGBToLabConverter converter) => 
+        converter.ToLabColor(color);
+
+    public static RGBColor ToRgbColor(this LabColor color, RGBToLabConverter converter) => 
+        converter.ToRgbColor(color);
+
+    #endregion
+
+
+    #region Bulk Converter
 
     public static AList<RGBColor> ToRgbColor(this AList<global::Avalonia.Media.Color> color)
     {
@@ -87,11 +108,6 @@ public static class LabColorExtension
         return colors.ToAList();
     }
 
-    public static LabColor ToLabColor(this RGBColor color, RGBToLabConverter converter)
-    {
-        return converter.ToLabColor(color);
-    }
-
     public static AList<LabColor> ToLabColor(this AList<RGBColor> colors, RGBToLabConverter converter)
     {
         LabColor[] outColors = new LabColor[colors.Length];
@@ -103,7 +119,11 @@ public static class LabColorExtension
 
         return outColors.ToAList();
     }
-    
+
+    #endregion
+
+    #region Correction
+
     public static LabColor[] RemoveNullValues(this LabColor[] colors)
     {
         int cap = 0;
@@ -127,4 +147,6 @@ public static class LabColorExtension
 
         return c;
     }
+
+    #endregion
 }

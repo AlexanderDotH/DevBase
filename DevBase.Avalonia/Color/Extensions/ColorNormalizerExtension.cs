@@ -13,7 +13,7 @@ public static class ColorNormalizerExtension
         return array;
     }
     
-    public static global::Avalonia.Media.Color UnNormalize(this double[] normalized)
+    public static global::Avalonia.Media.Color DeNormalize(this double[] normalized)
     {
         double r = Math.Clamp(normalized[0] * 255.0, 0.0, 255.0);
         double g = Math.Clamp(normalized[1] * 255.0, 0.0, 255.0);
