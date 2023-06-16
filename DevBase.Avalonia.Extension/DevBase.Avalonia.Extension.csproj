@@ -12,6 +12,7 @@
         <PackageLicenseUrl>https://github.com/AlexanderDotH/DevBase/blob/master/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/AlexanderDotH/DevBase</RepositoryUrl>
         <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+        <Version>1.0.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
