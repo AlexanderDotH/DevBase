@@ -20,9 +20,7 @@ public class LabClusterColorCalculator
     public double Tolerance { get; set; } = 0.5d;
     public int Clusters { get; set; } = 20;
     public int MaxRange { get; set; } = 5;
-
-    public bool PredefinedDataset { get; set; } = true;
-    public bool FilterSaturation { get; set; } = true;
+    public bool FilterChroma { get; set; } = true;
     public bool FilterBrightness { get; set; } = true;
 
     private RGBToLabConverter _converter;
