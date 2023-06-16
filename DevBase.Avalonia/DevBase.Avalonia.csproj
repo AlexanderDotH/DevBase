@@ -26,6 +26,7 @@
     <ItemGroup>
       <PackageReference Include="Accord.MachineLearning" Version="3.8.0" />
       <PackageReference Include="Avalonia" Version="0.10.18" />
+      <PackageReference Include="Colourful" Version="3.1.0" />
       <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
     </ItemGroup>
 

@@ -24,7 +24,7 @@ namespace DevBase.Test.Avalonia
         {
             try
             {
-                AList<AFileObject> files = AFile.GetFiles($"C:\\Users\\{Environment.UserName}\\AppData\\Roaming\\OpenLyricsClient\\Cache", true, filter:"*.png");
+                AList<AFileObject> files = AFile.GetFiles($"C:\\Users\\alex\\AppData\\Roaming\\OpenLyricsClient\\Cache", true, filter:"*.png");
                 AFileObject file = files.Get(new Random().Next(0, files.Length - 1));
                 Console.WriteLine(file.FileInfo.FullName);
 
