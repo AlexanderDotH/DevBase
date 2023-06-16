@@ -21,7 +21,6 @@ public class LabClusterColorCalculator
     public int Clusters { get; set; } = 20;
     public int MaxRange { get; set; } = 5;
 
-    public bool PredefinedDataset { get; set; } = true;
     public bool FilterSaturation { get; set; } = true;
     public bool FilterBrightness { get; set; } = true;
 
