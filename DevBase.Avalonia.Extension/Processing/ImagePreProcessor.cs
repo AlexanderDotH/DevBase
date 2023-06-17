@@ -1,5 +1,4 @@
-﻿using AForge.Imaging.Filters;
-using Avalonia.Media.Imaging;
+﻿using Avalonia.Media.Imaging;
 using DevBase.Avalonia.Color.Extensions;
 using Bitmap = System.Drawing.Bitmap;
 

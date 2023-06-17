@@ -22,7 +22,6 @@
     <ItemGroup>
       <PackageReference Include="Accord.Imaging" Version="3.8.0" />
       <PackageReference Include="Accord.MachineLearning" Version="3.8.0" />
-      <PackageReference Include="AForge.Imaging" Version="2.2.5" />
       <PackageReference Include="Colourful" Version="3.1.0" />
       <PackageReference Include="SixLabors.ImageSharp" Version="3.0.1" />
     </ItemGroup>

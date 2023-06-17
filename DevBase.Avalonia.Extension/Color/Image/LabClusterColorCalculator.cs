@@ -1,5 +1,4 @@
 ﻿using Accord.MachineLearning;
-using AForge.Imaging.Filters;
 using Avalonia.Media.Imaging;
 using Colourful;
 using DevBase.Avalonia.Color.Extensions;
