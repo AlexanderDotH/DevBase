@@ -9,6 +9,7 @@ namespace DevBase.Avalonia.Extension.Color.Image;
 
 using Color = global::Avalonia.Media.Color;
 
+[Obsolete("Use LabClusterColorCalculator instead")]
 public class ClusterColorCalculator
 {
     public double MinSaturation { get; set; } = 50d;
@@ -45,7 +46,7 @@ public class ClusterColorCalculator
         AList<Color> dominantColorSet = new AList<Color>();
         
         if (this.PredefinedDataset)
-            dominantColorSet.AddRange(ClusterData.DATA);
+            dominantColorSet.AddRange(ClusterData.RGB_DATA);
         
         if (this.FilterSaturation)
             dominantColorSet.AddRange(colors.FilterSaturation(MinSaturation));

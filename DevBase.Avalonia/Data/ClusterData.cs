@@ -4,7 +4,7 @@ using Color = global::Avalonia.Media.Color;
 
 public class ClusterData
 {
-    public static Color[] DATA =
+    public static Color[] RGB_DATA =
     {
         new Color(255, 242, 242, 233),
         new Color(255, 99, 182, 179),

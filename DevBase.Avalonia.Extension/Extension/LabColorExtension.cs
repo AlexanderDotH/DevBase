@@ -30,7 +30,12 @@ public static class LabColorExtension
             }
         }
         
-        c.AddRange(a.RemoveNullValues());
+        LabColor[] color = a.RemoveNullValues();
+
+        if (colors.Length == 0)
+            color = color.ToArray();
+        
+        c.AddRange(color);
 
         return c;
     }
@@ -70,8 +75,13 @@ public static class LabColorExtension
                 count++;
             }
         }
+
+        LabColor[] color = a.RemoveNullValues();
+
+        if (colors.Length == 0)
+            color = color.ToArray();
         
-        c.AddRange(a.RemoveNullValues());
+        c.AddRange(color);
 
         return c;
     }
@@ -93,7 +103,18 @@ public static class LabColorExtension
 
     #endregion
 
+    #region Processing
 
+    public static LabColor ToPastel(this LabColor color, double lightness = 20.0d, double saturation = 0.5d)
+    {
+        double l = Math.Min(100.0d, color.L + lightness);
+        double a = color.a * saturation;
+        double b = color.b * saturation;
+        return new LabColor(l, a, b);
+    }
+
+    #endregion
+    
     #region Bulk Converter
 
     public static AList<RGBColor> ToRgbColor(this AList<global::Avalonia.Media.Color> color)

@@ -32,7 +32,7 @@ namespace DevBase.Test.Avalonia
                 Stream s = new MemoryStream(file.BinaryData);
                 IBitmap map = new Bitmap(s);
 
-                Color c = new ClusterColorCalculator().GetColorFromBitmap(map);
+                Color c = new LabClusterColorCalculator().GetColorFromBitmap(map);
 
                 Panel red = this.Find<Panel>(nameof(DevBase.Test.Avalonia.MainWindow.Panel_RED));
                 Panel green = this.Find<Panel>(nameof(DevBase.Test.Avalonia.MainWindow.Panel_GREEN));

@@ -19,7 +19,18 @@ public static class ColorExtension
         blue *= blue > Math.Max(red, green) ? bigShift : smallShift;
 
         return new global::Avalonia.Media.Color(color.A, (byte)red, (byte)green, (byte)blue).Correct();
-    } 
+    }
+
+    public static global::Avalonia.Media.Color AdjustBrightness(
+        this global::Avalonia.Media.Color color,
+        double percentage)
+    {
+        byte r = (byte)((color.R * 0.01) * percentage);
+        byte g = (byte)((color.G * 0.01) * percentage);
+        byte b = (byte)((color.B * 0.01) * percentage);
+
+        return new global::Avalonia.Media.Color(color.A, r, g, b).Correct();
+    }
     
     public static double Saturation(this global::Avalonia.Media.Color color)
     {
