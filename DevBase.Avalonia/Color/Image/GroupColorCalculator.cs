@@ -27,7 +27,7 @@ public class GroupColorCalculator
         this._smallShift = smallShift;
     }
     
-    public global::Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
+    public global::Avalonia.Media.Color GetColorFromBitmap(Bitmap bitmap)
     {
         ATupleList<global::Avalonia.Media.Color, AList<global::Avalonia.Media.Color>> colorGroups = GetColorGroups(bitmap);
 
@@ -145,7 +145,7 @@ public class GroupColorCalculator
         return new global::Avalonia.Media.Color();
     }
 
-    private ATupleList<global::Avalonia.Media.Color, AList<global::Avalonia.Media.Color>> GetColorGroups(IBitmap bitmap)
+    private ATupleList<global::Avalonia.Media.Color, AList<global::Avalonia.Media.Color>> GetColorGroups(Bitmap bitmap)
     {
         ATupleList<global::Avalonia.Media.Color, AList<global::Avalonia.Media.Color>> colorGroups = new ATupleList<global::Avalonia.Media.Color, AList<global::Avalonia.Media.Color>>();
         

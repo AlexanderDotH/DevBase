@@ -71,19 +71,19 @@ public class LabClusterColorCalculator
         this._converter = new RGBToLabConverter();
     }
 
-    public Color GetColorFromBitmap(IBitmap bitmap)
+    public Color GetColorFromBitmap(Bitmap bitmap)
     {
         (KMeansClusterCollection, IOrderedEnumerable<IGrouping<int, int>>) clusters = ClusterCalculation(bitmap);
         return GetRangeAndCalcAverage(clusters.Item1, clusters.Item2, this.MaxRange);
     }
 
-    public AList<Color> GetColorListFromBitmap(IBitmap bitmap)
+    public AList<Color> GetColorListFromBitmap(Bitmap bitmap)
     {
         (KMeansClusterCollection, IOrderedEnumerable<IGrouping<int, int>>) clusters = ClusterCalculation(bitmap);
         return GetRange(clusters.Item1, clusters.Item2, this.MaxRange);
     }
 
-    private (KMeansClusterCollection, IOrderedEnumerable<IGrouping<int, int>>) ClusterCalculation(IBitmap bitmap)
+    private (KMeansClusterCollection, IOrderedEnumerable<IGrouping<int, int>>) ClusterCalculation(Bitmap bitmap)
     {
         if (this.PreProcessing.BlurPreProcessing)
         {

@@ -26,7 +26,7 @@ public class ClusterColorCalculator
 
     public AList<Color> AdditionalColorDataset { get; set; } = new AList<Color>();
 
-    public Color GetColorFromBitmap(IBitmap bitmap)
+    public Color GetColorFromBitmap(Bitmap bitmap)
     {
         AList<Color> pixels = ColorUtils.GetPixels(bitmap);
 

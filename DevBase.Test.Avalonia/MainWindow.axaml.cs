@@ -30,15 +30,15 @@ namespace DevBase.Test.Avalonia
                 Console.WriteLine(file.FileInfo.FullName);
 
                 Stream s = new MemoryStream(file.BinaryData);
-                IBitmap map = new Bitmap(s);
+                Bitmap map = new Bitmap(s);
 
                 Color c = new LabClusterColorCalculator().GetColorFromBitmap(map);
 
-                Panel red = this.Find<Panel>(nameof(DevBase.Test.Avalonia.MainWindow.Panel_RED));
-                Panel green = this.Find<Panel>(nameof(DevBase.Test.Avalonia.MainWindow.Panel_GREEN));
-                Panel blue = this.Find<Panel>(nameof(DevBase.Test.Avalonia.MainWindow.Panel_BLUE));
-                Panel color = this.Find<Panel>(nameof(DevBase.Test.Avalonia.MainWindow.Panel_COLOR));
-                Image image = this.Find<Image>(nameof(DevBase.Test.Avalonia.MainWindow.Image_DISPLAY));
+                Panel red = this.Find<Panel>(nameof(Panel_RED));
+                Panel green = this.Find<Panel>(nameof(Panel_GREEN));
+                Panel blue = this.Find<Panel>(nameof(Panel_BLUE));
+                Panel color = this.Find<Panel>(nameof(Panel_COLOR));
+                Image image = this.Find<Image>(nameof(Image_DISPLAY));
 
                 image.Source = map;
             

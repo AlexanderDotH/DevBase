@@ -30,7 +30,7 @@ public class NearestColorCalculator
         this._smallShift = smallShift;
     }
     
-    public unsafe global::Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
+    public unsafe global::Avalonia.Media.Color GetColorFromBitmap(Bitmap bitmap)
     {
         AList<global::Avalonia.Media.Color> pixels = GetPixels(bitmap);
 
@@ -120,7 +120,7 @@ public class NearestColorCalculator
         return (diffR + diffG + diffB);
     }
     
-    private AList<global::Avalonia.Media.Color> GetPixels(IBitmap bitmap)
+    private AList<global::Avalonia.Media.Color> GetPixels(Bitmap bitmap)
     {
         AList<global::Avalonia.Media.Color> colors = new AList<global::Avalonia.Media.Color>();
         

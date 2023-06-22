@@ -6,7 +6,7 @@ namespace DevBase.Avalonia.Color.Extensions;
 
 public static class BitmapExtension
 {
-    public static Bitmap ToBitmap(this IBitmap bitmap)
+    public static Bitmap ToBitmap(this global::Avalonia.Media.Imaging.Bitmap bitmap)
     {
         using MemoryStream stream = new MemoryStream();
         bitmap.Save(stream);
@@ -14,7 +14,7 @@ public static class BitmapExtension
         return new Bitmap(stream);
     }
 
-    public static IBitmap ToBitmap(this Bitmap bitmap)
+    public static global::Avalonia.Media.Imaging.Bitmap ToBitmap(this Bitmap bitmap)
     {
         using MemoryStream memoryStream = new MemoryStream();
         bitmap.Save(memoryStream, ImageFormat.Png);
@@ -22,7 +22,7 @@ public static class BitmapExtension
         return new global::Avalonia.Media.Imaging.Bitmap(memoryStream);
     }
     
-    public static IBitmap ToBitmap(this SixLabors.ImageSharp.Image image)
+    public static global::Avalonia.Media.Imaging.Bitmap ToBitmap(this SixLabors.ImageSharp.Image image)
     {
         using MemoryStream memoryStream = new MemoryStream();
         image.SaveAsBmp(memoryStream);
@@ -30,7 +30,7 @@ public static class BitmapExtension
         return new global::Avalonia.Media.Imaging.Bitmap(memoryStream);
     }
 
-    public static SixLabors.ImageSharp.Image ToImage(this IBitmap bitmap)
+    public static SixLabors.ImageSharp.Image ToImage(this global::Avalonia.Media.Imaging.Bitmap bitmap)
     {
         using MemoryStream memoryStream = new MemoryStream();
         bitmap.Save(memoryStream);

@@ -10,7 +10,7 @@ using Color = global::Avalonia.Media.Color;
 
 public class ColorUtils
 {
-    public static AList<Color> GetPixels(IBitmap bitmap)
+    public static AList<Color> GetPixels(Bitmap bitmap)
     {
         using MemoryStream memoryStream = new MemoryStream();
         bitmap.Save(memoryStream);

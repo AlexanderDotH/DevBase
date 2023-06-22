@@ -15,7 +15,7 @@ public class ImagePreProcessor
         this._rounds = rounds;
     }
 
-    public IBitmap Process(IBitmap bitmap)
+    public global::Avalonia.Media.Imaging.Bitmap Process(global::Avalonia.Media.Imaging.Bitmap bitmap)
     {
         SixLabors.ImageSharp.Image img = bitmap.ToImage();
         

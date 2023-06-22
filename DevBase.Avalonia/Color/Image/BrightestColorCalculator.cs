@@ -28,7 +28,7 @@ public class BrightestColorCalculator
         this._smallShift = smallShift;
     }
     
-    public unsafe global::Avalonia.Media.Color GetColorFromBitmap(IBitmap bitmap)
+    public unsafe global::Avalonia.Media.Color GetColorFromBitmap(Bitmap bitmap)
     {
         AList<global::Avalonia.Media.Color> pixels = GetPixels(bitmap);
         AList<global::Avalonia.Media.Color> additional = new AList<global::Avalonia.Media.Color>();
@@ -124,7 +124,7 @@ public class BrightestColorCalculator
         return min < current && max > current;
     }
     
-    private unsafe AList<global::Avalonia.Media.Color> GetPixels(IBitmap bitmap)
+    private unsafe AList<global::Avalonia.Media.Color> GetPixels(Bitmap bitmap)
     {
         AList<global::Avalonia.Media.Color> colors = new AList<global::Avalonia.Media.Color>();
         
