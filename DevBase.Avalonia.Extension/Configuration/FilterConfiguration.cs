@@ -2,9 +2,7 @@
 
 public class FilterConfiguration
 {
-    public double MinChroma { get; set; }
-    public double MinBrightness { get; set; }
+    public ChromaConfiguration ChromaConfiguration { get; set; }
+    public BrightnessConfiguration BrightnessConfiguration { get; set; }
     
-    public bool FilterChroma { get; set; }
-    public bool FilterBrightness { get; set; }
 }

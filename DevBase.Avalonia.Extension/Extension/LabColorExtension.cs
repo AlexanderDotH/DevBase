@@ -10,7 +10,7 @@ public static class LabColorExtension
 {
     #region Brightness
 
-    public static AList<LabColor> FilterBrightness(this AList<LabColor> colors, double percentage)
+    public static AList<LabColor> FilterBrightness(this AList<LabColor> colors, double min, double max)
     {
         AList<LabColor> c = new AList<LabColor>();
 
@@ -23,7 +23,7 @@ public static class LabColorExtension
 
             double brightness = current.L;
             
-            if (brightness > percentage)
+            if (brightness >= min && brightness <= max)
             {
                 a[count] = current;
                 count++;
@@ -56,7 +56,7 @@ public static class LabColorExtension
         return (color.Chroma() / 128) * 100;
     }
     
-    public static AList<LabColor> FilterChroma(this AList<LabColor> colors, double percentage)
+    public static AList<LabColor> FilterChroma(this AList<LabColor> colors, double min, double max)
     {
         AList<LabColor> c = new AList<LabColor>();
 
@@ -69,7 +69,7 @@ public static class LabColorExtension
 
             double brightness = current.ChromaPercentage();
             
-            if (brightness > percentage)
+            if (brightness >= min && brightness <= max)
             {
                 a[count] = current;
                 count++;

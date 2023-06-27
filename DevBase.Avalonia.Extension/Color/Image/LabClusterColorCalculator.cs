@@ -42,10 +42,18 @@ public class LabClusterColorCalculator
     public FilterConfiguration Filter { get; set; } =
         new FilterConfiguration()
         {
-            MinChroma = 30d,
-            MinBrightness = 10d,
-            FilterChroma = true,
-            FilterBrightness = true
+            ChromaConfiguration = new ChromaConfiguration()
+            {
+                FilterChroma = true,
+                MinChroma = 30d,
+                MaxChroma = 100d
+            },
+            BrightnessConfiguration = new BrightnessConfiguration()
+            {
+                FilterBrightness = true,
+                MinBrightness = 10d,
+                MaxBrightness = 100d
+            }
         };
 
     public PostProcessingConfiguration PostProcessing { get; set; } =
@@ -107,11 +115,15 @@ public class LabClusterColorCalculator
     {
         AList<LabColor> dominantColorSet = new AList<LabColor>();
         
-        if (this.Filter.FilterChroma)
-            dominantColorSet.AddRange(colors.FilterChroma(this.Filter.MinChroma));
+        if (this.Filter.ChromaConfiguration.FilterChroma)
+            dominantColorSet.AddRange(colors.FilterChroma(
+                this.Filter.ChromaConfiguration.MinChroma, 
+                this.Filter.ChromaConfiguration.MaxChroma));
         
-        if (this.Filter.FilterBrightness)
-            dominantColorSet.AddRange(colors.FilterBrightness(this.Filter.MinBrightness));
+        if (this.Filter.BrightnessConfiguration.FilterBrightness)
+            dominantColorSet.AddRange(colors.FilterBrightness(
+                this.Filter.BrightnessConfiguration.MinBrightness, 
+                this.Filter.BrightnessConfiguration.MaxBrightness));
         
         if (this.UsePredefinedSet)
             dominantColorSet.AddRange(ClusterData.RGB_DATA.ToAList().ToRgbColor().ToLabColor(this._converter));
