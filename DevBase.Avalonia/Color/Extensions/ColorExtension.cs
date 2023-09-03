@@ -1,5 +1,4 @@
-﻿using Avalonia.Media;
-using DevBase.Generics;
+﻿using DevBase.Generics;
 
 namespace DevBase.Avalonia.Color.Extensions;
 
