@@ -7,4 +7,5 @@ public enum EnumContentType
     MULTIPART_FORMDATA,
     TEXT_PLAIN,
     TEXT_HTML,
+    ALL,
 }

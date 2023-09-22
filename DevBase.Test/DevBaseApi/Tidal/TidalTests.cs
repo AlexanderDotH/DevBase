@@ -8,7 +8,7 @@ public class TidalTests
     public async Task AuthTokenToAccess()
     {
         TidalClient client = new TidalClient();
-        var token = await client.AuthTokenToAccess("MzZhZTYxNzMtN2RjYy00YzRmLWExMWEtN2IzYmUyMWE3Mjhl");
+        var token = await client.AuthTokenToAccess("");
         
         Assert.AreEqual(token.clientName, "Android Automotive");
     }

@@ -96,7 +96,7 @@ namespace DevBase.Api.Apis.Tidal
             RequestData requestData = new RequestData(new Uri(string.Format("{0}/sessions", this._apiEndpoint)), EnumRequestMethod.GET, 
                 EnumContentType.APPLICATION_JSON, RequestData.GetRandomUseragent());
             
-             requestData.Header.Add("Authorization", "Bearer " + accessToken);
+            requestData.Header.Add("Authorization", "Bearer " + accessToken);
 
             try
             {
@@ -152,10 +152,9 @@ namespace DevBase.Api.Apis.Tidal
             RequestData requestData = new RequestData(new Uri(string.Format("{0}/oauth2/token", this._authEndpoint)),
                 EnumRequestMethod.POST, EnumContentType.APPLICATION_FORM_URLENCODED);
             
-            string a = Convert.ToBase64String(Encoding.Default.GetBytes(this._clientID + ":" + this._clientSecret));
-            requestData.AddAuthMethod(new Auth(a, EnumAuthType.BASIC));
-            
             requestData.AddFormData(formData);
+
+            requestData.AcceptTypeHolder.AddCharSet(EnumCharsetType.ALL);
             
             JsonTidalAuthAccess accountAccess = null;
 
