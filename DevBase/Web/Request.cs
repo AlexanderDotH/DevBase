@@ -65,7 +65,7 @@ namespace DevBase.Web
             }
             
             request.ContentType = this._requestData.ContentTypeHolder.ContentType;
-
+            
             HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
             ResponseData.ResponseData responseData = new ResponseData.ResponseData(response);
 

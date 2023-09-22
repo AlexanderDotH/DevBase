@@ -141,6 +141,45 @@ namespace DevBase.Api.Apis.Tidal
             return null;
         }
 
+        public async Task<JsonTidalAuthAccess> AuthTokenToAccess(string authToken)
+        {
+            AList<FormKeypair> formData = new AList<FormKeypair>();
+            formData.Add(new FormKeypair("client_id", this._clientID));
+            formData.Add(new FormKeypair("user_auth_token", authToken));
+            formData.Add(new FormKeypair("grant_type", "user_auth_token"));
+            formData.Add(new FormKeypair("scope", "r_usr+w_usr+w_sub"));
+            
+            RequestData requestData = new RequestData(new Uri(string.Format("{0}/oauth2/token", this._authEndpoint)),
+                EnumRequestMethod.POST, EnumContentType.APPLICATION_FORM_URLENCODED);
+            
+            string a = Convert.ToBase64String(Encoding.Default.GetBytes(this._clientID + ":" + this._clientSecret));
+            requestData.AddAuthMethod(new Auth(a, EnumAuthType.BASIC));
+            
+            requestData.AddFormData(formData);
+            
+            JsonTidalAuthAccess accountAccess = null;
+
+            try
+            {
+                ResponseData response = await new Request(requestData).GetResponseAsync();
+
+                if (response.StatusCode != HttpStatusCode.OK)
+                    return null;
+
+                accountAccess =
+                    new JsonHelper<JsonTidalAuthAccess>().Deserialize(response.GetContentAsString());
+
+                if (accountAccess == null)
+                    return null;
+            }
+            catch (System.Exception e)
+            {
+                throw;
+            }
+
+            return accountAccess;
+        }
+
         public async Task<JsonTidalAccountRefreshAccess> RefreshToken(string refreshToken)
         {
             AList<FormKeypair> formData = new AList<FormKeypair>();
