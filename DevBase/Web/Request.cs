@@ -46,13 +46,16 @@ namespace DevBase.Web
             request.Headers = this._requestData.Header;
             request.Method = this._requestData.RequestMethod.ToString();
             request.UserAgent = this._requestData.UserAgent;
-            request.Accept = this._requestData.AcceptTypeHolder.GetAccept();
+            
+            request.Accept = this._requestData.Accept == string.Empty ? 
+                this._requestData.AcceptTypeHolder.GetAccept() : this._requestData.Accept;
+            
             request.CookieContainer = this._requestData.CookieContainer;
             request.Timeout = (int)this._requestData.Timeout.TotalMilliseconds;
 
             byte[] content = this._requestData.Content;
             
-            if (this._requestData.RequestMethod == EnumRequestMethod.POST &&
+            if (this._requestData.RequestMethod == EnumRequestMethod.POST ||
                 content != null &&
                 content.Length != 0)
             {
@@ -65,7 +68,7 @@ namespace DevBase.Web
             }
             
             request.ContentType = this._requestData.ContentTypeHolder.ContentType;
-
+            
             HttpWebResponse response = (HttpWebResponse)await request.GetResponseAsync();
             ResponseData.ResponseData responseData = new ResponseData.ResponseData(response);
 
