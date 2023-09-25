@@ -6,6 +6,5 @@ public enum EnumContentType
     APPLICATION_FORM_URLENCODED,
     MULTIPART_FORMDATA,
     TEXT_PLAIN,
-    TEXT_HTML,
-    ALL,
+    TEXT_HTML
 }

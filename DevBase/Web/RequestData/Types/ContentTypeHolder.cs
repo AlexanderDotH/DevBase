@@ -20,7 +20,6 @@ public class ContentTypeHolder
         this._contentTypeDictionary.Add(EnumContentType.TEXT_HTML, "text/html");
         this._contentTypeDictionary.Add(EnumContentType.MULTIPART_FORMDATA, "multipart/form-data");
         this._contentTypeDictionary.Add(EnumContentType.APPLICATION_FORM_URLENCODED, "application/x-www-form-urlencoded");
-        this._contentTypeDictionary.Add(EnumContentType.ALL, "*/*");
     }
 
     public ContentTypeHolder Set(EnumContentType contentType)
