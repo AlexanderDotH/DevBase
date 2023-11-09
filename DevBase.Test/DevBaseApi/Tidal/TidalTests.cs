@@ -10,7 +10,7 @@ public class TidalTests
     [Test]
     public async Task AuthTokenToAccess()
     {
-        TidalClient client = new TidalClient();
+        Api.Apis.Tidal.Tidal client = new Api.Apis.Tidal.Tidal();
         var token = await client.AuthTokenToAccess(Environment.GetEnvironmentVariable("TIDAL_AUTH_TOKEN"));
         
         Assert.AreEqual(token.clientName, "Android Automotive");
@@ -19,7 +19,7 @@ public class TidalTests
     [Test]
     public async Task RegisterDevice()
     {
-        TidalClient client = new TidalClient();
+        Api.Apis.Tidal.Tidal client = new Api.Apis.Tidal.Tidal();
         var deviceRegister = await client.RegisterDevice();
         
         Assert.AreEqual(deviceRegister.VerificationUri, "link.tidal.com");
@@ -28,16 +28,16 @@ public class TidalTests
     [Test]
     public async Task GetTokenFromRegisterDevice()
     {
-        TidalClient client = new TidalClient();
+        Api.Apis.Tidal.Tidal client = new Api.Apis.Tidal.Tidal();
         var response = await client.GetTokenFrom("36df9fbf-1513-4bcd-a618-49c9c4a04a74");
         
-        //Assert.AreEqual(response.TokenType, "Bearer");
+        Assert.AreEqual(response.TokenType, "Bearer");
     }
 
     [Test]
     public async Task Login()
     {
-        TidalClient client = new TidalClient();
+        Api.Apis.Tidal.Tidal client = new Api.Apis.Tidal.Tidal();
         var login = await client.Login(Environment.GetEnvironmentVariable("TIDAL_ACCESS_TOKEN"));
         
         Assert.AreEqual(login.CountryCode, "DE");
@@ -46,7 +46,7 @@ public class TidalTests
     [Test]
     public async Task Search()
     {
-        TidalClient client = new TidalClient();
+        Api.Apis.Tidal.Tidal client = new Api.Apis.Tidal.Tidal();
         var search = await client.Search("Hero");
         
         Assert.NotNull(search.Items);
@@ -55,7 +55,7 @@ public class TidalTests
     [Test]
     public async Task RefreshToken()
     {
-        TidalClient client = new TidalClient();
+        Api.Apis.Tidal.Tidal client = new Api.Apis.Tidal.Tidal();
         var token = await client.RefreshToken(Environment.GetEnvironmentVariable("TIDAL_REFRESH_TOKEN"));
 
         Assert.AreEqual(token.TokenType, "Bearer");
@@ -64,7 +64,7 @@ public class TidalTests
     [Test]
     public async Task GetLyrics()
     {
-        TidalClient client = new TidalClient();
+        Api.Apis.Tidal.Tidal client = new Api.Apis.Tidal.Tidal();
         var lyrics = await client.GetLyrics(
             Environment.GetEnvironmentVariable("TIDAL_ACCESS_TOKEN"),
             "303384448");
@@ -75,7 +75,7 @@ public class TidalTests
     [Test]
     public async Task DownloadSong()
     {
-        TidalClient client = new TidalClient();
+        Api.Apis.Tidal.Tidal client = new Api.Apis.Tidal.Tidal();
         var download = await client.DownloadSong(Environment.GetEnvironmentVariable("TIDAL_ACCESS_TOKEN"), "101982419");
         
         Assert.AreEqual(download.codec, "AAC");
@@ -85,7 +85,7 @@ public class TidalTests
     [Test]
     public async Task DownloadSongData()
     {
-        TidalClient client = new TidalClient();
+        Api.Apis.Tidal.Tidal client = new Api.Apis.Tidal.Tidal();
         var download = await client.DownloadSongData(Environment.GetEnvironmentVariable("TIDAL_ACCESS_TOKEN"), "101982419");
         
         Assert.IsNotEmpty(download);

@@ -1,9 +1,14 @@
 ﻿using System.Net;
+using System.Reflection.Metadata;
 using System.Text;
 using DevBase.Api.Apis.Deezer.Structure.Json;
+using DevBase.Api.Apis.Deezer.Structure.Objects;
 using DevBase.Api.Serializer;
 using DevBase.Cryptography.Blowfish;
 using DevBase.Enums;
+using DevBase.Format;
+using DevBase.Format.Formats.LrcFormat;
+using DevBase.Format.Structure;
 using DevBase.Generics;
 using DevBase.Web;
 using DevBase.Web.RequestData;
@@ -24,7 +29,7 @@ public class Deezer
 
     private CookieContainer _cookieContainer;
 
-    public Deezer()
+    public Deezer(string arlToken = "")
     {
         this._authEndpoint = "https://auth.deezer.com";
         this._apiEndpoint = "https://api.deezer.com";
@@ -33,25 +38,138 @@ public class Deezer
         this._mediaEndpoint = "https://media.deezer.com";
 
         this._cookieContainer = new CookieContainer();
+        
+        if (arlToken != null && arlToken.Length != 0)
+            this._cookieContainer.Add(new Cookie("arl", arlToken, "/", "deezer.com"));
     }
 
     public async Task<JsonDeezerJwtToken> GetJwtToken()
     {
+        if (!IsArlTokenPresent())
+            throw new System.Exception("No arl token present");
+        
         RequestData requestData = new RequestData(string.Format("{0}/login/arl?i=c&jo=p&rto=n", this._authEndpoint), EnumRequestMethod.POST);
 
         requestData.Header.Add("Accept", "*/*");
         requestData.Header.Add("Accept-Encoding", "gzip, deflate, br");
-        requestData.Header.Add("Cookie", "dzr_uniq_id=dzr_uniq_id_frbc23e096510b536bbd344475e7c61c87c05d94; _abck=CF1B0048C5324B20771F59D3F9E18B4B~0~YAAQn9AXAqVAFVuFAQAAvQGvpwnwTyfZG6KLfAr0OC19zlmJ8TudSo1kTpXETra15CK/sV78AR0pSs/rHqgwaMMvEa687zsiEzqQlM9/EVObBlT33f9UzKEg7JuVtE2KFL487gT5akMFdBwY+igP9ys7Ly+x2uC4gBL2w4nCjwOOXDerebdv+8SlvDvtDYSGZ1O+gMVUpKAz7V96JSb937MlYaxdigyL7+63WPfehArj/pNH0sb9GOePB97g6Czxua5BFi0okJNJOEY97lRe3QNmxAgZzb/CqBh2oRNmpT4v0MNvqYe4vclHS/rVW4Bbp/cMvj7t4rF+4YPVurq8tfPltK12A1/6BBBSpRUuU+WMDGcUxsSoRP8aZyW4oZ6ex0U1nTrm7SKfsamxdvWViag0LwChcHknBA==~-1~-1~-1; arl=447cae8221e4ba86cf8b479dae0d93fc3e70addfb4aed8a74cef16a799bfef493f22594d7118f34bbf65be490f32c0e77053bc323558d9b74e450b293174004539cfe43f6efb584dbdd59d038b6d0c803cc8db2fbe911290bdd0f0f2a80fbf89; comeback=1; ab.storage.deviceId.5ba97124-1b79-4acc-86b7-9547bc58cb18=%7B%22g%22%3A%22535ae124-06cc-5d7c-4f55-a40b08e12a2f%22%2C%22c%22%3A1662576184591%2C%22l%22%3A1673556074398%7D; ab.storage.userId.5ba97124-1b79-4acc-86b7-9547bc58cb18=%7B%22g%22%3A%225111209242%22%2C%22c%22%3A1662576184595%2C%22l%22%3A1673556074399%7D; ab.storage.sessionId.5ba97124-1b79-4acc-86b7-9547bc58cb18=%7B%22g%22%3A%229f53fd13-ba8b-90e5-a22a-f7ae771c54f9%22%2C%22e%22%3A1673559265157%2C%22c%22%3A1673556074398%2C%22l%22%3A1673557465157%7D; ak_bmsc=35D9F773CDA29199DE589EC86AC9E1DA~000000000000000000000000000000~YAAQn9AXAqZAFVuFAQAAvQGvpxLj2QJohYhosRko30MNWlpT7BpIbyT4DoojphXyyYKIcCkxZQmhicfwvwO4I40ZAan9iw51oZkC/F2cWmZ796nL/L0FIvKLkYvQvE4wsuKzCwwTYeSrMSZY5v40JHL+rrQsAF+GNPUTVj4aINqLrl3DBz84jja18Y6U0W1X/k4x1t1jo7WFOn7rVz8AMLAIS1GNw1csHoMrSniwbcj6mcKnSQk/yAp3fB9yuMcP0ne7SUonswF8AqfG58BiuP84tDYqHS8pQLqr0lDntvmQzjub2+Ge0DGSFzPN6lTAidM2+X5tf7726yQJTIdbeD/T4WjxksdGREeFHbYSZgvHL+8n59kb4VNkJPsu+4aiIg6GflzCNKWDhQ==; bm_sz=57CA358B5373057BF707E0AF3E125849~YAAQn9AXAqdAFVuFAQAAvQGvpxIqG0C29+2L+tsuEFeWjd+QBSOeinEqnN4n9A5ebZyQyIVeb5w0AdcP9jx3ch2KF1nNGuVEG9rZNopVgjjmyI7tPJAaVeiMSR1a+yJkl9gJh+fIz14ruNzDgefsVWCf9pCdQmbzF1Evzm/IsoJxZS/avzFWlz6AwPgjmbc05XBNgcSkL9m3arkh/CiMgCxN1y6J8V9tQMj2gZRwaaeK2VS0iLX4e1AS8GdL/2m2QzgdmVefnRfPiQLYi0rOxiIXDbnGuQdBe02VOjx9rQD2ipA=~3621957~3359812; bm_sv=831A64C0499197289F12B77E5602E689~YAAQiNAXAoglcCGFAQAAOAjjpxJSp+p8+ytP2d7xKottbNoKdCXCGp9mRrAeQSSTDd+nH/OWAG09Ox3NbXXQO05PpVpeBYqMe/rN7QEJxD8buiXJAvBViwAu88GvPAmJacJAJM1jaVYZbftV9SNZNZOqHGEsKgC4s7H6+AX8y6dY+hqAKnCa+v67ANO1ItrFoHZ2DOcyuP7xkohkPWZv0J2ZIW5sxV8N2eM/UDlgvG9YmOU48wN421ZQW1Ifal8lXA==~1; sid=frf0a902aabfd798fda01ac31052590d5033170d; bm_mi=777177B1A96261681750DF8015BBCB0A~YAAQiNAXAkvhbCGFAQAAyk3MpxKhX6Bq+BSjJ+xJncyX/CJbtG9Xx41ep36zPZhLlhTnWP9A61ZSl/Kn2pFQ0+7V5ngfXtVt2EBN+AcQnRjPbAhPo+EeEEccHRbIl3PRrU7bEH/w6wMNE8Ry1gK7IDAImPCaB6VMgQgSrPoAm2BWE93QN2uh2rc4OSzBQOIKstNmMoZl4tCiYh6kcSRKcc4Ybjd5NcBfpjEuYc11Je7oDb9e3PnCTK7pjoPbZFqLS+fFREF5iPBelxV65Zpz2a8sayxFVAm0VDiQv0noA7eN662eDCs7+A6iZaLCqWha94XiTkMh2gYv2GWNYxyBpDA3IfFH~1; consentStatistics=1; consentMarketing=1");
-
+        
         requestData.CookieContainer = this._cookieContainer;
         
         requestData.SetContentType(EnumContentType.APPLICATION_JSON);
         
-        ResponseData responseData = await new Request(requestData).GetResponseAsync();
+        ResponseData responseData = new Request(requestData).GetResponse();
         return new JsonDeserializer<JsonDeezerJwtToken>().Deserialize(responseData.GetContentAsString());
     }
 
-    public async Task<JsonDeezerLyricsResponse> GetLyrics(string trackID)
+    public async Task<JsonDeezerAuthTokenResponse> GetAccessToken(string appID = "457142")
+    {
+        RequestData requestData = new RequestData(string.Format("{0}/platform/generic/token/unlogged", this._apiEndpoint), EnumRequestMethod.POST);
+        requestData.Header.Add("Accept", "*/*");
+
+        AList<FormKeypair> formData = new AList<FormKeypair>();
+        formData.Add(new FormKeypair("app_id", appID));
+        
+        requestData.AddFormData(formData);
+        
+        requestData.CookieContainer = this._cookieContainer;
+        
+        ResponseData responseData = await new Request(requestData).GetResponseAsync();
+
+        string response = responseData.GetContentAsString();
+
+        if (response.Contains("unable to get unlogged token for this app"))
+            throw new System.Exception("Invalid AppID");
+        
+        return new JsonDeserializer<JsonDeezerAuthTokenResponse>().Deserialize(response);
+    }
+    
+    public async Task<JsonDeezerAuthTokenResponse> GetAccessToken(string sessionID, string appID = "457142")
+    {
+        RequestData requestData = new RequestData(string.Format("{0}/platform/generic/token/create-from-session", this._apiEndpoint), EnumRequestMethod.POST);
+        requestData.Header.Add("Accept", "*/*");
+
+        AList<FormKeypair> formData = new AList<FormKeypair>();
+        formData.Add(new FormKeypair("app_id", appID));
+        formData.Add(new FormKeypair("sid", sessionID));
+        
+        requestData.AddFormData(formData);
+        
+        requestData.CookieContainer = this._cookieContainer;
+        
+        ResponseData responseData = await new Request(requestData).GetResponseAsync();
+
+        string response = responseData.GetContentAsString();
+
+        if (response.Contains("Internal Server Error"))
+            throw new System.Exception("AppID and SessionID mismatch");
+        
+        if (response.Contains("unable to get unlogged token for this app"))
+            throw new System.Exception("Invalid AppID");
+
+        if (response.Contains("No session found"))
+            throw new System.Exception("Invalid SessionID");
+        
+        return new JsonDeserializer<JsonDeezerAuthTokenResponse>().Deserialize(response);
+    }
+
+    public async Task<string> GetArlTokenFromSession(string sessionID)
+    {
+        RequestData requestData = new RequestData(string.Format("{0}/ajax/gw-light.php?method=user.getArl&input=3&api_version=1.0&api_token=null", this._websiteEndpoint), 
+            EnumRequestMethod.GET);
+
+        CookieContainer cookieContainer = new CookieContainer();
+        cookieContainer.Add(new Cookie("sid", sessionID, "/", "deezer.com"));
+
+        requestData.CookieContainer = cookieContainer;
+        
+        Request request = new Request(requestData);
+        ResponseData responseData = await request.GetResponseAsync();
+
+        string response = responseData.GetContentAsString();
+
+        if (response.Contains("Require user auth"))
+            throw new System.Exception("Invalid SessionID");
+
+        JsonDeezerArlTokenResponse token = new JsonDeserializer<JsonDeezerArlTokenResponse>().Deserialize(response);
+        return token.results;
+    }
+    
+    public async Task<(string rawLyrics, AList<LyricElement> syncedElements)> GetLyrics(string trackID)
+    {
+        return IsArlTokenPresent() ? 
+            await GetLyricsGraphAndParse(trackID) : 
+            await GetLyricsAjaxAndParse(trackID);
+    }
+
+    public async Task<JsonDeezerRawLyricsResponse> GetLyricsAjax(string trackID)
+    {
+        JsonDeezerUserData userData = await this.GetUserData();
+
+        RequestData requestData = new RequestData(
+            string.Format("{0}/ajax/gw-light.php?method=song.getLyrics&api_version=1.0&input=3&api_token={1}&cid={2}",
+                this._websiteEndpoint, userData.results.checkForm, this.RandomCid),
+            EnumRequestMethod.POST);
+
+        JObject jsonTrackID = new JObject();
+        jsonTrackID["sng_id"] = trackID;
+
+        requestData.AddContent(jsonTrackID.ToString());
+        requestData.SetContentType(EnumContentType.APPLICATION_JSON);
+
+        requestData.CookieContainer = this._cookieContainer;
+        
+        Request request = new Request(requestData);
+        ResponseData responseData = await request.GetResponseAsync();
+
+        string response = responseData.GetContentAsString();
+
+        if (response.Contains("Invalid CSRF token"))
+            throw new System.Exception("Invalid CSRF token");
+        
+        return new JsonDeserializer<JsonDeezerRawLyricsResponse>().Deserialize(response);
+    }
+    
+    public async Task<JsonDeezerLyricsResponse> GetLyricsGraph(string trackID)
     {
         JsonDeezerJwtToken jwtToken = await this.GetJwtToken();
         
@@ -74,6 +192,12 @@ public class Deezer
 
         Request request = new Request(requestData);
         ResponseData responseData = await request.GetResponseAsync();
+
+        string response = responseData.GetContentAsString();
+
+        if (response.Contains("JwtTokenExpiredError"))
+            throw new System.Exception("The Jwt token is expired");
+        
         return new JsonDeserializer<JsonDeezerLyricsResponse>().Deserialize(responseData.GetContentAsString());
     }
     
@@ -81,9 +205,9 @@ public class Deezer
     {
         for (int i = 0; i < retries; i++)
         {
-            RequestData requestData = new RequestData(string.Format("{0}/ajax/gw-light.php?method=deezer.getUserData&api_version=1.0&input=3&api_token=&cid={1}", 
-                this._websiteEndpoint, 
-                new Random().Next(100000000, 999999999)), EnumRequestMethod.GET);
+            RequestData requestData = new RequestData(
+                string.Format("{0}/ajax/gw-light.php?method=deezer.getUserData&api_version=1.0&input=3&api_token=&cid={1}", this._websiteEndpoint, this.RandomCid), 
+                EnumRequestMethod.GET);
         
             requestData.CookieContainer = this._cookieContainer;
             
@@ -97,6 +221,42 @@ public class Deezer
         }
 
         return null;
+    }
+
+    public async Task<DeezerTrack> GetSong(string trackID)
+    {
+        JsonDeezerUserData userData = await this.GetUserData();
+
+        if (userData == null)
+            throw new System.Exception("No CSRF provided");
+        
+        JsonDeezerSongDetails songDetails = await this.GetSongDetails(trackID, userData.results.checkForm);
+
+        if (songDetails.results == null)
+            throw new System.Exception("Cannot find song details");
+        
+        List<string> artists = new List<string>();
+        songDetails.results.DATA.ARTISTS.ForEach(a => artists.Add(a.ART_NAME));
+        
+        int durationS = Convert.ToInt32(songDetails.results.DATA.DURATION);
+
+        List<string> artworkUrls = new List<string>();
+        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/56x56-000000-80-0-0.jpg", songDetails.results.DATA.ALB_PICTURE));
+        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/250x250-000000-80-0-0.jpg", songDetails.results.DATA.ALB_PICTURE));
+        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/500x500-000000-80-0-0.jpg", songDetails.results.DATA.ALB_PICTURE));
+        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/1000x1000-000000-80-0-0.jpg", songDetails.results.DATA.ALB_PICTURE));
+
+        DeezerTrack track = new DeezerTrack()
+        {
+            Title = songDetails.results.DATA.SNG_TITLE,
+            Album = songDetails.results.DATA.ALB_TITLE,
+            Duration = (int)TimeSpan.FromSeconds(durationS).TotalMilliseconds,
+            Artists = artists.ToArray(),
+            ArtworkUrls = artworkUrls.ToArray(),
+            ServiceInternalId = songDetails.results.DATA.SNG_ID
+        };
+
+        return track;
     }
     
     public async Task<JsonDeezerSongDetails> GetSongDetails(string trackID, string apiToken, int retries = 5)
@@ -119,6 +279,9 @@ public class Deezer
             ResponseData responseData = await request.GetResponseAsync();
             
             string content = responseData.GetContentAsString();
+
+            if (content.Contains("Invalid CSRF token"))
+                throw new System.Exception("Invalid CSRF token provided");
             
             if (!content.Contains("deprecated?method=deezer.pageTrack"))
                 return new JsonDeserializer<JsonDeezerSongDetails>().Deserialize(content);
@@ -276,5 +439,110 @@ public class Deezer
         
         return new JsonDeserializer<JsonDeezerSearchResponse>().Deserialize(responseData.GetContentAsString());
     }
+    
+    public async Task<JsonDeezerSearchResponse> Search(string track = "", string artist = "", string album = "", bool strict = false)
+    {
+        RequestData requestData = new RequestData(
+            string.Format("{0}/search?q=track:\"{1}\" artist:\"{2}\" album:\"{3}\"{4}", this._apiEndpoint, track, artist, album, strict ? "?strict=on" : ""));
+        
+        Request request = new Request(requestData);
+        ResponseData responseData = await request.GetResponseAsync();
+        
+        return new JsonDeserializer<JsonDeezerSearchResponse>().Deserialize(responseData.GetContentAsString());
+    }
 
+    private async Task<(string rawLyrics, AList<LyricElement> syncedElements)> GetLyricsGraphAndParse(string trackID)
+    {
+        string rawText = string.Empty;
+        
+        JsonDeezerLyricsResponse lyricsResponse = await GetLyricsGraph(trackID);
+
+        if (lyricsResponse.data.track.lyrics == null)
+            throw new System.Exception("Lyrics not found");
+
+        if (lyricsResponse.data.track.lyrics.text != String.Empty)
+            rawText = lyricsResponse.data.track.lyrics.text;
+
+        if (lyricsResponse.data.track.lyrics.synchronizedLines == null ||
+            lyricsResponse.data.track.lyrics.synchronizedLines.Count == 0)
+            return (rawText, new AList<LyricElement>());
+        
+        StringBuilder lrcFile = new StringBuilder();
+            
+        for (var i = 0; i < lyricsResponse.data.track.lyrics.synchronizedLines.Count; i++)
+        {
+            JsonDeezerLyricsTrackResponseLyricsSynchronizedLineResponse synchronizedLine =
+                lyricsResponse.data.track.lyrics.synchronizedLines[i];
+
+            lrcFile.AppendLine(string.Format("{0} {1}", synchronizedLine.lrcTimestamp, synchronizedLine.line));
+        }
+
+        AList<LyricElement> syncedLyrics = new AList<LyricElement>();
+
+        FileFormatParser<LrcObject> parser = new FileFormatParser<LrcObject>(new LrcParser<LrcObject>());
+        LrcObject parsed = parser.FormatFromString(lrcFile.ToString());
+        
+        syncedLyrics.AddRange(parsed.Lyrics);
+
+        return (rawText, syncedLyrics);
+    }
+    
+    private async Task<(string rawLyrics, AList<LyricElement> syncedElements)> GetLyricsAjaxAndParse(string trackID)
+    {
+        string rawText = string.Empty;
+        
+        JsonDeezerRawLyricsResponse lyricsResponse = await GetLyricsAjax(trackID);
+
+        if (lyricsResponse.results == null)
+            throw new System.Exception("Lyrics not found");
+
+        if (lyricsResponse.results.LYRICS_TEXT != string.Empty)
+            rawText = lyricsResponse.results.LYRICS_TEXT;
+        
+        if (lyricsResponse.results.LYRICS_SYNC_JSON == null || lyricsResponse.results.LYRICS_SYNC_JSON.Count == 0)
+            return (rawText, new AList<LyricElement>());
+        
+        StringBuilder lrcFile = new StringBuilder();
+        
+        for (var i = 0; i < lyricsResponse.results.LYRICS_SYNC_JSON.Count; i++)
+        {
+            JsonDeezerRawLyricsResponseResultsSync lyricsLine = lyricsResponse.results.LYRICS_SYNC_JSON[i];
+                
+            if (lyricsLine.line == string.Empty || lyricsLine.line.Length == 0)
+                continue;
+                
+            lrcFile.AppendLine(string.Format("{0} {1}", lyricsLine.lrc_timestamp, lyricsLine.line));
+        }
+
+        AList<LyricElement> syncedLyrics = new AList<LyricElement>();
+
+        FileFormatParser<LrcObject> parser = new FileFormatParser<LrcObject>(new LrcParser<LrcObject>());
+        LrcObject parsed = parser.FormatFromString(lrcFile.ToString());
+        
+        syncedLyrics.AddRange(parsed.Lyrics);
+
+        return (rawText, syncedLyrics);
+    }
+
+    private bool IsArlTokenValid()
+    {
+        JsonDeezerUserData userData = this.GetUserData().GetAwaiter().GetResult();
+        return userData.results.USER.USER_ID != 0;
+    }
+    
+    private int RandomCid => new Random().Next(100000000, 999999999);
+    
+    private bool IsArlTokenPresent()
+    {
+        CookieCollection cookies = this._cookieContainer.GetAllCookies();
+        
+        for (var i = 0; i < cookies.Count; i++)
+        {
+            Cookie cookie = cookies[i];
+            if (cookie.Name.Equals("arl") && IsArlTokenValid())
+                return true;
+        }
+
+        return false;
+    }
 }

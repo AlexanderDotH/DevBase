@@ -55,8 +55,8 @@ namespace DevBase.Web
 
             byte[] content = this._requestData.Content;
             
-            if (this._requestData.RequestMethod == EnumRequestMethod.POST ||
-                content != null &&
+            if (this._requestData.RequestMethod == EnumRequestMethod.POST && 
+                content != null && 
                 content.Length != 0)
             {
                 request.ContentLength = content.Length;

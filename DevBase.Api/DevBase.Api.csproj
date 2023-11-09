@@ -10,7 +10,7 @@
     <Copyright>AlexanderDotH</Copyright>
     <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
-    <Version>1.1.6</Version>
+    <Version>1.1.8</Version>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,6 +20,7 @@
   <ItemGroup>
     <ProjectReference Include="..\DevBase.Cryptography.BouncyCastle\DevBase.Cryptography.BouncyCastle.csproj" />
     <ProjectReference Include="..\DevBase.Cryptography\DevBase.Cryptography.csproj" />
+    <ProjectReference Include="..\DevBase.Format\DevBase.Format.csproj" />
     <ProjectReference Include="..\DevBase\DevBase.csproj" />
   </ItemGroup>
 

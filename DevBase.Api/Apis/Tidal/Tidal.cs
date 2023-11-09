@@ -12,7 +12,7 @@ using DevBase.Web.ResponseData;
 
 namespace DevBase.Api.Apis.Tidal
 {
-    public class TidalClient
+    public class Tidal
     {
         private readonly string _authEndpoint;
         private readonly string _apiEndpoint;
@@ -20,7 +20,7 @@ namespace DevBase.Api.Apis.Tidal
         private readonly string _clientID;
         private readonly string _clientSecret;
 
-        public TidalClient()
+        public Tidal()
         {
             this._authEndpoint = "https://auth.tidal.com/v1";
             this._apiEndpoint = "https://api.tidal.com/v1";

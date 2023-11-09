@@ -16,6 +16,9 @@
     </ItemGroup>
 
     <ItemGroup>
+      <PackageReference Include="CrypticWizard.RandomWordGenerator" Version="0.9.5" />
+      <PackageReference Include="CsvHelper" Version="30.0.1" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
       <PackageReference Include="SpotifyAPI.Web" Version="7.0.0" />
     </ItemGroup>
 
