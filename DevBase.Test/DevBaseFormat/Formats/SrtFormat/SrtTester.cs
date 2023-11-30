@@ -16,14 +16,14 @@ public class SrtTester
     [SetUp]
     public void Setup()
     {
-        this._srtParser = new FileFormatParser<AList<PreciseLyricElement>>(new Format.Formats.SrtFormat.SrtFormat());
+        this._srtParser = new FileFormatParser<AList<PreciseLyricElement>>(new Format.Formats.SrtFormat.SrtParser());
     }
 
     [Test]
     public void TestFormatFromFile()
     {
         AList<AFileObject> files =
-            AFile.GetFiles("C:\\Users\\alex\\RiderProjects\\DevBase\\DevBase.Test\\DevBaseFormatData\\SRT", true, "*.srt");
+            AFile.GetFiles("..\\..\\..\\DevBaseFormatData\\SRT", true, "*.srt");
 
         AFileObject random = files.GetRandom();
         string file = random.ToStringData().Replace("\n", Environment.NewLine);
@@ -38,6 +38,6 @@ public class SrtTester
 
         AList<PreciseLyricElement> list = this._srtParser.FormatFromFile(random.FileInfo.FullName);
 
-        Assert.AreEqual(content.Get(2), list.Get(0).Text);
+        Assert.AreEqual(content.Get(6), list.Get(0).Text);
     }
 }

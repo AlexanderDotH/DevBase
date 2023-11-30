@@ -35,5 +35,10 @@ namespace DevBase.Format.Formats.EnvFormat
 
             return elements;
         }
+
+        public string FormatToString(ATupleList<string, string> content)
+        {
+            throw new NotSupportedException();
+        }
     }
 }

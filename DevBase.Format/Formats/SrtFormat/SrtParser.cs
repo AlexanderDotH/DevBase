@@ -6,7 +6,7 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.SrtFormat;
 
-public class SrtFormat : IFileFormat<AList<PreciseLyricElement>>
+public class SrtParser : IFileFormat<AList<PreciseLyricElement>>
 {
     public AList<PreciseLyricElement> FormatFromFile(string filePath)
     {
@@ -41,5 +41,10 @@ public class SrtFormat : IFileFormat<AList<PreciseLyricElement>>
         }
 
         return elements;
+    }
+
+    public string FormatToString(AList<PreciseLyricElement> content)
+    {
+        throw new NotSupportedException("Not supported yet, it will be implemented if necessary");
     }
 }

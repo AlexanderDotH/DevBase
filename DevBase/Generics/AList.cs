@@ -226,7 +226,7 @@ namespace DevBase.Generics
             T[] newArray = new T[max - min + 1];
 
             int counter = 0;
-            for (int i = min; i < max; i++)
+            for (int i = min; i <= max; i++)
             {
                 newArray[counter++] = this.Get(i);
             }

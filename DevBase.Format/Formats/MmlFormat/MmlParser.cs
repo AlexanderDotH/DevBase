@@ -48,7 +48,13 @@ namespace DevBase.Format.Formats.MmlFormat
             lrcObject.Lyrics = lyricElements;
             return lrcObject;
         }
-        
+
+        public string FormatToString(LrcObject content)
+        {
+            throw new NotSupportedException("Not supported yet, it will be implemented if necessary");
+
+        }
+
         private bool IsLyricLineTrash(string line)
         {
             return Regex.IsMatch(line, RegexHolder.REGEX_GARBAGE);

@@ -49,6 +49,11 @@ namespace DevBase.Format.Formats.LrcFormat
             return fullLrcObject;
         }
 
+        public string FormatToString(LrcObject content)
+        {
+            throw new NotSupportedException();
+        }
+
         private string ParseMetaDataPart(List<string> input, string meta)
         {
             for (int i = 0; i < input.Count; i++)

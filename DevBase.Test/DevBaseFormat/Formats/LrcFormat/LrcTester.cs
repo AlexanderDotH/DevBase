@@ -17,7 +17,7 @@ namespace DevBase.Test.DevBaseFormat.Formats.LrcFormat
         [Test]
         public void TestFormatFromFile()
         {
-            LrcObject parsed = this._lrcParser.FormatFromFile("C:\\Users\\Alex\\RiderProjects\\DevBase\\DevBase.Test\\DevBaseFormatData\\LRC\\Circles.lrc");
+            LrcObject parsed = this._lrcParser.FormatFromFile("..\\..\\..\\DevBaseFormatData\\LRC\\Circles.lrc");
             Assert.AreEqual(parsed.Lyrics.Get(0).Line, "Lets make circles");
         }
     }

@@ -4,5 +4,6 @@
     {
         T FormatFromFile(string filePath);
         T FormatFromString(string lyricString);
+        string FormatToString(T content);
     }
 }

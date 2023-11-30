@@ -19,6 +19,11 @@
         {
             return this._fileFormatParser.FormatFromString(content);
         }
+        
+        public string FormatToString(T content)
+        {
+            return this._fileFormatParser.FormatToString(content);
+        }
 
     }
 }
