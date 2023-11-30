@@ -50,7 +50,7 @@ public class RmmlParser : IFileFormat<AList<RichLyrics>>
                     TimeSpan lOffset = TimeSpan.FromSeconds(l.Offset);
                     
                     TimeSpan lStartTime = rStartTime + lastOffset;
-                    TimeSpan lEndTime = lStartTime + lOffset;
+                    TimeSpan lEndTime = rStartTime + lOffset;
                     
                     RichLyricsElement syncChar = new RichLyricsElement()
                     {

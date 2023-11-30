@@ -30,6 +30,9 @@ public class RmmlTester
         AList<RichLyrics> list = this._srtParser.FormatFromString(content);
         
         list.GetAsList().DumpConsole();
+        
+        File.WriteAllText("rick.elrc", new FileFormatParser<AList<RichLyrics>>(new Format.Formats.ElrcFormat.ElrcParser()).FormatToString(list));
+        
         Assert.IsTrue(content.Contains(list.Get(0).FullLine));
     }
 }
