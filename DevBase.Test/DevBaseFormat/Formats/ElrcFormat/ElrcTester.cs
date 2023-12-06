@@ -1,13 +1,12 @@
 ﻿using DevBase.Format;
-using DevBase.Format.Formats.RmmlFormat;
 using DevBase.Format.Structure;
 using DevBase.Generics;
 using DevBase.IO;
 using Dumpify;
 
-namespace DevBase.Test.DevBaseFormat.Formats.ElrcParser;
+namespace DevBase.Test.DevBaseFormat.Formats.ElrcFormat;
 
-public class ElrcParser
+public class ElrcTester
 {
     private FileFormatParser<AList<RichLyrics>> _elrcParser;
 
@@ -21,7 +20,7 @@ public class ElrcParser
     public void TestFormatFromFile()
     {
         FileInfo fileInfo =
-            new FileInfo($"..\\..\\..\\DevBaseFormatData\\ELRC\\rich.elrc");
+            new FileInfo($"..\\..\\..\\DevBaseFormatData\\ELRC\\rick.elrc");
         
         AList<RichLyrics> list = this._elrcParser.FormatFromFile(fileInfo.FullName);
         
@@ -33,7 +32,7 @@ public class ElrcParser
     public void TestFormatToFile()
     {
         FileInfo fileInfo =
-            new FileInfo($"..\\..\\..\\DevBaseFormatData\\ELRC\\rich.elrc");
+            new FileInfo($"..\\..\\..\\DevBaseFormatData\\ELRC\\rick.elrc");
 
         string content = AFile.ReadFile(fileInfo).ToStringData();
         
