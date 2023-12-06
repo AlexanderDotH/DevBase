@@ -1,6 +1,7 @@
 ﻿using DevBase.Api.Apis.NetEase.Structure.Json;
 using DevBase.Api.Serializer;
 using DevBase.Format;
+using DevBase.Format.Formats.KLyricsFormat;
 using DevBase.Format.Formats.LrcFormat;
 using DevBase.Format.Structure;
 using DevBase.Generics;
@@ -28,7 +29,28 @@ public class NetEase
         string content = responseData.GetContentAsString();
         return new JsonDeserializer<JsonNetEaseSearchResult>().Deserialize(content);
     }
+    
+    public async Task<AList<RichLyrics>> KaraokeLyrics(string trackId)
+    {
+        JsonNetEaseLyricResponse lyricResponse = await this.RawLyrics(trackId);
 
+        if (lyricResponse == null)
+            return null;
+
+        if (lyricResponse.klyric == null)
+            return null;
+
+        if (String.IsNullOrEmpty(lyricResponse.klyric.lyric))
+            return null;
+        
+        FileFormatParser<AList<RichLyrics>> klrcParser =
+            new FileFormatParser<AList<RichLyrics>>(
+                new KLyricsParser());
+
+        AList<RichLyrics> richLyrics = klrcParser.FormatFromString(lyricResponse.klyric.lyric);
+        return richLyrics;
+    }
+    
     public async Task<AList<LyricElement>> Lyrics(string trackId)
     {
         JsonNetEaseLyricResponse lyricResponse = await this.RawLyrics(trackId);
