@@ -47,7 +47,7 @@ public class JsonNetEaseDetailResponseSong
         public JsonNetEaseDetailResponseSongAl Album { get; set; }
 
         [JsonProperty("dt")]
-        public int dt { get; set; }
+        public int Duration { get; set; }
 
         [JsonProperty("h")]
         public JsonNetEaseDetailResponseSongH High { get; set; }
