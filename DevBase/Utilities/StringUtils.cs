@@ -27,5 +27,21 @@ namespace DevBase.Utilities
 
             return sb.ToString();
         }
+        
+        public static string Separate(string[] elements, string separator = ", ")
+        {
+            string pretty = string.Empty;
+
+            for (int i = 0; i < elements.Length; i++)
+                pretty += i == 0 ? elements[i] : separator + elements[i];
+
+            return pretty;
+        }
+
+        public static string[] DeSeparate(string elements, string separator = ", ")
+        {
+            string[] splitted = elements.Split(separator);
+            return splitted;
+        }
     }
 }
