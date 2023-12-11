@@ -1,15 +1,15 @@
 ﻿using System.Xml.Serialization;
 
-namespace DevBase.Format.Formats.AppleXmlFormat.Xml;
+namespace DevBase.Format.Formats.AppleLrcXmlFormat.Xml;
 
 [XmlRoot(ElementName="body", Namespace="http://www.w3.org/ns/ttml")]
 public class XmlBody
 {
     [XmlElement(ElementName="div", Namespace="http://www.w3.org/ns/ttml")] 
-    public List<XmlLyricsBlock> LyricsBlocks; 
+    public XmlDiv Div; 
 
     [XmlAttribute(AttributeName="dur", Namespace="")] 
-    public string Duration; 
+    public DateTime Duration; 
 
     [XmlText] 
     public string Text; 

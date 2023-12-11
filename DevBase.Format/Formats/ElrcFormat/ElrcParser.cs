@@ -9,7 +9,7 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.ElrcFormat;
 
-public class ElrcParser : IFileFormat<AList<RichLyrics>>
+public class ElrcParser : IFileFormat<AList<RichTimeStampedLyric>>
 {
     private readonly string _indent;
 
@@ -18,47 +18,41 @@ public class ElrcParser : IFileFormat<AList<RichLyrics>>
         this._indent = "    ";
     }
     
-    public AList<RichLyrics> FormatFromFile(string filePath)
+    public AList<RichTimeStampedLyric> FormatFromFile(string filePath)
     {
         AFileObject file = AFile.ReadFile(filePath);
         return FormatFromString(file.ToStringData());
     }
 
-    public string FormatToString(AList<RichLyrics> richSync)
+    public string FormatToString(AList<RichTimeStampedLyric> richSync)
     {
         StringBuilder sb = new StringBuilder();
         
         for (var i = 0; i < richSync.Length; i++)
         {
-            RichLyrics line = richSync.Get(i);
+            RichTimeStampedLyric line = richSync.Get(i);
         
-            TimeSpan rStartTime = TimeSpan.FromMilliseconds(Convert.ToDouble(line.Start));
-            TimeSpan rEndTime = TimeSpan.FromMilliseconds(Convert.ToDouble(line.End));
-            
-            string startTime = rStartTime.ToString();
-            string endTime = rEndTime.ToString();
-            string t = line.FullLine;
+            string startTime = line.StartTime.ToString();
+            string endTime = line.EndTime.ToString();
+            string t = line.Text;
         
             sb.AppendLine($"[{startTime}] - [{endTime}] {t}");
             
-            if (line.Elements.Count == 0)
+            if (line.Words.Length == 0)
                 continue;
         
             sb.AppendLine("[");
             
-            for (var j = 0; j < line.Elements.Count; j++)
+            for (var j = 0; j < line.Words.Length; j++)
             {
-                RichLyricsElement character = line.Elements[j];
+                RichTimeStampedWord word = line.Words.Get(j);
         
-                string cLine = character.Line;
+                string cLine = word.Word;
                 
                 if (cLine == null || cLine.Length == 0)
                     continue;
         
-                TimeSpan cStartTime = TimeSpan.FromMilliseconds(Convert.ToDouble(character.Start));
-                TimeSpan cEndTime = TimeSpan.FromMilliseconds(Convert.ToDouble(character.End));
-                
-                sb.AppendLine($"{this._indent}[{cStartTime}] - [{cEndTime}] {cLine}");
+                sb.AppendLine($"{this._indent}[{word.StartTime}] - [{word.EndTime}] {cLine}");
             }
             
             sb.AppendLine("]");
@@ -67,14 +61,14 @@ public class ElrcParser : IFileFormat<AList<RichLyrics>>
         return sb.ToString();
     }
     
-    public AList<RichLyrics> FormatFromString(string lyricString)
+    public AList<RichTimeStampedLyric> FormatFromString(string lyricString)
     {
         AString input = new AString(lyricString);
         AList<string> lines = input.AsList();
 
         AList<AList<string>> blocks = FindBlocks(lines);
 
-        AList<RichLyrics> proceeded = new AList<RichLyrics>();
+        AList<RichTimeStampedLyric> proceeded = new AList<RichTimeStampedLyric>();
 
         for (int i = 0; i < blocks.Length; i++)
             proceeded.Add(ProcessBlock(blocks.Get(i)));
@@ -82,7 +76,7 @@ public class ElrcParser : IFileFormat<AList<RichLyrics>>
         return proceeded;
     }
     
-    private RichLyrics ProcessBlock(AList<string> block)
+    private RichTimeStampedLyric ProcessBlock(AList<string> block)
     {
         string first = block.Get(0);
 
@@ -96,12 +90,12 @@ public class ElrcParser : IFileFormat<AList<RichLyrics>>
         if (!regex.IsMatch(first))
             throw new System.Exception("Invalid head block");
 
-        RichLyrics head = ParseHead(regex, first);
+        RichTimeStampedLyric head = ParseHead(regex, first);
 
         for (int i = 0; i < entries.Length; i++)
         {
             string bodyElement = entries.Get(i).Replace(this._indent, string.Empty);
-            head.Elements.Add(ParseElement(regex, bodyElement));
+            head.Words.Add(ParseElement(regex, bodyElement));
         }
         
         return head;
@@ -140,7 +134,7 @@ public class ElrcParser : IFileFormat<AList<RichLyrics>>
     
     private string ParseLine(Match regexMatch) => regexMatch.Groups[16].Value;
     
-    private long ParseTimeSpan(Match regexMatch, bool firstSpan)
+    private TimeSpan ParseTimeSpan(Match regexMatch, bool firstSpan)
     {
         StringBuilder timeStamp = new StringBuilder();
         timeStamp.Append(firstSpan ? regexMatch.Groups[2].Value : regexMatch.Groups[10].Value);
@@ -149,40 +143,39 @@ public class ElrcParser : IFileFormat<AList<RichLyrics>>
         timeStamp.Append(":");
         timeStamp.Append(firstSpan ? regexMatch.Groups[6].Value : regexMatch.Groups[14].Value);
         
-        TimeSpan timeSpan = TimeSpan.Parse(timeStamp.ToString());
-        return Convert.ToInt64(timeSpan.TotalMilliseconds);
+        return TimeSpan.Parse(timeStamp.ToString());
     }
 
-    private RichLyrics ParseHead(Regex regex, string head)
+    private RichTimeStampedLyric ParseHead(Regex regex, string head)
     {
         Match firstMatch = regex.Match(head);
         
-        long hStart = ParseTimeSpan(firstMatch, true);
-        long hEnd = ParseTimeSpan(firstMatch, false);
+        TimeSpan hStart = ParseTimeSpan(firstMatch, true);
+        TimeSpan hEnd = ParseTimeSpan(firstMatch, false);
         string hLine = ParseLine(firstMatch);
 
-        return new RichLyrics()
+        return new RichTimeStampedLyric()
         {
-            Start = hStart,
-            End = hEnd,
-            FullLine = hLine,
-            Elements = new List<RichLyricsElement>()
+            StartTime = hStart,
+            EndTime = hEnd,
+            Text = hLine,
+            Words = new AList<RichTimeStampedWord>()
         };
     }
     
-    private RichLyricsElement ParseElement(Regex regex, string bodyElement)
+    private RichTimeStampedWord ParseElement(Regex regex, string bodyElement)
     {
         Match match = regex.Match(bodyElement);
         
-        long hStart = ParseTimeSpan(match, true);
-        long hEnd = ParseTimeSpan(match, false);
-        string hLine = ParseLine(match);
+        TimeSpan hStart = ParseTimeSpan(match, true);
+        TimeSpan hEnd = ParseTimeSpan(match, false);
+        string hWord = ParseLine(match);
 
-        return new RichLyricsElement()
+        return new RichTimeStampedWord()
         {
-            Start = hStart,
-            End = hEnd,
-            Line = hLine
+            StartTime = hStart,
+            EndTime = hEnd,
+            Word = hWord
         };
     }
 }

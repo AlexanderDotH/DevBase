@@ -134,7 +134,7 @@ public class Deezer
         return token.results;
     }
     
-    public async Task<(string rawLyrics, AList<LyricElement> syncedElements)> GetLyrics(string trackID)
+    public async Task<(string RawLyrics, AList<TimeStampedLyric> TimeStampedLyrics)> GetLyrics(string trackID)
     {
         return IsArlTokenPresent() ? 
             await GetLyricsGraphAndParse(trackID) : 
@@ -451,7 +451,7 @@ public class Deezer
         return new JsonDeserializer<JsonDeezerSearchResponse>().Deserialize(responseData.GetContentAsString());
     }
 
-    private async Task<(string rawLyrics, AList<LyricElement> syncedElements)> GetLyricsGraphAndParse(string trackID)
+    private async Task<(string rawLyrics, AList<TimeStampedLyric> syncedElements)> GetLyricsGraphAndParse(string trackID)
     {
         string rawText = string.Empty;
         
@@ -465,7 +465,7 @@ public class Deezer
 
         if (lyricsResponse.data.track.lyrics.synchronizedLines == null ||
             lyricsResponse.data.track.lyrics.synchronizedLines.Count == 0)
-            return (rawText, new AList<LyricElement>());
+            return (rawText, new AList<TimeStampedLyric>());
         
         StringBuilder lrcFile = new StringBuilder();
             
@@ -477,17 +477,17 @@ public class Deezer
             lrcFile.AppendLine(string.Format("{0} {1}", synchronizedLine.lrcTimestamp, synchronizedLine.line));
         }
 
-        AList<LyricElement> syncedLyrics = new AList<LyricElement>();
+        AList<TimeStampedLyric> syncedLyrics = new AList<TimeStampedLyric>();
 
-        FileFormatParser<LrcObject> parser = new FileFormatParser<LrcObject>(new LrcParser<LrcObject>());
-        LrcObject parsed = parser.FormatFromString(lrcFile.ToString());
+        FileFormatParser<AList<TimeStampedLyric>> parser = new FileFormatParser<AList<TimeStampedLyric>>(new LrcParser<AList<TimeStampedLyric>>());
+        AList<TimeStampedLyric> parsed = parser.FormatFromString(lrcFile.ToString());
         
-        syncedLyrics.AddRange(parsed.Lyrics);
+        syncedLyrics.AddRange(parsed);
 
         return (rawText, syncedLyrics);
     }
     
-    private async Task<(string rawLyrics, AList<LyricElement> syncedElements)> GetLyricsAjaxAndParse(string trackID)
+    private async Task<(string RawLyrics, AList<TimeStampedLyric> TimeStampedLyrics)> GetLyricsAjaxAndParse(string trackID)
     {
         string rawText = string.Empty;
         
@@ -500,7 +500,7 @@ public class Deezer
             rawText = lyricsResponse.results.LYRICS_TEXT;
         
         if (lyricsResponse.results.LYRICS_SYNC_JSON == null || lyricsResponse.results.LYRICS_SYNC_JSON.Count == 0)
-            return (rawText, new AList<LyricElement>());
+            return (rawText, new AList<TimeStampedLyric>());
         
         StringBuilder lrcFile = new StringBuilder();
         
@@ -514,12 +514,15 @@ public class Deezer
             lrcFile.AppendLine(string.Format("{0} {1}", lyricsLine.lrc_timestamp, lyricsLine.line));
         }
 
-        AList<LyricElement> syncedLyrics = new AList<LyricElement>();
+        AList<TimeStampedLyric> syncedLyrics = new AList<TimeStampedLyric>();
 
-        FileFormatParser<LrcObject> parser = new FileFormatParser<LrcObject>(new LrcParser<LrcObject>());
-        LrcObject parsed = parser.FormatFromString(lrcFile.ToString());
+        FileFormatParser<AList<TimeStampedLyric>> parser = 
+            new FileFormatParser<AList<TimeStampedLyric>>(
+                new LrcParser<AList<TimeStampedLyric>>());
         
-        syncedLyrics.AddRange(parsed.Lyrics);
+        AList<TimeStampedLyric> parsed = parser.FormatFromString(lrcFile.ToString());
+        
+        syncedLyrics.AddRange(parsed);
 
         return (rawText, syncedLyrics);
     }

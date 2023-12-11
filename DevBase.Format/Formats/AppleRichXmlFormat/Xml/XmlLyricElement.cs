@@ -1,6 +1,6 @@
 ﻿using System.Xml.Serialization;
 
-namespace DevBase.Format.Formats.AppleXmlFormat.Xml;
+namespace DevBase.Format.Formats.AppleRichXmlFormat.Xml;
 
 [XmlRoot(ElementName="span", Namespace="http://www.w3.org/ns/ttml")]
 public class XmlLyricElement

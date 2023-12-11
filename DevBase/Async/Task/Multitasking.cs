@@ -60,7 +60,7 @@ public class Multitasking
             for (int i = 0; i < this._activeTasks.Length; i++)
             {
                 (Task, CancellationTokenSource) taskToken = this._activeTasks.Get(i);
-                await taskToken.Item1.WaitAsync(taskToken.Item2.Token);
+                await taskToken.Item1;
             }
         }
     }

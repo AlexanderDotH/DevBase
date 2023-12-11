@@ -7,22 +7,22 @@ using Newtonsoft.Json;
 
 namespace DevBase.Format.Formats.RmmlFormat;
 
-public class RmmlParser : IFileFormat<AList<RichLyrics>>
+public class RmmlParser : IFileFormat<AList<RichTimeStampedLyric>>
 {
-    public AList<RichLyrics> FormatFromFile(string filePath)
+    public AList<RichTimeStampedLyric> FormatFromFile(string filePath)
     {
         AFileObject file = AFile.ReadFile(filePath);
         return FormatFromString(file.ToStringData());
     }
     
-    public AList<RichLyrics> FormatFromString(string lyricString)
+    public AList<RichTimeStampedLyric> FormatFromString(string lyricString)
     {
         RichSyncLine[] parsedLyrics = JsonConvert.DeserializeObject<RichSyncLine[]>(lyricString);
         
         if (parsedLyrics == null)
             return default;
 
-        AList<RichLyrics> richLyrics = new AList<RichLyrics>();
+        AList<RichTimeStampedLyric> richLyrics = new AList<RichTimeStampedLyric>();
 
         for (var i = 0; i < parsedLyrics.Length; i++)
         {
@@ -31,12 +31,12 @@ public class RmmlParser : IFileFormat<AList<RichLyrics>>
             TimeSpan rStartTime = TimeSpan.FromSeconds(r.TimeStart);
             TimeSpan rEndTime = TimeSpan.FromSeconds(r.TimeEnd);
             
-            RichLyrics element = new RichLyrics()
+            RichTimeStampedLyric element = new RichTimeStampedLyric()
             {
-                Start = Convert.ToInt64(rStartTime.TotalMilliseconds),
-                End = Convert.ToInt64(rEndTime.TotalMilliseconds),
-                FullLine = r.FullLine,
-                Elements = new List<RichLyricsElement>()
+                StartTime = rStartTime,
+                EndTime = rEndTime,
+                Text = r.FullLine,
+                Words = new AList<RichTimeStampedWord>()
             };
             
             if (r.SingleCharOffsets != null && r.SingleCharOffsets.Count != 0)
@@ -52,14 +52,14 @@ public class RmmlParser : IFileFormat<AList<RichLyrics>>
                     TimeSpan lStartTime = rStartTime + lastOffset;
                     TimeSpan lEndTime = rStartTime + lOffset;
                     
-                    RichLyricsElement syncChar = new RichLyricsElement()
+                    RichTimeStampedWord richWord = new RichTimeStampedWord()
                     {
-                        Line = l.Char,
-                        Start = Convert.ToInt64(lStartTime.TotalMilliseconds),
-                        End = Convert.ToInt64(lEndTime.TotalMilliseconds)
+                        StartTime = lStartTime,
+                        EndTime = lEndTime,
+                        Word = l.Char
                     };
                     
-                    element.Elements.Add(syncChar);
+                    element.Words.Add(richWord);
                     lastOffset = lOffset;
                 }
             }
@@ -70,7 +70,7 @@ public class RmmlParser : IFileFormat<AList<RichLyrics>>
         return richLyrics;
     }
 
-    public string FormatToString(AList<RichLyrics> content)
+    public string FormatToString(AList<RichTimeStampedLyric> content)
     {
         throw new NotSupportedException("Not supported yet, it will be implemented if necessary");
     }

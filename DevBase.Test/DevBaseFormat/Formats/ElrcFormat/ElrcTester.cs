@@ -8,12 +8,12 @@ namespace DevBase.Test.DevBaseFormat.Formats.ElrcFormat;
 
 public class ElrcTester
 {
-    private FileFormatParser<AList<RichLyrics>> _elrcParser;
+    private FileFormatParser<AList<RichTimeStampedLyric>> _elrcParser;
 
     [SetUp]
     public void Setup()
     {
-        this._elrcParser = new FileFormatParser<AList<RichLyrics>>(new Format.Formats.ElrcFormat.ElrcParser());
+        this._elrcParser = new FileFormatParser<AList<RichTimeStampedLyric>>(new Format.Formats.ElrcFormat.ElrcParser());
     }
 
     [Test]
@@ -22,10 +22,10 @@ public class ElrcTester
         FileInfo fileInfo =
             new FileInfo($"..\\..\\..\\DevBaseFormatData\\ELRC\\rick.elrc");
         
-        AList<RichLyrics> list = this._elrcParser.FormatFromFile(fileInfo.FullName);
+        AList<RichTimeStampedLyric> list = this._elrcParser.FormatFromFile(fileInfo.FullName);
         
         list.GetAsList().DumpConsole();
-        Assert.AreEqual(list.Get(0).FullLine, "Never gonna give you up");
+        Assert.AreEqual(list.Get(0).Text, "Never gonna give you up");
     }
     
     [Test]
@@ -36,7 +36,7 @@ public class ElrcTester
 
         string content = AFile.ReadFile(fileInfo).ToStringData();
         
-        AList<RichLyrics> list = this._elrcParser.FormatFromString(content);
+        AList<RichTimeStampedLyric> list = this._elrcParser.FormatFromString(content);
 
         string formated = this._elrcParser.FormatToString(list);
         

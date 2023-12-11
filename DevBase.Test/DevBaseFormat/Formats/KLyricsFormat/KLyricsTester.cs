@@ -8,12 +8,12 @@ namespace DevBase.Test.DevBaseFormat.Formats.KLyricsFormat;
 
 public class KLyricsTester
 {
-    private FileFormatParser<AList<RichLyrics>> _klyricsParser;
+    private FileFormatParser<AList<RichTimeStampedLyric>> _klyricsParser;
 
     [SetUp]
     public void Setup()
     {
-        this._klyricsParser = new FileFormatParser<AList<RichLyrics>>(new KLyricsParser());
+        this._klyricsParser = new FileFormatParser<AList<RichTimeStampedLyric>>(new KLyricsParser());
     }
 
     [Test]
@@ -22,9 +22,9 @@ public class KLyricsTester
         FileInfo fileInfo =
             new FileInfo($"..\\..\\..\\DevBaseFormatData\\KLRC\\RickAstley.klyrics");
         
-        AList<RichLyrics> list = this._klyricsParser.FormatFromFile(fileInfo.FullName);
+        AList<RichTimeStampedLyric> list = this._klyricsParser.FormatFromFile(fileInfo.FullName);
         
         list.GetAsList().DumpConsole();
-        Assert.AreEqual(list.Get(0).FullLine, "Rick Astley");
+        Assert.AreEqual(list.Get(0).Text, "Rick Astley");
     }
 }

@@ -1,9 +1,10 @@
-﻿using DevBase.Exception;
+﻿using System.Collections;
+using DevBase.Exception;
 using DevBase.Utilities;
 
 namespace DevBase.Generics
 {
-    public class AList<T>
+    public class AList<T> : IEnumerable<T>
     {
         private T[] _array;
 
@@ -427,6 +428,16 @@ namespace DevBase.Generics
         public int Length
         {
             get { return this._array.Length; }
+        }
+
+        public IEnumerator<T> GetEnumerator()
+        {
+            return this.GetAsList().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

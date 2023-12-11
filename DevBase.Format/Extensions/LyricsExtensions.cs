@@ -7,22 +7,22 @@ namespace DevBase.Format.Extensions;
 
 public static class LyricsExtensions
 {
-    public static string ToRaw(this AList<LyricElement> elements)
+    public static string ToRaw(this AList<TimeStampedLyric> elements)
     {
         StringBuilder rawLyrics = new StringBuilder();
 
         for (int i = 0; i < elements.Length; i++)
-            rawLyrics.AppendLine(elements.Get(i).Line);
+            rawLyrics.AppendLine(elements.Get(i).Text);
 
         return rawLyrics.ToString();
     }
     
-    public static string ToRaw(this AList<RichLyrics> richElements)
+    public static string ToRaw(this AList<RichTimeStampedLyric> richElements)
     {
         StringBuilder rawLyrics = new StringBuilder();
 
         for (int i = 0; i < richElements.Length; i++)
-            rawLyrics.AppendLine(richElements.Get(i).FullLine);
+            rawLyrics.AppendLine(richElements.Get(i).Text);
 
         return rawLyrics.ToString();
     }

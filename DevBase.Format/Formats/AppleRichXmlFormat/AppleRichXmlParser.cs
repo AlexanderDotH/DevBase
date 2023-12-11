@@ -1,25 +1,24 @@
 ﻿using System.Globalization;
 using System.Text;
-using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 using System.Xml;
 using System.Xml.Serialization;
-using DevBase.Format.Formats.AppleXmlFormat.Xml;
+using DevBase.Format.Formats.AppleRichXmlFormat.Xml;
 using DevBase.Format.Structure;
 using DevBase.Generics;
 using DevBase.IO;
 
-namespace DevBase.Format.Formats.AppleXmlFormat;
+namespace DevBase.Format.Formats.AppleRichXmlFormat;
 
-public class AppleXmlParser : IFileFormat<AList<RichLyrics>>
+public class AppleRichXmlParser : IFileFormat<AList<RichTimeStampedLyric>>
 {
-    public AList<RichLyrics> FormatFromFile(string filePath)
+    public AList<RichTimeStampedLyric> FormatFromFile(string filePath)
     {
         AFileObject file = AFile.ReadFile(filePath);
         return FormatFromString(file.ToStringData());
     }
 
-    public AList<RichLyrics> FormatFromString(string lyricString)
+    public AList<RichTimeStampedLyric> FormatFromString(string lyricString)
     {
         XmlSerializer serializer = new XmlSerializer(typeof(XmlTt));
 
@@ -39,7 +38,7 @@ public class AppleXmlParser : IFileFormat<AList<RichLyrics>>
         if (!tt.Timing.SequenceEqual("Word"))
             throw new System.Exception("Wrong timing format");
 
-        AList<RichLyrics> richLyrics = new AList<RichLyrics>();
+        AList<RichTimeStampedLyric> richLyrics = new AList<RichTimeStampedLyric>();
 
         for (var i = 0; i < tt.Body.LyricsBlocks.Count; i++)
         {
@@ -54,9 +53,9 @@ public class AppleXmlParser : IFileFormat<AList<RichLyrics>>
         return richLyrics;
     }
 
-    private RichLyrics ProcessBlock(XmlLyric lyricBlock)
+    private RichTimeStampedLyric ProcessBlock(XmlLyric lyricBlock)
     {
-        List<RichLyricsElement> richLyricsElements = new List<RichLyricsElement>();
+        AList<RichTimeStampedWord> words = new AList<RichTimeStampedWord>();
 
         StringBuilder fullText = new StringBuilder();
 
@@ -71,11 +70,11 @@ public class AppleXmlParser : IFileFormat<AList<RichLyrics>>
             TimeSpan lStartTimeSpan = ParseTimeStamp(currentElement.Begin);
             TimeSpan lEndTimeSpan = ParseTimeStamp(currentElement.End);
 
-            richLyricsElements.Add(new RichLyricsElement()
+            words.Add(new RichTimeStampedWord()
             {
-                Start = Convert.ToInt64(lStartTimeSpan.TotalMilliseconds),
-                End = Convert.ToInt64(lEndTimeSpan.TotalMilliseconds),
-                Line = currentElement.Text
+                StartTime = lStartTimeSpan,
+                EndTime = lEndTimeSpan,
+                Word = currentElement.Text
             });
 
             fullText.Append(
@@ -85,12 +84,12 @@ public class AppleXmlParser : IFileFormat<AList<RichLyrics>>
         TimeSpan sTimeSpan = ParseTimeStamp(lyricBlock.Begin);
         TimeSpan eTimeSpan = ParseTimeStamp(lyricBlock.End);
 
-        RichLyrics richLyric = new RichLyrics()
+        RichTimeStampedLyric richLyric = new RichTimeStampedLyric()
         {
-            Start = Convert.ToInt64(sTimeSpan.TotalMilliseconds),
-            End = Convert.ToInt64(eTimeSpan.TotalMilliseconds),
-            FullLine = fullText.ToString(),
-            Elements = richLyricsElements
+            StartTime = sTimeSpan,
+            EndTime = eTimeSpan,
+            Text = fullText.ToString(),
+            Words = words
         };
 
         return richLyric;
@@ -111,7 +110,7 @@ public class AppleXmlParser : IFileFormat<AList<RichLyrics>>
         throw new System.Exception("Cannot format timestamp");
     }
     
-    public string FormatToString(AList<RichLyrics> content)
+    public string FormatToString(AList<RichTimeStampedLyric> content)
     {
         throw new NotSupportedException();
     }
