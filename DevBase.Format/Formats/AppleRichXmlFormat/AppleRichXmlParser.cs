@@ -5,6 +5,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using DevBase.Format.Formats.AppleRichXmlFormat.Xml;
 using DevBase.Format.Structure;
+using DevBase.Format.Utilities;
 using DevBase.Generics;
 using DevBase.IO;
 
@@ -81,8 +82,8 @@ public class AppleRichXmlParser : IFileFormat<AList<RichTimeStampedLyric>>
                 k != lyricBlock.LyricElements.Count() - 1 ? currentElement.Text + " " : currentElement.Text);
         }
 
-        TimeSpan sTimeSpan = ParseTimeStamp(lyricBlock.Begin);
-        TimeSpan eTimeSpan = ParseTimeStamp(lyricBlock.End);
+        TimeSpan sTimeSpan = TimeUtils.ParseTimeStamp(lyricBlock.Begin);
+        TimeSpan eTimeSpan = TimeUtils.ParseTimeStamp(lyricBlock.End);
 
         RichTimeStampedLyric richLyric = new RichTimeStampedLyric()
         {
@@ -93,21 +94,6 @@ public class AppleRichXmlParser : IFileFormat<AList<RichTimeStampedLyric>>
         };
 
         return richLyric;
-    }
-
-    private TimeSpan ParseTimeStamp(string time)
-    {
-        TimeSpan parsed;
-
-        string[] formats = new[] { "ss\\.fff", "m\\:ss\\.fff", "mm\\:ss\\.fff", "hh\\:mm\\:ss\\.fff" };
-
-        for (int i = 0; i < formats.Length; i++)
-        {
-            if (TimeSpan.TryParseExact(time, formats[i], null, TimeSpanStyles.None, out parsed))
-                return parsed;
-        }
-
-        throw new System.Exception("Cannot format timestamp");
     }
     
     public string FormatToString(AList<RichTimeStampedLyric> content)

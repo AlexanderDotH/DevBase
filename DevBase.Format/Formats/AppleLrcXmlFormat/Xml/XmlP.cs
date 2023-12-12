@@ -6,10 +6,10 @@ namespace DevBase.Format.Formats.AppleLrcXmlFormat.Xml;
 public class XmlP
 {
     [XmlAttribute(AttributeName="begin", Namespace="")] 
-    public DateTime Begin; 
+    public string Begin; 
 
     [XmlAttribute(AttributeName="end", Namespace="")] 
-    public DateTime End; 
+    public string End; 
 
     [XmlText] 
     public string Text; 

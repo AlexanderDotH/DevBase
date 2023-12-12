@@ -6,7 +6,7 @@ namespace DevBase.Format.Formats.AppleLrcXmlFormat.Xml;
 public class XmlBody
 {
     [XmlElement(ElementName="div", Namespace="http://www.w3.org/ns/ttml")] 
-    public XmlDiv Div; 
+    public XmlDiv Block; 
 
     [XmlAttribute(AttributeName="dur", Namespace="")] 
     public DateTime Duration; 
