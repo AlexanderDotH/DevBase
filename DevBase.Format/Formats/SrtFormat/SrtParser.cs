@@ -6,17 +6,11 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.SrtFormat;
 
-public class SrtParser : IFileFormat<AList<RichTimeStampedLyric>>
+public class SrtParser : FileFormat<string, AList<RichTimeStampedLyric>>
 {
-    public AList<RichTimeStampedLyric> FormatFromFile(string filePath)
+    public override AList<RichTimeStampedLyric> Parse(string from)
     {
-        AFileObject file = AFile.ReadFile(filePath);
-        return FormatFromString(file.ToStringData());
-    }
-
-    public AList<RichTimeStampedLyric> FormatFromString(string lyricString)
-    {
-        AList<string> lines = new AString(lyricString).AsList();
+        AList<string> lines = new AString(from).AsList();
         AList<AList<string>> sliced = lines.Slice(4);
 
         AList<RichTimeStampedLyric> richTimeStampedLyrics = new AList<RichTimeStampedLyric>();
@@ -45,10 +39,5 @@ public class SrtParser : IFileFormat<AList<RichTimeStampedLyric>>
         }
 
         return richTimeStampedLyrics;
-    }
-
-    public string FormatToString(AList<RichTimeStampedLyric> content)
-    {
-        throw new NotSupportedException("Not supported yet, it will be implemented if necessary");
     }
 }

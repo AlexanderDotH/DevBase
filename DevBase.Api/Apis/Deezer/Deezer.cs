@@ -479,8 +479,7 @@ public class Deezer
 
         AList<TimeStampedLyric> syncedLyrics = new AList<TimeStampedLyric>();
 
-        FileFormatParser<AList<TimeStampedLyric>> parser = new FileFormatParser<AList<TimeStampedLyric>>(new LrcParser<AList<TimeStampedLyric>>());
-        AList<TimeStampedLyric> parsed = parser.FormatFromString(lrcFile.ToString());
+        AList<TimeStampedLyric> parsed = new LrcParser().Parse(lrcFile.ToString());
         
         syncedLyrics.AddRange(parsed);
 
@@ -514,15 +513,7 @@ public class Deezer
             lrcFile.AppendLine(string.Format("{0} {1}", lyricsLine.lrc_timestamp, lyricsLine.line));
         }
 
-        AList<TimeStampedLyric> syncedLyrics = new AList<TimeStampedLyric>();
-
-        FileFormatParser<AList<TimeStampedLyric>> parser = 
-            new FileFormatParser<AList<TimeStampedLyric>>(
-                new LrcParser<AList<TimeStampedLyric>>());
-        
-        AList<TimeStampedLyric> parsed = parser.FormatFromString(lrcFile.ToString());
-        
-        syncedLyrics.AddRange(parsed);
+        AList<TimeStampedLyric> syncedLyrics = new LrcParser().Parse(lrcFile.ToString());
 
         return (rawText, syncedLyrics);
     }

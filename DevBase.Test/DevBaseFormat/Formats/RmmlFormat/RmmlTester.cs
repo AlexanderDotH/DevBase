@@ -11,12 +11,12 @@ namespace DevBase.Test.DevBaseFormat.Formats.RmmlFormat;
 
 public class RmmlTester
 {
-    private FileFormatParser<AList<RichTimeStampedLyric>> _srtParser;
+    private FileParser<RmmlParser, AList<RichTimeStampedLyric>> _rmmlParser;
 
     [SetUp]
     public void Setup()
     {
-        this._srtParser = new FileFormatParser<AList<RichTimeStampedLyric>>(new RmmlParser());
+        this._rmmlParser = new FileParser<RmmlParser, AList<RichTimeStampedLyric>>();
     }
 
     [Test]
@@ -27,7 +27,7 @@ public class RmmlTester
 
         string content = File.ReadAllText(fileInfo.FullName);
         
-        AList<RichTimeStampedLyric> list = this._srtParser.FormatFromString(content);
+        AList<RichTimeStampedLyric> list = this._rmmlParser.ParseFromString(content);
         
         list.GetAsList().DumpConsole();
         

@@ -8,19 +8,13 @@ using Newtonsoft.Json;
 
 namespace DevBase.Format.Formats.MmlFormat
 {
-    public class MmlParser : IFileFormat<AList<TimeStampedLyric>>
+    public class MmlParser : FileFormat<string, AList<TimeStampedLyric>>
     {
-        public AList<TimeStampedLyric> FormatFromFile(string filePath)
-        {
-            AFileObject file = AFile.ReadFile(filePath);
-            return FormatFromString(file.ToStringData());
-        }
-
-        public AList<TimeStampedLyric> FormatFromString(string lyricString)
+        public override AList<TimeStampedLyric> Parse(string from)
         {
             AList<TimeStampedLyric> timeStampedLyrics = new AList<TimeStampedLyric>();
 
-            MmlElement[] parsedElements = JsonConvert.DeserializeObject<MmlElement[]>(lyricString);
+            MmlElement[] parsedElements = JsonConvert.DeserializeObject<MmlElement[]>(from);
 
             if (parsedElements == null)
                 return default;
@@ -52,12 +46,6 @@ namespace DevBase.Format.Formats.MmlFormat
             }
 
             return timeStampedLyrics;
-        }
-
-        public string FormatToString(AList<TimeStampedLyric> timeStampedLyrics)
-        {
-            throw new NotSupportedException("Not supported yet, it will be implemented if necessary");
-
         }
 
         private bool IsLyricLineTrash(string line)

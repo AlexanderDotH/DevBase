@@ -2,6 +2,7 @@
 using DevBase.Extensions;
 using DevBase.Format;
 using DevBase.Format.Formats.LrcFormat;
+using DevBase.Format.Formats.SrtFormat;
 using DevBase.Format.Structure;
 using DevBase.Generics;
 using DevBase.IO;
@@ -12,12 +13,12 @@ namespace DevBase.Test.DevBaseFormat.Formats.SrtFormat;
 
 public class SrtTester
 {
-    private FileFormatParser<AList<RichTimeStampedLyric>> _srtParser;
+    private FileParser<SrtParser, AList<RichTimeStampedLyric>> _srtParser;
 
     [SetUp]
     public void Setup()
     {
-        this._srtParser = new FileFormatParser<AList<RichTimeStampedLyric>>(new Format.Formats.SrtFormat.SrtParser());
+        this._srtParser = new FileParser<SrtParser, AList<RichTimeStampedLyric>>();
     }
 
     [Test]
@@ -37,7 +38,7 @@ public class SrtTester
         
         AList<string> content = new AString(sb.ToString()).AsList();
 
-        AList<RichTimeStampedLyric> list = this._srtParser.FormatFromFile(random.FileInfo.FullName);
+        AList<RichTimeStampedLyric> list = this._srtParser.ParseFromDisk(random.FileInfo);
 
         list.GetAsList().DumpConsole();
         

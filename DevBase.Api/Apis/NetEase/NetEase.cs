@@ -115,12 +115,8 @@ public class NetEase
 
         if (String.IsNullOrEmpty(lyricResponse.klyric.lyric))
             return null;
-        
-        FileFormatParser<AList<RichTimeStampedLyric>> klrcParser =
-            new FileFormatParser<AList<RichTimeStampedLyric>>(
-                new KLyricsParser());
 
-        AList<RichTimeStampedLyric> richLyrics = klrcParser.FormatFromString(lyricResponse.klyric.lyric);
+        AList<RichTimeStampedLyric> richLyrics = new KLyricsParser().Parse(lyricResponse.klyric.lyric);
         return richLyrics;
     }
     
@@ -137,11 +133,7 @@ public class NetEase
         if (String.IsNullOrEmpty(lyricResponse.lrc.lyric))
             return null;
         
-        FileFormatParser<AList<TimeStampedLyric>> lrcParser =
-            new FileFormatParser<AList<TimeStampedLyric>>(
-                new LrcParser<AList<TimeStampedLyric>>());
-
-        AList<TimeStampedLyric> lyrics = lrcParser.FormatFromString(lyricResponse.lrc.lyric);
+        AList<TimeStampedLyric> lyrics = new LrcParser().Parse(lyricResponse.lrc.lyric);
         return lyrics;
     }
     

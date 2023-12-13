@@ -1,4 +1,6 @@
 ﻿using DevBase.Format;
+using DevBase.Format.Formats.ElrcFormat;
+using DevBase.Format.Formats.LrcFormat;
 using DevBase.Format.Structure;
 using DevBase.Generics;
 using DevBase.IO;
@@ -8,12 +10,12 @@ namespace DevBase.Test.DevBaseFormat.Formats.ElrcFormat;
 
 public class ElrcTester
 {
-    private FileFormatParser<AList<RichTimeStampedLyric>> _elrcParser;
+    private ElrcParser _elrcParser;
 
     [SetUp]
     public void Setup()
     {
-        this._elrcParser = new FileFormatParser<AList<RichTimeStampedLyric>>(new Format.Formats.ElrcFormat.ElrcParser());
+        this._elrcParser = new ElrcParser();
     }
 
     [Test]
@@ -22,7 +24,9 @@ public class ElrcTester
         FileInfo fileInfo =
             new FileInfo($"..\\..\\..\\DevBaseFormatData\\ELRC\\rick.elrc");
         
-        AList<RichTimeStampedLyric> list = this._elrcParser.FormatFromFile(fileInfo.FullName);
+        string content = AFile.ReadFile(fileInfo).ToStringData();
+
+        AList<RichTimeStampedLyric> list = this._elrcParser.Parse(content);
         
         list.GetAsList().DumpConsole();
         Assert.AreEqual(list.Get(0).Text, "Never gonna give you up");
@@ -36,9 +40,9 @@ public class ElrcTester
 
         string content = AFile.ReadFile(fileInfo).ToStringData();
         
-        AList<RichTimeStampedLyric> list = this._elrcParser.FormatFromString(content);
+        AList<RichTimeStampedLyric> list = this._elrcParser.Parse(content);
 
-        string formated = this._elrcParser.FormatToString(list);
+        string formated = this._elrcParser.Revert(list);
         
         formated.DumpConsole();
         Assert.AreEqual(content, formated);

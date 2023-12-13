@@ -7,17 +7,11 @@ using Newtonsoft.Json;
 
 namespace DevBase.Format.Formats.RmmlFormat;
 
-public class RmmlParser : IFileFormat<AList<RichTimeStampedLyric>>
+public class RmmlParser : FileFormat<string, AList<RichTimeStampedLyric>>
 {
-    public AList<RichTimeStampedLyric> FormatFromFile(string filePath)
+    public override AList<RichTimeStampedLyric> Parse(string from)
     {
-        AFileObject file = AFile.ReadFile(filePath);
-        return FormatFromString(file.ToStringData());
-    }
-    
-    public AList<RichTimeStampedLyric> FormatFromString(string lyricString)
-    {
-        RichSyncLine[] parsedLyrics = JsonConvert.DeserializeObject<RichSyncLine[]>(lyricString);
+        RichSyncLine[] parsedLyrics = JsonConvert.DeserializeObject<RichSyncLine[]>(from);
         
         if (parsedLyrics == null)
             return default;
@@ -68,10 +62,5 @@ public class RmmlParser : IFileFormat<AList<RichTimeStampedLyric>>
         }
         
         return richLyrics;
-    }
-
-    public string FormatToString(AList<RichTimeStampedLyric> content)
-    {
-        throw new NotSupportedException("Not supported yet, it will be implemented if necessary");
     }
 }

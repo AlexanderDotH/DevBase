@@ -6,5 +6,5 @@ namespace DevBase.Format.Formats.AppleLrcXmlFormat.Xml;
 public class XmlHead
 {
     [XmlElement(ElementName="metadata", Namespace="http://www.w3.org/ns/ttml")] 
-    public XmlMetadata Metadata; 
+    public XmlMetadata Metadata { get; set; } 
 }

@@ -9,7 +9,7 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.KLyricsFormat;
 
-public class KLyricsParser : IFileFormat<AList<RichTimeStampedLyric>>
+public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
 {
     private readonly Regex _regexTimeStamp;
     private readonly Regex _regexElements;
@@ -22,16 +22,10 @@ public class KLyricsParser : IFileFormat<AList<RichTimeStampedLyric>>
         this._regexLastWord = new Regex(RegexHolder.REGEX_KLYRICS_END);
     }
     
-    public AList<RichTimeStampedLyric> FormatFromFile(string filePath)
-    {
-        AFileObject file = AFile.ReadFile(filePath);
-        return FormatFromString(file.ToStringData());
-    }
-
-    public AList<RichTimeStampedLyric> FormatFromString(string lyricString)
+    public override AList<RichTimeStampedLyric> Parse(string from)
     {
         AList<RichTimeStampedLyric> richLyrics = new AList<RichTimeStampedLyric>();
-        List<(MatchCollection, MatchCollection, MatchCollection)> lines = GetLines(lyricString);
+        List<(MatchCollection, MatchCollection, MatchCollection)> lines = GetLines(from);
 
         for (var i = 0; i < lines.Count; i++)
         {
@@ -41,11 +35,6 @@ public class KLyricsParser : IFileFormat<AList<RichTimeStampedLyric>>
         }
 
         return richLyrics;
-    }
-        
-    public string FormatToString(AList<RichTimeStampedLyric> content)
-    {
-        throw new NotSupportedException();
     }
 
     private RichTimeStampedLyric ProcessLine(
@@ -57,9 +46,9 @@ public class KLyricsParser : IFileFormat<AList<RichTimeStampedLyric>>
         double lineEndTimeStamp = lineStartTimeStamp + Convert.ToDouble(timestamps[0].Groups[4].Value);
 
         TimeSpan sStartTime = TimeSpan.FromMilliseconds(lineStartTimeStamp);
-        TimeSpan sEndTime = TimeSpan.FromMilliseconds(lineStartTimeStamp);
+        TimeSpan sEndTime = TimeSpan.FromMilliseconds(lineEndTimeStamp);
         
-        (string FullWord, AList<RichTimeStampedWord> Elements) proceeded = ProcessElements(lineStartTimeStamp, wordElements, lastWordElements);
+        (string FullWord, AList<RichTimeStampedWord> Elements) proceeded = ProcessElements(lineStartTimeStamp, lineEndTimeStamp, wordElements, lastWordElements);
 
         RichTimeStampedLyric richTimeStampedLyric = new RichTimeStampedLyric()
         {
@@ -74,59 +63,152 @@ public class KLyricsParser : IFileFormat<AList<RichTimeStampedLyric>>
 
     private (string, AList<RichTimeStampedWord>) ProcessElements(
         double lineStartTimeStamp, 
+        double lineEndTimeStamp,
         MatchCollection wordElements, 
         MatchCollection lastWordElement)
     {
         AList<RichTimeStampedWord> elements = new AList<RichTimeStampedWord>();
         StringBuilder fullWord = new StringBuilder();
 
+        if (lastWordElement.Count > 1 || lastWordElement.Count == 0)
+            return HandleException("More than one line ending, expected 1");
+        
         double lastStartTimeStamp = lineStartTimeStamp;
+
+        for (int i = 0; i < wordElements.Count + lastWordElement.Count; i++)
+        {
+            if (i <= wordElements.Count)
+            {
+                Match match = wordElements[i];
+
+                double startTimeStamp = lastStartTimeStamp + Convert.ToDouble(match.Groups[5].Value);
+                double endTimeStamp = 0;
+                string word = GetWord(match, false);
+
+                if (i + 1 < wordElements.Count)
+                {
+                    Match nextMatch = wordElements[i + 1];
+                    endTimeStamp = startTimeStamp + Convert.ToDouble(nextMatch.Groups[5].Value);
+                }
+                else
+                {
+                    int lastWordPos = wordElements.Count + i;
+
+                    if (lastWordPos < wordElements.Count + lastWordElement.Count)
+                    {
+                        Match lastWordPosMatch = lastWordElement[]
+                    }
+                    if (lastWordMatch != null)
+                    {
+                        endTimeStamp = lineEndTimeStamp - Convert.ToDouble(match.Groups[6].Value);
+                    }
+                    else
+                    {
+                        endTimeStamp = lineEndTimeStamp;
+                    }
+                }
+            
+                TimeSpan sTimeSpan = TimeSpan.FromMilliseconds(startTimeStamp);
+                TimeSpan eTimeSpan = TimeSpan.FromMilliseconds(endTimeStamp);
+
+                RichTimeStampedWord richWord = new RichTimeStampedWord()
+                {
+                    StartTime = sTimeSpan,
+                    EndTime = eTimeSpan,
+                    Word = word
+                };
+            
+                elements.Add(richWord);
+                fullWord.Append($"{word} ");
+                
+                lastStartTimeStamp = startTimeStamp + Convert.ToDouble(match.Groups[11].Value);
+            }
+            else
+            {
+                Match lastWordMatch = lastWordElement[i - wordElements.Count];
+                
+                double lastTimeStampStartTime = lastStartTimeStamp + Convert.ToInt32(lastWordMatch.Groups[6].Value); 
+                string lastWord = GetWord(lastWordMatch, true);
+                TimeSpan sStartTime = TimeSpan.FromMilliseconds(lastStartTimeStamp);
+                TimeSpan sEndTime = TimeSpan.FromMilliseconds(timeStampStartTime);
+            }
+            
+        }
         
         for (int i = 0; i < wordElements.Count; i++)
         {
-            Match match = wordElements[i];
             
-            double elementStartTimeStamp = Convert.ToDouble(match.Groups[5].Value);
-            double timeStampStartTime = lineStartTimeStamp + elementStartTimeStamp;
-            string word = GetWord(match, false);
-
-            TimeSpan sStartTime = TimeSpan.FromMilliseconds(elementStartTimeStamp);
-            TimeSpan sEndTime = TimeSpan.FromMilliseconds(timeStampStartTime);
             
-            RichTimeStampedWord richWord = new RichTimeStampedWord()
-            {
-                StartTime = sStartTime,
-                EndTime = sEndTime,
-                Word = word
-            };
-            
-            elements.Add(richWord);
-            fullWord.Append($"{word} ");
-
-            lastStartTimeStamp = timeStampStartTime + Convert.ToInt32(match.Groups[11].Value);
+            //
+            // double elementStartTimeStamp = lastStartTimeStamp + Convert.ToDouble(match.Groups[5].Value);
+            // double timeStampStartTime = lineStartTimeStamp + elementStartTimeStamp;
+            // string word = GetWord(match, false);
+            //
+            // TimeSpan sEndTime;
+            //
+            // if (i + 1 < wordElements.Count)
+            // {
+            //     Match nextMatch = wordElements[i + 1];
+            //     double nextElementStartTime = Convert.ToDouble(nextMatch.Groups[5].Value);
+            //     sEndTime = TimeSpan.FromMilliseconds(nextElementStartTime);
+            // }
+            // else
+            // {
+            //     sEndTime = TimeSpan.FromMilliseconds(lineEndTimeStamp);
+            // }
+            //
+            // TimeSpan sStartTime = TimeSpan.FromMilliseconds(timeStampStartTime);
+            //
+            // RichTimeStampedWord richWord = new RichTimeStampedWord()
+            // {
+            //     StartTime = sStartTime,
+            //     EndTime = sEndTime,
+            //     Word = word
+            // };
+            //
+            // elements.Add(richWord);
+            // fullWord.Append($"{word} ");
+            //
+            // lastStartTimeStamp = timeStampStartTime + Convert.ToInt32(match.Groups[11].Value);
         }
-
-        for (int i = 0; i < lastWordElement.Count; i++)
-        {
-            Match match = lastWordElement[i];
-
-            double timeStampStartTime = lastStartTimeStamp + Convert.ToInt32(match.Groups[6].Value); 
-            string word = GetWord(match, true);
-
-            TimeSpan sStartTime = TimeSpan.FromMilliseconds(lastStartTimeStamp);
-            TimeSpan sEndTime = TimeSpan.FromMilliseconds(timeStampStartTime);
-            
-            RichTimeStampedWord richWord = new RichTimeStampedWord()
-            {
-                StartTime = sStartTime,
-                EndTime = sEndTime,
-                Word = word
-            };
-            
-            fullWord.Append($"{word}");
-            
-            elements.Add(richWord);
-        }
+        
+        // double lastTimeStampStartTime = lastStartTimeStamp + Convert.ToInt32(lastWordMatch.Groups[6].Value); 
+        // string lastWord = GetWord(lastWordMatch, true);
+        // TimeSpan sStartTime = TimeSpan.FromMilliseconds(lastStartTimeStamp);
+        // TimeSpan sEndTime = TimeSpan.FromMilliseconds(timeStampStartTime);
+        //     
+        // RichTimeStampedWord richWord = new RichTimeStampedWord()
+        // {
+        //     StartTime = sStartTime,
+        //     EndTime = sEndTime,
+        //     Word = word
+        // };
+        //     
+        // fullWord.Append($"{word}");
+        //     
+        // elements.Add(richWord);
+        //
+        // for (int i = 0; i < lastWordElement.Count; i++)
+        // {
+        //     Match match = lastWordElement[i];
+        //
+        //     double timeStampStartTime = lastStartTimeStamp + Convert.ToInt32(match.Groups[6].Value); 
+        //     string word = GetWord(match, true);
+        //
+        //     TimeSpan sStartTime = TimeSpan.FromMilliseconds(lastStartTimeStamp);
+        //     TimeSpan sEndTime = TimeSpan.FromMilliseconds(timeStampStartTime);
+        //     
+        //     RichTimeStampedWord richWord = new RichTimeStampedWord()
+        //     {
+        //         StartTime = sStartTime,
+        //         EndTime = sEndTime,
+        //         Word = word
+        //     };
+        //     
+        //     fullWord.Append($"{word}");
+        //     
+        //     elements.Add(richWord);
+        // }
 
         return (fullWord.ToString(), elements);
     }

@@ -6,11 +6,14 @@ namespace DevBase.Format.Formats.AppleLrcXmlFormat.Xml;
 public class XmlITunesMetadata
 {
     [XmlElement(ElementName="songwriters", Namespace="http://music.apple.com/lyric-ttml-internal")] 
-    public XmlSongwriters Songwriters; 
+    public XmlSongwriters Songwriters { get; set; } 
 
     [XmlAttribute(AttributeName="xmlns", Namespace="")] 
-    public string Xmlns; 
+    public string Xmlns { get; set; } 
+
+    [XmlAttribute(AttributeName="leadingSilence", Namespace="")] 
+    public double LeadingSilence { get; set; } 
 
     [XmlText] 
-    public string Text; 
+    public string Text { get; set; } 
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using DevBase.Format.Structure;
 using DevBase.Format.Utilities;
 using DevBase.Generics;
@@ -7,19 +8,22 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.LrcFormat
 {
-    public class LrcParser<T> : IFileFormat<AList<TimeStampedLyric>>
+    public class LrcParser : RevertableFileFormat<string, AList<TimeStampedLyric>>
     {
-        public AList<TimeStampedLyric> FormatFromFile(string filePath)
-        {
-            AFileObject file = AFile.ReadFile(filePath);
-            return FormatFromString(file.ToStringData());
-        }
+        private readonly Regex _regexLrc;
+        private readonly Regex _regexGarbage;
 
-        public AList<TimeStampedLyric> FormatFromString(string lyricString)
+        public LrcParser()
+        {
+            this._regexLrc = new Regex(RegexHolder.REGEX_LRC, RegexOptions.Multiline);
+            this._regexGarbage = new Regex(RegexHolder.REGEX_GARBAGE);
+        }
+        
+        public override AList<TimeStampedLyric> Parse(string from)
         {
             AList<TimeStampedLyric> lyricElements = new AList<TimeStampedLyric>();
 
-            AList<string> linesAList = new AString(lyricString).AsList();
+            AList<string> linesAList = new AString(from).AsList();
 
             for (int i = 0; i < linesAList.Length; i++)
             {
@@ -35,10 +39,18 @@ namespace DevBase.Format.Formats.LrcFormat
 
             return lyricElements;
         }
-
-        public string FormatToString(AList<TimeStampedLyric> content)
+        
+        public override string Revert(AList<TimeStampedLyric> to)
         {
-            throw new NotSupportedException();
+            StringBuilder lrcContent = new StringBuilder();
+
+            for (int i = 0; i < to.Length; i++)
+            {
+                TimeStampedLyric stampedLyric = to.Get(i);
+                lrcContent.AppendLine($"[{stampedLyric.StartTime.ToString()}] {stampedLyric.Text}");
+            }
+
+            return lrcContent.ToString();
         }
         
         private TimeStampedLyric? ParseStringToLyrics(string lyricLine)
@@ -46,49 +58,33 @@ namespace DevBase.Format.Formats.LrcFormat
             if (lyricLine == null)
                 return null;
 
-            Match match = Regex.Match(lyricLine, RegexHolder.REGEX_TIMESTAMP);
+            if (!this._regexLrc.IsMatch(lyricLine))
+                return HandleException("LRC regex does not match");
 
-            bool hasHours = false;
+            Match match = this._regexLrc.Match(lyricLine);
 
-            if (match.Length == 0)
-            {
-                match = Regex.Match(lyricLine, RegexHolder.REGEX_DETAILED_TIMESTAMP);
-
-                if (match.Success)
-                {
-                    hasHours = true;
-                }
-            }
-
-            if (!match.Success)
+            string rawLine = match.Groups[9].Value;
+            
+            if (this._regexGarbage.IsMatch(rawLine))
                 return null;
 
-            string hour = hasHours ? match.Groups[2].Value : "00";
-            string minutes = hasHours ? match.Groups[3].Value : match.Groups[2].Value;
-            string seconds = hasHours ? match.Groups[4].Value : match.Groups[3].Value;
-            string milliseconds = hasHours ? match.Groups[5].Value : match.Groups[4].Value;
+            TimeSpan startTime;
 
-            TimeSpan timeSpan = TimeSpan.Parse(hour + ":" + minutes + ":" + seconds + "." + milliseconds);
-
-            string line = lyricLine.Replace(match.Groups[0].Value, String.Empty);
-
-            if (IsLyricLineTrash(line))
-                return null;
+            string groupTime = match.Groups[1].Value;
+            string rawTime = groupTime.Substring(1, groupTime.Length - 2);
             
-            string proceededLine = LyricsUtils.EditLine(line);
+            if (!TimeUtils.TryParseTimeStamp(rawTime, out startTime))
+                return HandleException("Cannot parse timestamp");
             
-            TimeStampedLyric lyricElement = new TimeStampedLyric()
+            string text = LyricsUtils.EditLine(rawLine);
+            
+            TimeStampedLyric timeStampedLyric = new TimeStampedLyric()
             {
-                Text = proceededLine,
-                StartTime = timeSpan
+                StartTime = startTime,
+                Text = text
             };
-            
-            return lyricElement;
-        }
 
-        private bool IsLyricLineTrash(string line)
-        {
-            return Regex.IsMatch(line, RegexHolder.REGEX_GARBAGE);
+            return timeStampedLyric;
         }
     }
 }
