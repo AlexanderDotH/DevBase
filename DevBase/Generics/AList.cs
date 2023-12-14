@@ -62,6 +62,21 @@ namespace DevBase.Generics
         }
 
         /// <summary>
+        /// Finds an elements by an given predicate
+        /// </summary>
+        /// <param name="predicate">The predicate</param>
+        /// <returns>The element matching the predicate</returns>
+        public T Find(Predicate<T> predicate)
+        {
+            T? result = Array.Find(this._array, predicate);
+
+            if (result == null)
+                return default;
+
+            return result;
+        }
+        
+        /// <summary>
         /// Iterates through the list and executes an action
         /// </summary>
         /// <param name="action">The action</param>
@@ -377,23 +392,31 @@ namespace DevBase.Generics
             Array.Resize(ref this._array, this._array.Length - 1);
             Array.Copy(newArray, _array, newArray.Length);
         }
-
-        // TODO: Does not work
+        
         /// <summary>
         /// Removes items in an given range
         /// </summary>
         /// <param name="min">Minimum range</param>
         /// <param name="max">Maximum range</param>
         /// <exception cref="AListEntryException">Throws if the range is invalid</exception>
-        public void RemoveRange(int min, int max)
+        public void RemoveRange(int minIndex, int maxIndex)
         {
-            if (min > max)
+            if (minIndex > maxIndex)
                 throw new AListEntryException(AListEntryException.Type.InvalidRange);
 
-            for (int i = min; i < max; i++)
+            int diff = maxIndex - minIndex + 1;
+    
+            if (minIndex < 0 || maxIndex >= this._array.Length)
+                throw new AListEntryException(AListEntryException.Type.InvalidRange);
+
+            int newSize = this._array.Length - diff;
+
+            for (int i = minIndex; i < newSize; i++)
             {
-                Remove(i);
+                this._array[i] = this._array[i + diff];
             }
+    
+            Array.Resize(ref this._array, newSize);
         }
 
         /// <summary>

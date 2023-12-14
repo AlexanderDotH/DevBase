@@ -45,18 +45,17 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
                 return i;
         }
 
-        return HandleException("Block not found");
+        return Error("Block not found");
     }
     
     private RichTimeStampedLyric ParseSingleLine(string line)
     {
         if (!this._regexTimeStamp.IsMatch(line))
-            return HandleException("Timestamp is missing");
+            return Error("Timestamp is missing");
 
         if (!this._regexWord.IsMatch(line))
-            return HandleException("Words are missing");
+            return Error("Words are missing");
         
-        RichTimeStampedLyric timeStampedLyric = new RichTimeStampedLyric();
         AList<RichTimeStampedWord> words = new AList<RichTimeStampedWord>();
         
         Match timeStamp = this._regexTimeStamp.Match(line);

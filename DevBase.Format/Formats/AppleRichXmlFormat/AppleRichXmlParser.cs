@@ -23,15 +23,15 @@ public class AppleRichXmlParser : FileFormat<string, AList<RichTimeStampedLyric>
         using XmlReader xmlReader = XmlReader.Create(reader);
 
         if (!serializer.CanDeserialize(xmlReader))
-            return HandleException("Cannot read Xml file");
+            return Error("Cannot read Xml file");
 
         XmlTt tt = (XmlTt)serializer.Deserialize(xmlReader);
 
         if (tt == null)
-            return HandleException("Failed to parse xml file");
+            return Error("Failed to parse xml file");
 
         if (!tt.Timing.SequenceEqual("Word"))
-            return HandleException("Wrong timing format");
+            return Error("Wrong timing format");
 
         AList<RichTimeStampedLyric> richLyrics = new AList<RichTimeStampedLyric>();
 
@@ -66,10 +66,10 @@ public class AppleRichXmlParser : FileFormat<string, AList<RichTimeStampedLyric>
             TimeSpan lEndTimeSpan;
 
             if (!TimeUtils.TryParseTimeStamp(currentElement.Begin, out lStartTimeSpan))
-                return HandleException($"Error parsing timestamp {currentElement.Begin}");
+                return Error($"Error parsing timestamp {currentElement.Begin}");
             
             if (!TimeUtils.TryParseTimeStamp(currentElement.End, out lEndTimeSpan))
-                return HandleException($"Error parsing timestamp {currentElement.End}");
+                return Error($"Error parsing timestamp {currentElement.End}");
             
             words.Add(new RichTimeStampedWord()
             {
@@ -86,10 +86,10 @@ public class AppleRichXmlParser : FileFormat<string, AList<RichTimeStampedLyric>
         TimeSpan eTimeSpan;
 
         if (!TimeUtils.TryParseTimeStamp(lyricBlock.Begin, out sTimeSpan))
-            return HandleException($"Error parsing timestamp {lyricBlock.Begin}");
+            return Error($"Error parsing timestamp {lyricBlock.Begin}");
         
         if (!TimeUtils.TryParseTimeStamp(lyricBlock.End, out eTimeSpan))
-            return HandleException($"Error parsing timestamp {lyricBlock.End}");
+            return Error($"Error parsing timestamp {lyricBlock.End}");
         
         RichTimeStampedLyric richLyric = new RichTimeStampedLyric()
         {

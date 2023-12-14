@@ -59,7 +59,7 @@ namespace DevBase.Format.Formats.LrcFormat
                 return null;
 
             if (!this._regexLrc.IsMatch(lyricLine))
-                return HandleException("LRC regex does not match");
+                return Error("LRC regex does not match");
 
             Match match = this._regexLrc.Match(lyricLine);
 
@@ -74,7 +74,7 @@ namespace DevBase.Format.Formats.LrcFormat
             string rawTime = groupTime.Substring(1, groupTime.Length - 2);
             
             if (!TimeUtils.TryParseTimeStamp(rawTime, out startTime))
-                return HandleException("Cannot parse timestamp");
+                return Error("Cannot parse timestamp");
             
             string text = LyricsUtils.EditLine(rawLine);
             

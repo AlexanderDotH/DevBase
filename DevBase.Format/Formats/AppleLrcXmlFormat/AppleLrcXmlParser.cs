@@ -22,15 +22,15 @@ public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
         using XmlReader xmlReader = XmlReader.Create(reader);
 
         if (!serializer.CanDeserialize(xmlReader))
-            return HandleException("Cannot read Xml file");
+            return Error("Cannot read Xml file");
 
         XmlTt tt = (XmlTt)serializer.Deserialize(xmlReader);
 
         if (tt == null)
-            return HandleException("Failed to parse xml file");
+            return Error("Failed to parse xml file");
 
         if (!tt.Timing.SequenceEqual("Line"))
-            return HandleException("Wrong timing format");
+            return Error("Wrong timing format");
 
         AList<TimeStampedLyric> timeStampedLyrics = new AList<TimeStampedLyric>();
 
@@ -51,7 +51,7 @@ public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
             TimeSpan startTime;
             
             if (!TimeUtils.TryParseTimeStamp(part.Begin, out startTime))
-                return HandleException($"Error parsing timestamp {part.Begin}");
+                return Error($"Error parsing timestamp {part.Begin}");
             
             TimeStampedLyric timeStampedLyric = new TimeStampedLyric()
             {

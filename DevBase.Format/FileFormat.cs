@@ -10,8 +10,7 @@ public abstract class FileFormat<F, T>
     
     public abstract T Parse(F from);
 
-    // TODO: Rename this moron
-    protected dynamic HandleException(
+    protected dynamic Error(
         string message, 
         [CallerMemberName] string callerMember = "", 
         [CallerFilePath] string callerFilePath = "", 
@@ -26,7 +25,7 @@ public abstract class FileFormat<F, T>
         return null;
     }
     
-    protected dynamic HandleException(
+    protected dynamic Error(
         System.Exception exception, 
         [CallerMemberName] string callerMember = "", 
         [CallerFilePath] string callerFilePath = "", 
