@@ -14,6 +14,6 @@
         // public const string REGEX_KLYRICS_END = "(((\\()([0-9])(\\,)([0-9]*)(\\))([\\D]*$)))";
 
         public const string REGEX_KLYRICS_WORD = "(\\()([0-9]*)(\\,)([0-9]*)(\\))([^\\(\\)\\[\\]\\n]*)";
-        public const string REGEX_KLYRICS_TIMESTAMPS = "(\\\\[)([0-9]*)(\\\\,)([0-9]*)(\\\\])";
+        public const string REGEX_KLYRICS_TIMESTAMPS = "(\\[)([0-9]*)(\\,)([0-9]*)(\\])";
     }
 }

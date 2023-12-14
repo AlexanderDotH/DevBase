@@ -378,6 +378,7 @@ namespace DevBase.Generics
             Array.Copy(newArray, _array, newArray.Length);
         }
 
+        // TODO: Does not work
         /// <summary>
         /// Removes items in an given range
         /// </summary>

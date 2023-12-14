@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DevBase.Generics;
 
 namespace DevBase.Utilities
 {
@@ -27,6 +28,9 @@ namespace DevBase.Utilities
 
             return sb.ToString();
         }
+
+        public static string Separate(AList<string> elements, string separator = ", ") =>
+            Separate(elements.GetAsArray(), separator);
         
         public static string Separate(string[] elements, string separator = ", ")
         {
@@ -37,7 +41,7 @@ namespace DevBase.Utilities
 
             return pretty;
         }
-
+        
         public static string[] DeSeparate(string elements, string separator = ", ")
         {
             string[] splitted = elements.Split(separator);

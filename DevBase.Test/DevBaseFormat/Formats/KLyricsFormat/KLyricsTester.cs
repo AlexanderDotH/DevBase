@@ -24,7 +24,7 @@ public class KLyricsTester
         
         AList<RichTimeStampedLyric> list = this._klyricsParser.ParseFromDisk(fileInfo);
         
-        list.GetAsList().DumpConsole();
-        Assert.AreEqual(list.Get(0).Text, "Rick Astley");
+        list.DumpConsole();
+        Assert.AreEqual("Rick Astley", list.Get(0).Text);
     }
 }
