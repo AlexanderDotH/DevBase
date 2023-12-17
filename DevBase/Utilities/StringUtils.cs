@@ -28,35 +28,6 @@ namespace DevBase.Utilities
             return new string(Enumerable.Repeat(charset, length)
                 .Select(s => s[_random.Next(s.Length)]).ToArray());
         }
-        
-        // TODO: Unit test
-        public static bool IsBase64String(string s)
-        {
-            s = s.Trim();
-            return (s.Length % 4 == 0) && _regexBase64.IsMatch(s);
-        }
-
-        // TODO: Unit test
-        public static string DecodeBase64(string input)
-        {
-            if (!IsBase64String(input))
-                return string.Empty;
-
-            byte[] decoded = Convert.FromBase64String(input);
-            string rawText = Convert.ToString(decoded);
-
-            return rawText;
-        }
-        
-        public static string StringArrayToString(string[] array)
-        {
-            StringBuilder sb = new StringBuilder();
-
-            for (int i = 0; i < array.Length; i++)
-                sb.Append(array[i]);
-
-            return sb.ToString();
-        }
 
         public static string Separate(AList<string> elements, string separator = ", ") =>
             Separate(elements.GetAsArray(), separator);

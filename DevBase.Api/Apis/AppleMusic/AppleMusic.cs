@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using DevBase.Api.Apis.AppleMusic.Structure.Json;
 using DevBase.Api.Objects;
+using DevBase.Api.Objects.Token;
 using DevBase.Api.Serializer;
 using DevBase.Enums;
 using DevBase.Web;
@@ -14,7 +15,7 @@ namespace DevBase.Api.Apis.AppleMusic;
 public class AppleMusic
 {
     private readonly string _baseUrl;
-    private readonly string _apiToken;
+    private readonly AuthenticationToken _apiToken;
 
     private static readonly string _baseWebsite;
 
@@ -26,7 +27,7 @@ public class AppleMusic
     public AppleMusic(string apiToken)
     {
         this._baseUrl = "https://amp-api.music.apple.com";
-        this._apiToken = apiToken;
+        this._apiToken = AuthenticationToken.FromString(apiToken);
     }
 
     public static async Task<AppleMusic> WithAccessToken()
@@ -55,7 +56,7 @@ public class AppleMusic
         RequestData requestData = new RequestData(url);
         requestData.Header.Add("Origin", "https://music.apple.com");
         
-        requestData.AddAuthMethod(new Auth(this._apiToken, EnumAuthType.OAUTH2));
+        requestData.AddAuthMethod(new Auth(this._apiToken.RawToken, EnumAuthType.OAUTH2));
 
         Request request = new Request(requestData);
         ResponseData responseData = await request.GetResponseAsync();
@@ -100,5 +101,5 @@ public class AppleMusic
         return accessTokenMatch.Groups[2].Value;
     }
 
-    public string ApiToken => _apiToken;
+    public AuthenticationToken ApiToken => _apiToken;
 }
