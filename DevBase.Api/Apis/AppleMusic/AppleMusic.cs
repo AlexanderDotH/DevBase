@@ -1,9 +1,11 @@
 ﻿using System.Text.RegularExpressions;
 using DevBase.Api.Apis.AppleMusic.Structure.Json;
+using DevBase.Api.Apis.AppleMusic.Structure.Objects;
 using DevBase.Api.Objects;
 using DevBase.Api.Objects.Token;
 using DevBase.Api.Serializer;
 using DevBase.Enums;
+using DevBase.Generics;
 using DevBase.Web;
 using DevBase.Web.RequestData;
 using DevBase.Web.RequestData.Data;
@@ -46,9 +48,36 @@ public class AppleMusic
         
         return new AppleMusic(accessToken);
     }
+
+    public async Task<List<AppleMusicTrack>> Search(string searchTerm, int limit = 10)
+    {
+        JsonAppleMusicSearchResult searchResult = await RawSearch(searchTerm, limit);
+
+        List<AppleMusicTrack> appleMusicTracks = new List<AppleMusicTrack>();
+        
+        if (searchResult == null || 
+            searchResult.SearchResults == null ||
+            searchResult.SearchResults.SongResult == null || 
+            searchResult.SearchResults.SongResult.Songs == null)
+        {
+            return null;
+        }
+
+        for (int i = 0; i < searchResult.SearchResults.SongResult.Songs.Count; i++)
+        {
+            JsonAppleMusicSearchResultResultsSongData songData = searchResult
+                    .SearchResults
+                    .SongResult
+                    .Songs[i];
+            
+            appleMusicTracks.Add(AppleMusicTrack.FromResponse(songData));
+        }
+
+        return appleMusicTracks;
+    }
     
     // The apple search api is really dynamic. I just can't mirror it in my code
-    public async Task<JsonAppleMusicSearchResult> Search(string searchTerm, int limit = 10)
+    public async Task<JsonAppleMusicSearchResult> RawSearch(string searchTerm, int limit = 10)
     {
         string url =
             $"{this._baseUrl}/v1/catalog/de/search?fields[artists]=url,name,artwork&include[songs]=artists&limit={limit}&types=songs&with=lyricHighlights,lyrics,serverBubbles&term={searchTerm}";
@@ -64,6 +93,24 @@ public class AppleMusic
         string response = responseData.GetContentAsString();
 
         return new JsonDeserializer<JsonAppleMusicSearchResult>().Deserialize(response);
+    }
+    
+    public async Task<JsonAppleMusicLyricsResponse> GetLyrics(string trackId, string mediaUserToken)
+    {
+        string url = $"{this._baseUrl}/v1/catalog/de/songs/{trackId}/syllable-lyrics";
+
+        RequestData requestData = new RequestData(url);
+        requestData.Header.Add("Origin", "https://music.apple.com");
+        requestData.Header.Add("Media-User-Token", mediaUserToken);
+        
+        requestData.AddAuthMethod(new Auth(this._apiToken.RawToken, EnumAuthType.OAUTH2));
+
+        Request request = new Request(requestData);
+        ResponseData responseData = await request.GetResponseAsync();
+
+        string response = responseData.GetContentAsString();
+
+        return new JsonDeserializer<JsonAppleMusicLyricsResponse>().Deserialize(response);
     }
 
     private static async Task<HtmlDocument> GetAssetContent(HtmlDocument htmlDocument)

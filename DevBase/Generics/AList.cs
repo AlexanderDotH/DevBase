@@ -454,6 +454,7 @@ namespace DevBase.Generics
             get { return this._array.Length; }
         }
 
+        // The dirtiest way I know
         public IEnumerator<T> GetEnumerator()
         {
             return this.GetAsList().GetEnumerator();
