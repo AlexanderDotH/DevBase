@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Net;
+using System.Text.RegularExpressions;
 using DevBase.Api.Apis.AppleMusic.Structure.Json;
 using DevBase.Api.Apis.AppleMusic.Structure.Objects;
 using DevBase.Api.Objects;
@@ -18,12 +19,15 @@ public class AppleMusic
 {
     private readonly string _baseUrl;
     private readonly AuthenticationToken _apiToken;
+    private GenericAuthenticationToken _userMediaToken;
 
     private static readonly string _baseWebsite;
+    private static readonly string _webAuthUrl;
 
     static AppleMusic()
     {
         _baseWebsite = "https://music.apple.com";
+        _webAuthUrl = "https://buy.music.apple.com";
     }
     
     public AppleMusic(string apiToken)
@@ -32,6 +36,78 @@ public class AppleMusic
         this._apiToken = AuthenticationToken.FromString(apiToken);
     }
 
+    public AppleMusic WithMediaUserToken(GenericAuthenticationToken userMediaToken)
+    {
+        this._userMediaToken = userMediaToken;
+        return this;
+    }
+    
+    public async Task WithMediaUserTokenFromCookie(string myacinfoCookie)
+    {
+        string url = $"{_webAuthUrl}/account/web/auth";
+
+        RequestData requestData = new RequestData(url, EnumRequestMethod.POST);
+        requestData.ContentTypeHolder.Set(EnumContentType.APPLICATION_JSON);
+        requestData.Header.Add("Origin", "https://music.apple.com");
+
+        requestData.Accept = "*/*";
+        
+        requestData.CookieContainer.Add(new Cookie("myacinfo", myacinfoCookie, "/", "apple.com"));
+            
+        Request request = new Request(requestData);
+        ResponseData responseData = await request.GetResponseAsync();
+
+        WebHeaderCollection headers = responseData.Response.Headers;
+        this._userMediaToken = GetMediaUserToken(headers);
+    }
+
+    private GenericAuthenticationToken GetMediaUserToken(WebHeaderCollection headerCollection)
+    {
+        string? header = headerCollection.Get("Set-Cookie");
+        
+        string[] splitted = header.Split(",");
+
+        string parsedToken = string.Empty;
+        string parsedExpiresIn = string.Empty;
+        
+        for (var i = 0; i < splitted.Length; i++)
+        {
+            string element = splitted[i].Trim();
+
+            if (element.Contains("media-user-token"))
+            {
+                string[] cookie = element.Split(";");
+
+                for (int j = 0; j < cookie.Length; j++)
+                {
+                    string elementInCookie = cookie[j];
+
+                    if (elementInCookie.Contains("media-user-token"))
+                        parsedToken = elementInCookie.Split("=")[1];
+
+                    if (elementInCookie.Contains("Max-Age"))
+                    {
+                        parsedExpiresIn = elementInCookie.Split("=")[1];
+                        break;
+                    }
+                }
+            }
+        }
+
+        int convertedExpiresIn;
+        int.TryParse(parsedExpiresIn, out convertedExpiresIn);
+        
+        DateTimeOffset expires = DateTimeOffset.Now.AddSeconds(convertedExpiresIn);
+
+        GenericAuthenticationToken authenticationToken = new GenericAuthenticationToken()
+        {
+            Token = parsedToken,
+            ExpiresAt = expires.DateTime
+        };
+
+        return authenticationToken;
+    }
+    
     public static async Task<AppleMusic> WithAccessToken()
     {
         string url = $"{_baseWebsite}/us/browse";
@@ -95,13 +171,16 @@ public class AppleMusic
         return new JsonDeserializer<JsonAppleMusicSearchResult>().Deserialize(response);
     }
     
-    public async Task<JsonAppleMusicLyricsResponse> GetLyrics(string trackId, string mediaUserToken)
+    public async Task<JsonAppleMusicLyricsResponse> GetLyrics(string trackId)
     {
+        if (string.IsNullOrEmpty(this._userMediaToken.Token))
+            throw new System.Exception("User-Media-Token is not set");
+        
         string url = $"{this._baseUrl}/v1/catalog/de/songs/{trackId}/syllable-lyrics";
 
         RequestData requestData = new RequestData(url);
         requestData.Header.Add("Origin", "https://music.apple.com");
-        requestData.Header.Add("Media-User-Token", mediaUserToken);
+        requestData.Header.Add("Media-User-Token", this._userMediaToken.Token);
         
         requestData.AddAuthMethod(new Auth(this._apiToken.RawToken, EnumAuthType.OAUTH2));
 
