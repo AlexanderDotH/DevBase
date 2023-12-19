@@ -50,10 +50,10 @@ public class AppleMusicTrack
             if (songData.Attributes == null)
                 continue;
             
-            if (string.IsNullOrEmpty(songData.Attributes.ArtistName))
+            if (string.IsNullOrEmpty(songData.Attributes.Name))
                 continue;
             
-            artists.Add(songData.Attributes.ArtistName);
+            artists.Add(songData.Attributes.Name);
         }
 
         return artists.GetAsArray();
