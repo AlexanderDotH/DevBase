@@ -5,39 +5,39 @@ namespace DevBase.Format.Utilities
 {
     class LyricsUtils
     {
-        public static string EditLine(string line)
+        // TODO: Use this for global filtering(need to appy everywhere)
+        public static string EditLine(string line, bool prettify = true)
         {
-            if (line == null)
-            {
-                return "♪";
-            }
+            string lineTrimmed = line.Trim();
 
-            if (line.Length > 0)
-            {
-                if (line.Equals("") || line.Equals(" "))
-                {
-                    line = line.Replace(line, "♪");
-                }
+            if (lineTrimmed.Contains("\\n"))
+                lineTrimmed = lineTrimmed.Replace("\\n", string.Empty);
 
-                if (Regex.IsMatch(line, RegexHolder.REGEX_TIMESTAMP) ||
-                    Regex.IsMatch(line, RegexHolder.REGEX_DETAILED_TIMESTAMP))
-                {
-                    line = Regex.Replace(line, RegexHolder.REGEX_TIMESTAMP, string.Empty);
-                    line = Regex.Replace(line, RegexHolder.REGEX_DETAILED_TIMESTAMP, string.Empty);
-                }
+            if (!prettify)
+                return lineTrimmed;
+            
+            if (String.IsNullOrEmpty(lineTrimmed))
+                lineTrimmed = "♪";
+            
+            if (lineTrimmed.Contains("🎵"))
+                lineTrimmed = lineTrimmed.Replace("🎵", "♪");
+            
+            if (lineTrimmed.Contains("🎶"))
+                lineTrimmed = lineTrimmed.Replace("🎶", "♪");
 
-                if (line.Contains("\\n"))
-                    line = line.Replace("\\n", string.Empty);
+            if (lineTrimmed.Contains("\ud834\udd60"))
+                lineTrimmed = lineTrimmed.Replace("\ud834\udd60", "♪");
 
-                line = line.Trim();
+            if (lineTrimmed.Contains("\ud834\udd61"))
+                lineTrimmed = lineTrimmed.Replace("\ud834\udd61", "♪");
 
-            }
-            else
-            {
-                line = "♪";
-            }
+            if (lineTrimmed.Contains("\ud834\udd62"))
+                lineTrimmed = lineTrimmed.Replace("\ud834\udd62", "♪");
+            
+            if (lineTrimmed.Contains("\ud834\udd64"))
+                lineTrimmed = lineTrimmed.Replace("\ud834\udd64", "♪");
 
-            return line;
+            return lineTrimmed;
         }
     }
 }

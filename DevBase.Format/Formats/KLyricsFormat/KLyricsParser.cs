@@ -6,184 +6,119 @@ using DevBase.Format.Structure;
 using DevBase.Generics;
 using DevBase.IO;
 using DevBase.Typography;
+using DevBase.Utilities;
 
 namespace DevBase.Format.Formats.KLyricsFormat;
 
-public class KLyricsParser : IFileFormat<AList<RichLyrics>>
+public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
 {
     private readonly Regex _regexTimeStamp;
-    private readonly Regex _regexElements;
-    private readonly Regex _regexLastWord;
+    private readonly Regex _regexWord;
 
     public KLyricsParser()
     {
         this._regexTimeStamp = new Regex(RegexHolder.REGEX_KLYRICS_TIMESTAMPS);
-        this._regexElements = new Regex(RegexHolder.REGEX_KLRICS_DATA);
-        this._regexLastWord = new Regex(RegexHolder.REGEX_KLYRICS_END);
+        this._regexWord = new Regex(RegexHolder.REGEX_KLYRICS_WORD);
     }
-    
-    public AList<RichLyrics> FormatFromFile(string filePath)
+
+    public override AList<RichTimeStampedLyric> Parse(string from)
     {
-        AFileObject file = AFile.ReadFile(filePath);
-        return FormatFromString(file.ToStringData());
-    }
-
-    public AList<RichLyrics> FormatFromString(string lyricString)
-    {
-        AList<RichLyrics> richLyrics = new AList<RichLyrics>();
-        List<(MatchCollection, MatchCollection, MatchCollection)> lines = GetLines(lyricString);
-
-        for (var i = 0; i < lines.Count; i++)
-        {
-            (MatchCollection Timestamps, MatchCollection WordElements, MatchCollection LastWordElements)
-                line = lines[i];
-            richLyrics.Add(this.ProcessLine(line.Timestamps, line.WordElements, line.LastWordElements));
-        }
-
-        return richLyrics;
-    }
+        AList<RichTimeStampedLyric> richTimeStampedLyrics = new AList<RichTimeStampedLyric>();
         
-    public string FormatToString(AList<RichLyrics> content)
-    {
-        throw new NotSupportedException();
-    }
+        AList<string> lines = new AString(from).AsList();
 
-    private RichLyrics ProcessLine(
-        MatchCollection timestamps, 
-        MatchCollection wordElements,
-        MatchCollection lastWordElements)
-    {
-        int lineStartTimeStamp = Convert.ToInt32(timestamps[0].Groups[2].Value);
-        int lineEndTimeStamp = lineStartTimeStamp + Convert.ToInt32(timestamps[0].Groups[4].Value);
+        int firstLine = FindFirstLine(lines);
 
-        (string FullWord, List<RichLyricsElement> Elements) proceeded = ProcessElements(lineStartTimeStamp, wordElements, lastWordElements);
-
-        RichLyrics richLyrics = new RichLyrics()
-        {
-            Start = lineStartTimeStamp,
-            End = lineEndTimeStamp,
-            FullLine = proceeded.FullWord,
-            Elements = proceeded.Elements
-        };
-
-        return richLyrics;
-    }
-
-    private (string, List<RichLyricsElement>) ProcessElements(int lineStartTimeStamp, MatchCollection wordElements, MatchCollection lastWordElement)
-    {
-        List<RichLyricsElement> elements = new List<RichLyricsElement>();
-        StringBuilder fullWord = new StringBuilder();
-
-        int lastStartTimeStamp = lineStartTimeStamp;
+        AList<string> parsableLines = lines.GetRangeAsAList(firstLine, lines.Length - 1);
         
-        for (int i = 0; i < wordElements.Count; i++)
-        {
-            Match match = wordElements[i];
-            
-            int elementStartTimeStamp = Convert.ToInt32(match.Groups[5].Value);
-            int timeStampStartTime = lineStartTimeStamp + elementStartTimeStamp;
-            string word = GetWord(match, false);
-
-            RichLyricsElement richLyricsElement = new RichLyricsElement()
-            {
-                Start = lastStartTimeStamp,
-                End = timeStampStartTime,
-                Line = word
-            };
-            
-            elements.Add(richLyricsElement);
-            fullWord.Append($"{word} ");
-
-            lastStartTimeStamp = timeStampStartTime + Convert.ToInt32(match.Groups[11].Value);
-        }
-
-        for (int i = 0; i < lastWordElement.Count; i++)
-        {
-            Match match = lastWordElement[i];
-
-            int timeStampStartTime = lastStartTimeStamp + Convert.ToInt32(match.Groups[6].Value); 
-            string word = GetWord(match, true);
-            
-            RichLyricsElement lastElement = new RichLyricsElement()
-            {
-                Start = lastStartTimeStamp,
-                End = timeStampStartTime,
-                Line = word
-            };
-            
-            fullWord.Append($"{word}");
-            
-            elements.Add(lastElement);
-        }
-
-        return (fullWord.ToString(), elements);
-    }
-
-    private string GetWord(Match match, bool isLast)
-    {
-        string prefix = Combine(match, 2, 6);
-        string suffix = Combine(match, 8, 13);
-
-        if (isLast)
-            prefix = Combine(match, 3, 7);
+        for (int i = 0; i < parsableLines.Length; i++)
+            richTimeStampedLyrics.Add(ParseSingleLine(parsableLines.Get(i)));
         
-        string raw = match.Groups[1].Value;
-
-        raw = raw.Replace(prefix, string.Empty);
-        
-        if (!isLast)
-            raw = raw.Replace(suffix, string.Empty);
-
-        return raw;
+        return richTimeStampedLyrics;
     }
 
-    private string Combine(Match match, int min, int max)
+    private int FindFirstLine(AList<string> lines)
     {
-        StringBuilder combined = new StringBuilder();
-
-        for (int i = min; i <= max; i++)
-            combined.Append(match.Groups[i].Value);
-
-        return combined.ToString();
-    }
-    
-    private List<(MatchCollection, MatchCollection, MatchCollection)> GetLines(string lyricString)
-    {
-        AList<string> lines = new AString(lyricString).AsList();
-
-        List<(MatchCollection, MatchCollection, MatchCollection)> matchLines =
-            new List<(MatchCollection, MatchCollection, MatchCollection)>();
-
         for (int i = 0; i < lines.Length; i++)
         {
-            (MatchCollection TimeStamps, MatchCollection WordElements, MatchCollection LastWordElement) line =
-                GetLine(lines.Get(i));
-            
-            if (line.TimeStamps == null || line.WordElements == null || line.LastWordElement == null)
-                continue;
-            
-            matchLines.Add(line);
+            if (this._regexWord.IsMatch(lines.Get(i)))
+                return i;
         }
 
-        return matchLines;
+        return Error("Block not found");
+    }
+    
+    private RichTimeStampedLyric ParseSingleLine(string line)
+    {
+        if (!this._regexTimeStamp.IsMatch(line))
+            return Error("Timestamp is missing");
+
+        if (!this._regexWord.IsMatch(line))
+            return Error("Words are missing");
+        
+        AList<RichTimeStampedWord> words = new AList<RichTimeStampedWord>();
+        
+        Match timeStamp = this._regexTimeStamp.Match(line);
+        MatchCollection wordMatches = this._regexWord.Matches(line);
+
+        TimeSpan lineStartTime = GetTimeSpan(timeStamp, 2);
+        TimeSpan lineEndTime = lineStartTime + GetTimeSpan(timeStamp, 4);
+
+        TimeSpan lineAddDuration = TimeSpan.Zero;
+        
+        for (int i = 0; i < wordMatches.Count; i++)
+        {
+            Match currentWordMatch = wordMatches[i];
+
+            TimeSpan lineDuration = GetTimeSpan(currentWordMatch, 4);
+
+            RichTimeStampedWord word = new RichTimeStampedWord()
+            {
+                StartTime = lineAddDuration + lineStartTime,
+                EndTime = lineAddDuration + lineDuration + lineStartTime,
+                Word = GetWord(currentWordMatch, 6)
+            };
+            
+            words.Add(word);
+
+            lineAddDuration += lineDuration;
+        }
+
+        return new RichTimeStampedLyric()
+        {
+            StartTime = lineStartTime,
+            EndTime = lineEndTime,
+            Text = GetFullSentence(words),
+            Words = words
+        };
     }
 
-    public (MatchCollection TimeStamps, MatchCollection WordElements, MatchCollection LastWordElement) GetLine(
-        string current)
+    private string GetFullSentence(AList<RichTimeStampedWord> words)
     {
-        MatchCollection timestamps = null;
-        MatchCollection wordElements = null;
-        MatchCollection lastWordElement = null;
+        AList<string> wordList = new AList<string>();
+
+        for (int i = 0; i < words.Length; i++)
+        {
+            RichTimeStampedWord word = words.Get(i);
+            
+            if (String.IsNullOrEmpty(word.Word.Trim()))
+                continue;
+            
+            wordList.Add(word.Word);
+        }
         
-        if (this._regexTimeStamp.IsMatch(current))
-            timestamps = this._regexTimeStamp.Matches(current);
-
-        if (this._regexElements.IsMatch(current))
-            wordElements = this._regexElements.Matches(current);
-
-        if (this._regexLastWord.IsMatch(current))
-            lastWordElement = this._regexLastWord.Matches(current);
-
-        return (timestamps, wordElements, lastWordElement);
+        return StringUtils.Separate(wordList, " ");
+    }
+    
+    private string GetWord(Match match, int group)
+    {
+        return match.Groups[group].Value;
+    }
+    
+    private TimeSpan GetTimeSpan(Match match, int group)
+    {
+        string rawData = match.Groups[group].Value;
+        double data = Convert.ToDouble(rawData);
+        return TimeSpan.FromMilliseconds(data);
     }
 }

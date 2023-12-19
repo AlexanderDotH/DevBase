@@ -23,7 +23,7 @@ public class DeezerTests
 
         var lyrics = await deezerApi.GetLyrics(trackID);
         
-        Assert.NotNull(lyrics.rawLyrics);
+        Assert.NotNull(lyrics.RawLyrics);
     }
 
     [Test]

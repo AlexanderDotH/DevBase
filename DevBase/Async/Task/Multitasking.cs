@@ -8,8 +8,8 @@ using Task = System.Threading.Tasks.Task;
 
 public class Multitasking
 {
-    private AList<(Task, CancellationTokenSource)> _activeTasks;
     private ConcurrentQueue<(Task, CancellationTokenSource)> _parkedTasks;
+    private ConcurrentDictionary<Task, CancellationTokenSource> _activeTasks;
 
     private CancellationTokenSource _cancellationTokenSource;
 
@@ -21,7 +21,7 @@ public class Multitasking
     public Multitasking(int capacity, int scheduleDelay = 100)
     {
         this._parkedTasks = new ConcurrentQueue<(Task, CancellationTokenSource)>();
-        this._activeTasks = new AList<(Task, CancellationTokenSource)>();
+        this._activeTasks = new ConcurrentDictionary<Task, CancellationTokenSource>();
 
         this._capacity = capacity;
         this._scheduleDelay = scheduleDelay;
@@ -34,41 +34,33 @@ public class Multitasking
 
     private async Task HandleTasks()
     {
-        while (!this._disposed)
+        while (!_disposed)
         {
-            await Task.Delay(this._scheduleDelay);
-            
+            await Task.Delay(_scheduleDelay);
+
             CheckAndRemove();
-            
-            if (this._activeTasks.Length >= this._capacity)
-                continue;
-            
-            ActivateTask();
+
+            while (_activeTasks.Count < _capacity && _parkedTasks.TryDequeue(out var task))
+            {
+                _activeTasks.TryAdd(task.Item1, task.Item2);
+                Task.Run(() => task.Item1.Start());
+            }
         }
     }
 
     public async Task WaitAll()
     {
-        while (!this._disposed && 
-               !(this._parkedTasks.Count == 0 && this._activeTasks.Length == 0))
+        while (!_disposed && _parkedTasks.Count > 0)
         {
-            await Task.Delay(this._scheduleDelay);
-            
-            if (this._parkedTasks.Count != 0 && this._activeTasks.Length == 0)
-                continue;
-            
-            for (int i = 0; i < this._activeTasks.Length; i++)
-            {
-                (Task, CancellationTokenSource) taskToken = this._activeTasks.Get(i);
-                await taskToken.Item1.WaitAsync(taskToken.Item2.Token);
-            }
+            await Task.Delay(_scheduleDelay);
         }
+
+        var activeTasks = _activeTasks.Keys.ToArray();
+        await Task.WhenAll(activeTasks);
     }
 
     public async Task KillAll()
     {
-        this._activeTasks.ForEach(t=>t.Item2.Cancel());
-        
         foreach (var parkedTask in this._parkedTasks)
         {
             parkedTask.Item2.Cancel();
@@ -76,30 +68,23 @@ public class Multitasking
 
         await WaitAll();
     }
-
-    private void ActivateTask()
-    {
-        (Task, CancellationTokenSource) task;
-        this._parkedTasks.TryDequeue(out task);
-
-        if (task.Item1 == null || task.Item2 == null)
-            return;
-        
-        task.Item1.Start();
-    }
     
     private void CheckAndRemove()
     {
-        for (int i = 0; i < this._activeTasks.Length; i++)
-        {
-            (Task, CancellationTokenSource) currentTask = this._activeTasks.Get(i);
+        List<Task> tasksToRemove = new List<Task>();
 
-            if (currentTask.Item1.IsCanceled || 
-                currentTask.Item1.IsCompleted || 
-                currentTask.Item1.IsCompletedSuccessfully)
+        foreach (var kvp in _activeTasks)
+        {
+            var task = kvp.Key;
+            if (task.IsCompleted || task.IsCanceled || task.IsFaulted)
             {
-                this._activeTasks.SafeRemove(currentTask);
+                tasksToRemove.Add(task);
             }
+        }
+
+        foreach (var task in tasksToRemove)
+        {
+            _activeTasks.TryRemove(task, out _);
         }
     }
     
@@ -110,11 +95,4 @@ public class Multitasking
     }
 
     public Task Register(Action action) => Register(new Task(action));
-
-    public void Dispose()
-    {
-        this._disposed = true;
-
-        KillAll();
-    }
 }

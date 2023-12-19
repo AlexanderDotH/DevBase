@@ -8,19 +8,13 @@ using Newtonsoft.Json;
 
 namespace DevBase.Format.Formats.MmlFormat
 {
-    public class MmlParser : IFileFormat<LrcObject>
+    public class MmlParser : FileFormat<string, AList<TimeStampedLyric>>
     {
-        public LrcObject FormatFromFile(string filePath)
+        public override AList<TimeStampedLyric> Parse(string from)
         {
-            AFileObject file = AFile.ReadFile(filePath);
-            return FormatFromString(file.ToStringData());
-        }
+            AList<TimeStampedLyric> timeStampedLyrics = new AList<TimeStampedLyric>();
 
-        public LrcObject FormatFromString(string lyricString)
-        {
-            AList<LyricElement> lyricElements = new AList<LyricElement>();
-
-            MmlElement[] parsedElements = JsonConvert.DeserializeObject<MmlElement[]>(lyricString);
+            MmlElement[] parsedElements = JsonConvert.DeserializeObject<MmlElement[]>(from);
 
             if (parsedElements == null)
                 return default;
@@ -37,22 +31,21 @@ namespace DevBase.Format.Formats.MmlFormat
                 timeStamp += (long)TimeSpan.FromSeconds(mmlElement.Time.Seconds).TotalMilliseconds;
                 timeStamp += (long)TimeSpan.FromMilliseconds(mmlElement.Time.Hundredths).TotalMilliseconds;
 
+                TimeSpan sTimeSpan = TimeSpan.FromMilliseconds(Convert.ToDouble(timeStamp));
+                
                 if (IsLyricLineTrash(mmlElement.Text))
-                    lyricElements.Add(new LyricElement(
-                        timeStamp, 
-                        LyricsUtils.EditLine(mmlElement.Text)));
+                {
+                    TimeStampedLyric timeStampedLyric = new TimeStampedLyric()
+                    {
+                        StartTime = sTimeSpan,
+                        Text = mmlElement.Text
+                    };
                     
+                    timeStampedLyrics.Add(timeStampedLyric);
+                }
             }
 
-            LrcObject lrcObject = new LrcObject();
-            lrcObject.Lyrics = lyricElements;
-            return lrcObject;
-        }
-
-        public string FormatToString(LrcObject content)
-        {
-            throw new NotSupportedException("Not supported yet, it will be implemented if necessary");
-
+            return timeStampedLyrics;
         }
 
         private bool IsLyricLineTrash(string line)

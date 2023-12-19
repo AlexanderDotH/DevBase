@@ -1,9 +1,10 @@
-﻿using DevBase.Exception;
+﻿using System.Collections;
+using DevBase.Exception;
 using DevBase.Utilities;
 
 namespace DevBase.Generics
 {
-    public class AList<T>
+    public class AList<T> : IEnumerable<T>
     {
         private T[] _array;
 
@@ -60,6 +61,21 @@ namespace DevBase.Generics
             throw new AListEntryException(AListEntryException.Type.EntryNotFound);
         }
 
+        /// <summary>
+        /// Finds an elements by an given predicate
+        /// </summary>
+        /// <param name="predicate">The predicate</param>
+        /// <returns>The element matching the predicate</returns>
+        public T Find(Predicate<T> predicate)
+        {
+            T? result = Array.Find(this._array, predicate);
+
+            if (result == null)
+                return default;
+
+            return result;
+        }
+        
         /// <summary>
         /// Iterates through the list and executes an action
         /// </summary>
@@ -376,22 +392,31 @@ namespace DevBase.Generics
             Array.Resize(ref this._array, this._array.Length - 1);
             Array.Copy(newArray, _array, newArray.Length);
         }
-
+        
         /// <summary>
         /// Removes items in an given range
         /// </summary>
         /// <param name="min">Minimum range</param>
         /// <param name="max">Maximum range</param>
         /// <exception cref="AListEntryException">Throws if the range is invalid</exception>
-        public void RemoveRange(int min, int max)
+        public void RemoveRange(int minIndex, int maxIndex)
         {
-            if (min > max)
+            if (minIndex > maxIndex)
                 throw new AListEntryException(AListEntryException.Type.InvalidRange);
 
-            for (int i = min; i < max; i++)
+            int diff = maxIndex - minIndex + 1;
+    
+            if (minIndex < 0 || maxIndex >= this._array.Length)
+                throw new AListEntryException(AListEntryException.Type.InvalidRange);
+
+            int newSize = this._array.Length - diff;
+
+            for (int i = minIndex; i < newSize; i++)
             {
-                Remove(i);
+                this._array[i] = this._array[i + diff];
             }
+    
+            Array.Resize(ref this._array, newSize);
         }
 
         /// <summary>
@@ -427,6 +452,17 @@ namespace DevBase.Generics
         public int Length
         {
             get { return this._array.Length; }
+        }
+
+        // The dirtiest way I know
+        public IEnumerator<T> GetEnumerator()
+        {
+            return this.GetAsList().GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
         }
     }
 }

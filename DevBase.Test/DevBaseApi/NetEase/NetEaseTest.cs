@@ -37,7 +37,7 @@ public class NetEaseTest
         
         result.DumpConsole();
 
-        Assert.IsTrue(result.Get(0).Line.Contains("We're no strangers to love"));
+        Assert.IsTrue(result.Get(0).Text.Contains("We're no strangers to love"));
     }
     
     [Test]
@@ -49,7 +49,7 @@ public class NetEaseTest
         
         result.DumpConsole();
         
-        Assert.IsTrue(result.Get(0).FullLine.Contains("Rick Astley"));
+        Assert.IsTrue(result.Get(0).Text.Contains("Rick Astley"));
     }
 
     [Test]

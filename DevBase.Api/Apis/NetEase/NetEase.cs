@@ -103,7 +103,7 @@ public class NetEase
         return new JsonDeserializer<JsonNetEaseUrlResponse>().Deserialize(content);
     }
     
-    public async Task<AList<RichLyrics>> KaraokeLyrics(string trackId)
+    public async Task<AList<RichTimeStampedLyric>> KaraokeLyrics(string trackId)
     {
         JsonNetEaseLyricResponse lyricResponse = await this.RawLyrics(trackId);
 
@@ -115,16 +115,12 @@ public class NetEase
 
         if (String.IsNullOrEmpty(lyricResponse.klyric.lyric))
             return null;
-        
-        FileFormatParser<AList<RichLyrics>> klrcParser =
-            new FileFormatParser<AList<RichLyrics>>(
-                new KLyricsParser());
 
-        AList<RichLyrics> richLyrics = klrcParser.FormatFromString(lyricResponse.klyric.lyric);
+        AList<RichTimeStampedLyric> richLyrics = new KLyricsParser().Parse(lyricResponse.klyric.lyric);
         return richLyrics;
     }
     
-    public async Task<AList<LyricElement>> Lyrics(string trackId)
+    public async Task<AList<TimeStampedLyric>> Lyrics(string trackId)
     {
         JsonNetEaseLyricResponse lyricResponse = await this.RawLyrics(trackId);
 
@@ -137,12 +133,8 @@ public class NetEase
         if (String.IsNullOrEmpty(lyricResponse.lrc.lyric))
             return null;
         
-        FileFormatParser<LrcObject> lrcParser =
-            new FileFormatParser<LrcObject>(
-                new LrcParser<LrcObject>());
-
-        LrcObject lrcObject = lrcParser.FormatFromString(lyricResponse.lrc.lyric);
-        return lrcObject.Lyrics;
+        AList<TimeStampedLyric> lyrics = new LrcParser().Parse(lyricResponse.lrc.lyric);
+        return lyrics;
     }
     
     public async Task<JsonNetEaseLyricResponse> RawLyrics(string trackId)

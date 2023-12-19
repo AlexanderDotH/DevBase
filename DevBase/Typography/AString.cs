@@ -10,8 +10,8 @@ namespace DevBase.Typography
 {
     public class AString
     {
-        private readonly string _value;
-
+        protected string _value;
+        
         public AString(string value)
         {
             this._value = value;
@@ -38,7 +38,7 @@ namespace DevBase.Typography
             return this._value.Substring(0, 1).ToUpper() + this._value.Substring(1, this._value.Length - 1);
         }
 
-        public string ToString()
+        public override string ToString()
         {
             return this._value;
         }

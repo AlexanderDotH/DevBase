@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Text;
 using DevBase.Api.Apis.Tidal.Structure.Json;
-using DevBase.Api.Helper;
+using DevBase.Api.Serializer;
 using DevBase.Enums;
 using DevBase.Generics;
 using DevBase.Web;
@@ -48,7 +48,7 @@ namespace DevBase.Api.Apis.Tidal
 
             ResponseData response = await request.GetResponseAsync();
 
-            return new JsonHelper<JsonTidalAuthDevice>().Deserialize(response.GetContentAsString());
+            return new JsonDeserializer<JsonTidalAuthDevice>().Deserialize(response.GetContentAsString());
         }
 
         public async Task<JsonTidalAccountAccess> GetTokenFrom(string deviceCode)
@@ -80,7 +80,7 @@ namespace DevBase.Api.Apis.Tidal
                     return null;
 
                 JsonTidalAccountAccess accountAccess =
-                    new JsonHelper<JsonTidalAccountAccess>().Deserialize(response.GetContentAsString());
+                    new JsonDeserializer<JsonTidalAccountAccess>().Deserialize(response.GetContentAsString());
 
                 if (accountAccess == null)
                     return null;
@@ -110,7 +110,7 @@ namespace DevBase.Api.Apis.Tidal
                 if (response.StatusCode != HttpStatusCode.OK)
                     return null;
 
-                return new JsonHelper<JsonTidalSession>().Deserialize(response.GetContentAsString());
+                return new JsonDeserializer<JsonTidalSession>().Deserialize(response.GetContentAsString());
 
             }
             catch (System.Exception e) { }
@@ -136,7 +136,7 @@ namespace DevBase.Api.Apis.Tidal
                 if (response.StatusCode != HttpStatusCode.OK)
                     return null;
 
-                return new JsonHelper<JsonTidalSearchResult>().Deserialize(response.GetContentAsString());
+                return new JsonDeserializer<JsonTidalSearchResult>().Deserialize(response.GetContentAsString());
 
             }
             catch (System.Exception e) { }
@@ -169,7 +169,7 @@ namespace DevBase.Api.Apis.Tidal
                     return null;
 
                 accountAccess =
-                    new JsonHelper<JsonTidalAuthAccess>().Deserialize(response.GetContentAsString());
+                    new JsonDeserializer<JsonTidalAuthAccess>().Deserialize(response.GetContentAsString());
 
                 if (accountAccess == null)
                     return null;
@@ -208,7 +208,7 @@ namespace DevBase.Api.Apis.Tidal
                     return null;
 
                 accountAccess =
-                    new JsonHelper<JsonTidalAccountRefreshAccess>().Deserialize(response.GetContentAsString());
+                    new JsonDeserializer<JsonTidalAccountRefreshAccess>().Deserialize(response.GetContentAsString());
 
                 if (accountAccess == null)
                     return null;
@@ -234,7 +234,7 @@ namespace DevBase.Api.Apis.Tidal
                     return null;
 
                 JsonTidalLyricsResult lyrics =
-                    new JsonHelper<JsonTidalLyricsResult>().Deserialize(response.GetContentAsString());
+                    new JsonDeserializer<JsonTidalLyricsResult>().Deserialize(response.GetContentAsString());
 
                 return lyrics;
             }
@@ -258,7 +258,7 @@ namespace DevBase.Api.Apis.Tidal
                     return null;
 
                 JsonTidalDownloadResult downloadResult =
-                    new JsonHelper<JsonTidalDownloadResult>().Deserialize(response.GetContentAsString());
+                    new JsonDeserializer<JsonTidalDownloadResult>().Deserialize(response.GetContentAsString());
 
                 return downloadResult;
             }

@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Text;
+using System.Text.RegularExpressions;
 using DevBase.Format.Structure;
 using DevBase.Format.Utilities;
 using DevBase.Generics;
@@ -7,134 +8,83 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.LrcFormat
 {
-    public class LrcParser<T> : IFileFormat<LrcObject>
+    public class LrcParser : RevertableFileFormat<string, AList<TimeStampedLyric>>
     {
-        public LrcObject FormatFromFile(string filePath)
+        private readonly Regex _regexLrc;
+        private readonly Regex _regexGarbage;
+
+        public LrcParser()
         {
-            AFileObject file = AFile.ReadFile(filePath);
-            return FormatFromString(file.ToStringData());
+            this._regexLrc = new Regex(RegexHolder.REGEX_LRC, RegexOptions.Multiline);
+            this._regexGarbage = new Regex(RegexHolder.REGEX_GARBAGE);
         }
-
-        public LrcObject FormatFromString(string lyricString)
+        
+        public override AList<TimeStampedLyric> Parse(string from)
         {
-            AList<LyricElement> lyricElements = new AList<LyricElement>();
+            AList<TimeStampedLyric> lyricElements = new AList<TimeStampedLyric>();
 
-            AList<string> linesAList = new AString(lyricString).AsList();
-
-            LrcObject fullLrcObject = null;
-
-            if (linesAList.Length > 7)
-            {
-                fullLrcObject = ParseMetaData(linesAList.GetRangeAsList(0, 7));
-            }
+            AList<string> linesAList = new AString(from).AsList();
 
             for (int i = 0; i < linesAList.Length; i++)
             {
                 string lineInList = linesAList.Get(i);
 
-                LyricElement lyricElement = ParseStringToLyrics(lineInList, i, linesAList.Length);
+                TimeStampedLyric? lyricElement = ParseStringToLyrics(lineInList);
+                
                 if (lyricElement != null)
                 {
                     lyricElements.Add(lyricElement);
                 }
             }
 
-            if (fullLrcObject == null)
+            return lyricElements;
+        }
+        
+        public override string Revert(AList<TimeStampedLyric> to)
+        {
+            StringBuilder lrcContent = new StringBuilder();
+
+            for (int i = 0; i < to.Length; i++)
             {
-                fullLrcObject = new LrcObject();
+                TimeStampedLyric stampedLyric = to.Get(i);
+                lrcContent.AppendLine($"[{stampedLyric.StartTime.ToString()}] {stampedLyric.Text}");
             }
 
-            fullLrcObject.Lyrics = lyricElements;
-
-            return fullLrcObject;
+            return lrcContent.ToString();
         }
-
-        public string FormatToString(LrcObject content)
-        {
-            throw new NotSupportedException();
-        }
-
-        private string ParseMetaDataPart(List<string> input, string meta)
-        {
-            for (int i = 0; i < input.Count; i++)
-            {
-                if (input[i] == null)
-                    continue;
-                
-                string line = input[i];
-                
-                if (line.Contains(string.Format("[{0}:", meta)))
-                {
-                    string regex = string.Format(RegexHolder.REGEX_METADATA, meta);
-
-                    if (Regex.IsMatch(line, regex))
-                    {
-                        return Regex.Match(line, regex).Groups[2].Value;
-                    }
-                }
-            }
-
-            return string.Empty;
-        }
-
-        private LrcObject ParseMetaData(List<string> rawMetaData)
-        {
-            LrcObject lrcObject = new LrcObject();
-
-            lrcObject.Artist = ParseMetaDataPart(rawMetaData, "ar");
-            lrcObject.Album = ParseMetaDataPart(rawMetaData, "al");
-            lrcObject.Title = ParseMetaDataPart(rawMetaData, "ti");
-            lrcObject.Author = ParseMetaDataPart(rawMetaData, "au");
-            lrcObject.By = ParseMetaDataPart(rawMetaData, "by");
-            lrcObject.Offset = ParseMetaDataPart(rawMetaData, "offset").Equals(string.Empty) ? 0 : Convert.ToInt32(ParseMetaDataPart(rawMetaData, "offset"));
-            lrcObject.Re = ParseMetaDataPart(rawMetaData, "re");
-            lrcObject.Version = ParseMetaDataPart(rawMetaData, "ve");
-
-            return lrcObject;
-        }
-
-        private LyricElement? ParseStringToLyrics(string lyricLine, int lineIndex, int maxLines)
+        
+        private TimeStampedLyric? ParseStringToLyrics(string lyricLine)
         {
             if (lyricLine == null)
                 return null;
 
-            Match match = Regex.Match(lyricLine, RegexHolder.REGEX_TIMESTAMP);
+            if (!this._regexLrc.IsMatch(lyricLine))
+                return Error("LRC regex does not match");
 
-            bool hasHours = false;
+            Match match = this._regexLrc.Match(lyricLine);
 
-            if (match.Length == 0)
-            {
-                match = Regex.Match(lyricLine, RegexHolder.REGEX_DETAILED_TIMESTAMP);
-
-                if (match.Success)
-                {
-                    hasHours = true;
-                }
-            }
-
-            if (!match.Success)
-                return null;
-
-            string hour = hasHours ? match.Groups[2].Value : "00";
-            string minutes = hasHours ? match.Groups[3].Value : match.Groups[2].Value;
-            string seconds = hasHours ? match.Groups[4].Value : match.Groups[3].Value;
-            string milliseconds = hasHours ? match.Groups[5].Value : match.Groups[4].Value;
-
-            TimeSpan timeSpan = TimeSpan.Parse(hour + ":" + minutes + ":" + seconds + "." + milliseconds);
-
-            string line = lyricLine.Replace(match.Groups[0].Value, String.Empty);
-
-            if (IsLyricLineTrash(line))
-                return null;
+            string rawLine = match.Groups[9].Value;
             
-            string lyricElementLine = LyricsUtils.EditLine(line);
-            LyricElement lyricElement = new LyricElement(Convert.ToInt64(timeSpan.TotalMilliseconds), lyricElementLine);
-            return lyricElement;
-        }
+            if (this._regexGarbage.IsMatch(rawLine))
+                return null;
 
-        private bool IsLyricLineTrash(string line)
-        {
-            return Regex.IsMatch(line, RegexHolder.REGEX_GARBAGE);
+            TimeSpan startTime;
+
+            string groupTime = match.Groups[1].Value;
+            string rawTime = groupTime.Substring(1, groupTime.Length - 2);
+            
+            if (!TimeUtils.TryParseTimeStamp(rawTime, out startTime))
+                return Error("Cannot parse timestamp");
+            
+            string text = LyricsUtils.EditLine(rawLine);
+            
+            TimeStampedLyric timeStampedLyric = new TimeStampedLyric()
+            {
+                StartTime = startTime,
+                Text = text
+            };
+
+            return timeStampedLyric;
         }
     }
 }

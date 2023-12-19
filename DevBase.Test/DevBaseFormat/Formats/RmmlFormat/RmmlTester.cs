@@ -11,12 +11,12 @@ namespace DevBase.Test.DevBaseFormat.Formats.RmmlFormat;
 
 public class RmmlTester
 {
-    private FileFormatParser<AList<RichLyrics>> _srtParser;
+    private FileParser<RmmlParser, AList<RichTimeStampedLyric>> _rmmlParser;
 
     [SetUp]
     public void Setup()
     {
-        this._srtParser = new FileFormatParser<AList<RichLyrics>>(new RmmlParser());
+        this._rmmlParser = new FileParser<RmmlParser, AList<RichTimeStampedLyric>>();
     }
 
     [Test]
@@ -27,12 +27,10 @@ public class RmmlTester
 
         string content = File.ReadAllText(fileInfo.FullName);
         
-        AList<RichLyrics> list = this._srtParser.FormatFromString(content);
+        AList<RichTimeStampedLyric> list = this._rmmlParser.ParseFromString(content);
         
         list.GetAsList().DumpConsole();
         
-        File.WriteAllText("rick.elrc", new FileFormatParser<AList<RichLyrics>>(new Format.Formats.ElrcFormat.ElrcParser()).FormatToString(list));
-        
-        Assert.IsTrue(content.Contains(list.Get(0).FullLine));
+        Assert.IsTrue(content.Contains(list.Get(0).Text));
     }
 }
