@@ -9,6 +9,8 @@ public abstract class FileFormat<F, T>
     public bool StrictErrorHandling { get; set; } = true;
     
     public abstract T Parse(F from);
+    
+    public abstract bool TryParse(F from, out T parsed);
 
     protected dynamic Error(
         string message, 

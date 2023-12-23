@@ -36,5 +36,19 @@ namespace DevBase.Format.Formats.EnvFormat
 
             return elements;
         }
+        
+        public override bool TryParse(string from, out ATupleList<string, string> parsed)
+        {
+            ATupleList<string, string> p = Parse(from);
+
+            if (p == null || p.IsEmpty())
+            {
+                parsed = null;
+                return Error("The parsed result is null or empty");
+            }
+
+            parsed = p;
+            return true;
+        }
     }
 }

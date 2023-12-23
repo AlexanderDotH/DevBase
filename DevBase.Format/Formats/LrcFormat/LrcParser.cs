@@ -39,7 +39,21 @@ namespace DevBase.Format.Formats.LrcFormat
 
             return lyricElements;
         }
-        
+
+        public override bool TryParse(string from, out AList<TimeStampedLyric> parsed)
+        {
+            AList<TimeStampedLyric> p = Parse(from);
+            
+            if (p == null || p.IsEmpty())
+            {
+                parsed = null;
+                return Error("The parsed lyrics are null or empty");
+            }
+
+            parsed = p;
+            return true;
+        }
+
         public override string Revert(AList<TimeStampedLyric> to)
         {
             StringBuilder lrcContent = new StringBuilder();
@@ -52,7 +66,21 @@ namespace DevBase.Format.Formats.LrcFormat
 
             return lrcContent.ToString();
         }
-        
+
+        public override bool TryRevert(AList<TimeStampedLyric> to, out string from)
+        {
+            string r = Revert(to);
+
+            if (string.IsNullOrEmpty(r))
+            {
+                from = null; 
+                return Error("The parsed lyrics are null or empty");
+            }
+
+            from = r;
+            return true;
+        }
+
         private TimeStampedLyric? ParseStringToLyrics(string lyricLine)
         {
             if (lyricLine == null)

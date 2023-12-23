@@ -4,7 +4,6 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
-    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <Title>DevBase</Title>
     <Authors>AlexanderDotH</Authors>
     <Description>DevBase is a Development base for everyones need</Description>
@@ -12,7 +11,7 @@
     <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
     <RepositoryType>Public</RepositoryType>
-    <Version>1.3.1</Version>
+    <Version>1.3.3</Version>
     <PackageLicenseUrl>https://github.com/AlexanderDotH/DevBase/blob/master/LICENSE</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>

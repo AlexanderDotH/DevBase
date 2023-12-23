@@ -47,7 +47,7 @@ public class AppleRichXmlParser : FileFormat<string, AList<RichTimeStampedLyric>
 
         return richLyrics;
     }
-    
+
     private RichTimeStampedLyric ProcessBlock(XmlLyric lyricBlock)
     {
         AList<RichTimeStampedWord> words = new AList<RichTimeStampedWord>();
@@ -100,5 +100,27 @@ public class AppleRichXmlParser : FileFormat<string, AList<RichTimeStampedLyric>
         };
 
         return richLyric;
+    }
+    
+    public override bool TryParse(string rawTtmlResponse, out AList<RichTimeStampedLyric> richTimeStamped)
+    {
+        string unescaped = Regex.Unescape(rawTtmlResponse);
+        
+        if (!unescaped.Contains("itunes:timing=\"Word\""))
+        {
+            richTimeStamped = null;
+            return Error("Wrong timing format");
+        }
+
+        AList<RichTimeStampedLyric> richLyrics = Parse(rawTtmlResponse);
+
+        if (richLyrics == null || richLyrics.IsEmpty())
+        {
+            richTimeStamped = null;
+            return Error("The parsed lyrics are null or empty");
+        }
+
+        richTimeStamped = richLyrics;
+        return true;
     }
 }

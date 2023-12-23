@@ -37,6 +37,21 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         return proceeded;
     }
 
+    // TODO: Unit test
+    public override bool TryParse(string from, out AList<RichTimeStampedLyric> parsed)
+    {
+        AList<RichTimeStampedLyric> p = Parse(from);
+
+        if (p == null || p.IsEmpty())
+        {
+            parsed = null;
+            return Error("The parsed lyrics are null or empty");
+        }
+
+        parsed = p;
+        return true;
+    }
+
     public override string Revert(AList<RichTimeStampedLyric> to)
     {
         StringBuilder sb = new StringBuilder();
@@ -76,7 +91,21 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         
         return sb.ToString();
     }
-    
+
+    public override bool TryRevert(AList<RichTimeStampedLyric> to, out string from)
+    {
+        string r = Revert(to);
+
+        if (string.IsNullOrEmpty(r))
+        {
+            from = null;
+            return Error("The parsed lyrics are null or empty");
+        }
+
+        from = r;
+        return true;
+    }
+
     private RichTimeStampedLyric ProcessBlock(AList<string> block)
     {
         string first = block.Get(0);

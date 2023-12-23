@@ -37,6 +37,20 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
         return richTimeStampedLyrics;
     }
 
+    public override bool TryParse(string from, out AList<RichTimeStampedLyric> parsed)
+    {
+        AList<RichTimeStampedLyric> p = Parse(from);
+        
+        if (p == null || p.IsEmpty())
+        {
+            parsed = null;
+            return Error("The parsed lyrics are null or empty");
+        }
+
+        parsed = p;
+        return true;
+    }
+
     private int FindFirstLine(AList<string> lines)
     {
         for (int i = 0; i < lines.Length; i++)

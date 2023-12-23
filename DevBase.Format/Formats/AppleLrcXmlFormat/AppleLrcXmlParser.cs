@@ -64,4 +64,26 @@ public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
 
         return timeStampedLyrics;
     }
+    
+    public override bool TryParse(string rawTtmlResponse, out AList<TimeStampedLyric> timeStamped)
+    {
+        string unescaped = Regex.Unescape(rawTtmlResponse);
+        
+        if (!unescaped.Contains("itunes:timing=\"Line\""))
+        {
+            timeStamped = null;
+            return Error("Wrong timing format");
+        }
+
+        AList<TimeStampedLyric> timedLyrics = Parse(rawTtmlResponse);
+
+        if (timedLyrics == null || timedLyrics.IsEmpty())
+        {
+            timeStamped = null;
+            return Error("The parsed lyrics are null or empty");
+        }
+
+        timeStamped = timedLyrics;
+        return true;
+    }
 }
