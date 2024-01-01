@@ -81,7 +81,6 @@ public class TidalTests
         Assert.AreEqual(download.codec, "AAC");
     }
     
-    
     [Test]
     public async Task DownloadSongData()
     {

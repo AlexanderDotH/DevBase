@@ -7,7 +7,17 @@ namespace DevBase.Format.Extensions;
 
 public static class LyricsExtensions
 {
-    public static string ToRaw(this AList<TimeStampedLyric> elements)
+    public static string ToPlainText(this AList<RawLyric> rawElements)
+    {
+        StringBuilder rawLyrics = new StringBuilder();
+
+        for (int i = 0; i < rawElements.Length; i++)
+            rawLyrics.AppendLine(rawElements.Get(i).Text);
+
+        return rawLyrics.ToString();
+    }
+    
+    public static string ToPlainText(this AList<TimeStampedLyric> elements)
     {
         StringBuilder rawLyrics = new StringBuilder();
 
@@ -17,7 +27,7 @@ public static class LyricsExtensions
         return rawLyrics.ToString();
     }
     
-    public static string ToRaw(this AList<RichTimeStampedLyric> richElements)
+    public static string ToPlainText(this AList<RichTimeStampedLyric> richElements)
     {
         StringBuilder rawLyrics = new StringBuilder();
 
@@ -25,5 +35,25 @@ public static class LyricsExtensions
             rawLyrics.AppendLine(richElements.Get(i).Text);
 
         return rawLyrics.ToString();
+    }
+    
+    public static AList<TimeStampedLyric> ToTimeStampedLyrics(this AList<RichTimeStampedLyric> richElements)
+    {
+        AList<TimeStampedLyric> timeStampedLyrics = new AList<TimeStampedLyric>();
+
+        for (int i = 0; i < richElements.Length; i++)
+        {
+            RichTimeStampedLyric stampedLyric = richElements.Get(i);
+
+            TimeStampedLyric timeStampedLyric = new TimeStampedLyric()
+            {
+                Text = stampedLyric.Text,
+                StartTime = stampedLyric.StartTime
+            };
+            
+            timeStampedLyrics.Add(timeStampedLyric);
+        }
+        
+        return timeStampedLyrics;
     }
 }
