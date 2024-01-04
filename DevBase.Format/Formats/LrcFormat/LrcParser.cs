@@ -47,7 +47,7 @@ namespace DevBase.Format.Formats.LrcFormat
             if (p == null || p.IsEmpty())
             {
                 parsed = null;
-                return Error<object>("The parsed lyrics are null or empty");
+                return Error<bool>("The parsed lyrics are null or empty");
             }
 
             parsed = p;
