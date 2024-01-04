@@ -1,5 +1,6 @@
 ﻿using DevBase.Api.Apis.Deezer.Structure.Json;
 using DevBase.Api.Apis.Deezer.Structure.Objects;
+using Dumpify;
 
 namespace DevBase.Test.DevBaseApi.Deezer;
 
@@ -22,6 +23,8 @@ public class DeezerTests
         string trackID = "1276231202";
 
         var lyrics = await deezerApi.GetLyrics(trackID);
+
+        lyrics.DumpConsole();
         
         Assert.NotNull(lyrics.RawLyrics);
     }

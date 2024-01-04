@@ -12,15 +12,6 @@ namespace DevBase.Format.Formats.KLyricsFormat;
 
 public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
 {
-    private readonly Regex _regexTimeStamp;
-    private readonly Regex _regexWord;
-
-    public KLyricsParser()
-    {
-        this._regexTimeStamp = new Regex(RegexHolder.REGEX_KLYRICS_TIMESTAMPS);
-        this._regexWord = new Regex(RegexHolder.REGEX_KLYRICS_WORD);
-    }
-
     public override AList<RichTimeStampedLyric> Parse(string from)
     {
         AList<RichTimeStampedLyric> richTimeStampedLyrics = new AList<RichTimeStampedLyric>();
@@ -55,7 +46,7 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
     {
         for (int i = 0; i < lines.Length; i++)
         {
-            if (this._regexWord.IsMatch(lines.Get(i)))
+            if (RegexHolder.RegexKlyricsWord.IsMatch(lines.Get(i)))
                 return i;
         }
 
@@ -64,16 +55,16 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
     
     private RichTimeStampedLyric ParseSingleLine(string line)
     {
-        if (!this._regexTimeStamp.IsMatch(line))
+        if (!RegexHolder.RegexKlyricsTimeStamps.IsMatch(line))
             return Error<object>("Timestamp is missing");
 
-        if (!this._regexWord.IsMatch(line))
+        if (!RegexHolder.RegexKlyricsWord.IsMatch(line))
             return Error<object>("Words are missing");
         
         AList<RichTimeStampedWord> words = new AList<RichTimeStampedWord>();
         
-        Match timeStamp = this._regexTimeStamp.Match(line);
-        MatchCollection wordMatches = this._regexWord.Matches(line);
+        Match timeStamp = RegexHolder.RegexKlyricsTimeStamps.Match(line);
+        MatchCollection wordMatches = RegexHolder.RegexKlyricsWord.Matches(line);
 
         TimeSpan lineStartTime = GetTimeSpan(timeStamp, 2);
         TimeSpan lineEndTime = lineStartTime + GetTimeSpan(timeStamp, 4);

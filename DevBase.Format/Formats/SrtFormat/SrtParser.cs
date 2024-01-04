@@ -6,7 +6,7 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.SrtFormat;
 
-public class SrtParser : FileFormat<string, AList<RichTimeStampedLyric>>
+public class SrtParser : FileFormat<string, AList<RichTimeStampedLyric>>    
 {
     public override AList<RichTimeStampedLyric> Parse(string from)
     {
@@ -21,8 +21,7 @@ public class SrtParser : FileFormat<string, AList<RichTimeStampedLyric>>
 
             if (currentList.Length == 4)
             {
-                Match match = Regex.Match(currentList.Get(1), 
-                    RegexHolder.REGEX_SRT_TIMESTAMPS);
+                Match match = RegexHolder.RegexSrtTimeStamps.Match(currentList.Get(1));
                 
                 TimeSpan startTime = TimeSpan.Parse(match.Groups[1].Value);
                 TimeSpan endTime = TimeSpan.Parse(match.Groups[4].Value);

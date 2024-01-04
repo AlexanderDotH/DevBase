@@ -13,13 +13,10 @@ namespace DevBase.Format.Formats.ElrcFormat;
 public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyric>>
 {
     private readonly string _indent;
-
-    private readonly Regex _elrcDataRegex;
     
     public ElrcParser()
     {
         this._indent = "    ";
-        this._elrcDataRegex = new Regex(RegexHolder.REGEX_ELRC_DATA, RegexOptions.Multiline);
     }
     
     public override AList<RichTimeStampedLyric> Parse(string from)
@@ -115,7 +112,7 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
 
         AList<string> entries = block.GetRangeAsAList(2, block.Length - 2);
 
-        if (!this._elrcDataRegex.IsMatch(first))
+        if (!RegexHolder.RegexElrc.IsMatch(first))
             return Error<object>("Invalid head block");
 
         RichTimeStampedLyric head = ParseHead(first);
@@ -182,7 +179,7 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
 
     private RichTimeStampedLyric ParseHead(string head)
     {
-        Match firstMatch = this._elrcDataRegex.Match(head);
+        Match firstMatch = RegexHolder.RegexElrc.Match(head);
         
         TimeSpan hStart = ParseTimeSpan(firstMatch, true);
         TimeSpan hEnd = ParseTimeSpan(firstMatch, false);
@@ -199,7 +196,7 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
     
     private RichTimeStampedWord ParseElement(string bodyElement)
     {
-        Match match = this._elrcDataRegex.Match(bodyElement);
+        Match match = RegexHolder.RegexElrc.Match(bodyElement);
         
         TimeSpan hStart = ParseTimeSpan(match, true);
         TimeSpan hEnd = ParseTimeSpan(match, false);

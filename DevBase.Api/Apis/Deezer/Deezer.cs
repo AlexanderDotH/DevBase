@@ -50,6 +50,8 @@ public class Deezer
         
         RequestData requestData = new RequestData(string.Format("{0}/login/arl?i=c&jo=p&rto=n", this._authEndpoint), EnumRequestMethod.POST);
 
+        requestData.Timeout = TimeSpan.FromMinutes(1);
+
         requestData.Header.Add("Accept", "*/*");
         requestData.Header.Add("Accept-Encoding", "gzip, deflate, br");
         
@@ -150,6 +152,8 @@ public class Deezer
                 this._websiteEndpoint, userData.results.checkForm, this.RandomCid),
             EnumRequestMethod.POST);
 
+        requestData.Timeout = TimeSpan.FromMinutes(1);
+        
         JObject jsonTrackID = new JObject();
         jsonTrackID["sng_id"] = trackID;
 
@@ -209,6 +213,7 @@ public class Deezer
                 string.Format("{0}/ajax/gw-light.php?method=deezer.getUserData&api_version=1.0&input=3&api_token=&cid={1}", this._websiteEndpoint, this.RandomCid), 
                 EnumRequestMethod.GET);
         
+            requestData.Timeout = TimeSpan.FromMinutes(1);
             requestData.CookieContainer = this._cookieContainer;
             
             Request request = new Request(requestData);

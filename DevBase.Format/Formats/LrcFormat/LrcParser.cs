@@ -10,15 +10,6 @@ namespace DevBase.Format.Formats.LrcFormat
 {
     public class LrcParser : RevertableFileFormat<string, AList<TimeStampedLyric>>
     {
-        private readonly Regex _regexLrc;
-        private readonly Regex _regexGarbage;
-
-        public LrcParser()
-        {
-            this._regexLrc = new Regex(RegexHolder.REGEX_LRC, RegexOptions.Multiline);
-            this._regexGarbage = new Regex(RegexHolder.REGEX_GARBAGE);
-        }
-        
         public override AList<TimeStampedLyric> Parse(string from)
         {
             AList<TimeStampedLyric> lyricElements = new AList<TimeStampedLyric>();
@@ -86,13 +77,13 @@ namespace DevBase.Format.Formats.LrcFormat
             if (lyricLine == null)
                 return null;
 
-            if (this._regexGarbage.IsMatch(lyricLine))
+            if (RegexHolder.RegexGarbage.IsMatch(lyricLine))
                 return null;
             
-            if (!this._regexLrc.IsMatch(lyricLine))
+            if (!RegexHolder.RegexLrc.IsMatch(lyricLine))
                 return Error<object>("LRC regex does not match");
 
-            Match match = this._regexLrc.Match(lyricLine);
+            Match match = RegexHolder.RegexLrc.Match(lyricLine);
 
             string rawLine = match.Groups[9].Value;
 
