@@ -36,7 +36,7 @@ public class RlrcParser : RevertableFileFormat<string, AList<RawLyric>>
         if (p == null || p.IsEmpty())
         {
             parsed = null;
-            return Error("The parsed lyrics are null or empty");
+            return Error<bool>("The parsed lyrics are null or empty");
         }
 
         parsed = p;
@@ -67,7 +67,7 @@ public class RlrcParser : RevertableFileFormat<string, AList<RawLyric>>
         if (string.IsNullOrEmpty(r))
         {
             from = null;
-            return Error("The parsed lyrics are null or empty");
+            return Error<bool>("The parsed lyrics are null or empty");
         }
 
         from = r;

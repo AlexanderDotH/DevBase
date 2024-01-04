@@ -2,7 +2,7 @@
 {
     public class RegexHolder
     {
-        public const string REGEX_LRC = "((\\[)([0-9]*)([:])([0-9]*)([:]|[.])(\\d+\\.\\d+|\\d+)(\\]))\\s(.*$)";
+        public const string REGEX_LRC = "((\\[)([0-9]*)([:])([0-9]*)([:]|[.])(\\d+\\.\\d+|\\d+)(\\]))(\\s|.*$)";
 
         public const string REGEX_GARBAGE = "\\D(\\?{0,2}).([:]).([\\w /]*)";
         public const string REGEX_ENV = "(\\w*)\\=\"(\\w*)";

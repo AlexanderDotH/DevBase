@@ -11,8 +11,8 @@ public abstract class FileFormat<F, T>
     public abstract T Parse(F from);
     
     public abstract bool TryParse(F from, out T parsed);
-
-    protected dynamic Error(
+    
+    protected dynamic Error<TX>(
         string message, 
         [CallerMemberName] string callerMember = "", 
         [CallerFilePath] string callerFilePath = "", 
@@ -24,10 +24,10 @@ public abstract class FileFormat<F, T>
             throw new ParsingException(exceptionMessage);
         }
 
-        return null;
+        return TypeReturn<TX>();
     }
     
-    protected dynamic Error(
+    protected dynamic Error<TX>(
         System.Exception exception, 
         [CallerMemberName] string callerMember = "", 
         [CallerFilePath] string callerFilePath = "", 
@@ -39,6 +39,23 @@ public abstract class FileFormat<F, T>
             throw new ParsingException(message, exception);
         }
 
+        return TypeReturn<TX>();
+    }
+
+    private dynamic TypeReturn<TX>()
+    {
+        TX type = (TX)Activator.CreateInstance(typeof(TX));
+        
+        if (type?.GetType() == typeof(bool))
+        {
+            return false;
+        }
+
+        if (type?.GetType() == typeof(object))
+        {
+            return null;
+        }
+        
         return null;
     }
 }

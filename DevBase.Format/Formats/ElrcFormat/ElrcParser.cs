@@ -45,7 +45,7 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         if (p == null || p.IsEmpty())
         {
             parsed = null;
-            return Error("The parsed lyrics are null or empty");
+            return Error<bool>("The parsed lyrics are null or empty");
         }
 
         parsed = p;
@@ -87,7 +87,7 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         }
 
         if (sb.Length == 0)
-            return Error("Block not found");
+            return Error<object>("Block not found");
         
         return sb.ToString();
     }
@@ -99,7 +99,7 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         if (string.IsNullOrEmpty(r))
         {
             from = null;
-            return Error("The parsed lyrics are null or empty");
+            return Error<bool>("The parsed lyrics are null or empty");
         }
 
         from = r;
@@ -111,12 +111,12 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         string first = block.Get(0);
 
         if (!first.StartsWith("["))
-            return Error("Invalid block at block position 0");
+            return Error<object>("Invalid block at block position 0");
 
         AList<string> entries = block.GetRangeAsAList(2, block.Length - 2);
 
         if (!this._elrcDataRegex.IsMatch(first))
-            return Error("Invalid head block");
+            return Error<object>("Invalid head block");
 
         RichTimeStampedLyric head = ParseHead(first);
 
@@ -175,7 +175,7 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         TimeSpan parsed;
 
         if (!TimeUtils.TryParseTimeStamp(timeStamp.ToString(), out parsed))
-            return Error($"Cannot parse timespan {timeStamp.ToString()}");
+            return Error<object>($"Cannot parse timespan {timeStamp.ToString()}");
         
         return parsed;
     }

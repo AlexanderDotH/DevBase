@@ -44,7 +44,7 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
         if (p == null || p.IsEmpty())
         {
             parsed = null;
-            return Error("The parsed lyrics are null or empty");
+            return Error<bool>("The parsed lyrics are null or empty");
         }
 
         parsed = p;
@@ -59,16 +59,16 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
                 return i;
         }
 
-        return Error("Block not found");
+        return Error<object>("Block not found");
     }
     
     private RichTimeStampedLyric ParseSingleLine(string line)
     {
         if (!this._regexTimeStamp.IsMatch(line))
-            return Error("Timestamp is missing");
+            return Error<object>("Timestamp is missing");
 
         if (!this._regexWord.IsMatch(line))
-            return Error("Words are missing");
+            return Error<object>("Words are missing");
         
         AList<RichTimeStampedWord> words = new AList<RichTimeStampedWord>();
         

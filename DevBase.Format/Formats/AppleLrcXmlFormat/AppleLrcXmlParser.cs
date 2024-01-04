@@ -22,15 +22,15 @@ public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
         using XmlReader xmlReader = XmlReader.Create(reader);
 
         if (!serializer.CanDeserialize(xmlReader))
-            return Error("Cannot read Xml file");
+            return Error<object>("Cannot read Xml file");
 
         XmlTt tt = (XmlTt)serializer.Deserialize(xmlReader);
 
         if (tt == null)
-            return Error("Failed to parse xml file");
+            return Error<object>("Failed to parse xml file");
 
         if (!tt.Timing.SequenceEqual("Line"))
-            return Error("Wrong timing format");
+            return Error<object>("Wrong timing format");
 
         AList<TimeStampedLyric> timeStampedLyrics = new AList<TimeStampedLyric>();
 
@@ -51,7 +51,7 @@ public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
             TimeSpan startTime;
             
             if (!TimeUtils.TryParseTimeStamp(part.Begin, out startTime))
-                return Error($"Error parsing timestamp {part.Begin}");
+                return Error<object>($"Error parsing timestamp {part.Begin}");
             
             TimeStampedLyric timeStampedLyric = new TimeStampedLyric()
             {
@@ -72,7 +72,7 @@ public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
         if (!unescaped.Contains("itunes:timing=\"Line\""))
         {
             timeStamped = null;
-            return Error("Wrong timing format");
+            return Error<bool>("Wrong timing format");
         }
 
         AList<TimeStampedLyric> timedLyrics = Parse(rawTtmlResponse);
@@ -80,7 +80,7 @@ public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
         if (timedLyrics == null || timedLyrics.IsEmpty())
         {
             timeStamped = null;
-            return Error("The parsed lyrics are null or empty");
+            return Error<bool>("The parsed lyrics are null or empty");
         }
 
         timeStamped = timedLyrics;

@@ -48,7 +48,7 @@ public class SrtParser : FileFormat<string, AList<RichTimeStampedLyric>>
         if (p == null || p.IsEmpty())
         {
             parsed = null;
-            return Error("The parsed lyrics are null or empty");
+            return Error<bool>("The parsed lyrics are null or empty");
         }
 
         parsed = p;

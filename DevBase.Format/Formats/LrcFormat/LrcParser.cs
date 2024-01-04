@@ -47,7 +47,7 @@ namespace DevBase.Format.Formats.LrcFormat
             if (p == null || p.IsEmpty())
             {
                 parsed = null;
-                return Error("The parsed lyrics are null or empty");
+                return Error<object>("The parsed lyrics are null or empty");
             }
 
             parsed = p;
@@ -74,7 +74,7 @@ namespace DevBase.Format.Formats.LrcFormat
             if (string.IsNullOrEmpty(r))
             {
                 from = null; 
-                return Error("The parsed lyrics are null or empty");
+                return Error<bool>("The parsed lyrics are null or empty");
             }
 
             from = r;
@@ -86,15 +86,15 @@ namespace DevBase.Format.Formats.LrcFormat
             if (lyricLine == null)
                 return null;
 
+            if (this._regexGarbage.IsMatch(lyricLine))
+                return null;
+            
             if (!this._regexLrc.IsMatch(lyricLine))
-                return Error("LRC regex does not match");
+                return Error<object>("LRC regex does not match");
 
             Match match = this._regexLrc.Match(lyricLine);
 
             string rawLine = match.Groups[9].Value;
-            
-            if (this._regexGarbage.IsMatch(rawLine))
-                return null;
 
             TimeSpan startTime;
 
@@ -102,7 +102,7 @@ namespace DevBase.Format.Formats.LrcFormat
             string rawTime = groupTime.Substring(1, groupTime.Length - 2);
             
             if (!TimeUtils.TryParseTimeStamp(rawTime, out startTime))
-                return Error("Cannot parse timestamp");
+                return Error<object>("Cannot parse timestamp");
             
             string text = LyricsUtils.EditLine(rawLine);
             

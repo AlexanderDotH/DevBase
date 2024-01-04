@@ -19,15 +19,15 @@ public class AppleXmlParser : FileFormat<string, AList<RawLyric>>
         using XmlReader xmlReader = XmlReader.Create(reader);
 
         if (!serializer.CanDeserialize(xmlReader))
-            return Error("Cannot read Xml file");
+            return Error<object>("Cannot read Xml file");
 
         XmlTt tt = (XmlTt)serializer.Deserialize(xmlReader);
 
         if (tt == null)
-            return Error("Failed to parse xml file");
+            return Error<object>("Failed to parse xml file");
 
         if (!tt.Timing.SequenceEqual("None"))
-            return Error("Wrong timing format");
+            return Error<object>("Wrong timing format");
 
         AList<RawLyric> rawLyrics = new AList<RawLyric>();
 
@@ -63,7 +63,7 @@ public class AppleXmlParser : FileFormat<string, AList<RawLyric>>
         if (!unescaped.Contains("itunes:timing=\"None\""))
         {
             rawLyrics = null;
-            return Error("Wrong timing format");
+            return Error<bool>("Wrong timing format");
         }
 
         AList<RawLyric> rawParsedLyrics = Parse(rawTtmlResponse);
@@ -71,7 +71,7 @@ public class AppleXmlParser : FileFormat<string, AList<RawLyric>>
         if (rawParsedLyrics == null || rawParsedLyrics.IsEmpty())
         {
             rawLyrics = null;
-            return Error("The parsed lyrics are null or empty");
+            return Error<bool>("The parsed lyrics are null or empty");
         }
 
         rawLyrics = rawParsedLyrics;

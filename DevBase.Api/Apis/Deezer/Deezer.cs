@@ -492,7 +492,7 @@ public class Deezer
         
         JsonDeezerRawLyricsResponse lyricsResponse = await GetLyricsAjax(trackID);
 
-        if (lyricsResponse.results == null)
+        if (lyricsResponse == null || lyricsResponse.results == null)
             throw new System.Exception("Lyrics not found");
 
         if (lyricsResponse.results.LYRICS_TEXT != string.Empty)
