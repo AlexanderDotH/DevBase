@@ -237,27 +237,18 @@ public class Deezer
         
         JsonDeezerSongDetails songDetails = await this.GetSongDetails(trackID, userData.results.checkForm);
 
-        if (songDetails.results == null)
+        if (songDetails == null || songDetails.results == null)
             throw new System.Exception("Cannot find song details");
         
-        List<string> artists = new List<string>();
-        songDetails.results.DATA.ARTISTS.ForEach(a => artists.Add(a.ART_NAME));
-        
         int durationS = Convert.ToInt32(songDetails.results.DATA.DURATION);
-
-        List<string> artworkUrls = new List<string>();
-        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/56x56-000000-80-0-0.jpg", songDetails.results.DATA.ALB_PICTURE));
-        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/250x250-000000-80-0-0.jpg", songDetails.results.DATA.ALB_PICTURE));
-        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/500x500-000000-80-0-0.jpg", songDetails.results.DATA.ALB_PICTURE));
-        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/1000x1000-000000-80-0-0.jpg", songDetails.results.DATA.ALB_PICTURE));
-
+        
         DeezerTrack track = new DeezerTrack()
         {
             Title = songDetails.results.DATA.SNG_TITLE,
             Album = songDetails.results.DATA.ALB_TITLE,
             Duration = (int)TimeSpan.FromSeconds(durationS).TotalMilliseconds,
-            Artists = artists.ToArray(),
-            ArtworkUrls = artworkUrls.ToArray(),
+            Artists = GetArtists(songDetails.results.DATA.ARTISTS),
+            ArtworkUrls = GetArtworks(songDetails.results.DATA.ALB_PICTURE),
             ServiceInternalId = songDetails.results.DATA.SNG_ID
         };
 
@@ -530,6 +521,28 @@ public class Deezer
     }
     
     private int RandomCid => new Random().Next(100000000, 999999999);
+    
+    private string[] GetArtworks(string coverId)
+    {
+        List<string> artworkUrls = new List<string>();
+        
+        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/56x56-000000-80-0-0.jpg", coverId));
+        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/250x250-000000-80-0-0.jpg", coverId));
+        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/500x500-000000-80-0-0.jpg", coverId));
+        artworkUrls.Add(string.Format("https://e-cdns-images.dzcdn.net/images/cover/{0}/1000x1000-000000-80-0-0.jpg", coverId));
+
+        return artworkUrls.ToArray();
+    }
+    
+    private string[] GetArtists(List<JsonDeezerSongDetailsResultsDataArtist> artists)
+    {
+        List<string> convertedArtists = new List<string>();
+
+        for (int i = 0; i < artists.Count; i++)
+            convertedArtists.Add(artists[i].ART_NAME);
+
+        return convertedArtists.ToArray();
+    }
     
     private bool IsArlTokenPresent()
     {

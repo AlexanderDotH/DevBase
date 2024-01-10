@@ -53,7 +53,8 @@ public class AppleMusicTests
     public async Task GetLyricsTest()
     {
         Api.Apis.AppleMusic.AppleMusic appleMusic = await Api.Apis.AppleMusic.AppleMusic.WithAccessToken();
-        
+        appleMusic.WithMediaUserTokenFromCookie("");
+           
         var lyrics = await appleMusic.GetLyrics("1717566174");
 
         lyrics.DumpConsole();
