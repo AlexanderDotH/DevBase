@@ -76,9 +76,11 @@ public class DeezerTests
     {
         Api.Apis.Deezer.Deezer deezerApi = new Api.Apis.Deezer.Deezer();
         
-        string trackID = "1276231202";
+        string trackID = "2185305857";
 
         DeezerTrack track = await deezerApi.GetSong(trackID);
+
+        track.DumpConsole();
         
         Assert.NotNull(track);
     }
@@ -88,7 +90,9 @@ public class DeezerTests
     {
         Api.Apis.Deezer.Deezer deezerApi = new Api.Apis.Deezer.Deezer();
 
-        var results = await deezerApi.Search(track:"Never Gonna Give You Up", artist:"Rick Astley", strict:true);
+        var results = await deezerApi.Search(track:"Contact", artist:"Abide", album:"Contact");
+
+        results.DumpConsole();
         
         Assert.NotNull(results);
     }

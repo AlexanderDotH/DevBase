@@ -257,6 +257,9 @@ public class Deezer
     
     public async Task<JsonDeezerSongDetails> GetSongDetails(string trackID, string apiToken, int retries = 5)
     {
+        if (trackID == "0")
+            return null;
+        
         for (int i = 0; i < retries; i++)
         {
             RequestData requestData = new RequestData(string.Format("{0}/ajax/gw-light.php?method=deezer.pageTrack&api_version=1.0&input=3&api_token={1}", 

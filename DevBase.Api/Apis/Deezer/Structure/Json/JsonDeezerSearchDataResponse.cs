@@ -5,7 +5,7 @@ namespace DevBase.Api.Apis.Deezer.Structure.Json;
 public class JsonDeezerSearchDataResponse
 {
     [JsonProperty("id")]
-    public int id { get; set; }
+    public long id { get; set; }
 
     [JsonProperty("readable")]
     public bool readable { get; set; }
