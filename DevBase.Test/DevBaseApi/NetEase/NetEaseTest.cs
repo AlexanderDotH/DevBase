@@ -13,7 +13,7 @@ public class NetEaseTest
 
         result.DumpConsole();
         
-        Assert.NotNull(result.result);
+        Assert.That(result.result != null);
     }
     
     [Test]
@@ -25,7 +25,7 @@ public class NetEaseTest
 
         result.DumpConsole();
         
-        Assert.IsTrue(result.lrc.lyric.Contains("We're no strangers to love"));
+        Assert.That(result.lrc.lyric.Contains("We're no strangers to love"));
     }
     
     [Test]
@@ -37,7 +37,7 @@ public class NetEaseTest
         
         result.DumpConsole();
 
-        Assert.IsTrue(result.Get(0).Text.Contains("We're no strangers to love"));
+        Assert.That(result.Get(0).Text.Contains("We're no strangers to love"));
     }
     
     [Test]

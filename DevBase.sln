@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Cryptography.Bouncy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Avalonia.Extension", "DevBase.Avalonia.Extension\DevBase.Avalonia.Extension.csproj", "{45BDD112-D62B-43A1-8592-C12D6FF3D157}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Requests", "DevBase.Requests\DevBase.Requests.csproj", "{402CC730-6E99-4A79-A093-49236C9AE5F5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{45BDD112-D62B-43A1-8592-C12D6FF3D157}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{45BDD112-D62B-43A1-8592-C12D6FF3D157}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{45BDD112-D62B-43A1-8592-C12D6FF3D157}.Release|Any CPU.Build.0 = Release|Any CPU
+		{402CC730-6E99-4A79-A093-49236C9AE5F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{402CC730-6E99-4A79-A093-49236C9AE5F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{402CC730-6E99-4A79-A093-49236C9AE5F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{402CC730-6E99-4A79-A093-49236C9AE5F5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

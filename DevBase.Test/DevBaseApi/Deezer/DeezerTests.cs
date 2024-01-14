@@ -1,4 +1,5 @@
-﻿using DevBase.Api.Apis.Deezer.Structure.Json;
+﻿using System.Diagnostics;
+using DevBase.Api.Apis.Deezer.Structure.Json;
 using DevBase.Api.Apis.Deezer.Structure.Objects;
 using Dumpify;
 
@@ -90,8 +91,50 @@ public class DeezerTests
     {
         Api.Apis.Deezer.Deezer deezerApi = new Api.Apis.Deezer.Deezer();
 
-        var results = await deezerApi.Search(track:"Contact", artist:"Abide", album:"Contact");
+        Stopwatch stopwatch = new Stopwatch();
+        
+        stopwatch.Start();
+        var results = await deezerApi.Search(track:"Contact", artist:"Abide", album:"Contact", strict:false);
+        stopwatch.Stop();
+        
+        Console.WriteLine($"Took {stopwatch.ElapsedMilliseconds}ms or {stopwatch.ElapsedTicks}ts to collect {results.data.Count} tracks");
 
+        results.DumpConsole();
+        
+        Assert.NotNull(results);
+    }
+
+    [Test]
+    public async Task AsyncSearchTest()
+    {
+        Api.Apis.Deezer.Deezer deezerApi = new Api.Apis.Deezer.Deezer();
+
+        Stopwatch stopwatch = new Stopwatch();
+        
+        stopwatch.Start();
+        var results = await deezerApi.SearchAsync(track:"Never Gonna Give You Up", artist:"Rick Astley", strict:false, limit:10);
+        stopwatch.Stop();
+        
+        Console.WriteLine($"Took {stopwatch.ElapsedMilliseconds}ms or {stopwatch.ElapsedTicks}ts to collect {results.Count} tracks");
+        
+        results.DumpConsole();
+        
+        Assert.NotNull(results);
+    }
+    
+    [Test]
+    public async Task SyncSearchTest()
+    {
+        Api.Apis.Deezer.Deezer deezerApi = new Api.Apis.Deezer.Deezer();
+
+        Stopwatch stopwatch = new Stopwatch();
+        
+        stopwatch.Start();
+        var results = await deezerApi.Search(track:"Never Gonna Give You Up", artist:"Rick Astley", strict:false, limit:10);
+        stopwatch.Stop();
+        
+        Console.WriteLine($"Took {stopwatch.ElapsedMilliseconds}ms or {stopwatch.ElapsedTicks}ts to collect {results.Count} tracks");
+        
         results.DumpConsole();
         
         Assert.NotNull(results);

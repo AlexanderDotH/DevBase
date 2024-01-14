@@ -3,6 +3,7 @@ using System.Reflection.Metadata;
 using System.Text;
 using DevBase.Api.Apis.Deezer.Structure.Json;
 using DevBase.Api.Apis.Deezer.Structure.Objects;
+using DevBase.Api.Objects.Token;
 using DevBase.Api.Serializer;
 using DevBase.Cryptography.Blowfish;
 using DevBase.Enums;
@@ -28,6 +29,8 @@ public class Deezer
     private readonly string _mediaEndpoint;
 
     private CookieContainer _cookieContainer;
+
+    private GenericAuthenticationToken _csrfToken;
 
     public Deezer(string arlToken = "")
     {
@@ -145,11 +148,14 @@ public class Deezer
 
     public async Task<JsonDeezerRawLyricsResponse> GetLyricsAjax(string trackID)
     {
-        JsonDeezerUserData userData = await this.GetUserData();
+        string csrfToken = await GetCsrfToken();
+
+        if (string.IsNullOrEmpty(csrfToken))
+            throw new System.Exception("No CSRF provided");
 
         RequestData requestData = new RequestData(
             string.Format("{0}/ajax/gw-light.php?method=song.getLyrics&api_version=1.0&input=3&api_token={1}&cid={2}",
-                this._websiteEndpoint, userData.results.checkForm, this.RandomCid),
+                this._websiteEndpoint, csrfToken, this.RandomCid),
             EnumRequestMethod.POST);
 
         requestData.Timeout = TimeSpan.FromMinutes(1);
@@ -204,40 +210,70 @@ public class Deezer
         
         return new JsonDeserializer<JsonDeezerLyricsResponse>().Deserialize(responseData.GetContentAsString());
     }
+
+    public async Task<string> GetCsrfToken()
+    {
+        string rawUserData = await GetUserDataRaw();
+
+        if (string.IsNullOrEmpty(rawUserData))
+            return string.Empty;
+
+        JObject parsed = JObject.Parse(rawUserData);
+
+        if (!parsed.ContainsKey("results"))
+            return string.Empty;
+
+        JToken jToken = parsed.SelectToken("$.results.checkForm");
+
+        if (jToken == null)
+            return string.Empty;
+
+        return jToken.Value<string>();
+    }
     
     public async Task<JsonDeezerUserData> GetUserData(int retries = 5)
     {
-        for (int i = 0; i < retries; i++)
-        {
-            RequestData requestData = new RequestData(
-                string.Format("{0}/ajax/gw-light.php?method=deezer.getUserData&api_version=1.0&input=3&api_token=&cid={1}", this._websiteEndpoint, this.RandomCid), 
-                EnumRequestMethod.GET);
+        string rawUserData = await GetUserDataRaw(retries);
+
+        if (string.IsNullOrEmpty(rawUserData))
+            return null;
         
-            requestData.Timeout = TimeSpan.FromMinutes(1);
-            requestData.CookieContainer = this._cookieContainer;
-            
-            Request request = new Request(requestData);
-            ResponseData responseData = await request.GetResponseAsync();
+        return new JsonDeserializer<JsonDeezerUserData>().Deserialize(rawUserData);
+    }
 
-            string content = responseData.GetContentAsString();
+    public async Task<string> GetUserDataRaw(int retries = 5)
+    {
+        RequestData requestData = new RequestData(
+            string.Format("{0}/ajax/gw-light.php?method=deezer.getUserData&api_version=1.0&input=3&api_token=&cid={1}", this._websiteEndpoint, this.RandomCid), 
+            EnumRequestMethod.GET);
+        
+        requestData.CookieContainer = this._cookieContainer;
             
-            if (!content.Contains("deprecated?method=deezer.getUserData"))
-                return new JsonDeserializer<JsonDeezerUserData>().Deserialize(content);
-        }
+        Request request = new Request(requestData);
+        ResponseData responseData = await request.GetResponseAsync();
 
-        return null;
+        string content = Encoding.ASCII.GetString(responseData.Content);
+            
+        if (!content.Contains("deprecated?method=deezer.getUserData"))
+            return content;
+
+        return string.Empty;
     }
 
     public async Task<DeezerTrack> GetSong(string trackID)
     {
-        JsonDeezerUserData userData = await this.GetUserData();
+        string csrfToken = await GetCsrfToken();
 
-        if (userData == null)
+        if (string.IsNullOrEmpty(csrfToken))
             throw new System.Exception("No CSRF provided");
         
-        JsonDeezerSongDetails songDetails = await this.GetSongDetails(trackID, userData.results.checkForm);
+        JsonDeezerSongDetails songDetails = await this.GetSongDetails(trackID, csrfToken);
 
-        if (songDetails == null || songDetails.results == null)
+        if (songDetails == null || 
+            songDetails.results == null || 
+            songDetails.results.DATA == null ||
+            songDetails.results.ISRC == null || 
+            songDetails.results.RELATED_ALBUMS == null)
             throw new System.Exception("Cannot find song details");
         
         int durationS = Convert.ToInt32(songDetails.results.DATA.DURATION);
@@ -255,7 +291,7 @@ public class Deezer
         return track;
     }
     
-    public async Task<JsonDeezerSongDetails> GetSongDetails(string trackID, string apiToken, int retries = 5)
+    public async Task<JsonDeezerSongDetails> GetSongDetails(string trackID, string csrfToken, int retries = 5)
     {
         if (trackID == "0")
             return null;
@@ -264,13 +300,15 @@ public class Deezer
         {
             RequestData requestData = new RequestData(string.Format("{0}/ajax/gw-light.php?method=deezer.pageTrack&api_version=1.0&input=3&api_token={1}", 
                 this._websiteEndpoint, 
-                apiToken), EnumRequestMethod.POST);
+                csrfToken), EnumRequestMethod.POST);
 
+            requestData.Timeout = TimeSpan.FromSeconds(10);
+            
             JObject jObject = new JObject();
             jObject["sng_id"] = trackID;
             
             requestData.AddContent(jObject.ToString());
-            requestData.SetContentType(EnumContentType.TEXT_PLAIN);
+            requestData.SetContentType(EnumContentType.APPLICATION_JSON);
         
             requestData.CookieContainer = this._cookieContainer;
         
@@ -281,6 +319,9 @@ public class Deezer
 
             if (content.Contains("Invalid CSRF token"))
                 throw new System.Exception("Invalid CSRF token provided");
+
+            if (content.Contains("Wrong parameters"))
+                throw new System.Exception($"The song id required you provided the wrong song id: {trackID}");
             
             if (!content.Contains("deprecated?method=deezer.pageTrack"))
                 return new JsonDeserializer<JsonDeezerSongDetails>().Deserialize(content);
@@ -446,10 +487,99 @@ public class Deezer
         
         Request request = new Request(requestData);
         ResponseData responseData = await request.GetResponseAsync();
-        
+
         return new JsonDeserializer<JsonDeezerSearchResponse>().Deserialize(responseData.GetContentAsString());
     }
 
+    private async Task<string> SearchRaw(string track = "", string artist = "", string album = "", bool strict = false)
+    {
+        RequestData requestData = new RequestData(
+            string.Format("{0}/search?q=track:\"{1}\" artist:\"{2}\" album:\"{3}\"{4}", this._apiEndpoint, track, artist, album, strict ? "?strict=on" : ""));
+        
+        Request request = new Request(requestData);
+        ResponseData responseData = await request.GetResponseAsync();
+
+        return responseData.GetContentAsString();
+    }
+    
+    public async Task<List<DeezerTrack>> Search(
+        string track = "", 
+        string artist = "", 
+        string album = "",
+        bool strict = false, 
+        int limit = 10)
+    {
+        string searchResults = await SearchRaw(track, artist, album, strict);
+
+        JObject resultData = JObject.Parse(searchResults);
+
+        if (!resultData.ContainsKey("data"))
+            return new List<DeezerTrack>();
+
+        IEnumerable<JToken> dataArray = resultData.SelectTokens("$.data[*].id").Take(limit);
+
+        if (dataArray == null)
+            return new List<DeezerTrack>();
+        
+        List<DeezerTrack> deezerTracks = new List<DeezerTrack>();
+
+        foreach (JToken token in dataArray)
+        {
+            string trackId = token.Value<string>();
+            
+            try
+            {
+                if (trackId != "0")
+                {
+                    deezerTracks.Add(await GetSong(trackId));
+                }
+            }
+            catch (System.Exception ex)
+            {
+                throw;
+            }
+        }
+
+        return deezerTracks;
+    }
+    
+    public async Task<List<DeezerTrack>> SearchAsync(
+        string track = "", 
+        string artist = "", 
+        string album = "",
+        bool strict = false, 
+        int limit = 10)
+    {
+        JsonDeezerSearchResponse searchResults = await Search(track, artist, album, strict);
+
+        if (searchResults == null || 
+            searchResults.data == null || 
+            searchResults.data.Count == 0)
+            return new List<DeezerTrack>();
+
+        JsonDeezerSearchDataResponse[] elements = searchResults.data.Take(limit).ToArray();
+
+        List<DeezerTrack> deezerTracks = new List<DeezerTrack>();
+
+        IEnumerable<Task> tasks = elements.Select(async e =>
+        {
+            try
+            {
+                if (e.id != 0)
+                {
+                    string trackId = e.id.ToString();
+                
+                    deezerTracks.Add(await GetSong(trackId));
+                }
+            }
+            catch (System.Exception ex) { }
+        });
+
+        await Task.WhenAll(tasks);
+
+        return deezerTracks;
+    }
+    
     private async Task<(string rawLyrics, AList<TimeStampedLyric> syncedElements)> GetLyricsGraphAndParse(string trackID)
     {
         string rawText = string.Empty;
