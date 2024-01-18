@@ -7,11 +7,11 @@ namespace DevBase.Requests.Utils;
 
 public class BogusUtils
 {
-    private static (char[] Value, PlatformID PlatformId)[] _desktopOperatingSystems;
-    private static (char[] Value, PlatformID PlatformId)[] _desktopOperatingSystemsArchitecture;
+    private static readonly (char[] Value, PlatformID PlatformId)[] _desktopOperatingSystems;
+    private static readonly (char[] Value, PlatformID PlatformId)[] _desktopOperatingSystemsArchitecture;
 
-    private static char[][] _product;
-    private static char[][] _productVersion;
+    private static readonly char[][] _product;
+    private static readonly char[][] _productVersion;
 
     private static Random _random;
     

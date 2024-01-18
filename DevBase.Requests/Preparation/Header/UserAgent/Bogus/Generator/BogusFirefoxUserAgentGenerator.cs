@@ -6,6 +6,17 @@ namespace DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
 
 public class BogusFirefoxUserAgentGenerator : IBogusUserAgentGenerator
 {
+    private static readonly char[] _firefoxProduct;
+    private static readonly char[] _geckoEngine;
+    private static readonly char[] _geckoTrail;
+
+    static BogusFirefoxUserAgentGenerator()
+    {
+        _firefoxProduct = "Firefox".ToCharArray();
+        _geckoEngine = "Gecko".ToCharArray();
+        _geckoTrail = "20100101".ToCharArray();
+    }
+    
     private ReadOnlySpan<char> BogusFirefoxUserAgent()
     {
         StringBuilder firefoxUserAgent = new StringBuilder();
@@ -17,11 +28,11 @@ public class BogusFirefoxUserAgentGenerator : IBogusUserAgentGenerator
 
         ReadOnlySpan<char> osPlatform = BogusUtils.RandomOperatingSystem(platformId);
 
-        ReadOnlySpan<char> firefoxProduct = "Firefox";
         ReadOnlySpan<char> firefoxVersion = RandomFirefoxVersion();
 
-        ReadOnlySpan<char> geckoEngine = "Gecko";
-        ReadOnlySpan<char> geckoTrail = "20100101";
+        ReadOnlySpan<char> firefoxProduct = _firefoxProduct;
+        ReadOnlySpan<char> geckoEngine = _geckoEngine;
+        ReadOnlySpan<char> geckoTrail = _geckoTrail;
 
         // Mozilla/5.0
         firefoxUserAgent.Append(product);
