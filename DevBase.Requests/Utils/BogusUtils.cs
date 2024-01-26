@@ -12,6 +12,7 @@ public class BogusUtils
 
     private static readonly char[][] _product;
     private static readonly char[][] _productVersion;
+    private static readonly char[] _randomNumberRange;
 
     private static Random _random;
     
@@ -43,6 +44,11 @@ public class BogusUtils
             "5.0".ToCharArray()
         };
 
+        _randomNumberRange = new[]
+        {
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+        };
+        
         _random = new Random();
     }
 
@@ -117,6 +123,34 @@ public class BogusUtils
         return iosVersion;
     }
 
+    public static ReadOnlySpan<char> RandomNumber(int min, int max)
+    {
+        if (min > max)
+            throw new System.Exception("Min is bigger than max");
+        
+        StringBuilder numberBuilder = new StringBuilder();
+
+        int randomNumber = _random.Next(min, max);
+
+        int pre = randomNumber;
+
+        while (pre > 0)
+        {
+            double x = pre / 10.0;
+            int y = (int)x;
+            int z = (int)(x - y) * 10;
+
+            numberBuilder.Append(_randomNumberRange[z]);
+            
+            pre = y;
+        }
+        
+        char[] number = Array.Empty<char>();
+        numberBuilder.ToSpan(ref number);
+
+        return number;
+    }
+    
     public static ReadOnlySpan<char> RandomOperatingSystem(PlatformID platformId)
     {
         StringBuilder osStringBuilder = new StringBuilder();
