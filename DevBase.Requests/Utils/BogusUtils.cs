@@ -132,23 +132,77 @@ public class BogusUtils
 
         int randomNumber = _random.Next(min, max);
 
-        int pre = randomNumber;
-
-        while (pre > 0)
+        while (randomNumber > 0)
         {
-            double x = pre / 10.0;
-            int y = (int)x;
-            int z = (int)(x - y) * 10;
-
-            numberBuilder.Append(_randomNumberRange[z]);
-            
-            pre = y;
+            int extracted;
+            randomNumber = Math.DivRem(randomNumber, 10, out extracted);
+            numberBuilder.Insert(0, _randomNumberRange[extracted]);
         }
         
         char[] number = Array.Empty<char>();
         numberBuilder.ToSpan(ref number);
 
         return number;
+    }
+    
+    public static ReadOnlySpan<char> RandomNumber2(int min, int max)
+    {
+        if (min > max)
+            throw new System.Exception("Min is bigger than max");
+
+        int randomNumber = _random.Next(min, max);
+        int length = (int)Math.Floor(Math.Log10(randomNumber) + 1);
+        Span<char> numberSpan = stackalloc char[length];
+
+        for (int i = length - 1; i >= 0; i--)
+        {
+            numberSpan[i] = _randomNumberRange[randomNumber % 10];
+            randomNumber /= 10;
+        }
+
+        return numberSpan.ToArray();
+    }
+    
+    public static char[] RandomNumber3(int min, int max)
+    {
+        if (min > max)
+            throw new System.Exception("Min is bigger than max");
+        
+        int randomNumber = _random.Next(min, max);
+        
+        int length = randomNumber == 0 ? 1 : (int)Math.Floor(Math.Log10(randomNumber) + 1);
+        
+        char[] numberSpan = new char[length];
+
+        int ic = 0;
+        while (randomNumber > 0)
+        {
+            numberSpan[ic] = _randomNumberRange[randomNumber % 10];
+            randomNumber /= 10;
+            ic++;
+        }
+        
+        return numberSpan;
+    }
+    
+    public static ReadOnlySpan<char> RandomNumber4(int min, int max)
+    {
+        if (min > max)
+            throw new System.Exception("Min is bigger than max");
+
+        int randomNumber = _random.Next(min, max);
+
+        // Berechnet die Anzahl der Ziffern in der Zahl.
+        int length = randomNumber == 0 ? 1 : (int)Math.Floor(Math.Log10(randomNumber) + 1);
+        Span<char> numberSpan = stackalloc char[length];
+
+        for (int i = length - 1; i >= 0; i--)
+        {
+            numberSpan[i] = _randomNumberRange[randomNumber % 10];
+            randomNumber /= 10;
+        }
+
+        return numberSpan.ToArray();
     }
     
     public static ReadOnlySpan<char> RandomOperatingSystem(PlatformID platformId)
