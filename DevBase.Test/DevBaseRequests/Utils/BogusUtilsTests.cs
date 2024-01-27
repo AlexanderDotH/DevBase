@@ -19,7 +19,7 @@ public class BogusUtilsTests
         
         for (int i = 0; i < count; i++)
         {
-            generated = BogusUtils.RandomNumber3(0, 1000);
+            generated = BogusUtils.RandomNumber(0, 1000);
         }
         
         sw.Stop();

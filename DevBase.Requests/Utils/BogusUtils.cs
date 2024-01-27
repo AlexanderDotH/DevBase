@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Text;
+﻿using System.Text;
 using DevBase.Requests.Extensions;
 
 namespace DevBase.Requests.Utils;
@@ -86,128 +84,114 @@ public class BogusUtils
         return _productVersion[_random.Next(_productVersion.Length)];
     }
     
-    public static ReadOnlySpan<char> RandomNTVersion()
+    public static ReadOnlySpan<char> RandomVersion(
+        int minMajor = 40, 
+        int maxMajor = 121, 
+        int minSubVersion = 40, 
+        int maxSubVersion = 121, 
+        int minMinor = 0, 
+        int maxMinor = 99, 
+        int minPatch = 0, 
+        int maxPatch = 99, 
+        bool useSubVersion = true,
+        bool useMinor = false, 
+        bool usePatch = false,
+        char separator = '.')
     {
-        StringBuilder ntBuilder = new StringBuilder();
-
-        ReadOnlySpan<char> major = _random.Next(1, 10).ToString();
-        ReadOnlySpan<char> minor = _random.Next(1, 9).ToString();
-
-        ntBuilder.Append(major);
-        ntBuilder.Append('.');
-        ntBuilder.Append(minor);
-
-        char[] ntVersion = Array.Empty<char>();
-        ntBuilder.ToSpan(ref ntVersion);
-
-        return ntVersion;
-    }
-
-    public static ReadOnlySpan<char> RandomIOSVersion()
-    {
-        StringBuilder iosBuilder = new StringBuilder();
-
-        ReadOnlySpan<char> major = _random.Next(1, 17).ToString();
-        ReadOnlySpan<char> minor = _random.Next(1, 9).ToString();
-        ReadOnlySpan<char> build = _random.Next(1, 9).ToString();
-
-        iosBuilder.Append(major);
-        iosBuilder.Append('_');
-        iosBuilder.Append(minor);
-        iosBuilder.Append('_');
-        iosBuilder.Append(build);
-
-        char[] iosVersion = Array.Empty<char>();
-        iosBuilder.ToSpan(ref iosVersion);
-
-        return iosVersion;
-    }
-
-    public static ReadOnlySpan<char> RandomNumber(int min, int max)
-    {
-        if (min > max)
-            throw new System.Exception("Min is bigger than max");
+        StringBuilder randomVersionBuilder = StringBuilderByVersioning(
+            minMajor, maxMajor, minSubVersion, maxSubVersion,
+            minMinor, maxMinor, minPatch, maxPatch);
         
-        StringBuilder numberBuilder = new StringBuilder();
+        randomVersionBuilder.Append(RandomNumber(minMajor, maxMajor));
 
-        int randomNumber = _random.Next(min, max);
-
-        while (randomNumber > 0)
+        if (useSubVersion)
         {
-            int extracted;
-            randomNumber = Math.DivRem(randomNumber, 10, out extracted);
-            numberBuilder.Insert(0, _randomNumberRange[extracted]);
+            randomVersionBuilder.Append(separator);
+            randomVersionBuilder.Append(
+                (minSubVersion == 0 && maxSubVersion == 0)
+                ? new [] {'0'}
+                : RandomNumber(minSubVersion, maxSubVersion));
         }
         
-        char[] number = Array.Empty<char>();
-        numberBuilder.ToSpan(ref number);
-
-        return number;
-    }
-    
-    public static ReadOnlySpan<char> RandomNumber2(int min, int max)
-    {
-        if (min > max)
-            throw new System.Exception("Min is bigger than max");
-
-        int randomNumber = _random.Next(min, max);
-        int length = (int)Math.Floor(Math.Log10(randomNumber) + 1);
-        Span<char> numberSpan = stackalloc char[length];
-
-        for (int i = length - 1; i >= 0; i--)
+        if (useMinor)
         {
-            numberSpan[i] = _randomNumberRange[randomNumber % 10];
-            randomNumber /= 10;
+            randomVersionBuilder.Append(separator);
+            
+            randomVersionBuilder.Append(
+                (minMinor == 0 && maxMinor == 0)
+                    ? new [] {'0'}
+                    : RandomNumber(minMinor, maxMinor));
         }
+        
+        if (usePatch)
+        {
+            randomVersionBuilder.Append(separator);
+            
+            randomVersionBuilder.Append(
+                (minPatch == 0 && maxPatch == 0)
+                    ? new [] {'0'}
+                    : RandomNumber(minPatch, maxPatch));
+        }
+        
+        char[] version = Array.Empty<char>();
+        randomVersionBuilder.ToSpan(ref version);
 
-        return numberSpan.ToArray();
+        return version;
     }
     
-    public static char[] RandomNumber3(int min, int max)
+    public static char[] RandomNumber(int min, int max)
     {
         if (min > max)
             throw new System.Exception("Min is bigger than max");
         
         int randomNumber = _random.Next(min, max);
         
-        int length = randomNumber == 0 ? 1 : (int)Math.Floor(Math.Log10(randomNumber) + 1);
+        int length = GetDigits(randomNumber);
         
         char[] numberSpan = new char[length];
 
-        int ic = 0;
-        while (randomNumber > 0)
+        for (int i = 0; i < length; i++)
         {
-            numberSpan[ic] = _randomNumberRange[randomNumber % 10];
-            randomNumber /= 10;
-            ic++;
+            numberSpan[i] = _randomNumberRange[randomNumber % 10];
+            randomNumber = (int)(randomNumber * 0.1);
         }
+
+        if (numberSpan[0] == '0')
+            return RandomNumber(min, max);
         
         return numberSpan;
     }
-    
-    public static ReadOnlySpan<char> RandomNumber4(int min, int max)
+
+    private static int GetDigits(int number)
     {
-        if (min > max)
-            throw new System.Exception("Min is bigger than max");
-
-        int randomNumber = _random.Next(min, max);
-
-        // Berechnet die Anzahl der Ziffern in der Zahl.
-        int length = randomNumber == 0 ? 1 : (int)Math.Floor(Math.Log10(randomNumber) + 1);
-        Span<char> numberSpan = stackalloc char[length];
-
-        for (int i = length - 1; i >= 0; i--)
+        switch (number)
         {
-            numberSpan[i] = _randomNumberRange[randomNumber % 10];
-            randomNumber /= 10;
+            case <= 9:
+                return 1;
+            case <= 99:
+                return 2;
+            case <= 999:
+                return 3;
+            case <= 9999:
+                return 4;
+            case <= 99999:
+                return 5;
+            case <= 999999:
+                return 6;
+            case <= 9999999:
+                return 7;
+            case <= 99999999:
+                return 8;
+            case <= 999999999:
+                return 9;
+            default:
+                return 10;
         }
-
-        return numberSpan.ToArray();
     }
     
     public static ReadOnlySpan<char> RandomOperatingSystem(PlatformID platformId)
     {
-        StringBuilder osStringBuilder = new StringBuilder();
+        StringBuilder osStringBuilder = StringBuilderFromPlatform(platformId);
         
         ReadOnlySpan<char> operatingSystem = RandomOS(platformId);
         ReadOnlySpan<char> architecture = RandomArchitecture(platformId);
@@ -220,7 +204,15 @@ public class BogusUtils
             case PlatformID.Win32NT:
             {
                 osStringBuilder.Append(' ');
-                osStringBuilder.Append(RandomNTVersion());
+                
+                osStringBuilder.Append(
+                    RandomVersion(
+                        minMajor:1, 
+                        maxMajor:10, 
+                        useSubVersion:true, 
+                        minSubVersion:1, 
+                        maxSubVersion:9));
+                
                 osStringBuilder.Append(';');
                 osStringBuilder.Append(' ');
                 osStringBuilder.Append(architecture);
@@ -235,7 +227,18 @@ public class BogusUtils
                 osStringBuilder.Append(' ');
                 osStringBuilder.Append(architecture);
                 osStringBuilder.Append(' ');
-                osStringBuilder.Append(RandomIOSVersion());
+                
+                osStringBuilder.Append(
+                    RandomVersion(
+                        minMajor:1, 
+                        maxMajor:17, 
+                        minSubVersion:1, 
+                        maxSubVersion:9, 
+                        minMinor:1, 
+                        maxMinor:9, 
+                        useSubVersion:true, 
+                        separator:'_'));
+                
                 osStringBuilder.Append(';');
                 break;
             }
@@ -254,6 +257,47 @@ public class BogusUtils
         osStringBuilder.ToSpan(ref os);
 
         return os;
+    }
+
+    private static StringBuilder StringBuilderByVersioning(
+        int minMajor = 40,
+        int maxMajor = 121,
+        int minSubVersion = 40,
+        int maxSubVersion = 121,
+        int minMinor = 0,
+        int maxMinor = 99,
+        int minPatch = 0,
+        int maxPatch = 99)
+    {
+        int digitsMinMajor = GetDigits(minMajor);
+        int digitsMaxMajor = GetDigits(maxMajor);
+        int digitsMinSubVersion = GetDigits(minSubVersion);
+        int digitsMaxSubVersion = GetDigits(maxSubVersion);
+        int digitsMinMinor = GetDigits(minMinor);
+        int digitsMaxMinor = GetDigits(maxMinor);
+        int digitsMinPatch = GetDigits(minPatch);
+        int digitsMaxPatch = GetDigits(maxPatch);
+
+        int sumDigits = digitsMinMajor + digitsMaxMajor + digitsMinSubVersion + 
+                        digitsMaxSubVersion + digitsMinMinor +
+                        digitsMaxMinor + digitsMinPatch + digitsMaxPatch;
+
+        return new StringBuilder(sumDigits, sumDigits);
+    }
+    
+    private static StringBuilder StringBuilderFromPlatform(PlatformID platformId)
+    {
+        switch (platformId)
+        {
+            case PlatformID.Win32NT:
+                return new StringBuilder(22, 23);
+            case PlatformID.MacOSX:
+                return new StringBuilder(33, 33);
+            case PlatformID.Unix:
+                return new StringBuilder(15, 17);
+            default:
+                return new StringBuilder();
+        }
     }
 
     public static Random Random

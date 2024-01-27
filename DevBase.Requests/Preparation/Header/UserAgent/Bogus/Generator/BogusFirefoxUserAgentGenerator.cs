@@ -72,9 +72,7 @@ public class BogusFirefoxUserAgentGenerator : IBogusUserAgentGenerator
     {
         StringBuilder firefoxVersion = new StringBuilder();
         
-        ReadOnlySpan<char> randomVersion = BogusUtils.Random.Next(40, 121).ToString();
-
-        firefoxVersion.Append(randomVersion);
+        firefoxVersion.Append(BogusUtils.RandomNumber(40, 121));
         firefoxVersion.Append('.');
         firefoxVersion.Append('0');
 
