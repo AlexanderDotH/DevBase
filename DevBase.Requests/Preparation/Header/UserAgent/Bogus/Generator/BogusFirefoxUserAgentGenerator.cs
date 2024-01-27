@@ -43,6 +43,7 @@ public class BogusFirefoxUserAgentGenerator : IBogusUserAgentGenerator
         // (Windows NT 6.1; Win64; rv:42.0)
         firefoxUserAgent.Append('(');
         firefoxUserAgent.Append(osPlatform);
+        firefoxUserAgent.Append(';');
         firefoxUserAgent.Append(' ');
         firefoxUserAgent.Append('r');
         firefoxUserAgent.Append('v');

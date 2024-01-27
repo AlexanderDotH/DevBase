@@ -7,7 +7,7 @@ namespace DevBase.Generics
     public class AList<T> : IEnumerable<T>
     {
         private T[] _array;
-
+        
         /// <summary>
         /// Constructs this class with an empty array
         /// </summary>
@@ -145,6 +145,15 @@ namespace DevBase.Generics
         public T GetRandom()
         {
             return this.Get(new Random().Next(0, this.Length - 1));
+        }
+        
+        /// <summary>
+        /// Returns a random object from the array with an given random number generator
+        /// </summary>
+        /// <returns>A random object</returns>
+        public T GetRandom(Random random)
+        {
+            return this.Get(random.Next(0, this.Length - 1));
         }
 
         /// <summary>

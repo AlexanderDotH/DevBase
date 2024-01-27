@@ -216,7 +216,6 @@ public class BogusUtils
                 osStringBuilder.Append(';');
                 osStringBuilder.Append(' ');
                 osStringBuilder.Append(architecture);
-                osStringBuilder.Append(';');
 
                 break;
             }
@@ -239,7 +238,6 @@ public class BogusUtils
                         useSubVersion:true, 
                         separator:'_'));
                 
-                osStringBuilder.Append(';');
                 break;
             }
             // X11; Linux x86_64
@@ -248,7 +246,6 @@ public class BogusUtils
                 osStringBuilder.Append(';');
                 osStringBuilder.Append(' ');
                 osStringBuilder.Append(architecture);
-                osStringBuilder.Append(';');
                 break;
             }
         }
