@@ -1,16 +1,17 @@
 ﻿using System.Text;
+using DevBase.Requests.Abstract;
+using DevBase.Requests.Enums;
+using DevBase.Requests.Exceptions;
 using DevBase.Requests.Extensions;
 
 namespace DevBase.Requests.Preparation.Parameters;
 
-public class ParameterBuilder
+public class ParameterBuilder : HttpHeaderBuilder<ParameterBuilder>
 {
-    private StringBuilder _preGeneratedParameters;
     private char[] _parameters;
     
     public ParameterBuilder()
     {
-        this._preGeneratedParameters = new StringBuilder();
         this._parameters = Array.Empty<char>();
     }
 
@@ -30,18 +31,17 @@ public class ParameterBuilder
 
     private void Append(ReadOnlySpan<char> key, ReadOnlySpan<char> value)
     {
-        this._preGeneratedParameters.Append(this._preGeneratedParameters.Length == 0 ? '?' : '&');
+        this.HeaderStringBuilder.Append(this.HeaderStringBuilder.Length == 0 ? '?' : '&');
         
-        this._preGeneratedParameters.Append(key);
-        this._preGeneratedParameters.Append('=');
-        this._preGeneratedParameters.Append(value);
+        this.HeaderStringBuilder.Append(key);
+        this.HeaderStringBuilder.Append('=');
+        this.HeaderStringBuilder.Append(value);
     }
 
-    public ParameterBuilder Build()
+    protected override Action BuildAction => () =>
     {
-        this._preGeneratedParameters.ToSpan(ref this._parameters);
-        return this;
-    }
-
+        this.HeaderStringBuilder.ToSpan(ref this._parameters);
+    };
+    
     public Span<char> Parameters => this._parameters;
 }

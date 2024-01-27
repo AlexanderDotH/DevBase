@@ -1,25 +1,19 @@
-﻿using System.Buffers;
-using System.Reflection;
-using System.Text;
+﻿using System.Reflection;
 using DevBase.Generics;
-using DevBase.Requests.Exceptions;
+using DevBase.Requests.Abstract;
 using DevBase.Requests.Extensions;
 using DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
 using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Preparation.Header.UserAgent;
 
-public class UserAgentHeaderBuilder
+public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuilder>
 {
-    private StringBuilder _preGeneratedUserAgent;
-
     private string _productName;
     private string _productVersion;
 
     private static AList<IBogusUserAgentGenerator> _bogusUserAgentGenerators;
 
-    private bool _alreadyBuilded;
-    
     static UserAgentHeaderBuilder()
     {
         _bogusUserAgentGenerators = new AList<IBogusUserAgentGenerator>(
@@ -29,13 +23,6 @@ public class UserAgentHeaderBuilder
             new BogusOperaUserAgentGenerator());
     }
     
-    public UserAgentHeaderBuilder()
-    {
-        this._preGeneratedUserAgent = new StringBuilder();
-
-        this._alreadyBuilded = false;
-    }
-
     public UserAgentHeaderBuilder AddProductName(string productName)
     {
         this._productName = productName;
@@ -48,11 +35,8 @@ public class UserAgentHeaderBuilder
         return this;
     }
 
-    public UserAgentHeaderBuilder Build()
+    protected override Action BuildAction => () =>
     {
-        if (this._alreadyBuilded)
-            throw new HttpHeaderException("UserAgentHeader is already built");
-                
         Assembly assembly = typeof(DevBase.Requests.Request).Assembly;
         AssemblyName assemblyName = assembly.GetName();
         
@@ -65,42 +49,35 @@ public class UserAgentHeaderBuilder
         if (productVersion.IsEmpty)
             productVersion = assemblyName.Version!.ToString();
 
-        this._preGeneratedUserAgent.Append(productName);
-        this._preGeneratedUserAgent.Append('/');
-        this._preGeneratedUserAgent.Append(productVersion);
+        this.HeaderStringBuilder.Append(productName);
+        this.HeaderStringBuilder.Append('/');
+        this.HeaderStringBuilder.Append(productVersion);
+    };
 
-        this._alreadyBuilded = true;
-        
-        return this;
-    }
-
-    public UserAgentHeaderBuilder BuildBogus()
+    protected override Action BogusBuildAction => () =>
     {
         IBogusUserAgentGenerator userAgentGenerator = _bogusUserAgentGenerators.GetRandom(BogusUtils.Random);
-
-        if (this._alreadyBuilded)
+        
+        if (this.AlreadyBuilded)
         {
-            this._preGeneratedUserAgent.Append(' ');
-            this._preGeneratedUserAgent.Append('a');
-            this._preGeneratedUserAgent.Append('s');
-            this._preGeneratedUserAgent.Append(' ');
-            this._preGeneratedUserAgent.Append(userAgentGenerator.UserAgentPart);
+            this.HeaderStringBuilder.Append(' ');
+            this.HeaderStringBuilder.Append('a');
+            this.HeaderStringBuilder.Append('s');
+            this.HeaderStringBuilder.Append(' ');
+            this.HeaderStringBuilder.Append(userAgentGenerator.UserAgentPart);
         }
         else
         {
-            this._preGeneratedUserAgent.Append(userAgentGenerator.UserAgentPart);
+            this.HeaderStringBuilder.Append(userAgentGenerator.UserAgentPart);
         }
-        
-        this._alreadyBuilded = true;
-        return this;
-    }
+    };
 
     public ReadOnlySpan<char> UserAgent
     {
         get
         {
             char[] userAgent = Array.Empty<char>();
-            this._preGeneratedUserAgent.ToSpan(ref userAgent);
+            this.HeaderStringBuilder.ToSpan(ref userAgent);
             return userAgent;
         }
     }
