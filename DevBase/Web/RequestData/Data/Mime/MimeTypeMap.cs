@@ -771,7 +771,6 @@
                 str = str.Remove(indexQuestionMark);
             }
 
-
             if (!str.StartsWith(Dot))
             {
                 var index = str.LastIndexOf(Dot);
