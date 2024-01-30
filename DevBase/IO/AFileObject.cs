@@ -11,24 +11,43 @@ namespace DevBase.IO
 {
     public class AFileObject
     {
-        private readonly FileInfo _fileInfo;
-        private readonly byte[] _binaryData;
+        public FileInfo FileInfo { get; protected set; }
+        public Memory<byte> Buffer { get; protected set; }
+        public Encoding Encoding { get; protected set; }
 
-        public AFileObject(FileInfo fileInfo, byte[] binaryData)
+        // WARNING: For internal purposes you need to know what you are doing
+        protected AFileObject() {}
+
+        public AFileObject(FileInfo fileInfo, bool readFile = false)
         {
-            this._fileInfo = fileInfo;
-            this._binaryData = binaryData;
+            FileInfo = fileInfo;
+            
+            if (!readFile)
+                return;
+            
+            Memory<byte> buffer = AFile.ReadFile(fileInfo, out Encoding encoding);
+
+            this.Buffer = buffer;
+            this.Encoding = encoding;
         }
 
-        public AFileObject(FileInfo fi)
+        public AFileObject(FileInfo fileInfo, Memory<byte> binaryData) : this(fileInfo, false)
         {
-            this._fileInfo = fi;
+            Buffer = binaryData;
+            Encoding = EncodingUtils.GetEncoding(binaryData);
+        }
+        
+        public AFileObject(FileInfo fileInfo, Memory<byte> binaryData, Encoding encoding) : this(fileInfo, false)
+        {
+            Buffer = binaryData;
+            Encoding = encoding;
         }
 
+        // COMPLAIN: I don't like this solution. 
         public AList<string> ToList()
         {
-            if (this._binaryData == null)
-                return null;
+            if (this.Buffer.IsEmpty)
+                return new AList<string>();
 
             AList<string> genericList = new AList<string>();
 
@@ -46,20 +65,12 @@ namespace DevBase.IO
 
         public string ToStringData()
         {
-            if (this._binaryData == null)
+            if (this.Buffer.IsEmpty)
                 return string.Empty;
 
-            return EncodingUtils.GetEncoding(this._binaryData).GetString(this._binaryData);
+            return this.Encoding.GetString(this.Buffer.Span);
         }
 
-        public FileInfo FileInfo
-        {
-            get { return this._fileInfo; }
-        }
-
-        public byte[] BinaryData
-        {
-            get { return this._binaryData; }
-        }
+        public override string ToString() => ToStringData();
     }
 }

@@ -6,16 +6,8 @@ namespace DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
 
 public class BogusEdgeUserAgentGenerator : IBogusUserAgentGenerator
 {
-    private static BogusChromeUserAgentGenerator _chromeUserAgentGenerator;
-    
-    private static readonly char[] _edgeTag;
-    
-    static BogusEdgeUserAgentGenerator()
-    {
-        _chromeUserAgentGenerator = new BogusChromeUserAgentGenerator();
-        
-        _edgeTag = "Edg".ToCharArray();
-    }
+    private static readonly BogusChromeUserAgentGenerator _chromeUserAgentGenerator = new();
+    private static readonly char[] _edgeTag = "Edg".ToCharArray();
     
     private ReadOnlySpan<char> BogusEdgeUserAgent()
     {
@@ -39,10 +31,7 @@ public class BogusEdgeUserAgentGenerator : IBogusUserAgentGenerator
         edgeUserAgent.Append('/');
         edgeUserAgent.Append(randomEdgeVersion);
         
-        char[] userAgent = Array.Empty<char>();
-        edgeUserAgent.ToSpan(ref userAgent);
-
-        return userAgent;
+        return edgeUserAgent.ToString();
     }
 
     public ReadOnlySpan<char> UserAgentPart => BogusEdgeUserAgent();

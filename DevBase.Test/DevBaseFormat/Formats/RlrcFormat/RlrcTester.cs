@@ -22,12 +22,12 @@ public class RlrcTester
         FileInfo fileInfo =
             new FileInfo($"..\\..\\..\\DevBaseFormatData\\RLRC\\RickAstley.rlrc");
         
-        string content = AFile.ReadFile(fileInfo).ToStringData();
+        string content = AFile.ReadFileToObject(fileInfo).ToStringData();
 
         AList<RawLyric> list = this._rlrcParser.Parse(content);
         
         list.GetAsList().DumpConsole();
-        Assert.AreEqual(list.Get(0).Text, "Never gonna, never gonna, never gonna, never gonna");
+        Assert.AreEqual("Never gonna, never gonna, never gonna, never gonna", list.Get(0).Text);
     }
 
     [Test]
@@ -36,7 +36,7 @@ public class RlrcTester
         FileInfo fileInfo =
             new FileInfo($"..\\..\\..\\DevBaseFormatData\\RLRC\\RickAstley.rlrc");
 
-        string content = AFile.ReadFile(fileInfo).ToStringData();
+        string content = AFile.ReadFileToObject(fileInfo).ToStringData();
         
         AList<RawLyric> list = this._rlrcParser.Parse(content);
 

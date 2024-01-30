@@ -12,16 +12,11 @@ public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuil
     private string _productName;
     private string _productVersion;
 
-    private static AList<IBogusUserAgentGenerator> _bogusUserAgentGenerators;
-
-    static UserAgentHeaderBuilder()
-    {
-        _bogusUserAgentGenerators = new AList<IBogusUserAgentGenerator>(
-            new BogusChromeUserAgentGenerator(), 
-            new BogusEdgeUserAgentGenerator(), 
-            new BogusFirefoxUserAgentGenerator(), 
-            new BogusOperaUserAgentGenerator());
-    }
+    private static AList<IBogusUserAgentGenerator> _bogusUserAgentGenerators = new AList<IBogusUserAgentGenerator>(
+        new BogusChromeUserAgentGenerator(), 
+        new BogusEdgeUserAgentGenerator(), 
+        new BogusFirefoxUserAgentGenerator(), 
+        new BogusOperaUserAgentGenerator());
     
     public UserAgentHeaderBuilder AddProductName(string productName)
     {
@@ -58,7 +53,7 @@ public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuil
     {
         IBogusUserAgentGenerator userAgentGenerator = _bogusUserAgentGenerators.GetRandom(BogusUtils.Random);
         
-        if (this.AlreadyBuilded)
+        if (this.AlreadyBuilt)
         {
             this.HeaderStringBuilder.Append(' ');
             this.HeaderStringBuilder.Append('a');
@@ -74,11 +69,6 @@ public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuil
 
     public ReadOnlySpan<char> UserAgent
     {
-        get
-        {
-            char[] userAgent = Array.Empty<char>();
-            this.HeaderStringBuilder.ToSpan(ref userAgent);
-            return userAgent;
-        }
+        get => this.HeaderStringBuilder.ToString();
     }
 }

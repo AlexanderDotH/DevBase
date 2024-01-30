@@ -664,7 +664,7 @@ public class MimeDictionary : Lazy<Dictionary<string, ReadOnlyMemory<char>>>
     {
     }
     
-    public ReadOnlySpan<char> GetMimeType(string mimeType)
+    public ReadOnlyMemory<char> GetMimeTypeAsMemory(string mimeType)
     {
         string searchFor = mimeType;
         
@@ -674,8 +674,12 @@ public class MimeDictionary : Lazy<Dictionary<string, ReadOnlyMemory<char>>>
         ReadOnlyMemory<char> mimeResult;
 
         if (!Value.TryGetValue(searchFor, out mimeResult))
-            return DefaultMimeType.Span;
+            return DefaultMimeType;
         
-        return mimeResult.Span;
+        return mimeResult;
     }
+
+    public ReadOnlySpan<char> GetMimeTypeAsSpan(string mimeType) => GetMimeTypeAsMemory(mimeType).Span;
+    
+    public ReadOnlySpan<char> GetMimeTypeAsString(string mimeType) => GetMimeTypeAsMemory(mimeType).ToString();
 }

@@ -7,12 +7,12 @@ namespace DevBase.Requests.Abstract;
 public abstract class BogusHttpHeaderBuilder<T> where T : BogusHttpHeaderBuilder<T>
 {
     protected StringBuilder HeaderStringBuilder { get; private set; }
-    protected bool AlreadyBuilded { get; set; }
+    public bool AlreadyBuilt { get; protected set; }
 
     protected BogusHttpHeaderBuilder()
     {
         HeaderStringBuilder = new StringBuilder();
-        AlreadyBuilded = false;
+        AlreadyBuilt = false;
     }
 
     protected abstract Action BuildAction { get; }
@@ -20,19 +20,19 @@ public abstract class BogusHttpHeaderBuilder<T> where T : BogusHttpHeaderBuilder
 
     public T Build()
     {
-        if (this.AlreadyBuilded)
-            throw new HttpHeaderException(HttpHeaderExceptionTypes.AlreadyBuilt);
+        if (this.AlreadyBuilt)
+            throw new HttpHeaderException(EnumHttpHeaderExceptionTypes.AlreadyBuilt);
         
         BuildAction.Invoke();
         
-        this.AlreadyBuilded = true;
+        this.AlreadyBuilt = true;
         return (T)this;
     }
     
     public T BuildBogus()
     {
         BogusBuildAction.Invoke();
-        this.AlreadyBuilded = true;
+        this.AlreadyBuilt = true;
         return (T)this;
     }
 }

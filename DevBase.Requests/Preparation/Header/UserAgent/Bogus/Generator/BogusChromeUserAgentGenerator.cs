@@ -7,18 +7,10 @@ namespace DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
 
 public class BogusChromeUserAgentGenerator : IBogusUserAgentGenerator
 {
-    private static readonly char[] _platformTag;
-    private static readonly char[] _compatibilityTag;
-    private static readonly char[] _chromeProduct;
-    private static readonly char[] _safariProduct;
-
-    static BogusChromeUserAgentGenerator()
-    {
-        _platformTag = "AppleWebKit".ToCharArray();
-        _compatibilityTag = "(KHTML, like Gecko)".ToCharArray();
-        _chromeProduct = "Chrome".ToCharArray();
-        _safariProduct = "Safari".ToCharArray();
-    }
+    private static readonly char[] _platformTag = "AppleWebKit".ToCharArray();
+    private static readonly char[] _compatibilityTag = "(KHTML, like Gecko)".ToCharArray();
+    private static readonly char[] _chromeProduct = "Chrome".ToCharArray();
+    private static readonly char[] _safariProduct = "Safari".ToCharArray();
     
     private ReadOnlySpan<char> BogusChromeUserAgent()
     {
@@ -39,12 +31,6 @@ public class BogusChromeUserAgentGenerator : IBogusUserAgentGenerator
 
         ReadOnlySpan<char> webKitVersion = RandomWebKitVersion();
 
-        ReadOnlySpan<char> platformTag = _platformTag;
-        ReadOnlySpan<char> compatibilityTag = _compatibilityTag;
-        ReadOnlySpan<char> chromeProduct = _chromeProduct;
-        ReadOnlySpan<char> safariProduct = _safariProduct;
-
-
         // Mozilla/5.0
         chromeUserAgent.Append(product);
         chromeUserAgent.Append('/');
@@ -58,30 +44,27 @@ public class BogusChromeUserAgentGenerator : IBogusUserAgentGenerator
         chromeUserAgent.Append(' ');
         
         // AppleWebKit/537.36
-        chromeUserAgent.Append(platformTag);
+        chromeUserAgent.Append(_platformTag);
         chromeUserAgent.Append('/');
         chromeUserAgent.Append(webKitVersion);
         chromeUserAgent.Append(' ');
         
         // (KHTML, like Gecko)
-        chromeUserAgent.Append(compatibilityTag);
+        chromeUserAgent.Append(_compatibilityTag);
         chromeUserAgent.Append(' ');
 
         // Chrome/37.0.2062.94
-        chromeUserAgent.Append(chromeProduct);
+        chromeUserAgent.Append(_chromeProduct);
         chromeUserAgent.Append('/');
         chromeUserAgent.Append(chromeVersion);
         chromeUserAgent.Append(' ');
 
         // Safari/537.36
-        chromeUserAgent.Append(safariProduct);
+        chromeUserAgent.Append(_safariProduct);
         chromeUserAgent.Append('/');
         chromeUserAgent.Append(webKitVersion);
 
-        char[] userAgent = Array.Empty<char>();
-        chromeUserAgent.ToSpan(ref userAgent);
-
-        return userAgent;
+        return chromeUserAgent.ToString();
     }
     
     private ReadOnlySpan<char> RandomWebKitVersion()
@@ -92,10 +75,7 @@ public class BogusChromeUserAgentGenerator : IBogusUserAgentGenerator
         webKitVersion.Append('.');
         webKitVersion.Append(BogusUtils.RandomNumber(1, 100));
 
-        char[] version = Array.Empty<char>();
-        webKitVersion.ToSpan(ref version);
-
-        return version;
+        return webKitVersion.ToString();
     }
    
     

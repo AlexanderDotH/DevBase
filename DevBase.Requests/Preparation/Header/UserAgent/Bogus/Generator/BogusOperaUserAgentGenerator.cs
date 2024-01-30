@@ -6,16 +6,8 @@ namespace DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
 
 public class BogusOperaUserAgentGenerator : IBogusUserAgentGenerator
 {
-    private static BogusChromeUserAgentGenerator _chromeUserAgentGenerator;
-    
-    private static readonly char[] _operaTag;
-    
-    static BogusOperaUserAgentGenerator()
-    {
-        _chromeUserAgentGenerator = new BogusChromeUserAgentGenerator();
-        
-        _operaTag = "OPR".ToCharArray();
-    }
+    private static readonly BogusChromeUserAgentGenerator _chromeUserAgentGenerator = new();
+    private static readonly char[] _operaTag = "OPR".ToCharArray();
     
     private ReadOnlySpan<char> BogusOperaUserAgent()
     {
@@ -39,10 +31,7 @@ public class BogusOperaUserAgentGenerator : IBogusUserAgentGenerator
         operaUserAgent.Append('/');
         operaUserAgent.Append(randomOperaVersion);
         
-        char[] userAgent = Array.Empty<char>();
-        operaUserAgent.ToSpan(ref userAgent);
-
-        return userAgent;
+        return operaUserAgent.ToString();
     }
 
     public ReadOnlySpan<char> UserAgentPart => BogusOperaUserAgent();

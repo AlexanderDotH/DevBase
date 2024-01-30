@@ -20,7 +20,7 @@ public class FileParser<P, T> where P : FileFormat<string, T>
     {
         P fileFormat = (P)Activator.CreateInstance(typeof(P));
         
-        AFileObject file = AFile.ReadFile(filePath);
+        AFileObject file = AFile.ReadFileToObject(filePath);
         
         return fileFormat.Parse(file.ToStringData());
     }
@@ -29,7 +29,7 @@ public class FileParser<P, T> where P : FileFormat<string, T>
     {
         P fileFormat = (P)Activator.CreateInstance(typeof(P));
         
-        AFileObject file = AFile.ReadFile(filePath);
+        AFileObject file = AFile.ReadFileToObject(filePath);
         
         return fileFormat.TryParse(file.ToStringData(), out parsed);
     }

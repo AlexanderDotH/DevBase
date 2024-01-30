@@ -1,25 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Text;
 
 namespace DevBase.Utilities
 {
-    class EncodingUtils
+    public static class EncodingUtils
     {
-        public static Encoding GetEncoding(byte[] byteArray)
+        public static Encoding GetEncoding(Memory<byte> buffer)
         {
-            Encoding returnEncoding = null;
+            byte[] bufferArray = buffer.ToArray();
 
-            using (StreamReader reader =
-                   new StreamReader(new MemoryStream(byteArray), detectEncodingFromByteOrderMarks: true))
-            {
-                returnEncoding = reader.CurrentEncoding;
-            }
-
-            return returnEncoding;
+            using MemoryStream memoryStream = new MemoryStream(bufferArray);
+            using StreamReader streamReader = new StreamReader(memoryStream, Encoding.UTF8, true);
+            
+            return streamReader.CurrentEncoding;
         }
     }
 }

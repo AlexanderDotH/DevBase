@@ -9,7 +9,7 @@ namespace DevBase.Web.RequestData.Types;
 
 public class MultipartFormHolder
 {
-    private AList<MultipartElement> _multipartElements;
+    private readonly AList<MultipartElement> _multipartElements;
     private string _boundaryContentType;
 
     public MultipartFormHolder()
@@ -51,10 +51,8 @@ public class MultipartFormHolder
         {
             MultipartElement element = this._multipartElements.Get(i);
 
-            if (element.Data is byte[])
+            if (element.Data is byte[] rawBytes)
             {
-                byte[] rawBytes = (byte[])element.Data;
-                
                 string formatedElement = string.Format("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n",
                     element.Key, 
                     "file.mp3", 
@@ -65,10 +63,8 @@ public class MultipartFormHolder
                 data.AddRange(rawBytes);
             }
             
-            if (element.Data is AFileObject)
+            if (element.Data is AFileObject fileObject)
             {
-                AFileObject fileObject = (AFileObject)element.Data;
-                
                 string formatedElement = string.Format("Content-Disposition: form-data; name=\"{0}\"; filename=\"{1}\"\r\nContent-Type: {2}\r\n\r\n",
                     element.Key, 
                     fileObject.FileInfo.Name, 
@@ -76,7 +72,7 @@ public class MultipartFormHolder
                 
                 data.AddRange(boundaryData);
                 data.AddRange(Encoding.UTF8.GetBytes(formatedElement));
-                data.AddRange(fileObject.BinaryData);
+                data.AddRange(fileObject.Buffer.ToArray());
             }
         }
         

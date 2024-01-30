@@ -3,52 +3,40 @@ using DevBase.Requests.Extensions;
 
 namespace DevBase.Requests.Utils;
 
-public class BogusUtils
+public static class BogusUtils
 {
-    private static readonly (char[] Value, PlatformID PlatformId)[] _desktopOperatingSystems;
-    private static readonly (char[] Value, PlatformID PlatformId)[] _desktopOperatingSystemsArchitecture;
-
-    private static readonly char[][] _product;
-    private static readonly char[][] _productVersion;
-    private static readonly char[] _randomNumberRange;
-
-    private static Random _random;
-    
-    static BogusUtils()
+    private static readonly (char[] Value, PlatformID PlatformId)[] _desktopOperatingSystems = 
     {
-        _desktopOperatingSystems = new (char[] Value, PlatformID PlatformId)[]
-        {
-            ("Windows NT".ToCharArray(), PlatformID.Win32NT), // Windows also has a version after like "6.1"
-            ("Macintosh".ToCharArray(), PlatformID.MacOSX),
-            ("X11".ToCharArray(), PlatformID.Unix)
-        };
-        
-        _desktopOperatingSystemsArchitecture = new (char[] Value, PlatformID PlatformId)[]
-        {
-            ("Win64".ToCharArray(), PlatformID.Win32NT),
-            ("Win32".ToCharArray(), PlatformID.Win32NT),
-            ("Intel Mac OS X".ToCharArray(), PlatformID.MacOSX), // Mac also has a version agter it "14_2_1"
-            ("Linux x86_64".ToCharArray(), PlatformID.Unix),
-            ("Linux i686".ToCharArray(), PlatformID.Unix)
-        };
+        ("Windows NT".ToCharArray(), PlatformID.Win32NT), // Windows also has a version after like "6.1"
+        ("Macintosh".ToCharArray(), PlatformID.MacOSX),
+        ("X11".ToCharArray(), PlatformID.Unix)
+    };
+    
+    private static readonly (char[] Value, PlatformID PlatformId)[] _desktopOperatingSystemsArchitecture =
+    {
+        ("Win64".ToCharArray(), PlatformID.Win32NT),
+        ("Win32".ToCharArray(), PlatformID.Win32NT),
+        ("Intel Mac OS X".ToCharArray(), PlatformID.MacOSX), // Mac also has a version agter it "14_2_1"
+        ("Linux x86_64".ToCharArray(), PlatformID.Unix),
+        ("Linux i686".ToCharArray(), PlatformID.Unix)
+    };
 
-        _product = new[]
-        {
-            "Mozilla".ToCharArray()
-        };
-        
-        _productVersion = new[]
-        {
-            "5.0".ToCharArray()
-        };
+    private static readonly char[][] _product =
+    {
+        "Mozilla".ToCharArray()
+    };
+    
+    private static readonly char[][] _productVersion =
+    {
+        "5.0".ToCharArray()
+    };
+    
+    private static readonly char[] _randomNumberRange =
+    {
+        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
+    };
 
-        _randomNumberRange = new[]
-        {
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9'
-        };
-        
-        _random = new Random();
-    }
+    private static Random _random = new Random();
 
     public static PlatformID RandomPlatformId()
     {
@@ -133,16 +121,13 @@ public class BogusUtils
                     : RandomNumber(minPatch, maxPatch));
         }
         
-        char[] version = Array.Empty<char>();
-        randomVersionBuilder.ToSpan(ref version);
-
-        return version;
+        return randomVersionBuilder.ToString();
     }
     
     public static char[] RandomNumber(int min, int max)
     {
         if (min > max)
-            throw new System.Exception("Min is bigger than max");
+            throw new ArgumentOutOfRangeException(nameof(min), min, "Min is bigger than max");
         
         int randomNumber = _random.Next(min, max);
         
@@ -250,10 +235,7 @@ public class BogusUtils
             }
         }
         
-        char[] os = Array.Empty<char>();
-        osStringBuilder.ToSpan(ref os);
-
-        return os;
+        return osStringBuilder.ToString();
     }
 
     private static StringBuilder StringBuilderByVersioning(

@@ -7,24 +7,24 @@ namespace DevBase.Requests.Abstract;
 public abstract class HttpHeaderBuilder<T> where T : HttpHeaderBuilder<T>
 {
     protected StringBuilder HeaderStringBuilder { get; private set; }
-    protected bool AlreadyBuilded { get; set; }
+    public bool AlreadyBuilt { get; protected set; }
 
     protected HttpHeaderBuilder()
     {
         HeaderStringBuilder = new StringBuilder();
-        AlreadyBuilded = false;
+        AlreadyBuilt = false;
     }
 
     protected abstract Action BuildAction { get; }
 
     public T Build()
     {
-        if (this.AlreadyBuilded)
-            throw new HttpHeaderException(HttpHeaderExceptionTypes.AlreadyBuilt);
+        if (this.AlreadyBuilt)
+            throw new HttpHeaderException(EnumHttpHeaderExceptionTypes.AlreadyBuilt);
         
         BuildAction.Invoke();
         
-        this.AlreadyBuilded = true;
+        this.AlreadyBuilt = true;
         return (T)this;
     }
 }

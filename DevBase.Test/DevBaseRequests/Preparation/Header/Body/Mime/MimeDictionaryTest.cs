@@ -13,15 +13,19 @@ public class MimeDictionaryTest
 
         MimeDictionary dictionary = new MimeDictionary();
 
+        ReadOnlySpan<char> mimeType = string.Empty;
+        
         Stopwatch stopwatch = new Stopwatch();
         stopwatch.Start();
         
         for (int i = 0; i < amount; i++)
-            dictionary.GetMimeType(".png");
+            mimeType = dictionary.GetMimeTypeAsSpan(".png");
         
         stopwatch.Stop();
         
-        Console.WriteLine($"Got the mime type {amount}times for .png({dictionary.GetMimeType(".png")})");
+        Console.WriteLine($"Got the mime type {amount}times for .png({mimeType.ToString()})");
         Console.WriteLine(stopwatch.GetTimeTable());
+        
+        Assert.AreEqual("image/png", mimeType.ToString());
     }
 }

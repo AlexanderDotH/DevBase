@@ -29,7 +29,7 @@ namespace DevBase.Test.Avalonia
                 AFileObject file = files.Get(new Random().Next(0, files.Length - 1));
                 Console.WriteLine(file.FileInfo.FullName);
 
-                Stream s = new MemoryStream(file.BinaryData);
+                Stream s = new MemoryStream(file.Buffer.ToArray());
                 Bitmap map = new Bitmap(s);
 
                 Color c = new LabClusterColorCalculator().GetColorFromBitmap(map);
@@ -49,6 +49,7 @@ namespace DevBase.Test.Avalonia
             }
             catch (System.Exception exception)
             {
+                Console.WriteLine(exception.Message);
             }
         }
     }

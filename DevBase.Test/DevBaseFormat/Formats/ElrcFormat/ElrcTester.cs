@@ -24,12 +24,12 @@ public class ElrcTester
         FileInfo fileInfo =
             new FileInfo($"..\\..\\..\\DevBaseFormatData\\ELRC\\rick.elrc");
         
-        string content = AFile.ReadFile(fileInfo).ToStringData();
+        string content = AFile.ReadFileToObject(fileInfo).ToStringData();
 
         AList<RichTimeStampedLyric> list = this._elrcParser.Parse(content);
         
         list.GetAsList().DumpConsole();
-        Assert.AreEqual(list.Get(0).Text, "Never gonna give you up");
+        Assert.AreEqual("Never gonna give you up", list.Get(0).Text);
     }
     
     [Test]
@@ -38,7 +38,7 @@ public class ElrcTester
         FileInfo fileInfo =
             new FileInfo($"..\\..\\..\\DevBaseFormatData\\ELRC\\rick.elrc");
 
-        string content = AFile.ReadFile(fileInfo).ToStringData();
+        string content = AFile.ReadFileToObject(fileInfo).ToStringData();
         
         AList<RichTimeStampedLyric> list = this._elrcParser.Parse(content);
 
