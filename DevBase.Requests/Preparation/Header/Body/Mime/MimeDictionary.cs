@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Buffers;
+using System.Runtime.CompilerServices;
 
 namespace DevBase.Requests.Preparation.Header.Body.Mime;
 
@@ -12,6 +13,7 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
     private static readonly ReadOnlyMemory<char> XmlTextMimeType = "text/xml".AsMemory();
     private static readonly ReadOnlyMemory<char> CalendarTextMimeType = "text/calendar".AsMemory();
     private static readonly ReadOnlyMemory<char> XHtmlInsertionTextMimeType = "text/x-html-insertion".AsMemory();
+    private static readonly ReadOnlyMemory<char> ScriptletTextMimeType = "text/scriptlet".AsMemory();
     
     private static readonly ReadOnlyMemory<char> MpegVideoMimeType = "video/mpeg".AsMemory();
     private static readonly ReadOnlyMemory<char> Mp4VideoMimeType = "video/mp4".AsMemory();
@@ -40,6 +42,7 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
     private static readonly ReadOnlyMemory<char> MpegUrlAudioMimeType = "audio/x-mpegurl".AsMemory();
     private static readonly ReadOnlyMemory<char> PnRealAudioMimeType = "audio/x-pn-realaudio".AsMemory();
     private static readonly ReadOnlyMemory<char> MidAudioMimeType = "audio/mid".AsMemory();
+    private static readonly ReadOnlyMemory<char> BasicAudioMimeType = "audio/basic".AsMemory();
     
     private static readonly ReadOnlyMemory<char> WordMimeType = "application/msword".AsMemory();
     private static readonly ReadOnlyMemory<char> VisioMimeType = "application/vnd.visio".AsMemory();
@@ -48,6 +51,7 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
     private static readonly ReadOnlyMemory<char> PowerPointMimeType = "application/vnd.ms-powerpoint".AsMemory();
     private static readonly ReadOnlyMemory<char> AccessMimeType = "application/msaccess".AsMemory();
     private static readonly ReadOnlyMemory<char> WorksMimeType = "application/vnd.ms-works".AsMemory();
+    private static readonly ReadOnlyMemory<char> OutlookMimeType = "application/vnd.ms-outlook".AsMemory();
     
     private static readonly ReadOnlyMemory<char> PerfmonMimeType = "application/x-perfmon".AsMemory();
     private static readonly ReadOnlyMemory<char> StepMimeType = "application/step".AsMemory();
@@ -59,11 +63,17 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
     
     private static readonly ReadOnlyMemory<char> CaCertX509MimeType = "application/x-x509-ca-cert".AsMemory();
     private static readonly ReadOnlyMemory<char> Pkcs7MimeType = "application/pkcs7-mime".AsMemory();
+    private static readonly ReadOnlyMemory<char> Pkcs7CertificatesMimeType = "application/x-pkcs7-certificates".AsMemory();
     private static readonly ReadOnlyMemory<char> Pkcs12MimeType = "application/x-pkcs12".AsMemory();
     private static readonly ReadOnlyMemory<char> MediaViewMimeType = "application/x-msmediaview".AsMemory();
     private static readonly ReadOnlyMemory<char> LiquidMotionMimeType = "application/liquidmotion".AsMemory();
     private static readonly ReadOnlyMemory<char> XDirectorMimeType = "application/x-director".AsMemory();
     private static readonly ReadOnlyMemory<char> PostscriptMimeType = "application/postscript".AsMemory();
+    private static readonly ReadOnlyMemory<char> FharpScriptMimeType = "application/fsharp-script".AsMemory();
+    private static readonly ReadOnlyMemory<char> InternetSignupMimeType = "application/x-internet-signup".AsMemory();
+    private static readonly ReadOnlyMemory<char> ShockwaveFlashMimeType = "application/x-shockwave-flash".AsMemory();
+    private static readonly ReadOnlyMemory<char> TroffFlashMimeType = "application/x-troff".AsMemory();
+    private static readonly ReadOnlyMemory<char> SfntFlashMimeType = "application/font-sfnt".AsMemory();
 
     private static readonly ReadOnlyMemory<char> VrmlWorldMimeType = "x-world/x-vrml".AsMemory();
     
@@ -305,7 +315,7 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".asr".AsMemory(), XmsAsfVideoMimeType },
         { ".asx".AsMemory(), XmsAsfVideoMimeType },
         { ".atom".AsMemory(), "application/atom+xml".AsMemory() },
-        { ".au".AsMemory(), "audio/basic".AsMemory() },
+        { ".au".AsMemory(), BasicAudioMimeType },
         { ".avci".AsMemory(), "image/avci".AsMemory() },
         { ".avcs".AsMemory(), "image/avcs".AsMemory() },
         { ".avifs".AsMemory(), "image/avif-sequence".AsMemory() },
@@ -362,8 +372,8 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".flac".AsMemory(), "audio/flac".AsMemory() },
         { ".flr".AsMemory(), VrmlWorldMimeType },
         { ".flv".AsMemory(), "video/x-flv".AsMemory() },
-        { ".fsscript".AsMemory(), "application/fsharp-script".AsMemory() },
-        { ".fsx".AsMemory(), "application/fsharp-script".AsMemory() },
+        { ".fsscript".AsMemory(), FharpScriptMimeType },
+        { ".fsx".AsMemory(), FharpScriptMimeType },
         { ".geojson".AsMemory(), "application/geo+json".AsMemory() },
         { ".gpx".AsMemory(), "application/gpx+xml".AsMemory() },
         { ".group".AsMemory(), "text/x-ms-group".AsMemory() },
@@ -385,12 +395,12 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".ico".AsMemory(), "image/x-icon".AsMemory() },
         { ".ief".AsMemory(), "image/ief".AsMemory() },
         { ".iii".AsMemory(), "application/x-iphone".AsMemory() },
-        { ".ins".AsMemory(), "application/x-internet-signup".AsMemory() },
+        { ".ins".AsMemory(), InternetSignupMimeType },
         { ".ipa".AsMemory(), "application/x-itunes-ipa".AsMemory() },
         { ".ipg".AsMemory(), "application/x-itunes-ipg".AsMemory() },
         { ".ipsw".AsMemory(), "application/x-itunes-ipsw".AsMemory() },
         { ".iqy".AsMemory(), "text/x-ms-iqy".AsMemory() },
-        { ".isp".AsMemory(), "application/x-internet-signup".AsMemory() },
+        { ".isp".AsMemory(), InternetSignupMimeType },
         { ".ite".AsMemory(), "application/x-itunes-ite".AsMemory() },
         { ".itlp".AsMemory(), "application/x-itunes-itlp".AsMemory() },
         { ".itms".AsMemory(), "application/x-itunes-itms".AsMemory() },
@@ -427,7 +437,7 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".mdb".AsMemory(), "application/x-msaccess".AsMemory() },
         { ".mde".AsMemory(), AccessMimeType },
         { ".me".AsMemory(), "application/x-troff-me".AsMemory() },
-        { ".mfp".AsMemory(), "application/x-shockwave-flash".AsMemory() },
+        { ".mfp".AsMemory(), ShockwaveFlashMimeType },
         { ".mht".AsMemory(), Rfc822MessageMimeType },
         { ".mhtml".AsMemory(), Rfc822MessageMimeType },
         { ".mid".AsMemory(), MidAudioMimeType },
@@ -444,7 +454,7 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".mpp".AsMemory(), "application/vnd.ms-project".AsMemory() },
         { ".mqv".AsMemory(), QuickTimeVideoMimeType },
         { ".ms".AsMemory(), "application/x-troff-ms".AsMemory() },
-        { ".msg".AsMemory(), "application/vnd.ms-outlook".AsMemory() },
+        { ".msg".AsMemory(), OutlookMimeType },
         { ".mts".AsMemory(), DlnaMpegTtsVideoMimeType },
         { ".mvb".AsMemory(), MediaViewMimeType },
         { ".mvc".AsMemory(), "application/x-miva-compiled".AsMemory() },
@@ -468,7 +478,7 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".onetoc".AsMemory(), OneNoteMimeType },
         { ".onetoc2".AsMemory(), OneNoteMimeType },
         { ".osdx".AsMemory(), "application/opensearchdescription+xml".AsMemory() },
-        { ".otf".AsMemory(), "application/font-sfnt".AsMemory() },
+        { ".otf".AsMemory(), SfntFlashMimeType },
         { ".otg".AsMemory(), "application/vnd.oasis.opendocument.graphics-template".AsMemory() },
         { ".oth".AsMemory(), "application/vnd.oasis.opendocument.text-web".AsMemory() },
         { ".otp".AsMemory(), "application/vnd.oasis.opendocument.presentation-template".AsMemory() },
@@ -478,7 +488,7 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".oxt".AsMemory(), "application/vnd.openofficeorg.extension".AsMemory() },
         { ".p10".AsMemory(), "application/pkcs10".AsMemory() },
         { ".p12".AsMemory(), Pkcs12MimeType },
-        { ".p7b".AsMemory(), "application/x-pkcs7-certificates".AsMemory() },
+        { ".p7b".AsMemory(), Pkcs7CertificatesMimeType },
         { ".p7c".AsMemory(), Pkcs7MimeType },
         { ".p7m".AsMemory(), Pkcs7MimeType },
         { ".p7r".AsMemory(), "application/x-pkcs7-certreqresp".AsMemory() },
@@ -511,7 +521,7 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".prf".AsMemory(), "application/pics-rules".AsMemory() },
         { ".ps".AsMemory(), PostscriptMimeType },
         { ".psc1".AsMemory(), "application/PowerShell".AsMemory() },
-        { ".pst".AsMemory(), "application/vnd.ms-outlook".AsMemory() },
+        { ".pst".AsMemory(), OutlookMimeType },
         { ".pub".AsMemory(), "application/x-mspublisher".AsMemory() },
         { ".qht".AsMemory(), XHtmlInsertionTextMimeType },
         { ".qhtm".AsMemory(), XHtmlInsertionTextMimeType },
@@ -530,13 +540,13 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".rmi".AsMemory(), MidAudioMimeType },
         { ".rmp".AsMemory(), "application/vnd.rn-rn_music_package".AsMemory() },
         { ".rmvb".AsMemory(), "application/vnd.rn-realmedia-vbr".AsMemory() },
-        { ".roff".AsMemory(), "application/x-troff".AsMemory() },
+        { ".roff".AsMemory(), TroffFlashMimeType },
         { ".rpm".AsMemory(), "audio/x-pn-realaudio-plugin".AsMemory() },
         { ".rqy".AsMemory(), "text/x-ms-rqy".AsMemory() },
         { ".rtx".AsMemory(), "text/richtext".AsMemory() },
         { ".safariextz".AsMemory(), "application/x-safari-safariextz".AsMemory() },
         { ".scd".AsMemory(), "application/x-msschedule".AsMemory() },
-        { ".sct".AsMemory(), "text/scriptlet".AsMemory() },
+        { ".sct".AsMemory(), ScriptletTextMimeType },
         { ".sd2".AsMemory(), "audio/x-sd2".AsMemory() },
         { ".sdp".AsMemory(), "application/sdp".AsMemory() },
         { ".searchConnector-ms".AsMemory(), "application/windows-search-connector+xml".AsMemory() },
@@ -553,9 +563,9 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".smd".AsMemory(), XsmdAudioMimeType },
         { ".smx".AsMemory(), XsmdAudioMimeType },
         { ".smz".AsMemory(), XsmdAudioMimeType },
-        { ".snd".AsMemory(), "audio/basic".AsMemory() },
+        { ".snd".AsMemory(), BasicAudioMimeType },
         { ".sql".AsMemory(), "application/sql".AsMemory() },
-        { ".spc".AsMemory(), "application/x-pkcs7-certificates".AsMemory() },
+        { ".spc".AsMemory(), Pkcs7CertificatesMimeType },
         { ".spl".AsMemory(), "application/futuresplash".AsMemory() },
         { ".src".AsMemory(), "application/x-wais-source".AsMemory() },
         { ".SSISDeploymentManifest".AsMemory(), XmlTextMimeType },
@@ -564,21 +574,21 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".stl".AsMemory(), "application/vnd.ms-pki.stl".AsMemory() },
         { ".sv4cpio".AsMemory(), "application/x-sv4cpio".AsMemory() },
         { ".sv4crc".AsMemory(), "application/x-sv4crc".AsMemory() },
-        { ".swf".AsMemory(), "application/x-shockwave-flash".AsMemory() },
+        { ".swf".AsMemory(), ShockwaveFlashMimeType },
         { ".step".AsMemory(), StepMimeType },
         { ".stp".AsMemory(), StepMimeType },
-        { ".t".AsMemory(), "application/x-troff".AsMemory() },
+        { ".t".AsMemory(), TroffFlashMimeType },
         { ".tcl".AsMemory(), "application/x-tcl".AsMemory() },
         { ".tex".AsMemory(), "application/x-tex".AsMemory() },
         { ".texi".AsMemory(), TexInfoMimeType },
         { ".texinfo".AsMemory(), TexInfoMimeType },
         { ".tgz".AsMemory(), "application/x-compressed".AsMemory() },
         { ".thmx".AsMemory(), "application/vnd.ms-officetheme".AsMemory() },
-        { ".tr".AsMemory(), "application/x-troff".AsMemory() },
+        { ".tr".AsMemory(), TroffFlashMimeType },
         { ".trm".AsMemory(), "application/x-msterminal".AsMemory() },
         { ".ts".AsMemory(), DlnaMpegTtsVideoMimeType },
         { ".tsv".AsMemory(), "text/tab-separated-values".AsMemory() },
-        { ".ttf".AsMemory(), "application/font-sfnt".AsMemory() },
+        { ".ttf".AsMemory(), SfntFlashMimeType },
         { ".tts".AsMemory(), DlnaMpegTtsVideoMimeType },
         { ".uls".AsMemory(), "text/iuls".AsMemory() },
         { ".ustar".AsMemory(), "application/x-ustar".AsMemory() },
@@ -625,7 +635,7 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".wri".AsMemory(), "application/x-mswrite".AsMemory() },
         { ".wrl".AsMemory(), VrmlWorldMimeType },
         { ".wrz".AsMemory(), VrmlWorldMimeType },
-        { ".wsc".AsMemory(), "text/scriptlet".AsMemory() },
+        { ".wsc".AsMemory(), ScriptletTextMimeType },
         { ".wsdl".AsMemory(), XmlTextMimeType },
         { ".wvx".AsMemory(), "video/x-ms-wvx".AsMemory() },
         { ".x".AsMemory(), "application/directx".AsMemory() },
@@ -653,5 +663,20 @@ public class MimeDictionary : Lazy<Dictionary<ReadOnlyMemory<char>, ReadOnlyMemo
         { ".z".AsMemory(), "application/x-compress".AsMemory() }
     })
     {
+    }
+    
+    private string GetMimeType(ReadOnlySpan<char> mimeType)
+    {
+        
+        
+        ReadOnlyMemory<char> searchFor = mimeType;
+        
+        if (mimeType.Span[0] == '.')
+            searchFor = mimeType.Slice(1, mimeType.Length - 1);
+        
+        ReadOnlyMemory<char> mime = 
+            Value.TryGetValue(searchFor, out var result) ? result : DefaultMimeType;
+        
+        
     }
 }
