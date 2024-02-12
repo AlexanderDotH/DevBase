@@ -20,7 +20,7 @@ public class BasicAuthorizationHeader : AuthorizationHeader
     {
         get
         {
-            Encoding encoding = Encoding.Default;
+            Encoding encoding = Encoding.UTF8;
 
             ReadOnlySpan<char> username = this._username; 
             ReadOnlySpan<char> password = this._password;

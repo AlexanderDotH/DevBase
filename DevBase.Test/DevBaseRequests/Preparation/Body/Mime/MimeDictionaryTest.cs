@@ -2,7 +2,7 @@ using System.Diagnostics;
 using DevBase.Extensions.Stopwatch;
 using DevBase.Requests.Preparation.Header.Body.Mime;
 
-namespace DevBase.Test.DevBaseRequests.Preparation.Header.Body.Mime;
+namespace DevBase.Test.DevBaseRequests.Preparation.Body.Mime;
 
 public class MimeDictionaryTest
 {

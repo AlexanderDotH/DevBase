@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using DevBase.Extensions.Stopwatch;
 using DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
 using DevBase.Requests.Utils;
 
@@ -24,7 +25,7 @@ public class BogusUtilsTests
         
         sw.Stop();
         
-        Console.WriteLine($"Took {sw.ElapsedMilliseconds}ms or {sw.ElapsedTicks}ts to generate {count} random numbers");
+        Console.WriteLine(sw.GetTimeTable().ToString());
         
         Console.WriteLine(generated.ToString());
     }

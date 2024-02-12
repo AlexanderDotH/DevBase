@@ -6,6 +6,9 @@ namespace DevBase.Extensions.Stopwatch;
 
 public static class StopwatchExtension
 {
+    public static void PrintTimeTable(this System.Diagnostics.Stopwatch stopwatch) =>
+        Console.WriteLine(stopwatch.GetTimeTable());
+    
     public static string GetTimeTable(this System.Diagnostics.Stopwatch stopwatch)
     {
         if (stopwatch.IsRunning)
@@ -16,7 +19,6 @@ public static class StopwatchExtension
         {
             c.NumberAlignment = Alignment.Right;
         });
-        
 
         (int Hours, string Unit) hours = TimeUtils.GetHours(stopwatch);
         (int Minutes, string Unit) minutes = TimeUtils.GetMinutes(stopwatch);
