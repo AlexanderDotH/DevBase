@@ -40,6 +40,6 @@ public class BogusUserAgentGeneratorTests
 
         Console.WriteLine($"Generated user-agent of type {generator.GetType().Name}\n");
         Console.WriteLine(sw.GetTimeTable());
-        Console.WriteLine($"The User-Agent: {generator.UserAgentPart}");
+        Console.WriteLine($"The User-Agent: {generator.UserAgentPart}"); 
     }
 }
