@@ -2,5 +2,5 @@
 
 public enum EnumValidationReason
 {
-    Empty
+    Empty, DataMismatch
 }

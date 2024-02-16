@@ -12,7 +12,8 @@ public class ElementValidationException : System.Exception
         {
             case EnumValidationReason.Empty:
                 return "Some or more fields/objects are empty";
-            
+            case EnumValidationReason.DataMismatch:
+                return "Please provide the correct data types";
         }
 
         return string.Empty;

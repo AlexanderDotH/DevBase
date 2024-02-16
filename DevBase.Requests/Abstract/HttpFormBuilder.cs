@@ -22,6 +22,10 @@ public abstract class HttpFormBuilder<T, KeyK, KeyV> where T : HttpFormBuilder<T
 
     protected void AddFormElement(KeyK key, KeyV value) => 
         FormData.Add(KeyValuePair.Create(key, value));
+
+    protected void RemoveFormElement(int index) => FormData.RemoveAt(index);
+    protected void RemoveFormElement(KeyK key) => this.FormData.RemoveAll((kv) => kv.Key.Equals(key));
+    protected void RemoveFormElement(KeyV value) => this.FormData.RemoveAll((kv) => kv.Value.Equals(value));
     
     protected abstract Action BuildAction { get; }
 
