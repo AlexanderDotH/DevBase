@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using CsvHelper;
 using DevBase.Generics;
 using DevBaseLive.Objects;
@@ -11,13 +12,44 @@ namespace DevBaseLive
     {
         public static async Task Main(string[] args)
         {
-            TrackMiner miner = new TrackMiner(1000);
+            StringBuilder charBuilder = new StringBuilder();
+            StringBuilder hexBuilder = new StringBuilder();
+        
+            while (true)
+            {
+                // Ausgabe
+                Console.SetCursorPosition(0, 0);
 
-            List<Track> aTracks = (await miner.FindTracks()).GetAsList();
-
-            File.WriteAllText("Tracks.json", JsonConvert.SerializeObject(aTracks));
+                Console.Write(hexBuilder + "\n");
+                Console.Write(charBuilder);
             
-            Console.WriteLine($"Wrote {aTracks.Count} tracks!");
+                char lastKey = Console.ReadKey().KeyChar;
+
+                if (lastKey == '\r')
+                {
+                    Console.WriteLine();
+                    continue;
+                }
+
+                // Unicode-Zeichencode ermitteln
+
+                // Hexadezimale Darstellung mit führenden Nullen
+
+                byte[] buffer = Encoding.UTF8.GetBytes(lastKey.ToString());
+            
+                string hex = string.Concat(buffer.Select(b => b.ToString("X2")));
+            
+                if (hex.Length == 1)
+                {
+                    hex = $"0x0{hex}, ";
+                }
+                else
+                {
+                    hex = $"0x{hex}, ";
+                }
+
+                charBuilder.Append(lastKey);
+                hexBuilder.Append(hex);
         }
     }
 }

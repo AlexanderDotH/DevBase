@@ -1,4 +1,5 @@
-﻿using DevBase.IO;
+﻿using System.Text;
+using DevBase.IO;
 using DevBase.Requests.Abstract;
 using DevBase.Requests.Enums;
 using DevBase.Requests.Exceptions;
@@ -13,11 +14,12 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
     }
 
     #region MimeFile Content
-
+    public RequestFormHeaderBuilder AddFile(byte[] buffer) => AddFile(AFileObject.FromBuffer(buffer));
     public RequestFormHeaderBuilder AddFile(AFileObject fileObject) => AddFile(MimeFileObject.FromAFileObject(fileObject));
     public RequestFormHeaderBuilder AddFile(FileInfo fileInfo) => AddFile(MimeFileObject.FromFile(fileInfo));
     public RequestFormHeaderBuilder AddFile(string filePath) => AddFile(MimeFileObject.FromFile(filePath));
     
+    public RequestFormHeaderBuilder AddFile(string fieldName, byte[] buffer) => AddFile(fieldName, AFileObject.FromBuffer(buffer));
     public RequestFormHeaderBuilder AddFile(string fieldName, AFileObject fileObject) => AddFile(fieldName, MimeFileObject.FromAFileObject(fileObject));
     public RequestFormHeaderBuilder AddFile(string fieldName, FileInfo fileInfo) => AddFile(fieldName, MimeFileObject.FromFile(fileInfo));
     public RequestFormHeaderBuilder AddFile(string fieldName, string filePath) => AddFile(fieldName, MimeFileObject.FromFile(filePath));
@@ -49,6 +51,8 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
 
     #endregion
 
+    #region Fields
+
     public RequestFormHeaderBuilder RemoveEntryAt(int index)
     {
         RemoveFormElement(index);
@@ -58,13 +62,6 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
     public RequestFormHeaderBuilder Remove(string fieldName)
     {
         RemoveFormElement(fieldName);
-        return this;
-    }
-    
-    // Idk why someone would use this but i'll add it anyways
-    public RequestFormHeaderBuilder Remove(MimeFileObject mimeFileObject)
-    {
-        RemoveFormElement(mimeFileObject);
         return this;
     }
     
@@ -78,8 +75,11 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
                 return;
             }
             
-            if (!(value is MimeFileObject || value is string))
+            if (!(value is MimeFileObject || value is string || value is byte[]))
                 throw new ElementValidationException(EnumValidationReason.DataMismatch);
+
+            if (value is byte[] buffer)
+                AddFile(fieldName, buffer);
             
             if (value is MimeFileObject mimeFileContent)
                 AddFile(fieldName, mimeFileContent);
@@ -88,6 +88,13 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
                 AddText(fieldName, textContent);
         }
     }
+
+    #endregion
+
+    // private char[] CreateContentDisposition(MimeFileObject mimeFileObject)
+    // {
+    //     
+    // }
     
     protected override Action BuildAction { get; }
 }

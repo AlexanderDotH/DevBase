@@ -43,6 +43,9 @@ namespace DevBase.IO
             Encoding = encoding;
         }
 
+        public static AFileObject FromBuffer(byte[] buffer, string fileName = "buffer.bin") =>
+            new AFileObject(new FileInfo(fileName), buffer);
+        
         // COMPLAIN: I don't like this solution. 
         public AList<string> ToList()
         {
