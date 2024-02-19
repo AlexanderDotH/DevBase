@@ -7,14 +7,13 @@ namespace DevBase.Requests.Abstract;
 
 public abstract class HttpFormBuilder<T, KeyK, KeyV> where T : HttpFormBuilder<T, KeyK, KeyV>
 {
-    protected StringBuilder FormStringBuilder { get; private set; }
+    public Memory<byte> Buffer { get; protected set; }
     public bool AlreadyBuilt { get; protected set; }
 
-    private List<KeyValuePair<KeyK, KeyV>> FormData { get; }
+    protected List<KeyValuePair<KeyK, KeyV>> FormData { get; private set; }
     
     protected HttpFormBuilder()
     {
-        FormStringBuilder = new StringBuilder();
         FormData = new List<KeyValuePair<KeyK, KeyV>>();
         
         AlreadyBuilt = false;
@@ -38,5 +37,10 @@ public abstract class HttpFormBuilder<T, KeyK, KeyV> where T : HttpFormBuilder<T
         
         this.AlreadyBuilt = true;
         return (T)this;
+    }
+
+    public override string ToString()
+    {
+        return Encoding.UTF8.GetString(Buffer.ToArray());
     }
 }

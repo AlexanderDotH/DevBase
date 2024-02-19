@@ -4,6 +4,8 @@ using DevBase.Requests.Abstract;
 using DevBase.Requests.Enums;
 using DevBase.Requests.Exceptions;
 using DevBase.Requests.Objects;
+using DevBase.Requests.Struct;
+using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Preparation.Header.Body;
 
@@ -90,11 +92,38 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
     }
 
     #endregion
-
-    // private char[] CreateContentDisposition(MimeFileObject mimeFileObject)
-    // {
-    //     
-    // }
     
-    protected override Action BuildAction { get; }
+    protected override Action BuildAction => () =>
+    {
+        List<Memory<byte>> buffer = new List<Memory<byte>>();
+        
+        for (var i = 0; i < FormData.Count; i++)
+        {
+            KeyValuePair<string, object> formEntry = FormData[i];
+
+            if (!(formEntry.Value is string || formEntry.Value is MimeFileObject))
+                continue;
+            
+            buffer.Add(ContentDispositionUtils.NewLine);
+            buffer.Add(Bounds.Separator);
+            buffer.Add(ContentDispositionUtils.NewLine);
+            
+            if (formEntry.Value is MimeFileObject mimeEntry)
+            {
+                buffer.Add(ContentDispositionUtils.FromFile(formEntry.Key, mimeEntry));
+            }
+
+            if (formEntry.Value is string textEntry)
+            {
+                buffer.Add(ContentDispositionUtils.FromValue(formEntry.Key, textEntry));
+            }
+        }
+
+        buffer.Add(ContentDispositionUtils.NewLine);
+        buffer.Add(Bounds.Tail);
+
+        Buffer = BufferUtils.Combine(buffer);
+    };
+
+    public ContentDispositionBounds Bounds => ContentDispositionUtils.GetBounds();
 }

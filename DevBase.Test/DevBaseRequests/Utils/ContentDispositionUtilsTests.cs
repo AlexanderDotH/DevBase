@@ -2,8 +2,8 @@
 using System.Diagnostics;
 using System.Text;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Builder;
 using DevBase.Requests.Objects;
+using DevBase.Requests.Utils;
 using DevBase.Test.Test;
 
 namespace DevBase.Test.DevBaseRequests.Utils;
@@ -19,10 +19,10 @@ public class ContentDispositionUtilsTests
         
         Stopwatch penetrationTest = PenetrationTest.Run(() =>
         {
-           ReadOnlySpan<byte> lastValue = ContentDispositionUtils.FromFile("fileUpload", mime);
+            Memory<byte> lastValue = ContentDispositionUtils.FromFile("fileUpload", mime);
         }, count);
         
-        Console.WriteLine($"Created {count}times the following text \n\"{Encoding.ASCII.GetString(ContentDispositionUtils.FromFile("fileUpload", mime))}\"\n");
+        Console.WriteLine($"Created {count}times the following text \n\"{Encoding.ASCII.GetString(ContentDispositionUtils.FromFile("fileUpload", mime).ToArray())}\"\n");
         
         penetrationTest.PrintTimeTable();
     }
@@ -34,10 +34,10 @@ public class ContentDispositionUtilsTests
         
         Stopwatch penetrationTest = PenetrationTest.Run(() =>
         {
-            ReadOnlySpan<byte> lastValue = ContentDispositionUtils.FromValue("fieldName", "fieldValue");
+            Memory<byte> lastValue = ContentDispositionUtils.FromValue("fieldName", "fieldValue");
         }, count);
         
-        Console.WriteLine($"Created {count}times the following text \n\"{Encoding.ASCII.GetString(ContentDispositionUtils.FromValue("fieldName", "fieldValue"))}\"\n");
+        Console.WriteLine($"Created {count}times the following text \n\"{Encoding.ASCII.GetString(ContentDispositionUtils.FromValue("fieldName", "fieldValue").ToArray())}\"\n");
         
         penetrationTest.PrintTimeTable();
     }

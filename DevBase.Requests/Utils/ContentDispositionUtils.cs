@@ -1,30 +1,71 @@
 ﻿using System.Text;
 using DevBase.Requests.Objects;
+using DevBase.Requests.Struct;
 
-namespace DevBase.Requests.Builder;
+namespace DevBase.Requests.Utils;
 
-// TODO: Make this class byte[] only. And make entire concatination here
 public class ContentDispositionUtils
 {
-    // "Content-Disposition:"
+    private static Memory<char> _boundaryLine = "--------------------------".ToCharArray();
+    private static Memory<char> _boundaryTail = "--".ToCharArray();
+
     private static Memory<char> _prefix = "Content-Disposition".ToCharArray();
-    
-    // "Content-Type"
     private static Memory<char> _contentType = "Content-Type".ToCharArray();
-    
-    // "form-data"
     private static Memory<char> _formData = "form-data".ToCharArray();
-
-    // name
     private static Memory<char> _name = "name".ToCharArray();
-
-    // filename
     private static Memory<char> _fileName = "filename".ToCharArray();
 
     // \r\n or \n or \r based on the os
     private static Memory<char> _newLine = Environment.NewLine.ToCharArray();
 
-    public static ReadOnlySpan<byte> FromValue(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> fieldValue)
+    public static readonly Memory<byte> NewLine = Encoding.UTF8.GetBytes(Environment.NewLine);
+
+    public static ContentDispositionBounds GetBounds()
+    {
+        long ticks = DateTimeOffset.Now.Ticks;
+
+        return new ContentDispositionBounds()
+        {
+            Bounds = GetBoundary(ticks),
+            Separator = GetSeparator(ticks),
+            Tail = GetTail(ticks)
+        };
+    }
+    
+    public static Memory<byte> GetSeparator(long ticks)
+    {
+        StringBuilder tailBuilder = new StringBuilder(45);
+
+        tailBuilder.Append(_boundaryTail);
+        tailBuilder.Append(_boundaryLine);
+        tailBuilder.Append(ticks);
+
+        return Encoding.UTF8.GetBytes(tailBuilder.ToString());
+    }
+    
+    public static Memory<byte> GetTail(long ticks)
+    {
+        StringBuilder tailBuilder = new StringBuilder(45);
+
+        tailBuilder.Append(_boundaryTail);
+        tailBuilder.Append(_boundaryLine);
+        tailBuilder.Append(ticks);
+        tailBuilder.Append(_boundaryTail);
+        
+        return Encoding.UTF8.GetBytes(tailBuilder.ToString());
+    }
+    
+    public static Memory<byte> GetBoundary(long ticks)
+    {
+        StringBuilder boundaryBuilder = new StringBuilder(45);
+
+        boundaryBuilder.Append(_boundaryLine);
+        boundaryBuilder.Append(ticks);
+        
+        return Encoding.UTF8.GetBytes(boundaryBuilder.ToString());
+    }
+    
+    public static Memory<byte> FromValue(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> fieldValue)
     {
         StringBuilder stringBuilder = new StringBuilder(70);
         
@@ -55,7 +96,7 @@ public class ContentDispositionUtils
         return Encoding.UTF8.GetBytes(stringBuilder.ToString());
     }
     
-    public static ReadOnlySpan<byte> FromFile(ReadOnlySpan<char> fieldName, MimeFileObject mimeFileObject)
+    public static Memory<byte> FromFile(ReadOnlySpan<char> fieldName, MimeFileObject mimeFileObject)
     {
         StringBuilder fileBuilder = new StringBuilder(70);
 
