@@ -24,33 +24,25 @@ public class ContentDispositionUtils
     // \r\n or \n or \r based on the os
     private static Memory<char> _newLine = Environment.NewLine.ToCharArray();
 
-    public static ReadOnlySpan<char> FromValue(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> fieldValue)
+    public static ReadOnlySpan<byte> FromValue(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> fieldValue)
     {
         StringBuilder stringBuilder = new StringBuilder(70);
         
-        // Content-Disposition
+        // "Content-Disposition: "
         stringBuilder.Append(_prefix);
-        
-        // ": "
         stringBuilder.Append(':');
         stringBuilder.Append(' ');
         
-        // form-data
+        // "form-data; "
         stringBuilder.Append(_formData);
-        
-        // "; "
         stringBuilder.Append(';');
         stringBuilder.Append(' ');
 
-        // name="
+        // "name="fieldName""
         stringBuilder.Append(_name);
         stringBuilder.Append('=');
         stringBuilder.Append('\"');
-        
-        // fieldName
         stringBuilder.Append(fieldName);
-        
-        // ""
         stringBuilder.Append('\"');
 
         // 2 new-lines
@@ -60,60 +52,60 @@ public class ContentDispositionUtils
         // fieldValue
         stringBuilder.Append(fieldValue);
 
-        return stringBuilder.ToString();
+        return Encoding.UTF8.GetBytes(stringBuilder.ToString());
     }
     
-    public static ReadOnlySpan<char> FromFile(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> fileName, MimeFileObject mimeFileObject)
+    public static ReadOnlySpan<byte> FromFile(ReadOnlySpan<char> fieldName, MimeFileObject mimeFileObject)
     {
         StringBuilder fileBuilder = new StringBuilder(70);
 
-        // Content-Disposition
+        // "Content-Disposition: "
         fileBuilder.Append(_prefix);
-        
-        // ": "
         fileBuilder.Append(':');
         fileBuilder.Append(' ');
 
-        // form-data
+        // "form-data; "
         fileBuilder.Append(_formData);
-        
-        // "; "
         fileBuilder.Append(';');
         fileBuilder.Append(' ');
 
-        // name="
+        // name="fieldName"; "
         fileBuilder.Append(_name);
         fileBuilder.Append('=');
         fileBuilder.Append('\"');
-        
-        // fieldName
         fileBuilder.Append(fieldName);
-        
-        // ""; "
         fileBuilder.Append('\"');
         fileBuilder.Append(';');
         fileBuilder.Append(' ');
         
-        // filename="
+        // "filename="fileName"; "
         fileBuilder.Append(_fileName);
         fileBuilder.Append('=');
         fileBuilder.Append('\"');
-        
-        // "fileName""
-        fileBuilder.Append(fileName);
+        fileBuilder.Append(mimeFileObject.FileInfo.Name);
         fileBuilder.Append('\"');
+        fileBuilder.Append(' ');
         
-        // 2 new-linex
-        fileBuilder.Append(_newLine);
+        // new line
         fileBuilder.Append(_newLine);
         
-        // "Content-Type: "
+        // "Content-Type: mimeType"
         fileBuilder.Append(_contentType);
         fileBuilder.Append(':');
         fileBuilder.Append(' ');
-        
-        // 
+        fileBuilder.Append(mimeFileObject.MimeType);
 
-        return fileBuilder.ToString();
+        // 2 new-lines
+        fileBuilder.Append(_newLine);
+        fileBuilder.Append(_newLine);
+
+        byte[] textPart = Encoding.UTF8.GetBytes(fileBuilder.ToString());
+        
+        byte[] buffer = new byte[textPart.Length + mimeFileObject.Buffer.Length];
+        
+        Array.Copy(textPart, buffer, textPart.Length);
+        Array.Copy(mimeFileObject.Buffer.ToArray(), 0, buffer, textPart.Length, mimeFileObject.Buffer.Length);
+        
+        return buffer;
     }
 }

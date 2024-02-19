@@ -33,6 +33,7 @@ public class MimeFileObject : AFileObject
     public static MimeFileObject FromFile(string filePath) => new MimeFileObject(filePath);
     public static MimeFileObject FromFile(FileInfo fileInfo) => new MimeFileObject(fileInfo);
     public static MimeFileObject FromBinary(FileInfo fileInfo, byte[] buffer) => new MimeFileObject(fileInfo, buffer);
+    public static MimeFileObject FromBuffer(byte[] buffer) => new MimeFileObject(new FileInfo("buffer.bin"), buffer);
     public static MimeFileObject FromAFileObject(AFileObject fileObject) =>
         new MimeFileObject(fileObject.FileInfo, fileObject.Buffer);
 }

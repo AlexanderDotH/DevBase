@@ -14,7 +14,7 @@ namespace DevBaseLive
         {
             StringBuilder charBuilder = new StringBuilder();
             StringBuilder hexBuilder = new StringBuilder();
-        
+
             while (true)
             {
                 // Ausgabe
@@ -22,7 +22,7 @@ namespace DevBaseLive
 
                 Console.Write(hexBuilder + "\n");
                 Console.Write(charBuilder);
-            
+
                 char lastKey = Console.ReadKey().KeyChar;
 
                 if (lastKey == '\r')
@@ -36,9 +36,9 @@ namespace DevBaseLive
                 // Hexadezimale Darstellung mit führenden Nullen
 
                 byte[] buffer = Encoding.UTF8.GetBytes(lastKey.ToString());
-            
+
                 string hex = string.Concat(buffer.Select(b => b.ToString("X2")));
-            
+
                 if (hex.Length == 1)
                 {
                     hex = $"0x0{hex}, ";
@@ -50,6 +50,7 @@ namespace DevBaseLive
 
                 charBuilder.Append(lastKey);
                 hexBuilder.Append(hex);
+            }
         }
     }
 }
