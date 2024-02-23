@@ -1,4 +1,6 @@
-﻿using System.Text;
+﻿using System.Buffers;
+using System.Diagnostics;
+using System.Text;
 using DevBase.Requests.Objects;
 using DevBase.Requests.Struct;
 
@@ -24,25 +26,18 @@ public class ContentDispositionUtils
     {
         long ticks = DateTimeOffset.Now.Ticks;
 
+        Memory<byte> tail = GetTail(ticks);
+        Memory<byte> boundary = GetBoundary(tail);
+        Memory<byte> separator = GetSeparator(tail);
+        
         return new ContentDispositionBounds()
         {
-            Bounds = GetBoundary(ticks),
-            Separator = GetSeparator(ticks),
-            Tail = GetTail(ticks)
+            Bounds = boundary,
+            Separator = separator,
+            Tail = tail
         };
     }
-    
-    public static Memory<byte> GetSeparator(long ticks)
-    {
-        StringBuilder tailBuilder = new StringBuilder(45);
 
-        tailBuilder.Append(_boundaryTail);
-        tailBuilder.Append(_boundaryLine);
-        tailBuilder.Append(ticks);
-
-        return Encoding.UTF8.GetBytes(tailBuilder.ToString());
-    }
-    
     public static Memory<byte> GetTail(long ticks)
     {
         StringBuilder tailBuilder = new StringBuilder(45);
@@ -51,18 +46,18 @@ public class ContentDispositionUtils
         tailBuilder.Append(_boundaryLine);
         tailBuilder.Append(ticks);
         tailBuilder.Append(_boundaryTail);
-        
+
         return Encoding.UTF8.GetBytes(tailBuilder.ToString());
     }
     
-    public static Memory<byte> GetBoundary(long ticks)
+    public static Memory<byte> GetBoundary(Memory<byte> tail)
     {
-        StringBuilder boundaryBuilder = new StringBuilder(45);
-
-        boundaryBuilder.Append(_boundaryLine);
-        boundaryBuilder.Append(ticks);
-        
-        return Encoding.UTF8.GetBytes(boundaryBuilder.ToString());
+        return tail.Slice(2, tail.Length - 2);
+    }
+    
+    public static Memory<byte> GetSeparator(Memory<byte> tail)
+    {
+        return tail.Slice(0, tail.Length - 2);
     }
     
     public static Memory<byte> FromValue(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> fieldValue)

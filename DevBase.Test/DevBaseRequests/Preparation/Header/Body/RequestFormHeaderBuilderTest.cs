@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Text;
+using Bogus.DataSets;
 using DevBase.Extensions.Stopwatch;
 using DevBase.Requests.Objects;
 using DevBase.Requests.Preparation.Header.Body;
@@ -8,36 +9,42 @@ namespace DevBase.Test.DevBaseRequests.Preparation.Header.Body;
 
 public class RequestFormHeaderBuilderTest
 {
+
+    private const int _count = 1_000_000;
+    private string[] _keys;
+    private string[] _textValues;
+    private byte[][] _fileValues;
+    
+    [SetUp]
+    public void GenerateDummyData()
+    {
+        Lorem lorem = new Lorem("en");
+        _keys = Enumerable.Range(0, _count).Select(s => lorem.Word()).ToArray();
+        _textValues = Enumerable.Range(0, _count).Select(s => lorem.Word()).ToArray();
+        _fileValues = Enumerable.Range(0, _count).Select(s => Encoding.UTF8.GetBytes(lorem.Word())).ToArray();
+    }
+    
     [Test]
     public void RequestFormHeaderBuildTest()
     {
-        int count = 1_000_000;
-        
-        var lorem = new Bogus.DataSets.Lorem("en");
-
-        string[] keys = Enumerable.Range(0, count).Select(s => lorem.Word()).ToArray();
-        
-        string[] textValues = Enumerable.Range(0, count).Select(s => lorem.Word()).ToArray();
-        byte[][] fileValues = Enumerable.Range(0, count).Select(s => Encoding.UTF8.GetBytes(lorem.Word())).ToArray();
-
         Stopwatch stopwatch = new Stopwatch();
 
         RequestFormHeaderBuilder lastHeader = null;
-        MimeFileObject mimeFileObject = MimeFileObject.FromBuffer(fileValues[0]);
+        MimeFileObject mimeFileObject = MimeFileObject.FromBuffer(_fileValues[0]);
         
         stopwatch.Start();
         
-        for (var i = 0; i < keys.Length; i++)
+        for (var i = 0; i < this._keys.Length; i++)
         {
             lastHeader = new RequestFormHeaderBuilder()
-                .AddFile(keys[i], mimeFileObject)
-                .AddText(keys[i], textValues[i])
+                .AddFile(this._keys[i], mimeFileObject)
+                .AddText(this._keys[i], this._textValues[i])
                 .Build();
         }
         
         stopwatch.Stop();
         
-        Console.WriteLine($"Builded {count} form headers. Last entry: \n{lastHeader}\n");
+        Console.WriteLine($"Builded {_count} form headers. Last entry: \n{lastHeader}\n");
         
         stopwatch.PrintTimeTable();
     }
