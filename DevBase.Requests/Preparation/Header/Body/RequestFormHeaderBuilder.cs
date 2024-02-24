@@ -11,8 +11,17 @@ namespace DevBase.Requests.Preparation.Header.Body;
 
 public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder, string, object>
 {
+    public Memory<byte> Bounds { get; private set; }
+    public Memory<byte> Separator { get; private set; }
+    public Memory<byte> Tail { get; private set; }
+    
     public RequestFormHeaderBuilder()
     {
+        ContentDispositionBounds bounds = ContentDispositionUtils.GetBounds();
+
+        Bounds = bounds.Bounds;
+        Separator = bounds.Separator;
+        Tail = bounds.Tail;
     }
 
     #region MimeFile Content
@@ -95,6 +104,7 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
     
     protected override Action BuildAction => () =>
     {
+        
         List<Memory<byte>> buffer = new List<Memory<byte>>();
         
         for (var i = 0; i < FormData.Count; i++)
@@ -105,25 +115,19 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
                 continue;
             
             buffer.Add(ContentDispositionUtils.NewLine);
-            buffer.Add(Bounds.Separator);
+            buffer.Add(Separator);
             buffer.Add(ContentDispositionUtils.NewLine);
             
             if (formEntry.Value is MimeFileObject mimeEntry)
-            {
                 buffer.Add(ContentDispositionUtils.FromFile(formEntry.Key, mimeEntry));
-            }
 
             if (formEntry.Value is string textEntry)
-            {
                 buffer.Add(ContentDispositionUtils.FromValue(formEntry.Key, textEntry));
-            }
         }
 
         buffer.Add(ContentDispositionUtils.NewLine);
-        buffer.Add(Bounds.Tail);
+        buffer.Add(Tail);
 
         Buffer = BufferUtils.Combine(buffer);
     };
-
-    public ContentDispositionBounds Bounds => ContentDispositionUtils.GetBounds();
 }
