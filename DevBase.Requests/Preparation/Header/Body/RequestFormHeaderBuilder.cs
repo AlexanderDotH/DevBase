@@ -39,7 +39,7 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
             buffer.Add(Separator);
             buffer.Add(ContentDispositionUtils.NewLine);
             
-            if (formEntry.Value is MimeFileObject mimeEntry)
+            if (formEntry.Value is MimeFileObject mimeEntry) 
                 buffer.Add(ContentDispositionUtils.FromFile(formEntry.Key, mimeEntry));
 
             if (formEntry.Value is string textEntry)
