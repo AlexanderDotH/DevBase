@@ -45,7 +45,7 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
             if (formEntry.Value is string textEntry)
                 buffer.Add(ContentDispositionUtils.FromValue(formEntry.Key, textEntry));
         }
-
+ 
         buffer.Add(ContentDispositionUtils.NewLine);
         buffer.Add(Tail);
 
