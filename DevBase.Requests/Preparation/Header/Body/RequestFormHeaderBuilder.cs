@@ -24,6 +24,34 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
         Tail = bounds.Tail;
     }
 
+    protected override Action BuildAction => () =>
+    {
+        List<Memory<byte>> buffer = new List<Memory<byte>>();
+        
+        for (var i = 0; i < FormData.Count; i++)
+        {
+            KeyValuePair<string, object> formEntry = FormData[i];
+
+            if (!(formEntry.Value is string || formEntry.Value is MimeFileObject))
+                continue;
+            
+            buffer.Add(ContentDispositionUtils.NewLine);
+            buffer.Add(Separator);
+            buffer.Add(ContentDispositionUtils.NewLine);
+            
+            if (formEntry.Value is MimeFileObject mimeEntry)
+                buffer.Add(ContentDispositionUtils.FromFile(formEntry.Key, mimeEntry));
+
+            if (formEntry.Value is string textEntry)
+                buffer.Add(ContentDispositionUtils.FromValue(formEntry.Key, textEntry));
+        }
+
+        buffer.Add(ContentDispositionUtils.NewLine);
+        buffer.Add(Tail);
+
+        Buffer = BufferUtils.Combine(buffer);
+    };
+    
     #region MimeFile Content
     public RequestFormHeaderBuilder AddFile(byte[] buffer) => AddFile(AFileObject.FromBuffer(buffer));
     public RequestFormHeaderBuilder AddFile(AFileObject fileObject) => AddFile(MimeFileObject.FromAFileObject(fileObject));
@@ -101,33 +129,4 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
     }
 
     #endregion
-    
-    protected override Action BuildAction => () =>
-    {
-        
-        List<Memory<byte>> buffer = new List<Memory<byte>>();
-        
-        for (var i = 0; i < FormData.Count; i++)
-        {
-            KeyValuePair<string, object> formEntry = FormData[i];
-
-            if (!(formEntry.Value is string || formEntry.Value is MimeFileObject))
-                continue;
-            
-            buffer.Add(ContentDispositionUtils.NewLine);
-            buffer.Add(Separator);
-            buffer.Add(ContentDispositionUtils.NewLine);
-            
-            if (formEntry.Value is MimeFileObject mimeEntry)
-                buffer.Add(ContentDispositionUtils.FromFile(formEntry.Key, mimeEntry));
-
-            if (formEntry.Value is string textEntry)
-                buffer.Add(ContentDispositionUtils.FromValue(formEntry.Key, textEntry));
-        }
-
-        buffer.Add(ContentDispositionUtils.NewLine);
-        buffer.Add(Tail);
-
-        Buffer = BufferUtils.Combine(buffer);
-    };
 }
