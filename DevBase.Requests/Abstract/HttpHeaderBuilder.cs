@@ -7,7 +7,7 @@ namespace DevBase.Requests.Abstract;
 public abstract class HttpHeaderBuilder<T> where T : HttpHeaderBuilder<T>
 {
     protected StringBuilder HeaderStringBuilder { get; private set; }
-    public bool AlreadyBuilt { get; protected set; }
+    private bool AlreadyBuilt { get; set; }
 
     protected HttpHeaderBuilder()
     {

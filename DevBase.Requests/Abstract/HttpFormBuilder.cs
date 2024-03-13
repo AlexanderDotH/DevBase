@@ -1,46 +1,22 @@
-﻿using System.Collections;
-using System.Text;
-using DevBase.Requests.Enums;
-using DevBase.Requests.Exceptions;
+﻿namespace DevBase.Requests.Abstract;
 
-namespace DevBase.Requests.Abstract;
-
-public abstract class HttpFormBuilder<T, KeyK, KeyV> where T : HttpFormBuilder<T, KeyK, KeyV>
+#pragma warning disable S2436
+public abstract class HttpFormBuilder<T, TKeyK, TKeyV> 
+    : HttpBodyBuilder<T> where T 
+    : HttpFormBuilder<T, TKeyK, TKeyV>
 {
-    public Memory<byte> Buffer { get; protected set; }
-    public bool AlreadyBuilt { get; protected set; }
-
-    protected List<KeyValuePair<KeyK, KeyV>> FormData { get; private set; }
+    protected List<KeyValuePair<TKeyK, TKeyV>> FormData { get; private set; }
     
     protected HttpFormBuilder()
     {
-        FormData = new List<KeyValuePair<KeyK, KeyV>>();
-        
-        AlreadyBuilt = false;
+        FormData = new List<KeyValuePair<TKeyK, TKeyV>>();
     }
 
-    protected void AddFormElement(KeyK key, KeyV value) => 
+    protected void AddFormElement(TKeyK key, TKeyV value) => 
         FormData.Add(KeyValuePair.Create(key, value));
 
     protected void RemoveFormElement(int index) => FormData.RemoveAt(index);
-    protected void RemoveFormElementKey(KeyK key) => this.FormData.RemoveAll((kv) => kv.Key.Equals(key));
-    protected void RemoveFormElementValue(KeyV value) => this.FormData.RemoveAll((kv) => kv.Value.Equals(value));
-    
-    protected abstract Action BuildAction { get; }
-
-    public T Build()
-    {
-        if (this.AlreadyBuilt)
-            throw new HttpHeaderException(EnumHttpHeaderExceptionTypes.AlreadyBuilt);
-        
-        BuildAction.Invoke();
-        
-        this.AlreadyBuilt = true;
-        return (T)this;
-    }
-
-    public override string ToString()
-    {
-        return Encoding.UTF8.GetString(Buffer.ToArray());
-    }
+    protected void RemoveFormElementKey(TKeyK key) => this.FormData.RemoveAll((kv) => kv.Key.Equals(key));
+    protected void RemoveFormElementValue(TKeyK value) => this.FormData.RemoveAll((kv) => kv.Value.Equals(value));
 }
+#pragma warning restore S2436

@@ -9,13 +9,13 @@ using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Preparation.Header.Body;
 
-public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder, string, object>
+public class RequestFormBodyBuilder : HttpFormBuilder<RequestFormBodyBuilder, string, object>
 {
     public Memory<byte> Bounds { get; private set; }
     public Memory<byte> Separator { get; private set; }
     public Memory<byte> Tail { get; private set; }
     
-    public RequestFormHeaderBuilder() 
+    public RequestFormBodyBuilder() 
     {
         ContentDispositionBounds bounds = ContentDispositionUtils.GetBounds();
 
@@ -53,26 +53,26 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
     };
     
     #region MimeFile Content
-    public RequestFormHeaderBuilder AddFile(byte[] buffer) => AddFile(AFileObject.FromBuffer(buffer));
-    public RequestFormHeaderBuilder AddFile(AFileObject fileObject) => AddFile(MimeFileObject.FromAFileObject(fileObject));
-    public RequestFormHeaderBuilder AddFile(FileInfo fileInfo) => AddFile(MimeFileObject.FromFile(fileInfo));
-    public RequestFormHeaderBuilder AddFile(string filePath) => AddFile(MimeFileObject.FromFile(filePath));
+    public RequestFormBodyBuilder AddFile(byte[] buffer) => AddFile(AFileObject.FromBuffer(buffer));
+    public RequestFormBodyBuilder AddFile(AFileObject fileObject) => AddFile(MimeFileObject.FromAFileObject(fileObject));
+    public RequestFormBodyBuilder AddFile(FileInfo fileInfo) => AddFile(MimeFileObject.FromFile(fileInfo));
+    public RequestFormBodyBuilder AddFile(string filePath) => AddFile(MimeFileObject.FromFile(filePath));
     
-    public RequestFormHeaderBuilder AddFile(string fieldName, byte[] buffer) => AddFile(fieldName, AFileObject.FromBuffer(buffer));
-    public RequestFormHeaderBuilder AddFile(string fieldName, AFileObject fileObject) => AddFile(fieldName, MimeFileObject.FromAFileObject(fileObject));
-    public RequestFormHeaderBuilder AddFile(string fieldName, FileInfo fileInfo) => AddFile(fieldName, MimeFileObject.FromFile(fileInfo));
-    public RequestFormHeaderBuilder AddFile(string fieldName, string filePath) => AddFile(fieldName, MimeFileObject.FromFile(filePath));
+    public RequestFormBodyBuilder AddFile(string fieldName, byte[] buffer) => AddFile(fieldName, AFileObject.FromBuffer(buffer));
+    public RequestFormBodyBuilder AddFile(string fieldName, AFileObject fileObject) => AddFile(fieldName, MimeFileObject.FromAFileObject(fileObject));
+    public RequestFormBodyBuilder AddFile(string fieldName, FileInfo fileInfo) => AddFile(fieldName, MimeFileObject.FromFile(fileInfo));
+    public RequestFormBodyBuilder AddFile(string fieldName, string filePath) => AddFile(fieldName, MimeFileObject.FromFile(filePath));
 
-    public RequestFormHeaderBuilder AddFile(MimeFileObject mimeFile) => AddFile(mimeFile, out string fieldName);
+    public RequestFormBodyBuilder AddFile(MimeFileObject mimeFile) => AddFile(mimeFile, out string fieldName);
     
-    private RequestFormHeaderBuilder AddFile(MimeFileObject mimeFile, out string fieldName)
+    private RequestFormBodyBuilder AddFile(MimeFileObject mimeFile, out string fieldName)
     {
         fieldName = mimeFile.FileInfo.Name;
         AddFile(fieldName, mimeFile);
         return this;
     }
     
-    public RequestFormHeaderBuilder AddFile(string fieldName, MimeFileObject mimeFile)
+    public RequestFormBodyBuilder AddFile(string fieldName, MimeFileObject mimeFile)
     {
         AddFormElement(fieldName, mimeFile);
         return this;
@@ -82,7 +82,7 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
 
     #region Text Content
 
-    public RequestFormHeaderBuilder AddText(string key, string value)
+    public RequestFormBodyBuilder AddText(string key, string value)
     {
         AddFormElement(key, value);
         return this;
@@ -92,13 +92,13 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
 
     #region Fields
 
-    public RequestFormHeaderBuilder RemoveEntryAt(int index)
+    public RequestFormBodyBuilder RemoveEntryAt(int index)
     {
         RemoveFormElement(index);
         return this;
     }
 
-    public RequestFormHeaderBuilder Remove(string fieldName)
+    public RequestFormBodyBuilder Remove(string fieldName)
     {
         RemoveFormElementKey(fieldName);
         return this;

@@ -9,22 +9,22 @@ using DevBase.Requests.Utils;
 namespace DevBase.Requests.Preparation.Header.Body;
 
 
-public class RequestEncodedFormHeaderBuilder : HttpFormBuilder<RequestEncodedFormHeaderBuilder, string, string>
+public class RequestEncodedFormBodyBuilder : HttpFormBuilder<RequestEncodedFormBodyBuilder, string, string>
 {
-    public RequestEncodedFormHeaderBuilder() { }
+    public RequestEncodedFormBodyBuilder() { }
     
     protected override Action BuildAction => () =>
     {
         Buffer = ContentDispositionUtils.Combine(this.FormData);
     };
     
-    public RequestEncodedFormHeaderBuilder RemoveEntryAt(int index)
+    public RequestEncodedFormBodyBuilder RemoveEntryAt(int index)
     {
         RemoveFormElement(index);
         return this;
     }
 
-    public RequestEncodedFormHeaderBuilder Remove(string fieldName)
+    public RequestEncodedFormBodyBuilder Remove(string fieldName)
     {
         RemoveFormElementKey(fieldName);
         return this;
@@ -47,7 +47,7 @@ public class RequestEncodedFormHeaderBuilder : HttpFormBuilder<RequestEncodedFor
         }
     }
     
-    public RequestEncodedFormHeaderBuilder AddText(string key, string value)
+    public RequestEncodedFormBodyBuilder AddText(string key, string value)
     {
         AddFormElement(key, value);
         return this;

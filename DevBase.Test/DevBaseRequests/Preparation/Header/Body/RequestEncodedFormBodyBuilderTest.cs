@@ -7,7 +7,7 @@ using DevBase.Test.Test;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Header.Body;
 
-public class RequestEncodedFormHeaderBuilderTest
+public class RequestEncodedFormBodyBuilderTest
 {
     private const int _count = 1_000_000;
     private string[] _keys;
@@ -29,11 +29,11 @@ public class RequestEncodedFormHeaderBuilderTest
         
         sw.Start();
 
-        RequestEncodedFormHeaderBuilder builder = new RequestEncodedFormHeaderBuilder();
+        RequestEncodedFormBodyBuilder builder = new RequestEncodedFormBodyBuilder();
 
         for (int i = 0; i < _count; i++)
         {
-            builder = new RequestEncodedFormHeaderBuilder();
+            builder = new RequestEncodedFormBodyBuilder();
             
             for (int j = 0; j < 100; j++)
             {

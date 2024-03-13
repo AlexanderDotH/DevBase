@@ -7,7 +7,7 @@ using DevBase.Requests.Preparation.Header.Body;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Header.Body;
 
-public class RequestFormHeaderBuilderTest
+public class RequestFormBodyBuilderTest
 {
 
     private const int _count = 1_000_000;
@@ -29,14 +29,14 @@ public class RequestFormHeaderBuilderTest
     {
         Stopwatch stopwatch = new Stopwatch();
 
-        RequestFormHeaderBuilder lastHeader = null;
+        RequestFormBodyBuilder lastBody = null;
         MimeFileObject mimeFileObject = MimeFileObject.FromBuffer(_fileValues[0]);
         
         stopwatch.Start();
         
         for (var i = 0; i < this._keys.Length; i++)
         {
-            lastHeader = new RequestFormHeaderBuilder()
+            lastBody = new RequestFormBodyBuilder()
                 .AddFile(this._keys[i], mimeFileObject)
                 .AddText(this._keys[i], this._textValues[i])
                 .Build();
@@ -44,7 +44,7 @@ public class RequestFormHeaderBuilderTest
         
         stopwatch.Stop();
         
-        Console.WriteLine($"Builded {_count} form headers. Last entry: \n{lastHeader}\n");
+        Console.WriteLine($"Builded {_count} form headers. Last entry: \n{lastBody}\n");
         
         stopwatch.PrintTimeTable();
     }

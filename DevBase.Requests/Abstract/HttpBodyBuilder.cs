@@ -1,19 +1,19 @@
+using System.Text;
 using DevBase.Requests.Enums;
 using DevBase.Requests.Exceptions;
 
 namespace DevBase.Requests.Abstract;
 
-public abstract class HttpFieldBuilder<T> where T : HttpFieldBuilder<T>
+public abstract class HttpBodyBuilder<T> where T : HttpBodyBuilder<T>
 {
-    public KeyValuePair<string, string> FieldEntry { get; protected set; }
-
+    public Memory<byte> Buffer { get; protected set; }
     private bool AlreadyBuilt { get; set; }
 
-    protected HttpFieldBuilder()
+    protected HttpBodyBuilder()
     {
         AlreadyBuilt = false;
     }
-
+    
     protected abstract Action BuildAction { get; }
 
     public T Build()
@@ -26,4 +26,10 @@ public abstract class HttpFieldBuilder<T> where T : HttpFieldBuilder<T>
         this.AlreadyBuilt = true;
         return (T)this;
     }
+
+    public override string ToString()
+    {
+        return Encoding.UTF8.GetString(Buffer.ToArray());
+    }
+    
 }
