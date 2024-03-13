@@ -9,44 +9,13 @@ using DevBase.Requests.Utils;
 namespace DevBase.Requests.Preparation.Header.Body;
 
 
-public class RequestEncodedFormHeaderBuilder : HttpFormBuilder<RequestEncodedFormHeaderBuilder, string, object>
+public class RequestEncodedFormHeaderBuilder : HttpFormBuilder<RequestEncodedFormHeaderBuilder, string, string>
 {
-    public Memory<byte> Bounds { get; private set; }
-    public Memory<byte> Separator { get; private set; }
-    public Memory<byte> Tail { get; private set; }
-    
-    public RequestEncodedFormHeaderBuilder()
-    {
-        ContentDispositionBounds bounds = ContentDispositionUtils.GetBounds();
-
-        Bounds = bounds.Bounds;
-        Separator = bounds.Separator;
-        Tail = bounds.Tail;
-    }
+    public RequestEncodedFormHeaderBuilder() { }
     
     protected override Action BuildAction => () =>
     {
-        List<Memory<byte>> buffer = new List<Memory<byte>>();
-        
-        for (var i = 0; i < FormData.Count; i++)
-        {
-            KeyValuePair<string, object> formEntry = FormData[i];
-
-            if (!(formEntry.Value is string ))
-                continue;
-            
-            buffer.Add(ContentDispositionUtils.NewLine);
-            buffer.Add(Separator);
-            buffer.Add(ContentDispositionUtils.NewLine);
-   
-            if (formEntry.Value is string textEntry)
-                buffer.Add(ContentDispositionUtils.FromValue(formEntry.Key, textEntry));
-        }
-
-        buffer.Add(ContentDispositionUtils.NewLine);
-        buffer.Add(Tail);
-
-        Buffer = BufferUtils.Combine(buffer);
+        Buffer = ContentDispositionUtils.Combine(this.FormData);
     };
     
     public RequestEncodedFormHeaderBuilder RemoveEntryAt(int index)
@@ -57,25 +26,24 @@ public class RequestEncodedFormHeaderBuilder : HttpFormBuilder<RequestEncodedFor
 
     public RequestEncodedFormHeaderBuilder Remove(string fieldName)
     {
-        RemoveFormElement(fieldName);
+        RemoveFormElementKey(fieldName);
         return this;
     }
     
-    public object this[string fieldName]
+    public string this[string fieldName]
     {
         set
         {
             if (value is null)
             {
-                RemoveFormElement(fieldName);
+                RemoveFormElementKey(fieldName);
                 return;
             }
             
-            if (!(value is string))
-                throw new ElementValidationException(EnumValidationReason.DataMismatch);
-
-            if (value is string textContent)
-                AddText(fieldName, textContent);
+            if (value == null || value.Length == 0)
+                return;
+            
+            AddText(fieldName, value);
         }
     }
     

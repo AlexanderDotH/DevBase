@@ -100,7 +100,7 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
 
     public RequestFormHeaderBuilder Remove(string fieldName)
     {
-        RemoveFormElement(fieldName);
+        RemoveFormElementKey(fieldName);
         return this;
     }
     
@@ -110,7 +110,7 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
         {
             if (value is null)
             {
-                RemoveFormElement(fieldName);
+                RemoveFormElementKey(fieldName);
                 return;
             }
             

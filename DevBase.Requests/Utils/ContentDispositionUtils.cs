@@ -1,8 +1,10 @@
 ﻿using System.Buffers;
 using System.Diagnostics;
 using System.Text;
+using System.Web;
 using DevBase.Requests.Objects;
 using DevBase.Requests.Struct;
+using DevBase.Utilities;
 
 namespace DevBase.Requests.Utils;
 
@@ -58,6 +60,25 @@ public class ContentDispositionUtils
     public static Memory<byte> GetSeparator(Memory<byte> tail)
     {
         return tail.Slice(0, tail.Length - 2);
+    }
+
+    public static Memory<byte> Combine(List<KeyValuePair<string, string>> keyValuePairs)
+    {
+        StringBuilder combineBuilder = new StringBuilder();
+
+        for (int i = 0; i < keyValuePairs.Count ; i++)
+        {
+            KeyValuePair<string, string> kv = keyValuePairs[i];
+
+            combineBuilder.Append(HttpUtility.UrlEncode(kv.Key));
+            combineBuilder.Append('=');
+            combineBuilder.Append(HttpUtility.UrlEncode(kv.Value));
+            
+            if (i != keyValuePairs.Count - 1)
+                combineBuilder.Append('&');
+        }
+        
+        return Encoding.UTF8.GetBytes(combineBuilder.ToString());
     }
     
     public static Memory<byte> FromValue(ReadOnlySpan<char> fieldName, ReadOnlySpan<char> fieldValue)
