@@ -15,7 +15,7 @@ public class RequestFormHeaderBuilder : HttpFormBuilder<RequestFormHeaderBuilder
     public Memory<byte> Separator { get; private set; }
     public Memory<byte> Tail { get; private set; }
     
-    public RequestFormHeaderBuilder()
+    public RequestFormHeaderBuilder() 
     {
         ContentDispositionBounds bounds = ContentDispositionUtils.GetBounds();
 
