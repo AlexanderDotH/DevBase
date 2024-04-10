@@ -13,6 +13,7 @@ public class DeezerTests
         Api.Apis.Deezer.Deezer deezerApi = new Api.Apis.Deezer.Deezer();
         
         var token = await deezerApi.GetJwtToken();
+        
         Assert.NotNull(token.jwt);
     }
 
@@ -105,24 +106,6 @@ public class DeezerTests
     }
 
     [Test]
-    public async Task AsyncSearchTest()
-    {
-        Api.Apis.Deezer.Deezer deezerApi = new Api.Apis.Deezer.Deezer();
-
-        Stopwatch stopwatch = new Stopwatch();
-        
-        stopwatch.Start();
-        var results = await deezerApi.SearchAsync(track:"Never Gonna Give You Up", artist:"Rick Astley", strict:false, limit:10);
-        stopwatch.Stop();
-        
-        Console.WriteLine($"Took {stopwatch.ElapsedMilliseconds}ms or {stopwatch.ElapsedTicks}ts to collect {results.Count} tracks");
-        
-        results.DumpConsole();
-        
-        Assert.NotNull(results);
-    }
-    
-    [Test]
     public async Task SyncSearchTest()
     {
         Api.Apis.Deezer.Deezer deezerApi = new Api.Apis.Deezer.Deezer();
@@ -130,7 +113,7 @@ public class DeezerTests
         Stopwatch stopwatch = new Stopwatch();
         
         stopwatch.Start();
-        var results = await deezerApi.Search(track:"Never Gonna Give You Up", artist:"Rick Astley", strict:false, limit:10);
+        var results = await deezerApi.SearchSongData(track:"Never Gonna Give You Up", artist:"Rick Astley", strict:false, limit:10);
         stopwatch.Stop();
         
         Console.WriteLine($"Took {stopwatch.ElapsedMilliseconds}ms or {stopwatch.ElapsedTicks}ts to collect {results.Count} tracks");

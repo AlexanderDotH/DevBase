@@ -1,12 +1,13 @@
 ﻿using System.Net;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using DevBase.Api.Apis.AppleMusic.Structure.Json;
 using DevBase.Api.Apis.AppleMusic.Structure.Objects;
-using DevBase.Api.Objects;
+using DevBase.Api.Enums;
+using DevBase.Api.Exceptions;
 using DevBase.Api.Objects.Token;
 using DevBase.Api.Serializer;
 using DevBase.Enums;
-using DevBase.Generics;
 using DevBase.Web;
 using DevBase.Web.RequestData;
 using DevBase.Web.RequestData.Data;
@@ -15,7 +16,7 @@ using HtmlAgilityPack;
 
 namespace DevBase.Api.Apis.AppleMusic;
 
-public class AppleMusic
+public class AppleMusic : ApiClient
 {
     private readonly string _baseUrl;
     private readonly AuthenticationToken _apiToken;
@@ -48,7 +49,7 @@ public class AppleMusic
 
         RequestData requestData = new RequestData(url, EnumRequestMethod.POST);
         requestData.ContentTypeHolder.Set(EnumContentType.APPLICATION_JSON);
-        requestData.Header.Add("Origin", "https://music.apple.com");
+        requestData.Header.Add("Origin", this._baseUrl);
 
         requestData.Accept = "*/*";
         
@@ -136,7 +137,7 @@ public class AppleMusic
             searchResult.SearchResults.SongResult == null || 
             searchResult.SearchResults.SongResult.Songs == null)
         {
-            return null;
+            return Throw<object>(new AppleMusicException(EnumAppleMusicExceptionType.SearchResultsEmpty));
         }
 
         for (int i = 0; i < searchResult.SearchResults.SongResult.Songs.Count; i++)
@@ -159,7 +160,7 @@ public class AppleMusic
             $"{this._baseUrl}/v1/catalog/de/search?fields[artists]=url,name,artwork&include[songs]=artists&limit={limit}&types=songs&with=lyricHighlights,lyrics,serverBubbles&term={searchTerm}";
 
         RequestData requestData = new RequestData(url);
-        requestData.Header.Add("Origin", "https://music.apple.com");
+        requestData.Header.Add("Origin", this._baseUrl);
         
         requestData.AddAuthMethod(new Auth(this._apiToken.RawToken, EnumAuthType.OAUTH2));
 
@@ -173,13 +174,13 @@ public class AppleMusic
     
     public async Task<JsonAppleMusicLyricsResponse> GetLyrics(string trackId)
     {
-        if (string.IsNullOrEmpty(this._userMediaToken.Token))
-            throw new System.Exception("User-Media-Token is not set");
+        if (string.IsNullOrEmpty(this._userMediaToken?.Token))
+            throw new AppleMusicException(EnumAppleMusicExceptionType.UnprovidedUserMediaToken);
         
         string url = $"{this._baseUrl}/v1/catalog/de/songs/{trackId}/syllable-lyrics";
 
         RequestData requestData = new RequestData(url);
-        requestData.Header.Add("Origin", "https://music.apple.com");
+        requestData.Header.Add("Origin", this._baseUrl);
         requestData.Header.Add("Media-User-Token", this._userMediaToken.Token);
         
         requestData.AddAuthMethod(new Auth(this._apiToken.RawToken, EnumAuthType.OAUTH2));

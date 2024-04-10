@@ -54,9 +54,9 @@ public class UserAgentBuilderTest
             new UserAgentHeaderBuilder()
                 .AddProductName("Microsoft Excel ;)")
                 .AddProductVersion("1.0")
-                .Build()
-                .BuildBogus()
-                .Build();
+                .Build() // Build 1
+                .BuildBogus() // Build 2
+                .Build(); // Build 3
         });
         
         Console.WriteLine($"It should throw an \"HttpHeaderException\" and it worked!");

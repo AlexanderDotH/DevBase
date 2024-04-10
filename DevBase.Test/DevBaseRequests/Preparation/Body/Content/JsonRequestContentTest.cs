@@ -1,32 +1,35 @@
 using System.Diagnostics;
+using System.Text;
 using DevBase.Extensions.Stopwatch;
 using DevBase.Requests.Preparation.Header.Body.Content;
 using DevBase.Test.Test;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Body.Content;
 
-public class BufferRequestContentTest
+public class JsonRequestContentTest
 {
-    private byte[] Buffer { get; set; }
+    private byte[] Value { get; set; }
     private const int Count = 1_000_000;
     
     [SetUp]
     public void Setup()
     {
-        this.Buffer = new byte[] { 0x4A, 0x4F, 0x45 };
+        string jsonData = @"{""firstname"":""John"",""lastname"":""Doe"",""age"":35}";
+        
+        this.Value = Encoding.UTF8.GetBytes(jsonData);
     }
 
     [Test]
     public void IsValidTest()
     {
-        BufferRequestContent bufferRequestContent = new BufferRequestContent();
+        JsonRequestContent jsonRequestContent = new JsonRequestContent(Encoding.UTF8);
         
         Stopwatch stopwatch = PenetrationTest.Run(() =>
         {
-            Assert.IsTrue(bufferRequestContent.IsValid(this.Buffer));
+            Assert.IsTrue(jsonRequestContent.IsValid(this.Value));
         }, Count);
         
-        Console.WriteLine($"Validated buffer {Convert.ToHexString(this.Buffer)} {Count}times");
+        Console.WriteLine($"Validated json {Convert.ToHexString(this.Value)} {Count}times");
         
         stopwatch.PrintTimeTable();
     }

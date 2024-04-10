@@ -4,12 +4,13 @@ namespace DevBase.Utilities
 {
     public static class EncodingUtils
     {
-        public static Encoding GetEncoding(Memory<byte> buffer)
+        public static Encoding GetEncoding(Memory<byte> buffer) => GetEncoding(buffer.ToArray());
+        public static Encoding GetEncoding(ReadOnlySpan<byte> buffer) => GetEncoding(buffer.ToArray());
+        
+        public static Encoding GetEncoding(byte[] buffer)
         {
-            byte[] bufferArray = buffer.ToArray();
-
-            using MemoryStream memoryStream = new MemoryStream(bufferArray);
-            using StreamReader streamReader = new StreamReader(memoryStream, Encoding.UTF8, true);
+            using MemoryStream memoryStream = new MemoryStream(buffer);
+            using StreamReader streamReader = new StreamReader(memoryStream, true);
             
             return streamReader.CurrentEncoding;
         }

@@ -5,12 +5,12 @@ using Org.BouncyCastle.Asn1.X509;
 
 namespace DevBase.Test.DevBaseApi.BeatifulLyrics;
 
-public class BeatifulLyricsTests
+public class BeautifulLyricsTests
 {
     [Test]
     public async Task GetRawLyricsTest()
     {
-        Api.Apis.BeautifulLyrics.BeatifulLyrics beautifulLyrics = new Api.Apis.BeautifulLyrics.BeatifulLyrics();
+        Api.Apis.BeautifulLyrics.BeautifulLyrics beautifulLyrics = new Api.Apis.BeautifulLyrics.BeautifulLyrics();
 
         var rawLyrics = await beautifulLyrics.GetRawLyrics("QZFZ32013014");
 
@@ -22,7 +22,7 @@ public class BeatifulLyricsTests
     [Test]
     public async Task GetTimeStampedLyricsTest()
     {
-        Api.Apis.BeautifulLyrics.BeatifulLyrics beautifulLyrics = new Api.Apis.BeautifulLyrics.BeatifulLyrics();
+        Api.Apis.BeautifulLyrics.BeautifulLyrics beautifulLyrics = new Api.Apis.BeautifulLyrics.BeautifulLyrics();
 
         var timeStampedLyrics = await beautifulLyrics.GetLyrics("QZFZ32013014");
 
@@ -35,7 +35,7 @@ public class BeatifulLyricsTests
     [Test]
     public async Task GetRichTimeStampedLyricsTest()
     {
-        Api.Apis.BeautifulLyrics.BeatifulLyrics beautifulLyrics = new Api.Apis.BeautifulLyrics.BeatifulLyrics();
+        Api.Apis.BeautifulLyrics.BeautifulLyrics beautifulLyrics = new Api.Apis.BeautifulLyrics.BeautifulLyrics();
 
         var richTimeStampedLyrics = await beautifulLyrics.GetLyrics("GBARL9300135");
 

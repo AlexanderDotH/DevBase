@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using DevBase.Api.Apis.OpenLyricsClient.Structure.Enum;
 using DevBase.Api.Apis.OpenLyricsClient.Structure.Json;
+using DevBase.Api.Enums;
+using DevBase.Api.Exceptions;
 using DevBase.Api.Serializer;
 using DevBase.Cryptography.BouncyCastle.Sealing;
 using DevBase.Enums;
@@ -12,10 +14,10 @@ using Newtonsoft.Json.Linq;
 
 namespace DevBase.Api.Apis.OpenLyricsClient;
 
-public class OpenLyricsClient
+public class OpenLyricsClient : ApiClient
 {
     private readonly string _baseUrl;
-    private Sealing _sealing;
+    private readonly Sealing _sealing;
 
     public OpenLyricsClient()
     {
@@ -29,7 +31,7 @@ public class OpenLyricsClient
 
     public async Task<JsonOpenLyricsClientAccess> GetAccessToken(string refreshToken)
     {
-        RequestData data = new RequestData(string.Format("{0}/auth/spotify/refresh", this._baseUrl));
+        RequestData data = new RequestData($"{this._baseUrl}/auth/spotify/refresh");
 
         JObject jObject = new JObject();
         jObject["refreshToken"] = refreshToken;
@@ -43,7 +45,7 @@ public class OpenLyricsClient
     
     public async Task<JsonOpenLyricsClientAiSyncItem[]> AiSync(JsonOpenLyricsClientSubscription subscription, string title, string album, long duration, string model = "", params string[] artists)
     {
-        RequestData data = new RequestData(string.Format("{0}/ai/sync", this._baseUrl));
+        RequestData data = new RequestData($"{this._baseUrl}/ai/sync");
         
         JObject jObject = new JObject();
         
@@ -62,10 +64,11 @@ public class OpenLyricsClient
         return new JsonDeserializer<JsonOpenLyricsClientAiSyncItem[]>().Deserialize(responseData.GetContentAsString());
     } 
     
+    #pragma warning disable S1133
     [Obsolete("This api call only works with a older backend")]
     public async Task<JsonOpenLyricsClientAiPredictionResult> GetAiSyncResult(string songID)
     {
-        RequestData data = new RequestData(string.Format("{0}/ai/result", this._baseUrl));
+        RequestData data = new RequestData($"{this._baseUrl}/ai/result");
 
         JObject jObject = new JObject();
         jObject["id"] = songID;
@@ -80,27 +83,29 @@ public class OpenLyricsClient
         }
         catch (System.Net.WebException e)
         {
-            HttpWebResponse webResponse = (HttpWebResponse)e.Response;
+            HttpWebResponse webResponse = (HttpWebResponse)e.Response!;
 
             switch (webResponse.StatusCode)
             {
                 case HttpStatusCode.NotFound:
-                    throw new System.Exception("The prediction is still running, try again later");
+                    return Throw<object>(
+                        new OpenLyricsClientException(EnumOpenLyricsClientExceptionType.PredictionInProgress));
                 
                 case HttpStatusCode.Conflict:
-                    throw new System.Exception(
-                        "Could not find the prediction, please resubmit the prediction or check if the id is correct");
+                    return Throw<object>(
+                        new OpenLyricsClientException(EnumOpenLyricsClientExceptionType.PredictionUnavailable));
             }
         }
 
         return null;
     }
+    #pragma warning restore S1133
 
     public async Task<JsonOpenLyricsClientSubscription> CreateSubscription()
     {
         CheckSealing();
         
-        RequestData data = new RequestData(string.Format("{0}/subscription/create", this._baseUrl));
+        RequestData data = new RequestData($"{this._baseUrl}/subscription/create");
         Request request = new Request(data);
         ResponseData response = await request.GetResponseAsync();
         return new JsonDeserializer<JsonOpenLyricsClientSubscription>().Deserialize(response.GetContentAsString());
@@ -108,7 +113,7 @@ public class OpenLyricsClient
 
     public async Task<JsonOpenLyricsClientSubscriptionModel> CheckSubscription(JsonOpenLyricsClientSubscription subscription)
     {
-        RequestData data = new RequestData(string.Format("{0}/subscription/check", this._baseUrl));
+        RequestData data = new RequestData($"{this._baseUrl}/subscription/check");
         
         data.AddContent(ToSealedAccess(subscription).ToString());
         data.SetContentType(EnumContentType.APPLICATION_JSON);
@@ -140,6 +145,6 @@ public class OpenLyricsClient
     private void CheckSealing()
     {
         if (this._sealing == null)
-            throw new System.Exception("You have to initialize the sealing");
+            Throw<object>(new OpenLyricsClientException(EnumOpenLyricsClientExceptionType.SealingNotInitialized));
     }
 }

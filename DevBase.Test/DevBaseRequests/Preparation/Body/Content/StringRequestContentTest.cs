@@ -14,17 +14,17 @@ public class StringRequestContentTest
     [SetUp]
     public void Setup()
     {
-        this.Value = Encoding.UTF8.GetBytes("Joe");
+        this.Value = Encoding.ASCII.GetBytes("Joe");
     }
 
     [Test]
     public void IsValidTest()
     {
-        StringRequestContent stringRequestContent = new StringRequestContent(Encoding.UTF8);
+        StringRequestContent stringRequestContent = new StringRequestContent(Encoding.ASCII);
         
         Stopwatch stopwatch = PenetrationTest.Run(() =>
         {
-            stringRequestContent.IsValid(this.Value);
+            Assert.IsTrue(stringRequestContent.IsValid(this.Value));
         }, Count);
         
         Console.WriteLine($"Validated buffer {Convert.ToHexString(this.Value)} {Count}times");
