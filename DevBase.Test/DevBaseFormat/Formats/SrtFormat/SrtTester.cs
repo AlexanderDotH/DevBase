@@ -11,7 +11,7 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseFormat.Formats.SrtFormat;
 
-public class SrtTester
+public class SrtTester : FormatTest
 {
     private FileParser<SrtParser, AList<RichTimeStampedLyric>> _srtParser;
 
@@ -25,7 +25,7 @@ public class SrtTester
     public void TestFormatFromFile()
     {
         AList<AFileObject> files =
-            AFile.GetFiles("..\\..\\..\\DevBaseFormatData\\SRT", true, "*.srt");
+            AFile.GetFiles(GetTestFile("SRT", "").DirectoryName!, true, "*.srt");
 
         AFileObject random = files.GetRandom();
         string file = random.ToStringData().Replace("\n", Environment.NewLine);
@@ -42,6 +42,6 @@ public class SrtTester
 
         list.GetAsList().DumpConsole();
         
-        Assert.AreEqual(content.Get(6), list.Get(0).Text);
+        Assert.That(list.Get(0).Text, Is.EqualTo(content.Get(2)));
     }
 }

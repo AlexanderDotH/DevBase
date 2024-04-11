@@ -9,6 +9,7 @@ using DevBase.Format.Structure;
 using DevBase.Generics;
 using DevBase.Utilities;
 using DevBase.Web;
+using DevBase.Web.RequestData;
 using DevBase.Web.ResponseData;
 
 namespace DevBase.Api.Apis.NetEase;
@@ -26,10 +27,11 @@ public class NetEase : ApiClient
     public async Task<JsonNetEaseDetailResponse> TrackDetails(params string[] trackIds)
     {
         string separated = StringUtils.Separate(trackIds, ",");
-        
-        string url = Uri.EscapeUriString($"{this._baseUrl}/song/detail?ids={separated}");
 
-        Request request = new Request(url);
+        RequestData requestData = new RequestData($"{this._baseUrl}/song/detail?ids={separated}");
+        requestData.Timeout = TimeSpan.FromMinutes(1);
+        
+        Request request = new Request(requestData);
         ResponseData responseData = await request.GetResponseAsync();
 
         string content = responseData.GetContentAsString();
@@ -151,9 +153,11 @@ public class NetEase : ApiClient
     #pragma warning disable SYSLIB0013
     public async Task<JsonNetEaseLyricResponse> RawLyrics(string trackId)
     {
-        string url = Uri.EscapeUriString($"{this._baseUrl}/lyric?id={trackId}");
-
-        Request request = new Request(url);
+        RequestData requestData = new RequestData($"{this._baseUrl}/lyric?id={trackId}");
+        requestData.Timeout = TimeSpan.FromMinutes(1);
+        
+        Request request = new Request(requestData);
+        
         ResponseData responseData = await request.GetResponseAsync();
 
         string content = responseData.GetContentAsString();

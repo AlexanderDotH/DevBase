@@ -6,7 +6,7 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseFormat.Formats.KLyricsFormat;
 
-public class KLyricsTester
+public class KLyricsTester : FormatTest
 {
     private FileParser<KLyricsParser, AList<RichTimeStampedLyric>> _klyricsParser;
 
@@ -19,12 +19,10 @@ public class KLyricsTester
     [Test]
     public void TestFormatFromFile()
     {
-        FileInfo fileInfo =
-            new FileInfo($"..\\..\\..\\DevBaseFormatData\\KLRC\\RickAstley.klyrics");
-        
-        AList<RichTimeStampedLyric> list = this._klyricsParser.ParseFromDisk(fileInfo);
+        AList<RichTimeStampedLyric> list = 
+            this._klyricsParser.ParseFromDisk(GetTestFile("KLRC", "RickAstley.klyrics"));
         
         list.DumpConsole();
-        Assert.AreEqual("Rick Astley", list.Get(0).Text);
+        Assert.That(list.Get(0).Text, Is.EqualTo("Rick Astley"));
     }
 }

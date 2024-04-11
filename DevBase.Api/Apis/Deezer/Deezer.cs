@@ -243,6 +243,8 @@ public class Deezer : ApiClient
         RequestData requestData = new RequestData(
             $"{this._websiteEndpoint}/ajax/gw-light.php?method=deezer.getUserData&api_version=1.0&input=3&api_token=&cid={this.RandomCid}", 
             EnumRequestMethod.GET);
+
+        requestData.Timeout = TimeSpan.FromSeconds(10);
         
         requestData.CookieContainer = this._cookieContainer;
             
@@ -295,33 +297,40 @@ public class Deezer : ApiClient
         
         for (int i = 0; i < retries; i++)
         {
-            RequestData requestData = new RequestData(
-                $"{this._websiteEndpoint}/ajax/gw-light.php?method=deezer.pageTrack&api_version=1.0&input=3&api_token={csrfToken}", 
-                EnumRequestMethod.POST);
+            try
+            {
+                RequestData requestData = new RequestData(
+                    $"{this._websiteEndpoint}/ajax/gw-light.php?method=deezer.pageTrack&api_version=1.0&input=3&api_token={csrfToken}", 
+                    EnumRequestMethod.POST);
 
-            requestData.Timeout = TimeSpan.FromSeconds(10);
+                requestData.Timeout = TimeSpan.FromSeconds(10);
             
-            JObject jObject = new JObject();
-            jObject["sng_id"] = trackID;
+                JObject jObject = new JObject();
+                jObject["sng_id"] = trackID;
             
-            requestData.AddContent(jObject.ToString());
-            requestData.SetContentType(EnumContentType.APPLICATION_JSON);
+                requestData.AddContent(jObject.ToString());
+                requestData.SetContentType(EnumContentType.APPLICATION_JSON);
         
-            requestData.CookieContainer = this._cookieContainer;
+                requestData.CookieContainer = this._cookieContainer;
         
-            Request request = new Request(requestData);
-            ResponseData responseData = await request.GetResponseAsync();
+                Request request = new Request(requestData);
+                ResponseData responseData = await request.GetResponseAsync();
             
-            string content = responseData.GetContentAsString();
+                string content = responseData.GetContentAsString();
 
-            if (content.Contains("Invalid CSRF token"))
-                return Throw<object>(new DeezerException(EnumDeezerExceptionType.InvalidCsrfToken));
+                if (content.Contains("Invalid CSRF token"))
+                    return Throw<object>(new DeezerException(EnumDeezerExceptionType.InvalidCsrfToken));
 
-            if (content.Contains("Wrong parameters"))
-                return Throw<object>(new DeezerException(EnumDeezerExceptionType.WrongParameter));
+                if (content.Contains("Wrong parameters"))
+                    return Throw<object>(new DeezerException(EnumDeezerExceptionType.WrongParameter));
             
-            if (!content.Contains("deprecated?method=deezer.pageTrack"))
-                return new JsonDeserializer<JsonDeezerSongDetails>().Deserialize(content);
+                if (!content.Contains("deprecated?method=deezer.pageTrack"))
+                    return new JsonDeserializer<JsonDeezerSongDetails>().Deserialize(content);
+            }
+            catch (System.Exception e)
+            {
+                return Throw<object>(new DeezerException(EnumDeezerExceptionType.FailedToReceiveSongDetails));
+            }
         }
 
         return null;
@@ -422,7 +431,7 @@ public class Deezer : ApiClient
             }
         }
 
-        return null;
+        return Throw<byte>(new DeezerException(EnumDeezerExceptionType.UrlData));
     }
     #pragma warning restore S1751
 
@@ -531,7 +540,7 @@ public class Deezer : ApiClient
             }
             catch
             {
-                return Throw<object>(new DeezerException(EnumDeezerExceptionType.MissingSongDetails));
+                Throw<object>(new DeezerException(EnumDeezerExceptionType.MissingSongDetails));
             }
         }
 

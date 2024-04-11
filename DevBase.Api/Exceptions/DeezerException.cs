@@ -37,6 +37,8 @@ public class DeezerException : System.Exception
                 return "Failed to receive user data";
             case EnumDeezerExceptionType.UrlData:
                 return "Failed to receive urls";
+            case EnumDeezerExceptionType.FailedToReceiveSongDetails:
+                return "Failed to receive song details";
         }
 
         throw new ErrorStatementException();

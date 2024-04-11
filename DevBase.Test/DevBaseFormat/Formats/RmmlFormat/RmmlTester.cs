@@ -9,7 +9,7 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseFormat.Formats.RmmlFormat;
 
-public class RmmlTester
+public class RmmlTester : FormatTest
 {
     private FileParser<RmmlParser, AList<RichTimeStampedLyric>> _rmmlParser;
 
@@ -22,10 +22,7 @@ public class RmmlTester
     [Test]
     public void TestFormatFromFile()
     {
-        FileInfo fileInfo =
-            new FileInfo("..\\..\\..\\DevBaseFormatData\\RMML\\rick.rmml");
-
-        string content = File.ReadAllText(fileInfo.FullName);
+        string content = File.ReadAllText(GetTestFile("RMML", "rick.rmml").FullName);
         
         AList<RichTimeStampedLyric> list = this._rmmlParser.ParseFromString(content);
         

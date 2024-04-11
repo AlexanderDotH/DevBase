@@ -4,7 +4,7 @@ namespace DevBase.Api.Apis;
 
 public class ApiClient
 {
-    public bool StrictErrorHandling { get; protected set; }
+    public bool StrictErrorHandling { get; set; }
     
     protected dynamic Throw<T>(
         System.Exception exception,

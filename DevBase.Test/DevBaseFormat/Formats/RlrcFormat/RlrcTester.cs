@@ -1,4 +1,5 @@
-﻿using DevBase.Format.Formats.RlrcFormat;
+﻿using System.Runtime.InteropServices;
+using DevBase.Format.Formats.RlrcFormat;
 using DevBase.Format.Structure;
 using DevBase.Generics;
 using DevBase.IO;
@@ -6,7 +7,7 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseFormat.Formats.RlrcFormat;
 
-public class RlrcTester
+public class RlrcTester : FormatTest
 {
     private RlrcParser _rlrcParser;
 
@@ -19,33 +20,34 @@ public class RlrcTester
     [Test]
     public void TestToRlrc()
     {
-        FileInfo fileInfo =
-            new FileInfo($"..\\..\\..\\DevBaseFormatData\\RLRC\\RickAstley.rlrc");
-        
-        string content = AFile.ReadFileToObject(fileInfo).ToStringData();
+        string content = AFile.ReadFileToObject(GetTestFile("RLRC", "RickAstley.rlrc")).ToStringData();
 
         AList<RawLyric> list = this._rlrcParser.Parse(content);
         
         list.GetAsList().DumpConsole();
-        Assert.AreEqual("Never gonna, never gonna, never gonna, never gonna", list.Get(0).Text);
+        Assert.That(list.Get(0).Text, Is.EqualTo("Never gonna, never gonna, never gonna, never gonna"));
     }
 
     [Test]
     public void TestFromRlc()
     {
-        FileInfo fileInfo =
-            new FileInfo($"..\\..\\..\\DevBaseFormatData\\RLRC\\RickAstley.rlrc");
-
-        string content = AFile.ReadFileToObject(fileInfo).ToStringData();
+        string content = AFile.ReadFileToObject(GetTestFile("RLRC", "RickAstley.rlrc")).ToStringData();
         
         AList<RawLyric> list = this._rlrcParser.Parse(content);
 
         string formated = this._rlrcParser.Revert(list);
 
         // Just remove the \r\n at the end of the file
-        formated = formated.Substring(0, formated.Length - 2);
+        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+        {
+            formated = formated.Substring(0, formated.Length - 2);
+        }
+        else
+        {
+            formated = formated.Substring(0, formated.Length - 1);
+        }
         
         formated.DumpConsole();
-        Assert.AreEqual(content, formated);
+        Assert.That(formated, Is.EqualTo(content));
     }
 }

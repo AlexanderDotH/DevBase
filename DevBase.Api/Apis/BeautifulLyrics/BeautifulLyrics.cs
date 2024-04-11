@@ -35,6 +35,27 @@ public class BeautifulLyrics : ApiClient
         }
     }
 
+    public async Task<(string RawLyrics, bool IsRichSync)> GetRawLyrics(string isrc)
+    {
+        string url = $"{this._baseUrl}/lyrics/{isrc}";
+
+        Request request = new Request(url);
+        ResponseData responseData = await request.GetResponseAsync();
+
+        if (responseData.StatusCode != HttpStatusCode.OK)
+            return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
+        
+        string rawData = responseData.GetContentAsString();
+
+        if (string.IsNullOrEmpty(rawData))
+            return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
+        
+        JObject responseObject = JObject.Parse(rawData);
+        bool isRichSync = responseObject.Value<string>("Type") == "Syllable";
+        
+        return (rawData, isRichSync);
+    }
+    
     private AList<TimeStampedLyric> ParseTimeStampedLyrics(string rawLyrics)
     {
         JsonBeautifulLyricsLineLyricsResponse timeStampedLyricsResponse =
@@ -124,26 +145,5 @@ public class BeautifulLyrics : ApiClient
         }
 
         return richLyrics;
-    }
-    
-    public async Task<(string RawLyrics, bool IsRichSync)> GetRawLyrics(string isrc)
-    {
-        string url = $"{this._baseUrl}/lyrics/{isrc}";
-
-        Request request = new Request(url);
-        ResponseData responseData = await request.GetResponseAsync();
-
-        if (responseData.StatusCode != HttpStatusCode.OK)
-            return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
-        
-        string rawData = responseData.GetContentAsString();
-
-        if (string.IsNullOrEmpty(rawData))
-            return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
-        
-        JObject responseObject = JObject.Parse(rawData);
-        bool isRichSync = responseObject.Value<string>("Type") == "Syllable";
-        
-        return (rawData, isRichSync);
     }
 }
