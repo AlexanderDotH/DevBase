@@ -13,8 +13,15 @@ public class JsonRequestContent : StringRequestContent
             return false;
 
         string stringContent = this.Encoding.GetString(content);
-        JObject jObject = JObject.Parse(stringContent);
-        
-        return jObject.HasValues;
+
+        try
+        {
+            JObject.Parse(stringContent);
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
     }
 }

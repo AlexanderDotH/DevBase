@@ -1,5 +1,6 @@
 using System.Text;
 using DevBase.Requests.Abstract;
+using DevBase.Utilities;
 
 namespace DevBase.Requests.Preparation.Header.Body.Content;
 

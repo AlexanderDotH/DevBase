@@ -67,24 +67,24 @@ public class RequestRawBodyBuilderTest
         // ψ(｀∇´)ψ
         Action penetrationAction = null;
 
-        if (builder is StringRequestContent content)
+        if (builder is StringRequestContent stringContent)
         {
             penetrationAction = () =>
             {
                 RequestRawBodyBuilder rawBodyBuilder = new RequestRawBodyBuilder(useValidation)
-                    .WithText(this._textValue, content.Encoding)
+                    .WithText(this._textValue, stringContent.Encoding)
                     .Build();
 
                 buffer = rawBodyBuilder.Buffer;
             };
         }
 
-        if (builder is JsonRequestContent)
+        if (builder is JsonRequestContent jsonContent)
         {
             penetrationAction = () =>
             {
                 RequestRawBodyBuilder rawBodyBuilder = new RequestRawBodyBuilder(useValidation)
-                    .WithJson(this._jsonValue, Encoding.UTF8)
+                    .WithJson(this._jsonValue, jsonContent.Encoding)
                     .Build();
 
                 buffer = rawBodyBuilder.Buffer;
