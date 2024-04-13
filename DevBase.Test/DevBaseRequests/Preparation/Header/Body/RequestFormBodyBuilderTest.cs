@@ -9,7 +9,6 @@ namespace DevBase.Test.DevBaseRequests.Preparation.Header.Body;
 
 public class RequestFormBodyBuilderTest
 {
-
     private const int _count = 1_000_000;
     private string[] _keys;
     private string[] _textValues;

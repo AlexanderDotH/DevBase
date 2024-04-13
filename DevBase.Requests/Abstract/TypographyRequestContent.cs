@@ -4,7 +4,7 @@ namespace DevBase.Requests.Abstract;
 
 public abstract class TypographyRequestContent : RequestContent
 {
-    protected Encoding Encoding { get; set; }
+    public Encoding Encoding { get; protected set; }
     
     protected TypographyRequestContent(Encoding encoding)
     {

@@ -12,9 +12,8 @@ public class JsonRequestContent : StringRequestContent
         if (!base.IsValid(content))
             return false;
 
-        string jsonContent = this.Encoding.GetString(content.ToArray());
-        
-        JObject jObject = JObject.Parse(jsonContent);
+        string stringContent = this.Encoding.GetString(content);
+        JObject jObject = JObject.Parse(stringContent);
         
         return jObject.HasValues;
     }
