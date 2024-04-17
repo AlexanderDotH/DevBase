@@ -7,7 +7,7 @@ using DevBase.Requests.Preparation.Header.Body;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Header.Body;
 
-public class RequestFormBodyBuilderTest
+public class RequestKeyValueListBodyBuilderTest
 {
     private const int _count = 1_000_000;
     private string[] _keys;
@@ -28,14 +28,14 @@ public class RequestFormBodyBuilderTest
     {
         Stopwatch stopwatch = new Stopwatch();
 
-        RequestFormBodyBuilder lastBody = null;
+        RequestKeyValueListBodyBuilder lastBody = null;
         MimeFileObject mimeFileObject = MimeFileObject.FromBuffer(_fileValues[0]);
         
         stopwatch.Start();
         
         for (var i = 0; i < this._keys.Length; i++)
         {
-            lastBody = new RequestFormBodyBuilder()
+            lastBody = new RequestKeyValueListBodyBuilder()
                 .AddFile(this._keys[i], mimeFileObject)
                 .AddText(this._keys[i], this._textValues[i])
                 .Build();

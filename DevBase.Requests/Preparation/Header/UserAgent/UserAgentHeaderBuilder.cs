@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using DevBase.Generics;
 using DevBase.Requests.Abstract;
 using DevBase.Requests.Extensions;
@@ -9,14 +10,18 @@ namespace DevBase.Requests.Preparation.Header.UserAgent;
 
 public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuilder>
 {
+    [AllowNull]
     private string _productName;
+    
+    [AllowNull]
     private string _productVersion;
+    
+    private AList<IBogusUserAgentGenerator> BogusUserAgentGenerators { get; set; }
 
-    private static AList<IBogusUserAgentGenerator> _bogusUserAgentGenerators = new AList<IBogusUserAgentGenerator>(
-        new BogusChromeUserAgentGenerator(), 
-        new BogusEdgeUserAgentGenerator(), 
-        new BogusFirefoxUserAgentGenerator(), 
-        new BogusOperaUserAgentGenerator());
+    public UserAgentHeaderBuilder(params IBogusUserAgentGenerator[] agentGenerators)
+    {
+        BogusUserAgentGenerators = new AList<IBogusUserAgentGenerator>(agentGenerators);
+    }
     
     public UserAgentHeaderBuilder AddProductName(string productName)
     {
@@ -30,8 +35,23 @@ public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuil
         return this;
     }
 
+    public UserAgentHeaderBuilder With(string userAgent)
+    {
+        this.HeaderStringBuilder.Clear();
+        this.HeaderStringBuilder.Append(userAgent);
+        return this;
+    }
+
+    public static UserAgentHeaderBuilder BogusOf(params IBogusUserAgentGenerator[] bogusGenerators)
+    {
+        return new UserAgentHeaderBuilder(bogusGenerators);
+    }
+    
     protected override Action BuildAction => () =>
     {
+        if (this.HeaderStringBuilder.Length != 0)
+            return;
+        
         Assembly assembly = typeof(DevBase.Requests.Request).Assembly;
         AssemblyName assemblyName = assembly.GetName();
         
@@ -51,7 +71,7 @@ public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuil
 
     protected override Action BogusBuildAction => () =>
     {
-        IBogusUserAgentGenerator userAgentGenerator = _bogusUserAgentGenerators.GetRandom(BogusUtils.Random);
+        IBogusUserAgentGenerator userAgentGenerator = BogusUserAgentGenerators.GetRandom(BogusUtils.Random);
         
         if (this.AlreadyBuilt)
         {

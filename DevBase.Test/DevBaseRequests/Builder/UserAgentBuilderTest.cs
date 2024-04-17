@@ -47,6 +47,20 @@ public class UserAgentBuilderTest
     }
     
     [Test]
+    public void BuildCustomUserAgentWithTest()
+    {
+        string userAgent = "Mozilla/5.0 (X11; Linux i686; rv:13.0) Gecko/13.0 Firefox/13.0";
+        
+        UserAgentHeaderBuilder builder = new UserAgentHeaderBuilder()
+            .With(userAgent)
+            .Build();
+
+        Assert.That(builder.UserAgent.ToString(), Is.EqualTo(userAgent));
+        
+        Console.WriteLine($"Built user-agent: {builder.UserAgent}");
+    }
+    
+    [Test]
     public void BuildCustomBogusCustomUserAgentTest()
     {
         Assert.Throws<HttpHeaderException>(() =>

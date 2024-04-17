@@ -1,7 +1,4 @@
-﻿using System.Buffers;
-using System.Runtime.CompilerServices;
-
-namespace DevBase.Requests.Preparation.Header.Body.Mime;
+﻿namespace DevBase.Requests.Preparation.Header.Body.Mime;
 
 public class MimeDictionary : Lazy<Dictionary<string, ReadOnlyMemory<char>>>
 {
@@ -80,6 +77,7 @@ public class MimeDictionary : Lazy<Dictionary<string, ReadOnlyMemory<char>>>
 
     public MimeDictionary() : base(() => new Dictionary<string, ReadOnlyMemory<char>>
     {
+        { "*", "*/*".AsMemory() },
         { "aac", AacAudioMimeType },
         { "adts", AacAudioMimeType },
         { "apng", "image/apng".AsMemory() },
@@ -666,20 +664,44 @@ public class MimeDictionary : Lazy<Dictionary<string, ReadOnlyMemory<char>>>
     
     public ReadOnlyMemory<char> GetMimeTypeAsMemory(string mimeType)
     {
-        string searchFor = mimeType;
-        
-        if (searchFor[0] == '.')
-            searchFor = searchFor.Remove(0, 1);
-        
         ReadOnlyMemory<char> mimeResult;
 
-        if (!Value.TryGetValue(searchFor, out mimeResult))
+        if (!Value.TryGetValue(FilterQuery(mimeType), out mimeResult))
             return DefaultMimeType;
         
         return mimeResult;
     }
+    
+    public bool TryGetMimeTypeAsMemory(string mimeType, out  ReadOnlyMemory<char> mimeResult)
+    {
+        return Value.TryGetValue(FilterQuery(mimeType), out mimeResult);
+    }
 
     public ReadOnlySpan<char> GetMimeTypeAsSpan(string mimeType) => GetMimeTypeAsMemory(mimeType).Span;
+
+    public bool TryGetMimeTypeAsSpan(string mimeType, out ReadOnlySpan<char> mimeResult)
+    {
+        ReadOnlyMemory<char> mimeMemoryResult;
+        bool result = TryGetMimeTypeAsMemory(mimeType, out mimeMemoryResult);
+        mimeResult = mimeMemoryResult.Span;
+        return result;
+    }
     
-    public ReadOnlySpan<char> GetMimeTypeAsString(string mimeType) => GetMimeTypeAsMemory(mimeType).ToString();
+    public string GetMimeTypeAsString(string mimeType) => GetMimeTypeAsMemory(mimeType).ToString();
+    
+    public bool TryGetMimeTypeAsString(string mimeType, out string mimeResult)
+    {
+        ReadOnlySpan<char> mimeMemoryResult;
+        bool result = TryGetMimeTypeAsSpan(mimeType, out mimeMemoryResult);
+        mimeResult = mimeMemoryResult.ToString();
+        return result;
+    }
+    
+    private string FilterQuery(string query)
+    {
+        if (query[0] == '.')
+            query = query.Remove(0, 1);
+
+        return query;
+    }
 }

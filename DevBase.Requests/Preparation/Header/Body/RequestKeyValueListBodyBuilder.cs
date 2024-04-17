@@ -9,13 +9,13 @@ using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Preparation.Header.Body;
 
-public class RequestFormBodyBuilder : HttpFormBuilder<RequestFormBodyBuilder, string, object>
+public class RequestKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestKeyValueListBodyBuilder, string, object>
 {
     public Memory<byte> Bounds { get; private set; }
     public Memory<byte> Separator { get; private set; }
     public Memory<byte> Tail { get; private set; }
     
-    public RequestFormBodyBuilder() 
+    public RequestKeyValueListBodyBuilder() 
     {
         ContentDispositionBounds bounds = ContentDispositionUtils.GetBounds();
 
@@ -28,9 +28,9 @@ public class RequestFormBodyBuilder : HttpFormBuilder<RequestFormBodyBuilder, st
     {
         List<Memory<byte>> buffer = new List<Memory<byte>>();
         
-        for (var i = 0; i < FormData.Count; i++)
+        for (var i = 0; i < Entries.Count; i++)
         {
-            KeyValuePair<string, object> formEntry = FormData[i];
+            KeyValuePair<string, object> formEntry = Entries[i];
 
             if (!(formEntry.Value is string || formEntry.Value is MimeFileObject))
                 continue;
@@ -53,28 +53,28 @@ public class RequestFormBodyBuilder : HttpFormBuilder<RequestFormBodyBuilder, st
     };
     
     #region MimeFile Content
-    public RequestFormBodyBuilder AddFile(byte[] buffer) => AddFile(AFileObject.FromBuffer(buffer));
-    public RequestFormBodyBuilder AddFile(AFileObject fileObject) => AddFile(MimeFileObject.FromAFileObject(fileObject));
-    public RequestFormBodyBuilder AddFile(FileInfo fileInfo) => AddFile(MimeFileObject.FromFile(fileInfo));
-    public RequestFormBodyBuilder AddFile(string filePath) => AddFile(MimeFileObject.FromFile(filePath));
+    public RequestKeyValueListBodyBuilder AddFile(byte[] buffer) => AddFile(AFileObject.FromBuffer(buffer));
+    public RequestKeyValueListBodyBuilder AddFile(AFileObject fileObject) => AddFile(MimeFileObject.FromAFileObject(fileObject));
+    public RequestKeyValueListBodyBuilder AddFile(FileInfo fileInfo) => AddFile(MimeFileObject.FromFile(fileInfo));
+    public RequestKeyValueListBodyBuilder AddFile(string filePath) => AddFile(MimeFileObject.FromFile(filePath));
     
-    public RequestFormBodyBuilder AddFile(string fieldName, byte[] buffer) => AddFile(fieldName, AFileObject.FromBuffer(buffer));
-    public RequestFormBodyBuilder AddFile(string fieldName, AFileObject fileObject) => AddFile(fieldName, MimeFileObject.FromAFileObject(fileObject));
-    public RequestFormBodyBuilder AddFile(string fieldName, FileInfo fileInfo) => AddFile(fieldName, MimeFileObject.FromFile(fileInfo));
-    public RequestFormBodyBuilder AddFile(string fieldName, string filePath) => AddFile(fieldName, MimeFileObject.FromFile(filePath));
+    public RequestKeyValueListBodyBuilder AddFile(string fieldName, byte[] buffer) => AddFile(fieldName, AFileObject.FromBuffer(buffer));
+    public RequestKeyValueListBodyBuilder AddFile(string fieldName, AFileObject fileObject) => AddFile(fieldName, MimeFileObject.FromAFileObject(fileObject));
+    public RequestKeyValueListBodyBuilder AddFile(string fieldName, FileInfo fileInfo) => AddFile(fieldName, MimeFileObject.FromFile(fileInfo));
+    public RequestKeyValueListBodyBuilder AddFile(string fieldName, string filePath) => AddFile(fieldName, MimeFileObject.FromFile(filePath));
 
-    public RequestFormBodyBuilder AddFile(MimeFileObject mimeFile) => AddFile(mimeFile, out string fieldName);
+    public RequestKeyValueListBodyBuilder AddFile(MimeFileObject mimeFile) => AddFile(mimeFile, out string fieldName);
     
-    private RequestFormBodyBuilder AddFile(MimeFileObject mimeFile, out string fieldName)
+    private RequestKeyValueListBodyBuilder AddFile(MimeFileObject mimeFile, out string fieldName)
     {
         fieldName = mimeFile.FileInfo.Name;
         AddFile(fieldName, mimeFile);
         return this;
     }
     
-    public RequestFormBodyBuilder AddFile(string fieldName, MimeFileObject mimeFile)
+    public RequestKeyValueListBodyBuilder AddFile(string fieldName, MimeFileObject mimeFile)
     {
-        AddFormElement(fieldName, mimeFile);
+        AddEntry(fieldName, mimeFile);
         return this;
     }
     
@@ -82,9 +82,9 @@ public class RequestFormBodyBuilder : HttpFormBuilder<RequestFormBodyBuilder, st
 
     #region Text Content
 
-    public RequestFormBodyBuilder AddText(string key, string value)
+    public RequestKeyValueListBodyBuilder AddText(string key, string value)
     {
-        AddFormElement(key, value);
+        AddEntry(key, value);
         return this;
     }
 
@@ -92,15 +92,15 @@ public class RequestFormBodyBuilder : HttpFormBuilder<RequestFormBodyBuilder, st
 
     #region Fields
 
-    public RequestFormBodyBuilder RemoveEntryAt(int index)
+    public RequestKeyValueListBodyBuilder RemoveEntryAt(int index)
     {
-        RemoveFormElement(index);
+        RemoveEntry(index);
         return this;
     }
 
-    public RequestFormBodyBuilder Remove(string fieldName)
+    public RequestKeyValueListBodyBuilder Remove(string fieldName)
     {
-        RemoveFormElementKey(fieldName);
+        RemoveEntryKey(fieldName);
         return this;
     }
     
@@ -110,7 +110,7 @@ public class RequestFormBodyBuilder : HttpFormBuilder<RequestFormBodyBuilder, st
         {
             if (value is null)
             {
-                RemoveFormElementKey(fieldName);
+                RemoveEntryKey(fieldName);
                 return;
             }
             

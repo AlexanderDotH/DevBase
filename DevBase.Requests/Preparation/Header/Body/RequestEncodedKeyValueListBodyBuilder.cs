@@ -9,24 +9,24 @@ using DevBase.Requests.Utils;
 namespace DevBase.Requests.Preparation.Header.Body;
 
 
-public class RequestEncodedFormBodyBuilder : HttpFormBuilder<RequestEncodedFormBodyBuilder, string, string>
+public class RequestEncodedKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestEncodedKeyValueListBodyBuilder, string, string>
 {
-    public RequestEncodedFormBodyBuilder() { }
+    public RequestEncodedKeyValueListBodyBuilder() { }
     
     protected override Action BuildAction => () =>
     {
-        Buffer = ContentDispositionUtils.Combine(this.FormData);
+        Buffer = ContentDispositionUtils.Combine(this.Entries);
     };
     
-    public RequestEncodedFormBodyBuilder RemoveEntryAt(int index)
+    public RequestEncodedKeyValueListBodyBuilder RemoveEntryAt(int index)
     {
-        RemoveFormElement(index);
+        RemoveEntry(index);
         return this;
     }
 
-    public RequestEncodedFormBodyBuilder Remove(string fieldName)
+    public RequestEncodedKeyValueListBodyBuilder Remove(string fieldName)
     {
-        RemoveFormElementKey(fieldName);
+        RemoveEntryKey(fieldName);
         return this;
     }
     
@@ -36,7 +36,7 @@ public class RequestEncodedFormBodyBuilder : HttpFormBuilder<RequestEncodedFormB
         {
             if (value is null)
             {
-                RemoveFormElementKey(fieldName);
+                RemoveEntryKey(fieldName);
                 return;
             }
             
@@ -47,9 +47,9 @@ public class RequestEncodedFormBodyBuilder : HttpFormBuilder<RequestEncodedFormB
         }
     }
     
-    public RequestEncodedFormBodyBuilder AddText(string key, string value)
+    public RequestEncodedKeyValueListBodyBuilder AddText(string key, string value)
     {
-        AddFormElement(key, value);
+        AddEntry(key, value);
         return this;
     }
 }

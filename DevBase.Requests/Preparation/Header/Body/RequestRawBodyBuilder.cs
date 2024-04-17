@@ -59,7 +59,7 @@ public class RequestRawBodyBuilder : HttpBodyBuilder<RequestRawBodyBuilder>
         
         return this;
     }
-
+    
     protected override Action BuildAction => () =>
     {
         if (this.Buffer.IsEmpty)
