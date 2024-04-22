@@ -1,10 +1,7 @@
-﻿using System.Text;
-using DevBase.Requests.Abstract;
-using DevBase.Requests.Enums;
-using DevBase.Requests.Exceptions;
+﻿using DevBase.Requests.Abstract;
 using DevBase.Requests.Extensions;
 
-namespace DevBase.Requests.Preparation.Parameters;
+namespace DevBase.Requests.Data.Parameters;
 
 public class ParameterBuilder : HttpHeaderBuilder<ParameterBuilder>
 {

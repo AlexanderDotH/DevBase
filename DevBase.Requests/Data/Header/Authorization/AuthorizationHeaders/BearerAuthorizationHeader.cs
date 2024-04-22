@@ -1,8 +1,8 @@
-﻿namespace DevBase.Requests.Preparation.Header.Authorization.AuthorizationHeaders;
+﻿namespace DevBase.Requests.Data.Header.Authorization.AuthorizationHeaders;
 
 public class BearerAuthorizationHeader : AuthorizationHeader
 {
-    private string _bearerToken;
+    private readonly string _bearerToken;
     
     public BearerAuthorizationHeader(string bearerToken)
     {

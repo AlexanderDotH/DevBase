@@ -1,10 +1,10 @@
-﻿using System.Buffers;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text;
 using DevBase.Extensions.Stopwatch;
 using DevBase.Requests.Objects;
 using DevBase.Requests.Utils;
 using DevBase.Test.Test;
+using Org.BouncyCastle.Crmf;
 
 namespace DevBase.Test.DevBaseRequests.Utils;
 
@@ -16,15 +16,19 @@ public class ContentDispositionUtilsTests
         int count = 1_000_000;
 
         MimeFileObject mime = MimeFileObject.FromBuffer(Encoding.UTF8.GetBytes("JoeMama"));
+
+        Memory<byte> last;
         
-        Stopwatch penetrationTest = PenetrationTest.Run(() =>
+        Stopwatch penetrationTest = PenetrationTest.RunWithLast<Memory<byte>>(() =>
         {
-            Memory<byte> lastValue = ContentDispositionUtils.FromFile("fileUpload", mime);
-        }, count);
+            return ContentDispositionUtils.FromFile("fileUpload", mime);
+        }, out last, count);
         
         Console.WriteLine($"Created {count}times the following text \n\"{Encoding.ASCII.GetString(ContentDispositionUtils.FromFile("fileUpload", mime).ToArray())}\"\n");
         
         penetrationTest.PrintTimeTable();
+        
+        Assert.NotNull(last);
     }
     
     [Test]
@@ -32,13 +36,16 @@ public class ContentDispositionUtilsTests
     {
         int count = 1_000_000;
         
-        Stopwatch penetrationTest = PenetrationTest.Run(() =>
+        Memory<byte> last;
+        
+        Stopwatch penetrationTest = PenetrationTest.RunWithLast<Memory<byte>>(() =>
         {
-            Memory<byte> lastValue = ContentDispositionUtils.FromValue("fieldName", "fieldValue");
-        }, count);
+            return ContentDispositionUtils.FromValue("fieldName", "fieldValue");
+        }, out last, count);
         
         Console.WriteLine($"Created {count}times the following text \n\"{Encoding.ASCII.GetString(ContentDispositionUtils.FromValue("fieldName", "fieldValue").ToArray())}\"\n");
         
         penetrationTest.PrintTimeTable();
+        Assert.NotNull(last);
     }
 }

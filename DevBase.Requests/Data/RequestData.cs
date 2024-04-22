@@ -1,6 +1,6 @@
-﻿using DevBase.Requests.Preparation.Parameters;
+﻿using DevBase.Requests.Data.Parameters;
 
-namespace DevBase.Requests.Preparation;
+namespace DevBase.Requests.Data;
 
 public class RequestData
 {

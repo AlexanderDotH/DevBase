@@ -1,4 +1,4 @@
-﻿namespace DevBase.Format.Formats;
+﻿namespace DevBase.Format;
 
 public abstract class RevertableFileFormat<F, T> : FileFormat<F, T>
 {

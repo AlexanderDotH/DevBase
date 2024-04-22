@@ -2,11 +2,10 @@
 using System.Reflection;
 using DevBase.Generics;
 using DevBase.Requests.Abstract;
-using DevBase.Requests.Extensions;
-using DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
+using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 using DevBase.Requests.Utils;
 
-namespace DevBase.Requests.Preparation.Header.UserAgent;
+namespace DevBase.Requests.Data.Header.UserAgent;
 
 public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuilder>
 {
@@ -21,6 +20,15 @@ public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuil
     public UserAgentHeaderBuilder(params IBogusUserAgentGenerator[] agentGenerators)
     {
         BogusUserAgentGenerators = new AList<IBogusUserAgentGenerator>(agentGenerators);
+        
+        if (agentGenerators.Length == 0)
+        {
+            BogusUserAgentGenerators.AddRange(
+                new BogusChromeUserAgentGenerator(), 
+                new BogusEdgeUserAgentGenerator(), 
+                new BogusFirefoxUserAgentGenerator(), 
+                new BogusOperaUserAgentGenerator());
+        }
     }
     
     public UserAgentHeaderBuilder AddProductName(string productName)

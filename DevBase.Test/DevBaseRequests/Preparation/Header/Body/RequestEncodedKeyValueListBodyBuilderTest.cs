@@ -2,8 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using Bogus.DataSets;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Preparation.Header.Body;
-using DevBase.Test.Test;
+using DevBase.Requests.Data.Header.Body;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Header.Body;
 
@@ -48,5 +47,7 @@ public class RequestEncodedKeyValueListBodyBuilderTest
         Console.WriteLine($"Generated url encoded header content {_count} * 100 times");
         Console.WriteLine(sw.GetTimeTable());
         Console.WriteLine($"The Content: {Encoding.UTF8.GetString(builder.Buffer.ToArray())}"); 
+        
+        Assert.NotNull(builder.Buffer);
     }
 }

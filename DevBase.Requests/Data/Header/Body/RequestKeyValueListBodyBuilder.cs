@@ -1,5 +1,4 @@
-﻿using System.Text;
-using DevBase.IO;
+﻿using DevBase.IO;
 using DevBase.Requests.Abstract;
 using DevBase.Requests.Enums;
 using DevBase.Requests.Exceptions;
@@ -7,7 +6,7 @@ using DevBase.Requests.Objects;
 using DevBase.Requests.Struct;
 using DevBase.Requests.Utils;
 
-namespace DevBase.Requests.Preparation.Header.Body;
+namespace DevBase.Requests.Data.Header.Body;
 
 public class RequestKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestKeyValueListBodyBuilder, string, object>
 {

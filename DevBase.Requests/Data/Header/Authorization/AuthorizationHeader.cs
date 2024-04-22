@@ -1,4 +1,4 @@
-﻿namespace DevBase.Requests.Preparation.Header.Authorization;
+﻿namespace DevBase.Requests.Data.Header.Authorization;
 
 public abstract class AuthorizationHeader
 {

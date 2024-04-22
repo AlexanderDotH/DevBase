@@ -1,7 +1,7 @@
 ﻿using DevBase.Requests.Abstract;
-using DevBase.Requests.Preparation.Header.Authorization.AuthorizationHeaders;
+using DevBase.Requests.Data.Header.Authorization.AuthorizationHeaders;
 
-namespace DevBase.Requests.Preparation.Header.Authorization;
+namespace DevBase.Requests.Data.Header.Authorization;
 
 public class AuthorizationHeaderBuilder : HttpFieldBuilder<AuthorizationHeaderBuilder>
 {

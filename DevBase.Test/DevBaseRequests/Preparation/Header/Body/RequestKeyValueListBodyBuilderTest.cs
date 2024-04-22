@@ -2,8 +2,8 @@ using System.Diagnostics;
 using System.Text;
 using Bogus.DataSets;
 using DevBase.Extensions.Stopwatch;
+using DevBase.Requests.Data.Header.Body;
 using DevBase.Requests.Objects;
-using DevBase.Requests.Preparation.Header.Body;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Header.Body;
 
@@ -46,5 +46,7 @@ public class RequestKeyValueListBodyBuilderTest
         Console.WriteLine($"Builded {_count} form headers. Last entry: \n{lastBody}\n");
         
         stopwatch.PrintTimeTable();
+        
+        Assert.NotNull(lastBody!.Buffer);
     }
 }

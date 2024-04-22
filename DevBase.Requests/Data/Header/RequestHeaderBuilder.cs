@@ -1,10 +1,10 @@
 ﻿using DevBase.Requests.Abstract;
-using DevBase.Requests.Preparation.Header.Body.Mime;
-using DevBase.Requests.Preparation.Header.UserAgent;
-using DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
+using DevBase.Requests.Data.Header.Body.Mime;
+using DevBase.Requests.Data.Header.UserAgent;
+using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 using DevBase.Utilities;
 
-namespace DevBase.Requests.Preparation.Header;
+namespace DevBase.Requests.Data.Header;
 
 public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder, string, string>
 {

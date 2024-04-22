@@ -1,12 +1,7 @@
-﻿using DevBase.IO;
-using DevBase.Requests.Abstract;
-using DevBase.Requests.Enums;
-using DevBase.Requests.Exceptions;
-using DevBase.Requests.Objects;
-using DevBase.Requests.Struct;
+﻿using DevBase.Requests.Abstract;
 using DevBase.Requests.Utils;
 
-namespace DevBase.Requests.Preparation.Header.Body;
+namespace DevBase.Requests.Data.Header.Body;
 
 
 public class RequestEncodedKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestEncodedKeyValueListBodyBuilder, string, string>
@@ -30,6 +25,7 @@ public class RequestEncodedKeyValueListBodyBuilder : HttpKeyValueListBuilder<Req
         return this;
     }
     
+    #pragma warning disable S2589
     public string this[string fieldName]
     {
         set
@@ -46,6 +42,7 @@ public class RequestEncodedKeyValueListBodyBuilder : HttpKeyValueListBuilder<Req
             AddText(fieldName, value);
         }
     }
+    #pragma warning restore S2589
     
     public RequestEncodedKeyValueListBodyBuilder AddText(string key, string value)
     {

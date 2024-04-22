@@ -1,4 +1,4 @@
-﻿namespace DevBase.Requests.Preparation.Header.Body.Mime;
+﻿namespace DevBase.Requests.Data.Header.Body.Mime;
 
 public class MimeDictionary : Lazy<Dictionary<string, ReadOnlyMemory<char>>>
 {

@@ -1,8 +1,7 @@
 ﻿using System.Text;
-using DevBase.Requests.Extensions;
 using DevBase.Requests.Utils;
 
-namespace DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
+namespace DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 
 public class BogusEdgeUserAgentGenerator : IBogusUserAgentGenerator
 {

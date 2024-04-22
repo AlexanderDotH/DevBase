@@ -1,12 +1,11 @@
-﻿using System.Buffers;
-using System.Text;
+﻿using System.Text;
 
-namespace DevBase.Requests.Preparation.Header.Authorization.AuthorizationHeaders;
+namespace DevBase.Requests.Data.Header.Authorization.AuthorizationHeaders;
 
 public class BasicAuthorizationHeader : AuthorizationHeader
 {
-    private string _username;
-    private string _password;
+    private readonly string _username;
+    private readonly string _password;
     
     public BasicAuthorizationHeader(string username, string password)
     {

@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
+using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 using DevBase.Test.Test;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Header.UserAgent.Bogus.Generator;
@@ -33,13 +33,17 @@ public class BogusUserAgentGeneratorTests
     
     private void GenerateAndTestUserAgent(IBogusUserAgentGenerator generator, int count = 1_000_000)
     {
-        Stopwatch sw = PenetrationTest.Run(() =>
+        string userAgent;
+        
+        Stopwatch sw = PenetrationTest.RunWithLast<string>(() =>
         {
-            ReadOnlySpan<char> userAgent = generator.UserAgentPart;
-        }, count);
+            return generator.UserAgentPart.ToString();
+        }, out userAgent, count);
 
         Console.WriteLine($"Generated user-agent of type {generator.GetType().Name}\n");
         Console.WriteLine(sw.GetTimeTable());
         Console.WriteLine($"The User-Agent: {generator.UserAgentPart}"); 
+        
+        Assert.NotNull(userAgent);
     }
 }
