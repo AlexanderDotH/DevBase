@@ -1,4 +1,7 @@
-﻿using DevBase.Requests.Abstract;
+﻿using System.Runtime.CompilerServices;
+using System.Text;
+using DevBase.Requests.Abstract;
+using DevBase.Requests.Data.Header.Authorization;
 using DevBase.Requests.Data.Header.Body.Mime;
 using DevBase.Requests.Data.Header.UserAgent;
 using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
@@ -8,13 +11,15 @@ namespace DevBase.Requests.Data.Header;
 
 public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder, string, string>
 {
-    private UserAgentHeaderBuilder UserAgentHeaderBuilder { get; set; }
+    private UserAgentHeaderBuilder? UserAgentHeaderBuilder { get; set; }
+    private AuthorizationHeaderBuilder? AuthorizationHeaderBuilder { get; set; }
     
-    private MimeDictionary MimeDictionary { get; set; } 
-    
+    private MimeDictionary MimeDictionary { get; set; }
+
     public RequestHeaderBuilder()
     {
         this.UserAgentHeaderBuilder = new UserAgentHeaderBuilder();
+        this.AuthorizationHeaderBuilder = new AuthorizationHeaderBuilder();
 
         this.MimeDictionary = new MimeDictionary();
     }
@@ -23,7 +28,7 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
 
     public RequestHeaderBuilder WithUserAgent(string userAgent)
     {
-        this.UserAgentHeaderBuilder.With(userAgent);
+        this.UserAgentHeaderBuilder?.With(userAgent);
         return this;
     }
     
@@ -35,7 +40,7 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
 
     public RequestHeaderBuilder WithBogusUserAgent()
     {
-        this.UserAgentHeaderBuilder.BuildBogus();
+        this.UserAgentHeaderBuilder?.BuildBogus();
         return this;
     }
 
@@ -109,33 +114,79 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         
         for (var i = 0; i < acceptTypes.Length; i++)
         {
-            string result = acceptTypes[i];
-            this.MimeDictionary.TryGetMimeTypeAsString(result, out result);
-            resolvedTypes[i] = result;
+            string currentTyoe = acceptTypes[i];
+
+            if (this.MimeDictionary.TryGetMimeTypeAsString(currentTyoe, out string result))
+                currentTyoe = result;
+            
+            resolvedTypes[i] = currentTyoe;
         }
         
         string combined = StringUtils.Separate(resolvedTypes);
         
-        this.AddHeader("Accept", combined);
+        base.AddEntry("Accept", combined);
         return this;
     }
-    
-    
 
     #endregion
 
-    public RequestHeaderBuilder AddHeader(string name, string value)
+    #region Authorization
+
+    public RequestHeaderBuilder UseBasicAuthorization(string username, string password)
     {
-        this.AddEntry(name, value);
+        AuthorizationHeaderBuilder?.UseBasicAuthorization(username, password);
+        return this;
+    }
+
+    public RequestHeaderBuilder UseBearerAuthorization(string token)
+    {
+        AuthorizationHeaderBuilder?.UseBearerAuthorization(token);
         return this;
     }
     
+    #endregion
+
+  
     protected override Action BuildAction => () =>
     {
-        if (!UserAgentHeaderBuilder.AlreadyBuilt)
-            this.UserAgentHeaderBuilder.Build();
+        this.UserAgentHeaderBuilder?.TryBuild();
+        this.AuthorizationHeaderBuilder?.TryBuild(); 
 
-        if (!this.AnyEntry("Accept"))
+        if (!base.AnyEntry("Accept"))
             WithAccept("*");
+
+        if (this.UserAgentHeaderBuilder!.Usable)
+            base.AddOrSetEntry("User-Agent", this.UserAgentHeaderBuilder.UserAgent.ToString());
+
+        if (this.AuthorizationHeaderBuilder!.Usable)
+        {
+            string headerKey = this.AuthorizationHeaderBuilder.AuthenticationKey.ToString();
+            string headerValue = this.AuthorizationHeaderBuilder.AuthenticationValue.ToString();
+            
+            base.AddOrSetEntry(headerKey, headerValue);
+        }
+
     };
+
+    /**
+     * Some accessibility functions.
+     * Perhaps you could use modern C# but some people are just the getter and setter type of person. ;)
+    **/ 
+    public string GetHeader(string key) => this[key];
+    public string GetHeader(int index) => this[index];
+    
+    public string SetHeader(string key, string value) => this[key] = value;
+    public string SetHeader(int index, string value) => this[index] = value;
+    
+    public string this[string key]
+    {
+        get => base.GetEntryValue(key);
+        set => base.SetEntryValue(key, value);
+    }
+    
+    public string this[int index]
+    {
+        get => base.GetEntryValue(index);
+        set => base.SetEntryValue(index, value);
+    }
 }

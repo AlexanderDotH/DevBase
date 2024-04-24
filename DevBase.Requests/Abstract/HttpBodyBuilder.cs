@@ -8,6 +8,7 @@ public abstract class HttpBodyBuilder<T> where T : HttpBodyBuilder<T>
 {
     public Memory<byte> Buffer { get; protected set; }
     private bool AlreadyBuilt { get; set; }
+    public bool Usable => this.AlreadyBuilt || !this.Buffer.IsEmpty;
 
     protected HttpBodyBuilder()
     {

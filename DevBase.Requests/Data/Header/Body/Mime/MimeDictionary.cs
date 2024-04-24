@@ -681,20 +681,36 @@ public class MimeDictionary : Lazy<Dictionary<string, ReadOnlyMemory<char>>>
 
     public bool TryGetMimeTypeAsSpan(string mimeType, out ReadOnlySpan<char> mimeResult)
     {
-        ReadOnlyMemory<char> mimeMemoryResult;
-        bool result = TryGetMimeTypeAsMemory(mimeType, out mimeMemoryResult);
-        mimeResult = mimeMemoryResult.Span;
-        return result;
+        try
+        {
+            ReadOnlyMemory<char> mimeMemoryResult;
+            bool result = TryGetMimeTypeAsMemory(mimeType, out mimeMemoryResult);
+            mimeResult = mimeMemoryResult.Span;
+            return result;
+        }
+        catch
+        {
+            mimeResult = string.Empty;
+            return false;
+        }
     }
     
     public string GetMimeTypeAsString(string mimeType) => GetMimeTypeAsMemory(mimeType).ToString();
     
     public bool TryGetMimeTypeAsString(string mimeType, out string mimeResult)
     {
-        ReadOnlySpan<char> mimeMemoryResult;
-        bool result = TryGetMimeTypeAsSpan(mimeType, out mimeMemoryResult);
-        mimeResult = mimeMemoryResult.ToString();
-        return result;
+        try
+        {
+            ReadOnlySpan<char> mimeMemoryResult;
+            bool result = TryGetMimeTypeAsSpan(mimeType, out mimeMemoryResult);
+            mimeResult = mimeMemoryResult.ToString();
+            return result;
+        }
+        catch
+        {
+            mimeResult = string.Empty;
+            return false;
+        }
     }
     
     private string FilterQuery(string query)

@@ -81,7 +81,7 @@ public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuil
     {
         IBogusUserAgentGenerator userAgentGenerator = BogusUserAgentGenerators.GetRandom(BogusUtils.Random);
         
-        if (this.AlreadyBuilt)
+        if (base.Usable)
         {
             this.HeaderStringBuilder.Append(' ');
             this.HeaderStringBuilder.Append('a');

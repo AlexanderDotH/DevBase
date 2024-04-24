@@ -8,6 +8,7 @@ public abstract class HttpHeaderBuilder<T> where T : HttpHeaderBuilder<T>
 {
     protected StringBuilder HeaderStringBuilder { get; private set; }
     private bool AlreadyBuilt { get; set; }
+    public bool Usable => this.AlreadyBuilt || this.HeaderStringBuilder.Length > 0;
 
     protected HttpHeaderBuilder()
     {

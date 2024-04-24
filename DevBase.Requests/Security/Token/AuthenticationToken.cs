@@ -1,12 +1,8 @@
-﻿using System.Reflection;
-using DevBase.Api.Serializer;
-using DevBase.Api.Utils;
-using DevBase.Typography;
+﻿using DevBase.Requests.Utils;
 using DevBase.Typography.Encoded;
-using DevBase.Utilities;
 using Newtonsoft.Json.Linq;
 
-namespace DevBase.Api.Objects.Token;
+namespace DevBase.Requests.Security.Token;
 
 public class AuthenticationToken
 {
@@ -24,7 +20,7 @@ public class AuthenticationToken
         RawToken = rawToken;
     }
 
-    public static AuthenticationToken FromString(string rawToken)
+    public static AuthenticationToken? FromString(string rawToken)
     {
         if (!rawToken.Contains("."))
             return null;
@@ -38,17 +34,17 @@ public class AuthenticationToken
         Base64EncodedAString payload = new Base64EncodedAString(tokenElements[1]);
         string signature = tokenElements[2];
 
-        AuthenticationTokenHeader tokenHeader = ParseHeader(header);
-        AuthenticationTokenPayload tokenPayload = ParsePayload(payload);
+        AuthenticationTokenHeader tokenHeader = ParseHeader(header)!;
+        AuthenticationTokenPayload tokenPayload = ParsePayload(payload)!;
 
         return new AuthenticationToken(tokenHeader, tokenPayload, signature, rawToken);
     }
 
-    private static AuthenticationTokenHeader ParseHeader(Base64EncodedAString header)
+    private static AuthenticationTokenHeader? ParseHeader(Base64EncodedAString header)
     {
         string decoded = header.GetDecoded().ToString();
 
-        if (String.IsNullOrEmpty(decoded))
+        if (string.IsNullOrEmpty(decoded))
             return null;
         
         JObject parsed = JObject.Parse(decoded);
@@ -72,11 +68,11 @@ public class AuthenticationToken
         return tokenHeader;
     }
     
-    private static AuthenticationTokenPayload ParsePayload(Base64EncodedAString payload)
+    private static AuthenticationTokenPayload? ParsePayload(Base64EncodedAString payload)
     {
         string decoded = payload.GetDecoded().ToString();
 
-        if (String.IsNullOrEmpty(decoded))
+        if (string.IsNullOrEmpty(decoded))
             return null;
         
         JObject parsed = JObject.Parse(decoded);
