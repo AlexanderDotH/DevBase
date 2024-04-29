@@ -11,15 +11,15 @@ public class Sealing
 {
     private byte[] _othersPublicKey;
     private byte[] _sharedSecret;
-    private ECDHEngineBuilder _ecdhEngine;
+    private EcdhEngineBuilder _ecdhEngine;
     private AESBuilderEngine _aesEngine;
 
     public Sealing(byte[] othersPublicKey)
     {
         this._othersPublicKey = othersPublicKey;
-        this._ecdhEngine = new ECDHEngineBuilder().GenerateKeyPair();
+        this._ecdhEngine = new EcdhEngineBuilder().GenerateKeyPair();
         
-        this._sharedSecret = this._ecdhEngine.DeriveKeyPairs(this._othersPublicKey.ToECDHPublicKey());
+        this._sharedSecret = this._ecdhEngine.DeriveKeyPairs(this._othersPublicKey.ToEcdhPublicKey());
         this._aesEngine = new AESBuilderEngine().SetKey(this._sharedSecret);
     }
 
@@ -27,7 +27,7 @@ public class Sealing
 
     public Sealing(byte[] publicKey, byte[] privateKey)
     {
-        this._ecdhEngine = new ECDHEngineBuilder().FromExistingKeyPair(publicKey, privateKey);
+        this._ecdhEngine = new EcdhEngineBuilder().FromExistingKeyPair(publicKey, privateKey);
     }
 
     public Sealing(string publicKey, string privateKey) : this(Convert.FromBase64String(publicKey),
@@ -60,7 +60,7 @@ public class Sealing
         byte[] publicKey = reader.ReadBytes(publicKeySize);
         byte[] sealedByteSequence = reader.ReadBytes((int)(memoryStream.Length - memoryStream.Position));
 
-        byte[] sharedSecret = this._ecdhEngine.DeriveKeyPairs(publicKey.ToECDHPublicKey());
+        byte[] sharedSecret = this._ecdhEngine.DeriveKeyPairs(publicKey.ToEcdhPublicKey());
 
         if (this._sharedSecret == null)
         {

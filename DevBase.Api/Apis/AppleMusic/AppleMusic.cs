@@ -1,13 +1,12 @@
 ﻿using System.Net;
-using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using DevBase.Api.Apis.AppleMusic.Structure.Json;
 using DevBase.Api.Apis.AppleMusic.Structure.Objects;
 using DevBase.Api.Enums;
 using DevBase.Api.Exceptions;
-using DevBase.Api.Objects.Token;
 using DevBase.Api.Serializer;
 using DevBase.Enums;
+using DevBase.Requests.Security.Token;
 using DevBase.Web;
 using DevBase.Web.RequestData;
 using DevBase.Web.RequestData.Data;

@@ -4,7 +4,6 @@ using DevBase.Api.Apis.Deezer.Structure.Json;
 using DevBase.Api.Apis.Deezer.Structure.Objects;
 using DevBase.Api.Enums;
 using DevBase.Api.Exceptions;
-using DevBase.Api.Objects.Token;
 using DevBase.Api.Serializer;
 using DevBase.Cryptography.Blowfish;
 using DevBase.Enums;

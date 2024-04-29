@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
+﻿using DevBase.Generics;
+using Newtonsoft.Json.Linq;
 
 namespace DevBase.Requests.Utils;
 
@@ -11,59 +12,33 @@ public class JsonUtils
 {
     protected JsonUtils() { }
 
-
-    public static bool TryGetEntries(JObject parsedDocument, out List<KeyValuePair<string, object>> jsonEntries)
+    public static bool TryGetEntries(JObject parsedDocument, out AList<KeyValuePair<string, object>> jsonEntries, params string[] except)
     {
         IEnumerator<KeyValuePair<string, JToken?>> enumerable = parsedDocument.GetEnumerator();
+
+        AList<KeyValuePair<string, object>> jsonEntriesList = new AList<KeyValuePair<string, object>>();
         
         while (enumerable.MoveNext())
         {
             KeyValuePair<string, JToken> current = enumerable.Current!;
             
+            if (except.Contains(current.Key))
+                continue;
             
+            jsonEntriesList.Add(KeyValuePair.Create<string, object>(current.Key, current.Value!));
         }
-    }
 
-    private static bool TryGet(JToken token, JTokenType type, out object value)
-    {
-        object? carvedValue = null;
-        
-
-        if (carvedValue == null)
-        {
-            value = null;
-            return false;
-        }
-        
-        value = carvedValue;
+        jsonEntries = jsonEntriesList;
         return true;
     }
-
-    private static object ToValue(JToken token, JTokenType tokenType) => token.Type switch
-    {
-        JTokenType.String => Get<string>(token),
-        _ => null
-    };
-
-    private static T Get<T>(JToken token, Type type)
-    {
-        T? content = token.Value<T>();
-
-        typeof(T)
-        
-        if (content == null)
-            return default;
-
-        return content;
-    } 
     
-    public static void TryGetString(JObject jObject, string fieldName, out string convertedToken)
+    public static void TryGetString(JObject jObject, string fieldName, out KeyValuePair<string, string> convertedToken)
     {
         JToken? token;
 
         if (!jObject.TryGetValue(fieldName, out token))
         {
-            convertedToken = string.Empty;
+            convertedToken = ToPair(fieldName, string.Empty);
             return;
         }
 
@@ -75,26 +50,26 @@ public class JsonUtils
 
                 if (string.IsNullOrEmpty(rawToken))
                 {
-                    convertedToken = string.Empty;
+                    convertedToken = ToPair(fieldName, string.Empty);
                     return;
                 }
-
-                convertedToken = rawToken;
+                
+                convertedToken = ToPair(fieldName, rawToken);
                 return;
             }
         }
 
-        convertedToken = string.Empty;
+        convertedToken = ToPair(fieldName, string.Empty);
     }
-    
-    public static void TryGetDateTime(JObject jObject, string fieldName, out DateTime convertedDateTime)
+
+    public static void TryGetDateTime(JObject jObject, string fieldName, out KeyValuePair<string, DateTime> convertedDateTime)
     {
         JToken? token = null;
         jObject.TryGetValue(fieldName, out token);
 
         if (token == null)
         {
-            convertedDateTime = DateTime.MinValue;
+            convertedDateTime = ToPair(fieldName, DateTime.MinValue);
             return;
         }
 
@@ -106,25 +81,25 @@ public class JsonUtils
 
                 if (string.IsNullOrEmpty(rawToken))
                 {
-                    convertedDateTime = DateTime.MinValue;
+                    convertedDateTime = ToPair(fieldName, DateTime.MinValue);
                     return;
                 }
 
                 if (long.TryParse(rawToken, out long convertedLong))
                 {
                     DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(convertedLong);
-                    convertedDateTime = dateTimeOffset.Date;
+                    convertedDateTime = ToPair(fieldName, dateTimeOffset.Date);
                     return;
                 }
                 
-                convertedDateTime = DateTime.MinValue;
+                convertedDateTime = ToPair(fieldName, DateTime.MinValue);
                 return;
             }
 
             case JTokenType.Date:
             {
                 DateTime rawToken = token.Value<DateTime>();
-                convertedDateTime = rawToken;
+                convertedDateTime = ToPair(fieldName, rawToken);
                 return;
             }
 
@@ -135,11 +110,18 @@ public class JsonUtils
                 long convertedLong = (long)rawToken;
                 
                 DateTimeOffset convertedDateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(convertedLong);
-                convertedDateTime = convertedDateTimeOffset.DateTime;
+                convertedDateTime = ToPair(fieldName, convertedDateTimeOffset.DateTime);
                 return;
             }
         }
         
-        convertedDateTime = DateTime.MinValue;
+        convertedDateTime = ToPair(fieldName, DateTime.MinValue);
     }
+    
+    
+    private static KeyValuePair<string, string> ToPair(string fieldName, string content) =>
+        KeyValuePair.Create(fieldName, content);
+    
+    private static KeyValuePair<string, DateTime> ToPair(string fieldName, DateTime content) =>
+        KeyValuePair.Create(fieldName, content);
 }

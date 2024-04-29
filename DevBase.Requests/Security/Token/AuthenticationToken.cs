@@ -1,6 +1,12 @@
-﻿using DevBase.Requests.Utils;
+﻿using System.Security.Cryptography;
+using DevBase.Extensions;
+using DevBase.Generics;
+using DevBase.Requests.Utils;
 using DevBase.Typography.Encoded;
 using Newtonsoft.Json.Linq;
+using Org.BouncyCastle.Crypto;
+using Org.BouncyCastle.Crypto.Parameters;
+using Org.BouncyCastle.Security;
 
 namespace DevBase.Requests.Security.Token;
 
@@ -8,11 +14,16 @@ public class AuthenticationToken
 {
     public AuthenticationTokenHeader Header { get; private set; }
     public AuthenticationTokenPayload Payload { get; private set; }
+    public AuthenticationTokenSignature Signature { get; private set; }
     
-    public string Signature { get; private set; }
     public string RawToken { get; private set; }
 
-    private AuthenticationToken(AuthenticationTokenHeader header, AuthenticationTokenPayload payload, string signature, string rawToken)
+    private AuthenticationToken(
+        AuthenticationTokenHeader header, 
+        AuthenticationTokenPayload payload, 
+        AuthenticationTokenSignature signature, 
+        string rawToken
+        )
     {
         Header = header;
         Payload = payload;
@@ -20,7 +31,11 @@ public class AuthenticationToken
         RawToken = rawToken;
     }
 
-    public static AuthenticationToken? FromString(string rawToken)
+    public static AuthenticationToken? FromString(
+        string rawToken, 
+        bool verifyToken = true, 
+        string tokenSecret = ""
+        )
     {
         if (!rawToken.Contains("."))
             return null;
@@ -30,16 +45,40 @@ public class AuthenticationToken
         if (tokenElements.Length != 3)
             return null;
 
-        Base64EncodedAString header = new Base64EncodedAString(tokenElements[0]);
-        Base64EncodedAString payload = new Base64EncodedAString(tokenElements[1]);
-        string signature = tokenElements[2];
+        AuthenticationTokenHeader tokenHeader = ParseHeader(tokenElements[0].ToBase64())!;
+        AuthenticationTokenPayload tokenPayload = ParsePayload(tokenElements[1].ToBase64())!;
+        AuthenticationTokenSignature tokenSignature = ParseSignature(tokenHeader, tokenPayload, tokenElements[2].ToBase64(), verifyToken, tokenSecret)!;
 
-        AuthenticationTokenHeader tokenHeader = ParseHeader(header)!;
-        AuthenticationTokenPayload tokenPayload = ParsePayload(payload)!;
-
-        return new AuthenticationToken(tokenHeader, tokenPayload, signature, rawToken);
+        return new AuthenticationToken(tokenHeader, tokenPayload, tokenSignature, rawToken);
     }
 
+    private static AuthenticationTokenSignature? ParseSignature(
+        AuthenticationTokenHeader tokenHeader, 
+        AuthenticationTokenPayload tokenPayload, 
+        Base64EncodedAString signature, 
+        bool shouldVerify, 
+        string tokenSecret)
+    {
+        string decoded = signature.GetDecoded().ToString();
+
+        if (string.IsNullOrEmpty(decoded))
+            return null;
+
+        bool isJwtVerified = false;
+
+        if (shouldVerify)
+        {
+            byte[] publicKey = signature.GetDecodedBuffer();
+            byte[] bContent = null;
+        }
+        
+        return new AuthenticationTokenSignature()
+        {
+            Signature = decoded,
+            Verified = isJwtVerified
+        };
+    }
+    
     private static AuthenticationTokenHeader? ParseHeader(Base64EncodedAString header)
     {
         string decoded = header.GetDecoded().ToString();
@@ -49,20 +88,21 @@ public class AuthenticationToken
         
         JObject parsed = JObject.Parse(decoded);
 
-        string algorithm;
-        string type;
-        string keyId;
+        KeyValuePair<string, string> algorithm;
+        KeyValuePair<string, string> type;
+        KeyValuePair<string, string> keyId;
         
         JsonUtils.TryGetString(parsed, "alg", out algorithm);
         JsonUtils.TryGetString(parsed, "typ", out type);
         JsonUtils.TryGetString(parsed, "kid", out keyId);
-
+        
         AuthenticationTokenHeader tokenHeader = new AuthenticationTokenHeader()
         {
-            Algorithm = algorithm,
-            Type = type,
-            KeyId = keyId,
-            RawHeader = decoded
+            Algorithm = algorithm.Value,
+            Type = type.Value,
+            KeyId = keyId.Value,
+            RawHeader = decoded,
+            Header = GetRaw(parsed)
         };
 
         return tokenHeader;
@@ -77,9 +117,9 @@ public class AuthenticationToken
         
         JObject parsed = JObject.Parse(decoded);
 
-        string issuer;
-        DateTime issuedAt;
-        DateTime expiresAt;
+        KeyValuePair<string, string> issuer;
+        KeyValuePair<string, DateTime> issuedAt;
+        KeyValuePair<string, DateTime> expiresAt;
 
         JsonUtils.TryGetString(parsed, "iss", out issuer);
         JsonUtils.TryGetDateTime(parsed, "iat", out issuedAt);
@@ -87,12 +127,22 @@ public class AuthenticationToken
 
         AuthenticationTokenPayload tokenPayload = new AuthenticationTokenPayload()
         {
-            Issuer = issuer,
-            IssuedAt = issuedAt,
-            ExpiresAt = expiresAt,
-            RawPayload = decoded
+            Issuer = issuer.Value,
+            IssuedAt = issuedAt.Value,
+            ExpiresAt = expiresAt.Value,
+            RawPayload = decoded,
+            Payload = GetRaw(parsed)
         };
         
         return tokenPayload;
+    }
+    
+    private static List<KeyValuePair<string, object>>? GetRaw(JObject? parsed)
+    {
+        AList<KeyValuePair<string, object>> rawHeader;
+
+        JsonUtils.TryGetEntries(parsed!, out rawHeader);
+        
+        return rawHeader.GetAsList();
     }
 }

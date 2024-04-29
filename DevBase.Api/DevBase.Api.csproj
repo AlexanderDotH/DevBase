@@ -22,6 +22,7 @@
     <ProjectReference Include="..\DevBase.Cryptography.BouncyCastle\DevBase.Cryptography.BouncyCastle.csproj" />
     <ProjectReference Include="..\DevBase.Cryptography\DevBase.Cryptography.csproj" />
     <ProjectReference Include="..\DevBase.Format\DevBase.Format.csproj" />
+    <ProjectReference Include="..\DevBase.Requests\DevBase.Requests.csproj" />
     <ProjectReference Include="..\DevBase\DevBase.csproj" />
   </ItemGroup>
 
