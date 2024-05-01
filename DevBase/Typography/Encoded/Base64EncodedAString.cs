@@ -18,21 +18,14 @@ public class Base64EncodedAString : EncodedAString
     
     public Base64EncodedAString(string value) : base(value)
     {
-        base._value = Normalize(value);
-
+        if (base._value.Length % 4 != 0)
+        {
+            int diff = (4 - base._value.Length % 4);
+            base._value += "=".Repeat(diff);
+        }
+        
         if (!IsEncoded())
             throw new EncodingException("The given string is not a base64 encoded string");
-    }
-
-    private string Normalize(string value)
-    {
-        if (value.Length % 4 != 0)
-        {
-            int diff = (4 - value.Length % 4);
-            value += "=".Repeat(diff);
-        }
-
-        return value;
     }
 
     public Base64EncodedAString UrlDecoded()
@@ -55,11 +48,11 @@ public class Base64EncodedAString : EncodedAString
     
     public override AString GetDecoded()
     {
-        byte[] decoded = Convert.FromBase64String(this._value);
+        byte[] decoded = Convert.FromBase64String(base._value);
         return new AString(Encoding.UTF8.GetString(decoded));
     }
 
-    public byte[] GetDecodedBuffer() => Convert.FromBase64String(this._value);
+    public byte[] GetDecodedBuffer() => Convert.FromBase64String(base._value);
     
     public string Value
     {
@@ -68,7 +61,7 @@ public class Base64EncodedAString : EncodedAString
 
     public override bool IsEncoded()
     {
-        return this._value.Length % 4 == 0 && 
+        return base._value.Length % 4 == 0 && 
                (ENCODED_REGEX_BASE64.IsMatch(base._value) || DECODED_REGEX_BASE64.IsMatch(base._value));
     }
 }
