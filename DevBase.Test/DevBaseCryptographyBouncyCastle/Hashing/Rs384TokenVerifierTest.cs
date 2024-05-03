@@ -1,4 +1,5 @@
 ﻿using DevBase.Cryptography.BouncyCastle.Hashing;
+using DevBase.Cryptography.BouncyCastle.Hashing.Verification;
 using Org.BouncyCastle.Crypto.Digests;
 
 namespace DevBase.Test.DevBaseCryptographyBouncyCastle.Hashing;

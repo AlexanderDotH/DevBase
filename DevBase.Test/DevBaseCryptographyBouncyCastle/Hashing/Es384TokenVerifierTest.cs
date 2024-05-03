@@ -1,9 +1,10 @@
-﻿using DevBase.Cryptography.BouncyCastle.Hashing.Verification;
+﻿using DevBase.Cryptography.BouncyCastle.Hashing;
+using DevBase.Cryptography.BouncyCastle.Hashing.Verification;
 using Org.BouncyCastle.Crypto.Digests;
 
 namespace DevBase.Test.DevBaseCryptographyBouncyCastle.Hashing;
 
-public class Es256TokenVerifierTest
+public class Es384TokenVerifierTest
 {
     private string Header { get; set; }
     private string Payload { get; set; }
@@ -13,22 +14,23 @@ public class Es256TokenVerifierTest
     [SetUp]
     public void SetUp()
     {
-        this.Header = "eyJhbGciOiJFUzI1NiIsInR5cCI6IkpXVCJ9";
+        this.Header = "eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9";
         this.Payload =
             "eyJpc3MiOiJBbGV4YW5kZXJEb3RIIiwiaWF0IjoxNzEzOTYwMDAwLCJleHAiOjE5MDMyNjI0MDAsInNjb3BlIjoidW5pdC10ZXN0In0";
         
-        this.Signature = "cx0Jmnm2vJcLqZzcCkLilx35EgMD90D30VGWF6x79E-KH9i_KZspLVlrU6z1pwI7ee1v4TiiAMT3qmcplhxWBg";
+        this.Signature = "0HXJ_rrgquV2M8OowE6mez4qF1o76IA7RY8dBin6eJXW4gIqoEh5MiTA_ZGfI8J4MTKnapZEowcq0TmBYxh31EcCHnA0djytLPa9Q7xoasuiaWxNosYcNY5eiC-PzlcM";
         
         this.PublicKey = @"-----BEGIN PUBLIC KEY-----
-MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE4M3lWA7oV+YHG6tUv5U3d86SqOKQ
-DxnD54ZoQAj5Tkixe5fyp4EehhG6yqtyRauC9Fhcrky8+s2CuMHKpVZa7w==
+MHYwEAYHKoZIzj0CAQYFK4EEACIDYgAEhAJSkDoxAdYcVDI7TaMiI1I8DfLzu/Mp
+Sa3ovbDeCCn6CnlnlrLijVZ5xtZPyKthcXfH4ktgJGvrY6lR+ic8uH1Y7dyPoNYD
+kNvO6cBrD60+l5qqJp+MumaNKK4Vf39K
 -----END PUBLIC KEY-----";
     }
 
     [Test]
-    public void VerifyEs256SignatureTest()
+    public void VerifyEs384SignatureTest()
     {
-        bool result = new EsTokenVerifier<Sha256Digest>().VerifySignature(
+        bool result = new EsTokenVerifier<Sha384Digest>().VerifySignature(
             this.Header, 
             this.Payload, 
             this.Signature, 
