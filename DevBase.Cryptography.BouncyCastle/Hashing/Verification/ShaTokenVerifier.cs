@@ -5,7 +5,7 @@ using Org.BouncyCastle.Utilities;
 
 namespace DevBase.Cryptography.BouncyCastle.Hashing.Verification;
 
-public class ShaTokenVerifier<T> : SymmetricTokenVerifier<T> where T : IDigest
+public class ShaTokenVerifier<T> : SymmetricTokenVerifier where T : IDigest
 {
     protected override bool VerifySignature(byte[] content, byte[] signature, byte[] secret)
     {

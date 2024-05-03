@@ -4,7 +4,7 @@ using Org.BouncyCastle.Crypto;
 
 namespace DevBase.Cryptography.BouncyCastle.Hashing;
 
-public abstract class AsymmetricTokenVerifier<T> where T : IDigest
+public abstract class AsymmetricTokenVerifier
 {
     public Encoding Encoding { get; set; } = Encoding.UTF8;
 

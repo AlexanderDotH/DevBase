@@ -4,7 +4,7 @@ using Org.BouncyCastle.OpenSsl;
 
 namespace DevBase.Cryptography.BouncyCastle.Hashing.Verification;
 
-public class RsTokenVerifier<T>: AsymmetricTokenVerifier<T> where T : IDigest
+public class RsTokenVerifier<T> : AsymmetricTokenVerifier where T : IDigest
 {
     protected override bool VerifySignature(byte[] content, byte[] signature, string publicKey)
     {

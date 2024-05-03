@@ -2,6 +2,6 @@
 
 public record AuthenticationTokenSignature
 {
-    public string? Signature { get; set; }
+    public byte[]? Signature { get; set; }
     public bool Verified { get; set; }
 }

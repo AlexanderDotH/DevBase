@@ -5,7 +5,7 @@ using Org.BouncyCastle.OpenSsl;
 
 namespace DevBase.Cryptography.BouncyCastle.Hashing.Verification;
 
-public class PsTokenVerifier<T> : AsymmetricTokenVerifier<T> where T : IDigest
+public class PsTokenVerifier<T> : AsymmetricTokenVerifier where T : IDigest
 {
     protected override bool VerifySignature(byte[] content, byte[] signature, string publicKey)
     {

@@ -1,22 +1,19 @@
 ﻿using DevBase.Generics;
+using DevBase.Requests.Enums;
+using DevBase.Requests.Exceptions;
 using Newtonsoft.Json.Linq;
 
 namespace DevBase.Requests.Utils;
 
-// TODO: Implement this class
-// TODO: Authentication token should have all values of the jwt(inside each class header and payload)
-// TODO: Default fields like iss or iad should be properties
-// TODO: Unit tests for the enw RequestHeaderBuilder @DevBase.Requests.Data.Header.RequestHeaderBuilder
-// TODO: Implement unit tests for this class and the AuthenticationToken class
 public class JsonUtils
 {
     protected JsonUtils() { }
 
-    public static bool TryGetEntries(JObject parsedDocument, out AList<KeyValuePair<string, object>> jsonEntries, params string[] except)
+    public static bool TryGetEntries(JObject parsedDocument, out Dictionary<string, dynamic> jsonEntries, params string[] except)
     {
         IEnumerator<KeyValuePair<string, JToken?>> enumerable = parsedDocument.GetEnumerator();
 
-        AList<KeyValuePair<string, object>> jsonEntriesList = new AList<KeyValuePair<string, object>>();
+        Dictionary<string, dynamic> jsonEntriesList = new Dictionary<string, dynamic>();
         
         while (enumerable.MoveNext())
         {
@@ -24,8 +21,9 @@ public class JsonUtils
             
             if (except.Contains(current.Key))
                 continue;
-            
-            jsonEntriesList.Add(KeyValuePair.Create<string, object>(current.Key, current.Value!));
+
+            KeyValuePair<string, dynamic> dynamic = GetDynamic(current.Key, current.Value!);
+            jsonEntriesList.Add(dynamic.Key, dynamic.Value);
         }
 
         jsonEntries = jsonEntriesList;
@@ -62,6 +60,29 @@ public class JsonUtils
         convertedToken = ToPair(fieldName, string.Empty);
     }
 
+    public static void TryGetNumber(JObject jObject, string fieldName, out KeyValuePair<string, int> convertedToken)
+    {
+        JToken? token;
+
+        if (!jObject.TryGetValue(fieldName, out token))
+        {
+            convertedToken = ToPair(fieldName, 0);
+            return;
+        }
+
+        switch (token.Type)
+        {
+            case JTokenType.Integer:
+            {
+                int rawToken = token.Value<int>()!;
+                convertedToken = ToPair(fieldName, rawToken);
+                return;
+            }
+        }
+
+        convertedToken = ToPair(fieldName, 0);
+    }
+    
     public static void TryGetDateTime(JObject jObject, string fieldName, out KeyValuePair<string, DateTime> convertedDateTime)
     {
         JToken? token = null;
@@ -72,54 +93,83 @@ public class JsonUtils
             convertedDateTime = ToPair(fieldName, DateTime.MinValue);
             return;
         }
+        
+        convertedDateTime = GetTimeDate(token, fieldName);
+    }
 
+    #region Extraction
+
+    private static KeyValuePair<string, dynamic> GetDynamic(string fieldName, JToken token)
+    {
+        KeyValuePair<string, dynamic> dynamicData = new KeyValuePair<string, dynamic>(fieldName, default);
+        
         switch (token.Type)
+        {
+            case JTokenType.String: 
+                return new KeyValuePair<string, dynamic>(fieldName, token.Value<string>()!);
+            case JTokenType.Integer: 
+                return new KeyValuePair<string, dynamic>(fieldName, token.Value<int>()!);
+            case JTokenType.Float: 
+                return new KeyValuePair<string, dynamic>(fieldName, token.Value<float>()!);
+            case JTokenType.Guid: 
+                return new KeyValuePair<string, dynamic>(fieldName, token.Value<Guid>()!);
+            case JTokenType.Boolean: 
+                return new KeyValuePair<string, dynamic>(fieldName, token.Value<bool>()!);
+            case JTokenType.Date:
+                return new KeyValuePair<string, dynamic>(fieldName, GetTimeDate(token, fieldName).Value);
+            case JTokenType.Object: 
+                return new KeyValuePair<string, dynamic>(fieldName, token.Value<Object>()!);
+        }
+
+        return dynamicData;
+    }
+    
+    private static KeyValuePair<string, DateTime> GetTimeDate(JToken jObject, string fieldName)
+    {
+        switch (jObject.Type)
         {
             case JTokenType.String:
             {
-                string rawToken = token.Value<string>()!;
+                string rawToken = jObject.Value<string>()!;
 
                 if (string.IsNullOrEmpty(rawToken))
-                {
-                    convertedDateTime = ToPair(fieldName, DateTime.MinValue);
-                    return;
-                }
+                    return ToPair(fieldName, DateTime.MinValue);
 
                 if (long.TryParse(rawToken, out long convertedLong))
                 {
                     DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(convertedLong);
-                    convertedDateTime = ToPair(fieldName, dateTimeOffset.Date);
-                    return;
+                    return ToPair(fieldName, dateTimeOffset.Date);
                 }
                 
-                convertedDateTime = ToPair(fieldName, DateTime.MinValue);
-                return;
+                return ToPair(fieldName, DateTime.MinValue);
             }
 
             case JTokenType.Date:
             {
-                DateTime rawToken = token.Value<DateTime>();
-                convertedDateTime = ToPair(fieldName, rawToken);
-                return;
+                DateTime rawToken = jObject.Value<DateTime>();
+                return ToPair(fieldName, rawToken);
             }
 
             case JTokenType.Integer:
             {
-                int rawToken = token.Value<int>();
+                int rawToken = jObject.Value<int>();
                 
                 long convertedLong = (long)rawToken;
                 
                 DateTimeOffset convertedDateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(convertedLong);
-                convertedDateTime = ToPair(fieldName, convertedDateTimeOffset.DateTime);
-                return;
+                return ToPair(fieldName, convertedDateTimeOffset.DateTime);
             }
         }
-        
-        convertedDateTime = ToPair(fieldName, DateTime.MinValue);
+
+        throw new ElementValidationException(EnumValidationReason.InvalidData);
     }
-    
+
+    #endregion
     
     private static KeyValuePair<string, string> ToPair(string fieldName, string content) =>
+        KeyValuePair.Create(fieldName, content);
+    
+    private static KeyValuePair<string, int> ToPair(string fieldName, int content) =>
         KeyValuePair.Create(fieldName, content);
     
     private static KeyValuePair<string, DateTime> ToPair(string fieldName, DateTime content) =>

@@ -4,7 +4,7 @@ using Org.BouncyCastle.Crypto;
 
 namespace DevBase.Cryptography.BouncyCastle.Hashing;
 
-public abstract class SymmetricTokenVerifier<T> where T : IDigest
+public abstract class SymmetricTokenVerifier
 {
     public Encoding Encoding { get; set; } = Encoding.UTF8;
 
