@@ -8,12 +8,7 @@ namespace DevBase.Requests.Data.Header.Body;
 
 public class RequestRawBodyBuilder : HttpBodyBuilder<RequestRawBodyBuilder>
 {
-    private bool ValidateInput { get; set; }
-    
-    public RequestRawBodyBuilder(bool validateData)
-    {
-        this.ValidateInput = validateData;
-    }
+    public bool ValidateInput { get; set; } = true;
 
     public RequestRawBodyBuilder WithText(string textContent, Encoding encoding) => 
         With<StringRequestContent, string>(textContent, encoding);
@@ -24,6 +19,12 @@ public class RequestRawBodyBuilder : HttpBodyBuilder<RequestRawBodyBuilder>
     public RequestRawBodyBuilder WithBuffer(byte[] buffer) => 
         With<BufferRequestContent, byte[]>(buffer);
 
+    public RequestRawBodyBuilder UseValidation(bool validateInput)
+    {
+        ValidateInput = validateInput;
+        return this;
+    }
+    
     private RequestRawBodyBuilder With<TCv, TC>(TC content, Encoding encoding = null) where TCv : RequestContent
     {
         byte[] byteBuffer = Array.Empty<byte>();

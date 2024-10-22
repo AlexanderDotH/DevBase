@@ -1,13 +1,13 @@
 ﻿using System.Text;
 
-namespace DevBase.Requests.Data.Header.Authorization.AuthorizationHeaders;
+namespace DevBase.Requests.Data.Header.Authentication.Headers;
 
-public class BasicAuthorizationHeader : AuthorizationHeader
+public class BasicAuthenticationHeader : AuthenticationHeader
 {
     private readonly string _username;
     private readonly string _password;
     
-    public BasicAuthorizationHeader(string username, string password)
+    public BasicAuthenticationHeader(string username, string password)
     {
         this._username = username;
         this._password = password;

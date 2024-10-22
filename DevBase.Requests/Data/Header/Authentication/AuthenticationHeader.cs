@@ -1,6 +1,6 @@
-﻿namespace DevBase.Requests.Data.Header.Authorization;
+﻿namespace DevBase.Requests.Data.Header.Authentication;
 
-public abstract class AuthorizationHeader
+public abstract class AuthenticationHeader
 {
     public abstract ReadOnlySpan<char> Prefix { get; }
 

@@ -48,7 +48,7 @@ public class UserAgentBuilderTest
         string userAgent = "Mozilla/5.0 (X11; Linux i686; rv:13.0) Gecko/13.0 Firefox/13.0";
         
         UserAgentHeaderBuilder builder = new UserAgentHeaderBuilder()
-            .With(userAgent)
+            .WithOverwrite(userAgent)
             .Build();
 
         Assert.That(builder.UserAgent.ToString(), Is.EqualTo(userAgent));

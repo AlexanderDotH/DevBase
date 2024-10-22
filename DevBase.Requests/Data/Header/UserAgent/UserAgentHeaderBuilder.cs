@@ -43,7 +43,7 @@ public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuil
         return this;
     }
 
-    public UserAgentHeaderBuilder With(string userAgent)
+    public UserAgentHeaderBuilder WithOverwrite(string userAgent)
     {
         this.HeaderStringBuilder.Clear();
         this.HeaderStringBuilder.Append(userAgent);

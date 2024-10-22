@@ -36,7 +36,7 @@ public class RequestHeaderBuilderTest
         string userAgent = $"{assemblyName.Name}/{assemblyName.Version?.ToString()}";
 
         UserAgentHeaderBuilder userAgentBuilder = new UserAgentHeaderBuilder()
-            .With(userAgent)
+            .WithOverwrite(userAgent)
             .Build();
         
         RequestHeaderBuilder builder = new RequestHeaderBuilder()
@@ -169,13 +169,13 @@ public class RequestHeaderBuilderTest
     }
 
     [Test]
-    public void UseBasicAuthorizationTest()
+    public void UseBasicAuthenticationTest()
     {
         string username = "admin";
         string password = "passw0rd";
         
         RequestHeaderBuilder builder = new RequestHeaderBuilder()
-            .UseBasicAuthorization(username, password)
+            .UseBasicAuthentication(username, password)
             .Build();
 
         string header = builder["Authorization"];

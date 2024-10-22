@@ -71,7 +71,8 @@ public class RequestRawBodyBuilderTest
         {
             penetrationAction = () =>
             {
-                RequestRawBodyBuilder rawBodyBuilder = new RequestRawBodyBuilder(useValidation)
+                RequestRawBodyBuilder rawBodyBuilder = new RequestRawBodyBuilder()
+                    .UseValidation(useValidation)
                     .WithText(this._textValue, stringContent.Encoding)
                     .Build();
 
@@ -83,7 +84,8 @@ public class RequestRawBodyBuilderTest
         {
             penetrationAction = () =>
             {
-                RequestRawBodyBuilder rawBodyBuilder = new RequestRawBodyBuilder(useValidation)
+                RequestRawBodyBuilder rawBodyBuilder = new RequestRawBodyBuilder()
+                    .UseValidation(useValidation)
                     .WithJson(this._jsonValue, jsonContent.Encoding)
                     .Build();
 
@@ -95,7 +97,8 @@ public class RequestRawBodyBuilderTest
         {
             penetrationAction = () =>
             {
-                RequestRawBodyBuilder rawBodyBuilder = new RequestRawBodyBuilder(useValidation)
+                RequestRawBodyBuilder rawBodyBuilder = new RequestRawBodyBuilder()
+                    .UseValidation(useValidation)
                     .WithBuffer(this._bufferValue)
                     .Build();
 

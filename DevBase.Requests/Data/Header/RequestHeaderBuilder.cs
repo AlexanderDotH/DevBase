@@ -1,7 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 using DevBase.Requests.Abstract;
-using DevBase.Requests.Data.Header.Authorization;
+using DevBase.Requests.Data.Header.Authentication;
 using DevBase.Requests.Data.Header.Body.Mime;
 using DevBase.Requests.Data.Header.UserAgent;
 using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
@@ -12,14 +12,14 @@ namespace DevBase.Requests.Data.Header;
 public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder, string, string>
 {
     private UserAgentHeaderBuilder? UserAgentHeaderBuilder { get; set; }
-    private AuthorizationHeaderBuilder? AuthorizationHeaderBuilder { get; set; }
+    private AuthenticationHeaderBuilder? AuthenticationHeaderBuilder { get; set; }
     
     private MimeDictionary MimeDictionary { get; set; }
 
     public RequestHeaderBuilder()
     {
         this.UserAgentHeaderBuilder = new UserAgentHeaderBuilder();
-        this.AuthorizationHeaderBuilder = new AuthorizationHeaderBuilder();
+        this.AuthenticationHeaderBuilder = new AuthenticationHeaderBuilder();
 
         this.MimeDictionary = new MimeDictionary();
     }
@@ -28,7 +28,7 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
 
     public RequestHeaderBuilder WithUserAgent(string userAgent)
     {
-        this.UserAgentHeaderBuilder?.With(userAgent);
+        this.UserAgentHeaderBuilder?.WithOverwrite(userAgent);
         return this;
     }
     
@@ -130,17 +130,17 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
 
     #endregion
 
-    #region Authorization
+    #region Authentication
 
-    public RequestHeaderBuilder UseBasicAuthorization(string username, string password)
+    public RequestHeaderBuilder UseBasicAuthentication(string username, string password)
     {
-        AuthorizationHeaderBuilder?.UseBasicAuthorization(username, password);
+        AuthenticationHeaderBuilder?.UseBasicAuthentication(username, password);
         return this;
     }
 
-    public RequestHeaderBuilder UseBearerAuthorization(string token)
+    public RequestHeaderBuilder UseBearerAuthentication(string token)
     {
-        AuthorizationHeaderBuilder?.UseBearerAuthorization(token);
+        AuthenticationHeaderBuilder?.UseBearerAuthentication(token);
         return this;
     }
     
@@ -150,7 +150,7 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
     protected override Action BuildAction => () =>
     {
         this.UserAgentHeaderBuilder?.TryBuild();
-        this.AuthorizationHeaderBuilder?.TryBuild(); 
+        this.AuthenticationHeaderBuilder?.TryBuild(); 
 
         if (!base.AnyEntry("Accept"))
             WithAccept("*");
@@ -158,10 +158,10 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         if (this.UserAgentHeaderBuilder!.Usable)
             base.AddOrSetEntry("User-Agent", this.UserAgentHeaderBuilder.UserAgent.ToString());
 
-        if (this.AuthorizationHeaderBuilder!.Usable)
+        if (this.AuthenticationHeaderBuilder!.Usable)
         {
-            string headerKey = this.AuthorizationHeaderBuilder.AuthenticationKey.ToString();
-            string headerValue = this.AuthorizationHeaderBuilder.AuthenticationValue.ToString();
+            string headerKey = this.AuthenticationHeaderBuilder.AuthenticationKey.ToString();
+            string headerValue = this.AuthenticationHeaderBuilder.AuthenticationValue.ToString();
             
             base.AddOrSetEntry(headerKey, headerValue);
         }

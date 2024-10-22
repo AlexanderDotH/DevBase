@@ -2,16 +2,16 @@ using System.Diagnostics;
 using System.Text;
 using DevBase.Extensions;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Data.Header.Authorization;
+using DevBase.Requests.Data.Header.Authentication;
 using DevBase.Test.Test;
 using Dumpify;
 
-namespace DevBase.Test.DevBaseRequests.Preparation.Header.Authorization;
+namespace DevBase.Test.DevBaseRequests.Preparation.Header.Authentication;
 
-public class AuthorizationHeaderBuilderTest
+public class AuthenticationHeaderBuilderTest
 {
     [Test]
-    public void UseBasicAuthorizationTest()
+    public void UseBasicAuthenticationTest()
     {
         int count = 1_000_000;
         
@@ -20,8 +20,8 @@ public class AuthorizationHeaderBuilderTest
         Stopwatch stopwatch = PenetrationTest.RunWithLast<string>(
             
             () => 
-                new AuthorizationHeaderBuilder()
-            .UseBasicAuthorization("username", "password")
+                new AuthenticationHeaderBuilder()
+            .UseBasicAuthentication("username", "password")
             .Build()
             .AuthenticationValue.ToString()
             
@@ -53,7 +53,7 @@ public class AuthorizationHeaderBuilderTest
     }
     
     [Test]
-    public void UseBearerAuthorizationTest()
+    public void UseBearerAuthenticationTest()
     {
         int count = 1_000_000;
         
@@ -61,8 +61,8 @@ public class AuthorizationHeaderBuilderTest
 
         Stopwatch stopwatch = PenetrationTest.RunWithLast<string>(
             
-            () => new AuthorizationHeaderBuilder()
-                .UseBearerAuthorization("token")
+            () => new AuthenticationHeaderBuilder()
+                .UseBearerAuthentication("token")
                 .Build()
                 .AuthenticationValue.ToString(),
             

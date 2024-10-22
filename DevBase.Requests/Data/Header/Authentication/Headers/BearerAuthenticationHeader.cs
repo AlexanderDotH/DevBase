@@ -1,10 +1,10 @@
-﻿namespace DevBase.Requests.Data.Header.Authorization.AuthorizationHeaders;
+﻿namespace DevBase.Requests.Data.Header.Authentication.Headers;
 
-public class BearerAuthorizationHeader : AuthorizationHeader
+public class BearerAuthenticationHeader : AuthenticationHeader
 {
     private readonly string _bearerToken;
     
-    public BearerAuthorizationHeader(string bearerToken)
+    public BearerAuthenticationHeader(string bearerToken)
     {
         this._bearerToken = bearerToken;
     }
