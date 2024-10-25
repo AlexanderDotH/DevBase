@@ -1,7 +1,7 @@
 using System.Text;
 using Newtonsoft.Json.Linq;
 
-namespace DevBase.Requests.Data.Header.Body.Content;
+namespace DevBase.Requests.Data.Body.Content;
 
 public class JsonRequestContent : StringRequestContent
 {

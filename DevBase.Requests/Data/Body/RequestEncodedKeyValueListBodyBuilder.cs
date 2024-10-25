@@ -1,7 +1,7 @@
 ﻿using DevBase.Requests.Abstract;
 using DevBase.Requests.Utils;
 
-namespace DevBase.Requests.Data.Header.Body;
+namespace DevBase.Requests.Data.Body;
 
 
 public class RequestEncodedKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestEncodedKeyValueListBodyBuilder, string, string>

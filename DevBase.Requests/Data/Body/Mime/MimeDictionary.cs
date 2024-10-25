@@ -1,4 +1,4 @@
-﻿namespace DevBase.Requests.Data.Header.Body.Mime;
+﻿namespace DevBase.Requests.Data.Body.Mime;
 
 public class MimeDictionary : Lazy<Dictionary<string, ReadOnlyMemory<char>>>
 {
@@ -662,22 +662,18 @@ public class MimeDictionary : Lazy<Dictionary<string, ReadOnlyMemory<char>>>
     {
     }
     
-    public ReadOnlyMemory<char> GetMimeTypeAsMemory(string mimeType)
+    public bool TryGetMimeTypeAsMemory(string mimeType, out ReadOnlyMemory<char> mimeResult)
     {
-        ReadOnlyMemory<char> mimeResult;
-
-        if (!Value.TryGetValue(FilterQuery(mimeType), out mimeResult))
-            return DefaultMimeType;
+        ReadOnlyMemory<char> reolvedType = mimeType.AsMemory();
         
-        return mimeResult;
-    }
-    
-    public bool TryGetMimeTypeAsMemory(string mimeType, out  ReadOnlyMemory<char> mimeResult)
-    {
+        if (Value.ContainsValue(reolvedType))
+        {
+            mimeResult = reolvedType;
+            return true;
+        }
+        
         return Value.TryGetValue(FilterQuery(mimeType), out mimeResult);
     }
-
-    public ReadOnlySpan<char> GetMimeTypeAsSpan(string mimeType) => GetMimeTypeAsMemory(mimeType).Span;
 
     public bool TryGetMimeTypeAsSpan(string mimeType, out ReadOnlySpan<char> mimeResult)
     {
@@ -695,6 +691,30 @@ public class MimeDictionary : Lazy<Dictionary<string, ReadOnlyMemory<char>>>
         }
     }
     
+    public ReadOnlyMemory<char> GetMimeTypeAsMemory(string mimeType)
+    {
+        ReadOnlyMemory<char> mimeResult;
+
+        if (!TryGetMimeTypeAsMemory(mimeType, out mimeResult))
+        {
+            return DefaultMimeType;
+        }
+        
+        return mimeResult;
+    }
+
+    public ReadOnlySpan<char> GetMimeTypeAsSpan(string mimeType)
+    {
+        ReadOnlySpan<char> mimeResult;
+
+        if (!TryGetMimeTypeAsSpan(mimeType, out mimeResult))
+        {
+            return DefaultMimeType.Span;
+        }
+        
+        return mimeResult;
+    }
+
     public string GetMimeTypeAsString(string mimeType) => GetMimeTypeAsMemory(mimeType).ToString();
     
     public bool TryGetMimeTypeAsString(string mimeType, out string mimeResult)

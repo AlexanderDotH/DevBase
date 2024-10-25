@@ -31,6 +31,7 @@ public class ParameterBuilderTest
         sw.Stop();
         
         Console.WriteLine($"Took {sw.ElapsedMilliseconds}ms or {sw.ElapsedTicks}ts to append all elements to the parameter list");
+        
         Assert.IsNotEmpty(builder.Parameters.ToString());
     }
 }

@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Data.Header.Body.Mime;
+using DevBase.Requests.Data.Body.Mime;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Body.Mime;
 
@@ -27,5 +27,18 @@ public class MimeDictionaryTest
         Console.WriteLine(stopwatch.GetTimeTable());
         
         Assert.AreEqual("image/png", mimeType.ToString());
+    }
+
+    [Test]
+    public void GetResolveMimeType()
+    {
+        MimeDictionary dictionary = new MimeDictionary();
+
+        ReadOnlyMemory<char> resolvedValue = "*/*".AsMemory();
+        ReadOnlyMemory<char> defaultValue = "application/octet-stream".AsMemory();
+        
+        Assert.That(dictionary.GetMimeTypeAsMemory("*"), Is.EqualTo(resolvedValue));
+        Assert.That(dictionary.GetMimeTypeAsMemory("*/*"), Is.EqualTo(resolvedValue));
+        Assert.That(dictionary.GetMimeTypeAsMemory("application/joe-mama"), Is.EqualTo(defaultValue));
     }
 }

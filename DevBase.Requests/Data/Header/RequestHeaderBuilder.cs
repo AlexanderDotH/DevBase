@@ -1,8 +1,8 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 using DevBase.Requests.Abstract;
+using DevBase.Requests.Data.Body.Mime;
 using DevBase.Requests.Data.Header.Authentication;
-using DevBase.Requests.Data.Header.Body.Mime;
 using DevBase.Requests.Data.Header.UserAgent;
 using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 using DevBase.Utilities;
@@ -23,7 +23,7 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
 
         this.MimeDictionary = new MimeDictionary();
     }
-
+    
     #region UserAgent
 
     public RequestHeaderBuilder WithUserAgent(string userAgent)
@@ -145,15 +145,14 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
     }
     
     #endregion
-
-  
+    
     protected override Action BuildAction => () =>
     {
         this.UserAgentHeaderBuilder?.TryBuild();
         this.AuthenticationHeaderBuilder?.TryBuild(); 
 
         if (!base.AnyEntry("Accept"))
-            WithAccept("*");
+            WithAccept("*/*");
 
         if (this.UserAgentHeaderBuilder!.Usable)
             base.AddOrSetEntry("User-Agent", this.UserAgentHeaderBuilder.UserAgent.ToString());

@@ -6,7 +6,7 @@ using DevBase.Requests.Objects;
 using DevBase.Requests.Struct;
 using DevBase.Requests.Utils;
 
-namespace DevBase.Requests.Data.Header.Body;
+namespace DevBase.Requests.Data.Body;
 
 public class RequestKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestKeyValueListBodyBuilder, string, object>
 {

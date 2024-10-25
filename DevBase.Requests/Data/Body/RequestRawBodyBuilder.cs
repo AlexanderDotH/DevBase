@@ -1,10 +1,10 @@
 using System.Text;
 using DevBase.Requests.Abstract;
-using DevBase.Requests.Data.Header.Body.Content;
+using DevBase.Requests.Data.Body.Content;
 using DevBase.Requests.Enums;
 using DevBase.Requests.Exceptions;
 
-namespace DevBase.Requests.Data.Header.Body;
+namespace DevBase.Requests.Data.Body;
 
 public class RequestRawBodyBuilder : HttpBodyBuilder<RequestRawBodyBuilder>
 {

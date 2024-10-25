@@ -1,7 +1,7 @@
 using System.Text;
 using DevBase.Requests.Abstract;
 
-namespace DevBase.Requests.Data.Header.Body.Content;
+namespace DevBase.Requests.Data.Body.Content;
 
 public class StringRequestContent : TypographyRequestContent 
 {
