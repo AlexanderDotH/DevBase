@@ -38,4 +38,4 @@ DevBase.Logging is a lightweight logger that makes it easy to log and debug your
 
 We're excited to see DevBase grow and improve with the help of the community! If you'd like to contribute, we welcome your ideas, bug fixes, and enhancements. Join us in making DevBase even better, and let's build something amazing together!
 
-<!-- GitAds-Verify: DAKQN58RG8TWYANZEBK75F9GY41USY7Y -->
+<!-- GitAds-Verify: VBE4GZBOLA67HUH4HIX2KZCK1C5NKGAL -->
