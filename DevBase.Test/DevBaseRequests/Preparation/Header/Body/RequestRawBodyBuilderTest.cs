@@ -115,6 +115,6 @@ public class RequestRawBodyBuilderTest
         
         stopwatch.PrintTimeTable();
         
-        Assert.IsNotEmpty(buffer.ToArray());
+        Assert.That(buffer.ToArray(), Is.Not.Empty);
     }
 }

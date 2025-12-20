@@ -1,4 +1,4 @@
-﻿using DevBase.Cryptography.BouncyCastle.Hashing;
+using DevBase.Cryptography.BouncyCastle.Hashing;
 using DevBase.Cryptography.BouncyCastle.Hashing.Verification;
 using Org.BouncyCastle.Crypto.Digests;
 
@@ -24,13 +24,13 @@ public class Sha256TokenVerifierTest
     {
         string signature = "HLtXQ7fbXS7RF6pJy-LkjZgfWBU_BE_85F8-A1o1efA";
         
-        Assert.IsTrue(
+        Assert.That(
             new ShaTokenVerifier<Sha256Digest>().VerifySignature(
                 this.Header, 
                 this.Payload, 
                 signature, 
                 this.Secret, 
-                false));
+                false), Is.True);
     }
     
     [Test]
@@ -38,12 +38,12 @@ public class Sha256TokenVerifierTest
     {
         string signature = "B7e4nqPd3ggaAAEq4iA9fUPjyJM2dWZyeFDyzDnzmG4";
         
-        Assert.IsTrue(
+        Assert.That(
             new ShaTokenVerifier<Sha256Digest>().VerifySignature(
                 this.Header, 
                 this.Payload, 
                 signature, 
                 this.Secret, 
-                true));
+                true), Is.True);
     }
 }

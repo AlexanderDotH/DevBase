@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using DevBase.Format;
 using DevBase.Format.Formats.RmmlFormat;
 using DevBase.Format.Structure;
@@ -28,6 +28,6 @@ public class RmmlTester : FormatTest
         
         list.GetAsList().DumpConsole();
         
-        Assert.IsTrue(content.Contains(list.Get(0).Text));
+        Assert.That(content.Contains(list.Get(0).Text), Is.True);
     }
 }

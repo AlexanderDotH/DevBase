@@ -1,6 +1,7 @@
 ﻿using Avalonia.Media.Imaging;
 using DevBase.Avalonia.Color.Extensions;
 using DevBase.Avalonia.Extension.Extension;
+using SixLabors.ImageSharp.Processing;
 using Bitmap = System.Drawing.Bitmap;
 
 namespace DevBase.Avalonia.Extension.Processing;

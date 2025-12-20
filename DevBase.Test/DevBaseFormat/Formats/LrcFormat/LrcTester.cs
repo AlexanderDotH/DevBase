@@ -1,4 +1,4 @@
-﻿using DevBase.Format;
+using DevBase.Format;
 using DevBase.Format.Formats.LrcFormat;
 using DevBase.Format.Structure;
 using DevBase.Generics;

@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+using System.Reflection;
 using System.Text;
 using DevBase.Requests.Data.Header;
 using DevBase.Requests.Data.Header.UserAgent;
@@ -57,7 +57,7 @@ public class RequestHeaderBuilderTest
             .Build();
         
         string buildedUserAgent = builder["User-Agent"];
-        Assert.NotNull(buildedUserAgent);
+        Assert.That(buildedUserAgent, Is.Not.Null);
 
         buildedUserAgent.DumpConsole();
     }
@@ -107,7 +107,7 @@ public class RequestHeaderBuilderTest
             .Build();
         
         string buildedUserAgent = builder["User-Agent"];
-        Assert.NotNull(buildedUserAgent);
+        Assert.That(buildedUserAgent, Is.Not.Null);
 
         buildedUserAgent.DumpConsole();
     }
@@ -120,7 +120,7 @@ public class RequestHeaderBuilderTest
             .Build();
         
         string buildedUserAgent = builder["User-Agent"];
-        Assert.NotNull(buildedUserAgent);
+        Assert.That(buildedUserAgent, Is.Not.Null);
 
         buildedUserAgent.DumpConsole();
     }
@@ -137,7 +137,7 @@ public class RequestHeaderBuilderTest
             .Build();
         
         string buildedUserAgent = builder["User-Agent"];
-        Assert.NotNull(buildedUserAgent);
+        Assert.That(buildedUserAgent, Is.Not.Null);
 
         buildedUserAgent.DumpConsole();
     }

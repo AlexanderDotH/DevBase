@@ -1,4 +1,4 @@
-﻿using DevBase.Format;
+using DevBase.Format;
 using DevBase.Format.Formats.AppleLrcXmlFormat;
 using DevBase.Format.Formats.AppleRichXmlFormat;
 using DevBase.Format.Formats.AppleXmlFormat;

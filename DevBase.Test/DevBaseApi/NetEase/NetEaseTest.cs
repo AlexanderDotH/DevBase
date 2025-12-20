@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Dumpify;
 
 namespace DevBase.Test.DevBaseApi.NetEase;
@@ -56,7 +56,7 @@ public class NetEaseTest
         
         result.DumpConsole();
         
-        Assert.IsTrue(result.Get(0).Text.Contains("Rick Astley"));
+        Assert.That(result.Get(0).Text, Does.Contain("Rick Astley"));
     }
 
     [Test]
@@ -68,7 +68,7 @@ public class NetEaseTest
 
         details.DumpConsole();
         
-        Assert.AreEqual("Take Me to Your Heart", details.songs[0].name);
+        Assert.That(details.songs[0].name, Is.EqualTo("Take Me to Your Heart"));
     }
     
     [Test]
@@ -80,7 +80,7 @@ public class NetEaseTest
 
         details.DumpConsole();
         
-        Assert.AreEqual(28738054, details.songs[0].id);
+        Assert.That(details.songs[0].id, Is.EqualTo(28738054));
     }
     
     [Test]
@@ -92,7 +92,7 @@ public class NetEaseTest
         {
             var downloadedBytes = await netEaseApi.Download("18520488");
             downloadedBytes.Length.DumpConsole();
-            Assert.NotNull(downloadedBytes);
+            Assert.That(downloadedBytes, Is.Not.Null);
         }
         catch (WebException e)
         {
@@ -109,6 +109,6 @@ public class NetEaseTest
 
         url.DumpConsole();
         
-        Assert.NotNull(url.data[0].url);
+        Assert.That(url.data[0].url, Is.Not.Null);
     }
 }

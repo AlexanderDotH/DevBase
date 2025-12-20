@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using DevBase.Extensions;
 using DevBase.Format;
 using DevBase.Format.Formats.LrcFormat;

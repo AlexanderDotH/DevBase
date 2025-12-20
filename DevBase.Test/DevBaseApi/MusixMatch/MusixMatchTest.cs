@@ -1,4 +1,4 @@
-﻿using Dumpify;
+using Dumpify;
 
 namespace DevBase.Test.DevBaseApi.MusixMatch;
 
@@ -27,7 +27,7 @@ public class MusixMatchTest
         else
         {
             var auth = await musixMatch.Login(this._username, this._password);
-            Assert.NotNull(auth.message.body.tokens.mxmprowebv10);
+            Assert.That(auth.message.body.tokens.mxmprowebv10, Is.Not.Null);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Drawing.Imaging;
+using SixLabors.ImageSharp;
 using Bitmap = System.Drawing.Bitmap;
 
 namespace DevBase.Avalonia.Extension.Extension;

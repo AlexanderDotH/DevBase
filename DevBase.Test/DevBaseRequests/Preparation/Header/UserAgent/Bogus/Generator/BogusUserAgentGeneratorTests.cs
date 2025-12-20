@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using DevBase.Extensions.Stopwatch;
 using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 using DevBase.Test.Test;
@@ -44,6 +44,6 @@ public class BogusUserAgentGeneratorTests
         Console.WriteLine(sw.GetTimeTable());
         Console.WriteLine($"The User-Agent: {generator.UserAgentPart}"); 
         
-        Assert.NotNull(userAgent);
+        Assert.That(userAgent, Is.Not.Null);
     }
 }

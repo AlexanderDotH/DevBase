@@ -1,4 +1,4 @@
-﻿using DevBase.Format.Structure;
+using DevBase.Format.Structure;
 using DevBase.Generics;
 using Dumpify;
 using Org.BouncyCastle.Asn1.X509;
@@ -16,7 +16,7 @@ public class BeautifulLyricsTests
 
         rawLyrics.DumpConsole();
         
-        Assert.NotNull(rawLyrics);
+        Assert.That(rawLyrics.RawLyrics, Is.Not.Empty);
     }
     
     [Test]
@@ -29,7 +29,7 @@ public class BeautifulLyricsTests
         if (timeStampedLyrics is AList<TimeStampedLyric> stampedLyrics)
             stampedLyrics.DumpConsole();
         
-        Assert.NotNull(timeStampedLyrics);
+        Assert.That(timeStampedLyrics, Is.Not.Null);
     }
     
     [Test]
@@ -42,6 +42,6 @@ public class BeautifulLyricsTests
         if (richTimeStampedLyrics is AList<RichTimeStampedLyric> richTimeStamped)
             richTimeStamped.DumpConsole();
         
-        Assert.NotNull(richTimeStampedLyrics);
+        Assert.That(richTimeStampedLyrics, Is.Not.Null);
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace DevBase.Test.DevBaseColor.Image;
+namespace DevBase.Test.DevBaseColor.Image;
 
 public class ColorCalculator
 {

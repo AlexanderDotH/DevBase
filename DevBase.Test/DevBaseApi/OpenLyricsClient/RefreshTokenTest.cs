@@ -1,4 +1,4 @@
-﻿
+
 namespace DevBase.Test.DevBaseApi.OpenLyricsClient;
 
 public class RefreshTokenTest
@@ -11,7 +11,7 @@ public class RefreshTokenTest
             global::DevBase.Api.Apis.OpenLyricsClient.OpenLyricsClient api =
                 new global::DevBase.Api.Apis.OpenLyricsClient.OpenLyricsClient();
             JsonOpenLyricsClientAccess access = await api.GetAccessToken("not today");
-            Assert.AreEqual(access.TokenType, "Bearer");
+            Assert.That("Bearer", Is.EqualTo(access.TokenType));
         });*/
     }
 }

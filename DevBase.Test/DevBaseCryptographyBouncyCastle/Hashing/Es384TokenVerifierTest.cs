@@ -1,4 +1,4 @@
-﻿using DevBase.Cryptography.BouncyCastle.Hashing;
+using DevBase.Cryptography.BouncyCastle.Hashing;
 using DevBase.Cryptography.BouncyCastle.Hashing.Verification;
 using Org.BouncyCastle.Crypto.Digests;
 
@@ -36,6 +36,6 @@ kNvO6cBrD60+l5qqJp+MumaNKK4Vf39K
             this.Signature, 
             this.PublicKey);
         
-        Assert.IsTrue(result);
+        Assert.That(result, Is.True);
     }
 }

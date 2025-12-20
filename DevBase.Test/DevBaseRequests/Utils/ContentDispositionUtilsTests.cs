@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Text;
 using DevBase.Extensions.Stopwatch;
 using DevBase.Requests.Objects;
@@ -28,7 +28,7 @@ public class ContentDispositionUtilsTests
         
         penetrationTest.PrintTimeTable();
         
-        Assert.NotNull(last);
+        Assert.That(last.Length, Is.GreaterThan(0));
     }
     
     [Test]
@@ -46,6 +46,6 @@ public class ContentDispositionUtilsTests
         Console.WriteLine($"Created {count}times the following text \n\"{Encoding.ASCII.GetString(ContentDispositionUtils.FromValue("fieldName", "fieldValue").ToArray())}\"\n");
         
         penetrationTest.PrintTimeTable();
-        Assert.NotNull(last);
+        Assert.That(last.Length, Is.GreaterThan(0));
     }
 }

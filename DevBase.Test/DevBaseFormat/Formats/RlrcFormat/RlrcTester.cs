@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using DevBase.Format.Formats.RlrcFormat;
 using DevBase.Format.Structure;
 using DevBase.Generics;

@@ -1,4 +1,4 @@
-﻿using Dumpify;
+using Dumpify;
 
 namespace DevBase.Test.DevBaseApi.AppleMusic;
 
@@ -48,7 +48,7 @@ public class AppleMusicTests
 
         appleMusic.ApiToken.DumpConsole();
         
-        Assert.NotNull(appleMusic.ApiToken);
+        Assert.That(appleMusic.ApiToken, Is.Not.Null);
     }
     
     [Test]
@@ -63,7 +63,7 @@ public class AppleMusicTests
         }
         
         await appleMusic.WithMediaUserTokenFromCookie(this._userMediaToken);
-        Assert.NotNull(appleMusic.ApiToken);   
+        Assert.That(appleMusic.ApiToken, Is.Not.Null);   
     }
 
     [Test]
@@ -83,6 +83,6 @@ public class AppleMusicTests
 
         lyrics.DumpConsole();
         
-        Assert.IsNotEmpty(lyrics.Data[0].Attributes.Ttml);
+        Assert.That(lyrics.Data[0].Attributes.Ttml, Is.Not.Empty);
     }
 }

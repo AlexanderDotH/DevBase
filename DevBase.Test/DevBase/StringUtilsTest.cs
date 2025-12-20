@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using DevBase.Extensions.Stopwatch;
 using DevBase.Test.Test;
 using DevBase.Utilities;
@@ -45,6 +45,6 @@ public class StringUtilsTest
         string[] deseperated = StringUtils.DeSeparate(separated, ", ");
 
         deseperated.DumpConsole();
-        Assert.AreEqual(deseperated, elements);
+        Assert.That(deseperated, Is.EqualTo(elements));
     }
 }

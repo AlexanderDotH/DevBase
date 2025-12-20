@@ -26,7 +26,7 @@ public class MimeDictionaryTest
         Console.WriteLine($"Got the mime type {amount}times for .png({mimeType.ToString()})");
         Console.WriteLine(stopwatch.GetTimeTable());
         
-        Assert.AreEqual("image/png", mimeType.ToString());
+        Assert.That(mimeType.ToString(), Is.EqualTo("image/png"));
     }
 
     [Test]

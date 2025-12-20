@@ -1,4 +1,4 @@
-﻿using DevBase.Exception;
+using DevBase.Exception;
 using DevBase.Typography.Encoded;
 using Dumpify;
 

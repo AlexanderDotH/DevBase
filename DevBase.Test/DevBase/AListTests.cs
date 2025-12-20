@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using DevBase.Generics;
 using DevBase.Utilities;
 using Dumpify;
@@ -22,7 +22,7 @@ public class AListTests
 
         listOfStrings.DumpConsole();
         
-        Assert.IsTrue(listOfStrings.Get(0).Equals("Bird"));
+        Assert.That(listOfStrings.Get(0), Is.EqualTo("Bird"));
     }
 
     [Test]
@@ -48,6 +48,6 @@ public class AListTests
         
         found.DumpConsole();
         
-        Assert.AreSame(searchFor, found);
+        Assert.That(found, Is.SameAs(searchFor));
     }
 }

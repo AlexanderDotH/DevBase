@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using Bogus.DataSets;
 using DevBase.Requests.Data.Parameters;
 
@@ -32,6 +32,6 @@ public class ParameterBuilderTest
         
         Console.WriteLine($"Took {sw.ElapsedMilliseconds}ms or {sw.ElapsedTicks}ts to append all elements to the parameter list");
         
-        Assert.IsNotEmpty(builder.Parameters.ToString());
+        Assert.That(builder.Parameters.ToString(), Is.Not.Empty);
     }
 }

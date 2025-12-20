@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using DevBase.Extensions.Stopwatch;
 using DevBase.Requests.Utils;
 
@@ -28,6 +28,6 @@ public class BogusUtilsTests
 
         Console.WriteLine(generated.ToString());
         
-        Assert.NotNull(generated.ToString());
+        Assert.That(generated.ToString(), Is.Not.Null);
     }
 }

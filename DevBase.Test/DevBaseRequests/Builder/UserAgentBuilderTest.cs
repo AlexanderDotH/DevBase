@@ -1,4 +1,4 @@
-﻿using DevBase.Requests.Data.Header.UserAgent;
+using DevBase.Requests.Data.Header.UserAgent;
 using DevBase.Requests.Exceptions;
 
 namespace DevBase.Test.DevBaseRequests.Builder;
@@ -10,7 +10,7 @@ public class UserAgentBuilderTest
     {
         UserAgentHeaderBuilder builder = new UserAgentHeaderBuilder().BuildBogus();
 
-        Assert.NotNull(builder.UserAgent.ToString());
+        Assert.That(builder.UserAgent.ToString(), Is.Not.Null);
         
         Console.WriteLine($"Generated random user-agent: {builder.UserAgent}");
     }
@@ -23,7 +23,7 @@ public class UserAgentBuilderTest
             .AddProductVersion("1.0")
             .Build();
 
-        Assert.NotNull(builder.UserAgent.ToString());
+        Assert.That(builder.UserAgent.ToString(), Is.Not.Null);
         
         Console.WriteLine($"Built user-agent: {builder.UserAgent}");
     }
@@ -37,7 +37,7 @@ public class UserAgentBuilderTest
             .Build()
             .BuildBogus();
 
-        Assert.NotNull(builder.UserAgent.ToString());
+        Assert.That(builder.UserAgent.ToString(), Is.Not.Null);
         
         Console.WriteLine($"Built user-agent: {builder.UserAgent}");
     }

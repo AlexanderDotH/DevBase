@@ -1,4 +1,4 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net;
 using DevBase.Api.Apis.Deezer.Structure.Json;
 using DevBase.Api.Apis.Deezer.Structure.Objects;
@@ -33,7 +33,7 @@ public class DeezerTests
         else
         {
             var token = await deezerApi.GetJwtToken();
-            Assert.NotNull(token.jwt);
+            Assert.That(token.jwt, Is.Not.Null);
         }
     }
 
@@ -53,7 +53,7 @@ public class DeezerTests
             var lyrics = await deezerApi.GetLyrics(trackID);
             lyrics.DumpConsole();
         
-            Assert.NotNull(lyrics.RawLyrics);
+            Assert.That(lyrics.RawLyrics, Is.Not.Null);
         }
     }
 
@@ -64,7 +64,7 @@ public class DeezerTests
 
         JsonDeezerAuthTokenResponse token = await deezerApi.GetAccessToken();
         
-        Assert.NotNull(token.data.attributes);
+        Assert.That(token.data.attributes, Is.Not.Null);
     } 
     
     [Test]
@@ -79,7 +79,7 @@ public class DeezerTests
         else
         {
             JsonDeezerAuthTokenResponse token = await deezerApi.GetAccessToken("", "457142");
-            Assert.NotNull(token.data.attributes);
+            Assert.That(token.data.attributes, Is.Not.Null);
         }
     }
 
@@ -95,7 +95,7 @@ public class DeezerTests
         else
         {
             string arlToken = await deezerApi.GetArlTokenFromSession("");
-            Assert.NotNull(arlToken);
+            Assert.That(arlToken, Is.Not.Null);
         }
     }
 
@@ -113,7 +113,7 @@ public class DeezerTests
             if (mp3 == null || mp3.Length == 0)
                 return;
             
-            Assert.NotNull(mp3);
+            Assert.That(mp3, Is.Not.Null);
         }
         catch (WebException e)
         {
@@ -141,7 +141,7 @@ public class DeezerTests
 
             track.DumpConsole();
         
-            Assert.NotNull(track);
+            Assert.That(track, Is.Not.Null);
         }
         catch (WebException e)
         {
@@ -167,7 +167,7 @@ public class DeezerTests
 
         results.DumpConsole();
         
-        Assert.NotNull(results);
+        Assert.That(results, Is.Not.Null);
     }
 
     [Test]
@@ -187,6 +187,6 @@ public class DeezerTests
         stopwatch.PrintTimeTable();
         results.DumpConsole();
         
-        Assert.NotNull(results);
+        Assert.That(results, Is.Not.Null);
     }
 }

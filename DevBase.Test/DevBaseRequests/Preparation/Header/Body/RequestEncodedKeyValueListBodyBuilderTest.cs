@@ -48,6 +48,6 @@ public class RequestEncodedKeyValueListBodyBuilderTest
         Console.WriteLine(sw.GetTimeTable());
         Console.WriteLine($"The Content: {Encoding.UTF8.GetString(builder.Buffer.ToArray())}"); 
         
-        Assert.NotNull(builder.Buffer);
+        Assert.That(builder.Buffer.Length, Is.GreaterThan(0));
     }
 }

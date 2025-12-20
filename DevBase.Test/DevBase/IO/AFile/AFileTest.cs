@@ -1,4 +1,4 @@
-﻿using System.Runtime.InteropServices;
+using System.Runtime.InteropServices;
 using DevBase.IO;
 using DevBase.Requests.Abstract;
 using DevBase.Requests.Objects;
@@ -16,8 +16,8 @@ public class AFileTest
             $"..{Path.DirectorySeparatorChar}" +
             $"DevBaseFormatData{Path.DirectorySeparatorChar}" +
             $"LRC{Path.DirectorySeparatorChar}" +
-            $"MÜNCHEN.lrc");
+            $"M�NCHEN.lrc");
         
-        Assert.IsNotEmpty(buffer.Buffer.ToArray());
+        Assert.That(buffer.Buffer.ToArray(), Is.Not.Empty);
     }
 }

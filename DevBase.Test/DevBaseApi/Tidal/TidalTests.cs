@@ -1,4 +1,4 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
 using DevBase.Api.Apis.Tidal;
 using DevBase.Api.Apis.Tidal.Structure.Json;
 using Org.BouncyCastle.Asn1.IsisMtt.X509;
@@ -84,7 +84,7 @@ public class TidalTests
         Api.Apis.Tidal.Tidal client = new Api.Apis.Tidal.Tidal();
         var search = await client.Search("Hero");
         
-        Assert.NotNull(search.Items);
+        Assert.That(search.Items, Is.Not.Null);
     }
 
     [Test]
@@ -118,7 +118,7 @@ public class TidalTests
                 this._accessToken,
                 "303384448");
         
-            Assert.IsTrue(lyrics.lyrics.Contains("It feels so cold"));
+            Assert.That(lyrics.lyrics, Does.Contain("It feels so cold"));
         }
     }
 
@@ -150,7 +150,7 @@ public class TidalTests
         else
         {
             var download = await client.DownloadSongData(this._accessToken, "101982419");
-            Assert.IsNotEmpty(download);
+            Assert.That(download, Is.Not.Empty);
         }
     }
 }

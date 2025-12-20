@@ -26,7 +26,7 @@ public class JsonRequestContentTest
         
         Stopwatch stopwatch = PenetrationTest.Run(() =>
         {
-            Assert.IsTrue(jsonRequestContent.IsValid(this.Value));
+            Assert.That(jsonRequestContent.IsValid(this.Value), Is.True);
         }, Count);
         
         Console.WriteLine($"Validated json {Convert.ToHexString(this.Value)} {Count}times");

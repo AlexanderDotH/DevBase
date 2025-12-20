@@ -23,7 +23,7 @@ public class BufferRequestContentTest
         
         Stopwatch stopwatch = PenetrationTest.Run(() =>
         {
-            Assert.IsTrue(bufferRequestContent.IsValid(this.Buffer));
+            Assert.That(bufferRequestContent.IsValid(this.Buffer), Is.True);
         }, Count);
         
         Console.WriteLine($"Validated buffer {Convert.ToHexString(this.Buffer)} {Count}times");

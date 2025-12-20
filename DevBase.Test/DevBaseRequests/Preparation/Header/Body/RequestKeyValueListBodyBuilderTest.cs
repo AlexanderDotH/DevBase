@@ -47,6 +47,6 @@ public class RequestKeyValueListBodyBuilderTest
         
         stopwatch.PrintTimeTable();
         
-        Assert.NotNull(lastBody!.Buffer);
+        Assert.That(lastBody!.Buffer.Length, Is.GreaterThan(0));
     }
 }

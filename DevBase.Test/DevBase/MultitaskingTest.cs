@@ -1,4 +1,4 @@
-﻿using DevBase.Async.Task;
+using DevBase.Async.Task;
 
 namespace DevBase.Test.DevBase;
 
