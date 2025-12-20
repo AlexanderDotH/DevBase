@@ -3,7 +3,7 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <TargetFramework>net9.0</TargetFramework>
         <Title>DevBase.Cryptography</Title>
         <Authors>AlexanderDotH</Authors>
         <Description>This is a cryptography helper for the whole devbase</Description>

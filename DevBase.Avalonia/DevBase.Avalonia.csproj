@@ -3,7 +3,7 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <TargetFrameworks>net9.0</TargetFrameworks>
         <Title>DevBase.Avalonia</Title>
         <Authors>AlexanderDotH</Authors>
         <Description>This is a special utility made for avalonia ui and has some helper functions</Description>

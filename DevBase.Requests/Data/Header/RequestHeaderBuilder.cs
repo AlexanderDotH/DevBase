@@ -180,7 +180,7 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
     public string this[string key]
     {
         get => base.GetEntryValue(key);
-        set => base.SetEntryValue(key, value);
+        set => base.AddOrSetEntry(key, value);
     }
     
     public string this[int index]

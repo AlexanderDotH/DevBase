@@ -7,6 +7,8 @@ public abstract class HttpKeyValueListBuilder<T, TKeyK, TKeyV>
 {
     protected List<KeyValuePair<TKeyK, TKeyV>> Entries { get; private set; }
     
+    public IReadOnlyList<KeyValuePair<TKeyK, TKeyV>> GetEntries() => Entries.AsReadOnly();
+    
     protected HttpKeyValueListBuilder()
     {
         Entries = new List<KeyValuePair<TKeyK, TKeyV>>();
