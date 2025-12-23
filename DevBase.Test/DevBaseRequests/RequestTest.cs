@@ -613,7 +613,7 @@ public class RequestTest
             .AsPost()
             .WithHeader("X-Api-Key", "secret")
             .WithBogusUserAgent()
-            .UseBearerAuthentication("token123")
+            .UseBearerAuthentication("valid-test-token-12345")
             .WithJsonBody(new { name = "Test" })
             .WithTimeout(TimeSpan.FromSeconds(30))
             .WithCertificateValidation(true)

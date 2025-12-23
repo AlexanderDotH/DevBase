@@ -112,12 +112,15 @@ public class JsonPathParserTest
 
     private class TestData
     {
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
         public int Id { get; set; }
+        [System.Text.Json.Serialization.JsonPropertyName("value")]
         public string Value { get; set; } = "";
     }
 
     private class TestItem
     {
+        [System.Text.Json.Serialization.JsonPropertyName("id")]
         public int Id { get; set; }
     }
 }
