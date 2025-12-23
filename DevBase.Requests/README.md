@@ -686,16 +686,18 @@ await session.SendAllAsync();
 
 ### Request-Queue (Hintergrundverarbeitung)
 
+**Die Queue startet automatisch bei Erstellung!** Requests werden sofort verarbeitet.
+
 ```csharp
 using DevBase.Requests.Core;
 
-// Queue erstellen mit Callbacks
+// Queue erstellen - Verarbeitung startet automatisch
 Requests queue = new Requests()
     .WithRateLimit(10, TimeSpan.FromSeconds(1))
     .OnResponse(response => Console.WriteLine($"✓ {response.StatusCode}"))
     .OnError((request, ex) => Console.WriteLine($"✗ {ex.Message}"));
 
-// Requests jederzeit hinzufügen (Enqueue)
+// Requests jederzeit hinzufügen - werden sofort verarbeitet
 queue.Enqueue("https://api.example.com/item/1");
 queue.Enqueue("https://api.example.com/item/2");
 queue.Enqueue(new Request("https://api.example.com/item/3").AsPost());
@@ -710,9 +712,6 @@ queue.Enqueue("https://api.example.com/data", request =>
 // Mit Factory
 queue.Enqueue(() => new Request("https://api.example.com/dynamic")
     .WithHeader("X-Timestamp", DateTime.UtcNow.ToString()));
-
-// Hintergrundverarbeitung starten
-queue.StartProcessing();
 
 // Requests können jederzeit hinzugefügt werden
 await Task.Delay(1000);
