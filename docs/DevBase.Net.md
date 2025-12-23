@@ -1,6 +1,6 @@
-# DevBase.Request
+# DevBase.Net
 
-DevBase.Request is a modern, high-performance HTTP client library for .NET. It offers a fluent API, robust proxy support (including SOCKS5 tunneling), retry policies, and advanced response processing capabilities.
+DevBase.Net is a modern, high-performance HTTP client library for .NET. It offers a fluent API, robust proxy support (including SOCKS5 tunneling), retry policies, and advanced response processing capabilities.
 
 ## Table of Contents
 - [Core Features](#core-features)
@@ -23,7 +23,7 @@ DevBase.Request is a modern, high-performance HTTP client library for .NET. It o
 
 ### Simple GET
 ```csharp
-using DevBase.Requests.Core;
+using DevBase.Net.Core;
 
 // Simplest form
 Request request = new Request("https://api.example.com/data");
@@ -63,10 +63,10 @@ byte[] data = await response.GetBytesAsync();
 ## Advanced Usage
 
 ### Proxy Support
-DevBase.Request includes `HttpToSocks5Proxy`, allowing you to tunnel HTTP traffic through SOCKS5 proxies.
+DevBase.Net includes `HttpToSocks5Proxy`, allowing you to tunnel HTTP traffic through SOCKS5 proxies.
 
 ```csharp
-using DevBase.Requests.Proxy;
+using DevBase.Net.Proxy;
 
 // Standard HTTP Proxy
 var httpProxy = new ProxyInfo("1.2.3.4", 8080);

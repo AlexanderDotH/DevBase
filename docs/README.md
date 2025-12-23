@@ -15,7 +15,7 @@ Welcome to the comprehensive documentation for the DevBase solution. This soluti
   A lightweight, context-aware logging utility for debug output.
 
 ### Web & APIs
-- **[DevBase.Request](DevBase.Request.md)**  
+- **[DevBase.Net](DevBase.Net.md)**  
   A high-performance, fluent HTTP client library with support for SOCKS5 proxies, retry policies, and advanced response parsing.
 
 - **[DevBase.Api](DevBase.Api.md)**  
@@ -37,4 +37,4 @@ Welcome to the comprehensive documentation for the DevBase solution. This soluti
 
 ### Testing & Tools
 - **[DevBaseLive](DevBaseLive.md)**  
-  A console application used for functional testing and performance benchmarking of the `DevBase.Request` library.
+  A console application used for functional testing and performance benchmarking of the `DevBase.Net` library.
