@@ -449,6 +449,44 @@ Response response = await new Request("https://api.example.com/protected")
     .SendAsync();
 ```
 
+### JWT-Authentifizierung
+
+```csharp
+using DevBase.Requests.Security.Token;
+
+// Mit JWT-Token-String (wird automatisch validiert)
+Response response = await new Request("https://api.example.com/protected")
+    .UseJwtAuthentication("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...")
+    .SendAsync();
+
+// Mit AuthenticationToken-Objekt
+AuthenticationToken? token = AuthenticationToken.FromString(jwtString);
+Response response = await new Request("https://api.example.com/protected")
+    .UseJwtAuthentication(token)
+    .SendAsync();
+
+// JWT-Token parsen und Claims zugreifen
+AuthenticationToken? jwt = AuthenticationToken.FromString(jwtString);
+Console.WriteLine($"Subject: {jwt?.Payload.Subject}");
+Console.WriteLine($"Issuer: {jwt?.Payload.Issuer}");
+Console.WriteLine($"Expires: {jwt?.Payload.ExpiresAt}");
+
+// JWT mit Signatur-Verifizierung
+AuthenticationToken? verified = AuthenticationToken.FromString(
+    jwtString, 
+    verifyToken: true, 
+    tokenSecret: "your-secret-key");
+
+if (verified?.Signature.Verified == true)
+    Console.WriteLine("Token signature is valid!");
+```
+
+**Unterstützte Algorithmen:**
+- **HMAC**: HS256, HS384, HS512
+- **RSA**: RS256, RS384, RS512
+- **ECDSA**: ES256, ES384, ES512
+- **RSA-PSS**: PS256, PS384, PS512
+
 ---
 
 ## Body-Builder
@@ -738,6 +776,15 @@ Console.WriteLine($"Used Proxy: {metrics.UsedProxy}");
 
 ## Validierung
 
+**Header-Validierung ist standardmäßig aktiviert!** Sie wird automatisch beim `Build()` ausgeführt.
+
+```csharp
+// Deaktivieren wenn nötig
+Response response = await new Request("https://api.example.com")
+    .WithHeaderValidation(false)
+    .SendAsync();
+```
+
 ### Header-Validierung
 
 ```csharp
@@ -762,6 +809,36 @@ if (!result.IsValid)
 {
     Console.WriteLine($"Validation failed: {result.ErrorMessage}");
 }
+```
+
+### JWT-Validierung
+
+```csharp
+using DevBase.Requests.Validation;
+using DevBase.Requests.Security.Token;
+
+// JWT-Format validieren
+ValidationResult result = HeaderValidator.ValidateJwtToken(jwtToken);
+
+// JWT mit Expiration-Check
+ValidationResult result = HeaderValidator.ValidateJwtToken(jwtToken, checkExpiration: true);
+
+// JWT mit Signatur-Verifizierung
+ValidationResult result = HeaderValidator.ValidateBearerAuth(
+    "Bearer " + jwtToken, 
+    verifySignature: true, 
+    secret: "your-secret-key", 
+    checkExpiration: true);
+
+// JWT parsen
+AuthenticationToken? token = HeaderValidator.ParseJwtToken(jwtToken);
+Console.WriteLine($"Subject: {token?.Payload.Subject}");
+Console.WriteLine($"Expires: {token?.Payload.ExpiresAt}");
+
+// JWT parsen und verifizieren
+AuthenticationToken? verified = HeaderValidator.ParseAndVerifyJwtToken(jwtToken, "secret");
+if (verified?.Signature.Verified == true)
+    Console.WriteLine("Signature valid!");
 ```
 
 ### URL-Validierung
