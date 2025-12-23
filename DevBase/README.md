@@ -1,24 +1,41 @@
 # DevBase
 
-A comprehensive .NET development base library providing essential utilities, data structures, and helper classes for everyday development needs.
+**DevBase** is a foundational .NET library providing core utilities, generic collections, I/O helpers, async task management, caching, and string manipulation tools. It serves as the base layer for the entire DevBase solution.
 
 ## Features
 
-- **Generic Collections** - `AList<T>`, `ATupleList<T1,T2>` with enhanced functionality
-- **Async Utilities** - Task management, multithreading helpers, and suspension tokens
-- **Caching** - Simple in-memory caching with `DataCache<T>`
-- **IO Operations** - File and directory abstractions (`AFile`, `ADirectory`)
-- **String Handling** - `AString` with encoding support and Base64 utilities
-- **Web Utilities** - HTTP request helpers with cookie management
-- **Type Utilities** - Generic type conversion and encoding helpers
+### 🔹 Generic Collections
+- **`AList<T>`** - Enhanced array-backed list with optimized operations
+- **`ATupleList<K,V>`** - Tuple-based key-value collection
+- Memory-efficient operations with size-based comparisons
+
+### 🔹 I/O Operations
+- **`AFile`** - File reading with encoding detection
+- **`AFileObject`** - File representation with metadata
+- **`ADirectory`** - Directory operations and management
+- Buffered stream reading with `Memory<byte>` support
+
+### 🔹 Async Task Management
+- **`Multitasking`** - Concurrent task scheduler with capacity limits
+- **`TaskRegister`** - Task registration and tracking
+- Automatic task lifecycle management
+
+### 🔹 Caching
+- **`DataCache<K,V>`** - Time-based expiration cache
+- Automatic cleanup of expired entries
+- Thread-safe operations
+
+### 🔹 Typography & String Utilities
+- **`AString`** - String wrapper with enhanced operations
+- **`Base64EncodedAString`** - Base64 encoding/decoding
+- **`StringUtils`** - Random string generation, separation, and formatting
+
+### 🔹 Utilities
+- **`MemoryUtils`** - Memory size calculations
+- **`EncodingUtils`** - Encoding detection and conversion
+- **`CollectionUtils`** - Collection manipulation helpers
 
 ## Installation
-
-```xml
-<PackageReference Include="DevBase" Version="x.x.x" />
-```
-
-Or via NuGet CLI:
 
 ```bash
 dotnet add package DevBase
@@ -26,44 +43,36 @@ dotnet add package DevBase
 
 ## Usage Examples
 
-### Generic Collections
+### AList<T> - Enhanced Generic List
 
 ```csharp
 using DevBase.Generics;
 
-// Enhanced list with additional methods
-AList<string> list = new AList<string>();
-list.Add("item1");
-list.Add("item2");
+// Create and populate
+AList<string> items = new AList<string>();
+items.Add("apple");
+items.AddRange("banana", "cherry");
 
-// Tuple list for key-value pairs
-ATupleList<string, int> tupleList = new ATupleList<string, int>();
-tupleList.Add("key", 42);
-```
+// Access elements
+string first = items[0];
+string random = items.GetRandom();
 
-### Async Task Management
+// Search and filter
+string found = items.Find(x => x.StartsWith("b"));
+bool contains = items.Contains("apple");
 
-```csharp
-using DevBase.Async.Task;
+// Slice into chunks
+AList<AList<string>> chunks = items.Slice(2);
 
-// Task registration and management
-TaskRegister register = new TaskRegister();
-register.RegisterTask(async () => await DoWorkAsync());
+// Range operations
+string[] range = items.GetRangeAsArray(0, 1);
+items.RemoveRange(0, 1);
 
-// Multitasking with suspension support
-Multitasking tasks = new Multitasking();
-tasks.AddTask(myTask);
-await tasks.RunAllAsync();
-```
+// Iteration
+items.ForEach(item => Console.WriteLine(item));
 
-### Caching
-
-```csharp
-using DevBase.Cache;
-
-DataCache<MyData> cache = new DataCache<MyData>();
-cache.Set("key", myData);
-MyData? cached = cache.Get("key");
+// Sorting
+items.Sort(Comparer<string>.Default);
 ```
 
 ### File Operations
@@ -71,76 +80,182 @@ MyData? cached = cache.Get("key");
 ```csharp
 using DevBase.IO;
 
-// File abstraction
-AFile file = new AFile("path/to/file.txt");
-string content = file.ReadAllText();
+// Read file with encoding detection
+Memory<byte> content = AFile.ReadFile("path/to/file.txt", out Encoding encoding);
 
-// Directory operations
-ADirectory dir = new ADirectory("path/to/dir");
-var files = dir.GetFiles();
+// Read file to object
+AFileObject fileObj = AFile.ReadFileToObject("path/to/file.txt");
+Console.WriteLine($"Size: {fileObj.FileInfo.Length} bytes");
+Console.WriteLine($"Encoding: {fileObj.Encoding}");
+
+// Get all files in directory
+AList<AFileObject> files = AFile.GetFiles("path/to/directory", readContent: true, filter: "*.txt");
+
+// Check file accessibility
+FileInfo file = new FileInfo("path/to/file.txt");
+bool canRead = AFile.CanFileBeAccessed(file, FileAccess.Read);
+```
+
+### Multitasking - Concurrent Task Management
+
+```csharp
+using DevBase.Async.Task;
+
+// Create task manager with capacity of 5 concurrent tasks
+Multitasking taskManager = new Multitasking(capacity: 5, scheduleDelay: 100);
+
+// Register tasks
+for (int i = 0; i < 20; i++)
+{
+    int taskId = i;
+    taskManager.Register(() => 
+    {
+        Console.WriteLine($"Task {taskId} executing");
+        Thread.Sleep(1000);
+    });
+}
+
+// Wait for all tasks to complete
+await taskManager.WaitAll();
+
+// Or cancel all tasks
+await taskManager.KillAll();
+```
+
+### DataCache - Time-Based Caching
+
+```csharp
+using DevBase.Cache;
+
+// Create cache with 5-second expiration
+DataCache<string, User> userCache = new DataCache<string, User>(expirationMS: 5000);
+
+// Write to cache
+userCache.WriteToCache("user123", new User { Name = "John" });
+
+// Read from cache
+User user = userCache.DataFromCache("user123");
+
+// Check if in cache
+bool exists = userCache.IsInCache("user123");
+
+// Multiple entries with same key
+userCache.WriteToCache("tag", new User { Name = "Alice" });
+userCache.WriteToCache("tag", new User { Name = "Bob" });
+AList<User> users = userCache.DataFromCacheAsList("tag");
 ```
 
 ### String Utilities
 
 ```csharp
+using DevBase.Utilities;
 using DevBase.Typography;
 
-AString str = new AString("Hello World");
-string result = str.ToLowerCase();
+// Generate random string
+string random = StringUtils.RandomString(10);
+string alphanumeric = StringUtils.RandomString(8, "0123456789ABCDEF");
 
-// Base64 encoding
-using DevBase.Typography.Encoded;
-Base64EncodedAString encoded = new Base64EncodedAString("data");
-string base64 = encoded.Encode();
+// Separate and de-separate
+string[] items = new[] { "apple", "banana", "cherry" };
+string joined = StringUtils.Separate(items, ", "); // "apple, banana, cherry"
+string[] split = StringUtils.DeSeparate(joined, ", ");
+
+// AString operations
+AString text = new AString("hello world\nline two");
+AList<string> lines = text.AsList();
+string capitalized = text.CapitalizeFirst(); // "Hello world\nline two"
 ```
 
-### Web Requests
+### Base64 Encoding
 
 ```csharp
-using DevBase.Web;
+using DevBase.Typography.Encoded;
 
-Request request = new Request("https://api.example.com/data");
-ResponseData response = await request.GetAsync();
-string content = response.Content;
+// Encode string to Base64
+Base64EncodedAString encoded = new Base64EncodedAString("Hello World");
+string base64 = encoded.ToString();
+
+// Decode from Base64
+Base64EncodedAString decoded = new Base64EncodedAString(base64, isEncoded: true);
+string original = decoded.GetDecoded();
 ```
 
-## API Reference
+## Key Classes Reference
 
 ### Collections
-
 | Class | Description |
 |-------|-------------|
-| `AList<T>` | Enhanced generic list |
-| `ATupleList<T1,T2>` | List of tuples |
+| `AList<T>` | Array-backed generic list with enhanced operations |
+| `ATupleList<K,V>` | Tuple-based key-value collection |
 | `GenericTypeConversion` | Type conversion utilities |
 
+### I/O
+| Class | Description |
+|-------|-------------|
+| `AFile` | Static file operations with encoding detection |
+| `AFileObject` | File wrapper with content and metadata |
+| `ADirectory` | Directory operations |
+| `ADirectoryObject` | Directory wrapper with metadata |
+
 ### Async
-
 | Class | Description |
 |-------|-------------|
-| `TaskRegister` | Task registration and management |
-| `Multitasking` | Parallel task execution |
-| `TaskSuspensionToken` | Task suspension control |
-| `AThread` | Thread abstraction |
+| `Multitasking` | Concurrent task scheduler with capacity control |
+| `TaskRegister` | Task registration and tracking |
+| `Multithreading` | Thread management utilities |
 
-### IO
-
+### Cache
 | Class | Description |
 |-------|-------------|
-| `AFile` | File operations wrapper |
-| `ADirectory` | Directory operations wrapper |
-| `AFileObject` | File metadata |
-| `ADirectoryObject` | Directory metadata |
+| `DataCache<K,V>` | Time-based expiration cache |
+| `CacheElement<V>` | Cache entry with expiration timestamp |
+
+### Typography
+| Class | Description |
+|-------|-------------|
+| `AString` | String wrapper with enhanced operations |
+| `Base64EncodedAString` | Base64 encoding/decoding |
+| `EncodedAString` | Base class for encoded strings |
 
 ### Utilities
-
 | Class | Description |
 |-------|-------------|
-| `StringUtils` | String manipulation helpers |
-| `EncodingUtils` | Encoding utilities |
-| `MemoryUtils` | Memory management helpers |
-| `CollectionUtils` | Collection utilities |
+| `StringUtils` | String generation and manipulation |
+| `MemoryUtils` | Memory size calculations |
+| `EncodingUtils` | Encoding detection and conversion |
+| `CollectionUtils` | Collection manipulation helpers |
+
+## Exceptions
+
+| Exception | Description |
+|-----------|-------------|
+| `AListEntryException` | Thrown for invalid list operations (out of bounds, invalid range, entry not found) |
+| `EncodingException` | Thrown for encoding-related errors |
+| `ErrorStatementException` | Thrown for general error conditions |
+
+## Performance Considerations
+
+- **`AList<T>`** uses size-based comparison before equality checks for faster lookups
+- **`SafeContains()`** and **`SafeRemove()`** skip size checks when needed
+- File operations use `BufferedStream` and `Memory<byte>` for efficiency
+- **`Multitasking`** limits concurrent tasks to prevent resource exhaustion
+
+## Target Framework
+
+- **.NET 9.0**
+
+## Dependencies
+
+- No external dependencies (pure .NET)
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT License - See LICENSE file for details
+
+## Author
+
+AlexanderDotH
+
+## Repository
+
+https://github.com/AlexanderDotH/DevBase
