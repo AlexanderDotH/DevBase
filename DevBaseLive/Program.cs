@@ -257,6 +257,10 @@ class Program
         {
             return (true, "Timeout triggered correctly", "Timeout", "Timeout");
         }
+        catch (DevBase.Requests.Exception.RequestTimeoutException)
+        {
+            return (true, "Timeout triggered correctly", "Timeout", "Timeout");
+        }
     }
 
     #endregion

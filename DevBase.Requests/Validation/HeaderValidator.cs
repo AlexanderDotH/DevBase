@@ -106,7 +106,10 @@ public static class HeaderValidator
         if (string.IsNullOrWhiteSpace(contentType))
             return ValidationResult.Fail("Content-Type is empty");
 
-        if (!IsValidMimeType(contentType))
+        // Extract MIME type without parameters (e.g., "application/json; charset=utf-8" -> "application/json")
+        string mimeType = contentType.Split(';')[0].Trim();
+        
+        if (!IsValidMimeType(mimeType))
             return ValidationResult.Fail($"Invalid Content-Type format: {contentType}");
 
         return ValidationResult.Success();
