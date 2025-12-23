@@ -257,7 +257,7 @@ class Program
         {
             return (true, "Timeout triggered correctly", "Timeout", "Timeout");
         }
-        catch (DevBase.Requests.Exception.RequestTimeoutException)
+        catch (DevBase.Requests.Exceptions.RequestTimeoutException)
         {
             return (true, "Timeout triggered correctly", "Timeout", "Timeout");
         }
