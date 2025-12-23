@@ -1,31 +1,23 @@
-# DevBase.Request
+# DevBase.Net
 
-A modern, high-performance HTTP client library for .NET with fluent API, proxy support, retry policies, and advanced parsing features.
+A modern, high-performance HTTP client library for .NET 9.0 with fluent API, SOCKS5 proxy support, retry policies, and advanced response parsing.
 
 ## Features
 
-- **Fluent API** - Intuitive, chainable method calls
-- **Async/Await** - Fully asynchronous implementation
-- **Connection Pooling** - Efficient HTTP client reuse
-- **Proxy Support** - HTTP, HTTPS, SOCKS4 and SOCKS5 (including proxy chaining)
-- **Retry Policies** - Configurable retry strategies with backoff
-- **Response Caching** - Built-in caching with SHA256 keys
-- **JsonPath Parsing** - Streaming-capable JSON parsing
-- **Browser Spoofing** - Realistic user-agent generation
-- **Header Validation** - Automatic header validation
-- **Request/Response Interceptors** - Middleware pattern
-- **Metrics** - Detailed request performance metrics
+- Fluent request builder API
+- SOCKS5 proxy support with HttpToSocks5Proxy
+- Configurable retry policies (linear/exponential backoff)
+- JSON, HTML, XML parsing
+- JSON Path queries
+- Response streaming
+- Request/Response interceptors
+- Detailed request metrics
+- Connection pooling
 
 ## Installation
 
-```xml
-<PackageReference Include="DevBase.Request" Version="x.x.x" />
-```
-
-Or via NuGet CLI:
-
 ```bash
-dotnet add package DevBase.Request
+dotnet add package DevBase.Net
 ```
 
 ## Quick Start
@@ -34,137 +26,82 @@ dotnet add package DevBase.Request
 using DevBase.Net.Core;
 
 // Simple GET request
-Request request = new Request("https://api.example.com/data");
-Response response = await request.SendAsync();
+var response = await new Request("https://api.example.com/data").SendAsync();
 string content = await response.GetStringAsync();
 
-// With Fluent API
-Response response = await new Request("https://api.example.com/users")
-    .AsGet()
-    .WithAcceptJson()
-    .WithTimeout(TimeSpan.FromSeconds(10))
-    .SendAsync();
-
-MyUser user = await response.ParseJsonAsync<MyUser>();
-```
-
-## Basic Usage
-
-### GET Requests
-
-```csharp
-Request request = new Request("https://api.example.com/data");
-Response response = await request.SendAsync();
-```
-
-### POST Requests with JSON
-
-```csharp
-MyData data = new MyData { Name = "Test", Value = 42 };
-
-Response response = await new Request("https://api.example.com/create")
+// POST with JSON
+var response = await new Request("https://api.example.com/users")
     .AsPost()
-    .WithJsonBody(data)
+    .WithJsonBody(new { name = "John" })
     .SendAsync();
 ```
 
-### Headers and Parameters
+## Usage Examples
+
+### HTTP Methods
 
 ```csharp
-Response response = await new Request("https://api.example.com/search")
-    .WithHeader("X-Custom-Header", "CustomValue")
-    .WithParameter("query", "test")
-    .WithParameters(("page", "1"), ("limit", "50"))
+// GET (default)
+var response = await new Request(url).SendAsync();
+
+// POST
+var response = await new Request(url).AsPost().WithJsonBody(data).SendAsync();
+
+// PUT
+var response = await new Request(url).AsPut().WithJsonBody(data).SendAsync();
+
+// DELETE
+var response = await new Request(url).AsDelete().SendAsync();
+```
+
+### Headers and Authentication
+
+```csharp
+var response = await new Request(url)
+    .WithHeader("Authorization", "Bearer token")
+    .WithHeader("X-Custom", "value")
     .SendAsync();
 ```
 
-## Response Processing
+### Response Parsing
 
 ```csharp
-Response response = await request.SendAsync();
+// JSON
+var data = await response.ParseJsonAsync<MyType>();
 
-// As string
-string content = await response.GetStringAsync();
+// JSON Path
+var value = await response.ParseJsonPathAsync<string>("$.user.name");
 
-// As bytes
-byte[] bytes = await response.GetBytesAsync();
+// HTML
+var doc = await response.ParseHtmlAsync();
 
-// JSON deserialization
-MyClass result = await response.ParseJsonAsync<MyClass>();
-
-// HTML parsing with AngleSharp
-IDocument htmlDoc = await response.ParseHtmlAsync();
-
-// JsonPath queries
-string name = await response.ParseJsonPathAsync<string>("$.user.name");
+// String
+var text = await response.GetStringAsync();
 ```
 
-## Retry Policies
+### SOCKS5 Proxy
 
 ```csharp
-Response response = await new Request("https://api.example.com/data")
-    .WithRetryPolicy(RetryPolicy.Default)     // 3 retries, Linear Backoff
-    .SendAsync();
+using DevBase.Net.Proxy.HttpToSocks5;
 
-// Custom policy
-RetryPolicy customPolicy = new RetryPolicy
-{
-    MaxRetries = 5,
-    BaseDelay = TimeSpan.FromSeconds(1),
-    BackoffStrategy = EnumBackoffStrategy.Exponential
-};
-```
-
-## Proxy Support
-
-```csharp
-// HTTP Proxy
-ProxyInfo proxyInfo = new ProxyInfo("proxy.example.com", 8080);
-
-// SOCKS5 Proxy
-ProxyInfo socks5Proxy = new ProxyInfo("socks.example.com", 1080, EnumProxyType.Socks5);
-
-Response response = await new Request("https://api.example.com/data")
-    .WithProxy(proxyInfo)
+var proxy = new HttpToSocks5Proxy("127.0.0.1", 9050);
+var response = await new Request(url)
+    .WithProxy(proxy)
     .SendAsync();
 ```
 
-## Authentication
+### Retry Policies
 
 ```csharp
-// Basic Authentication
-Response response = await new Request("https://api.example.com/protected")
-    .UseBasicAuthentication("username", "password")
-    .SendAsync();
-
-// Bearer Token
-Response response = await new Request("https://api.example.com/protected")
-    .UseBearerAuthentication("your-jwt-token-here")
+var response = await new Request(url)
+    .WithRetryPolicy(RetryPolicy.Exponential(maxRetries: 3))
     .SendAsync();
 ```
 
-## Batch Requests
+## Credits
 
-```csharp
-Requests batchRequests = new Requests()
-    .WithRateLimit(10, TimeSpan.FromSeconds(1))
-    .WithParallelism(5)
-    .Add("https://api.example.com/item/1")
-    .Add("https://api.example.com/item/2");
-
-List<Response> responses = await batchRequests.SendAllAsync();
-```
-
-## Metrics
-
-```csharp
-Response response = await request.SendAsync();
-RequestMetrics metrics = response.Metrics;
-
-Console.WriteLine($"Total Duration: {metrics.TotalDuration.TotalMilliseconds}ms");
-Console.WriteLine($"Time to First Byte: {metrics.TimeToFirstByte.TotalMilliseconds}ms");
-```
+HttpToSocks5Proxy based on [MihaZupan/HttpToSocks5Proxy](https://github.com/MihaZupan/HttpToSocks5Proxy) (MIT License).
 
 ## License
 
-MIT License - see LICENSE file for details.
+MIT License
