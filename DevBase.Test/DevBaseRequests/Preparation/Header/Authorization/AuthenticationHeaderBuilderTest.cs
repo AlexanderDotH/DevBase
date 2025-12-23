@@ -2,11 +2,11 @@ using System.Diagnostics;
 using System.Text;
 using DevBase.Extensions;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Data.Header.Authentication;
+using DevBase.Net.Data.Header.Authentication;
 using DevBase.Test.Test;
 using Dumpify;
 
-namespace DevBase.Test.DevBaseRequests.Preparation.Header.Authentication;
+namespace DevBase.Test.DevBaseRequests.Preparation.Header.Authorization;
 
 public class AuthenticationHeaderBuilderTest
 {

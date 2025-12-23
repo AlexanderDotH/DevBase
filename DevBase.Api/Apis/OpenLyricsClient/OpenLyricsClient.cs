@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using DevBase.Api.Apis.OpenLyricsClient.Structure.Enum;
 using DevBase.Api.Apis.OpenLyricsClient.Structure.Json;
 using DevBase.Api.Enums;
@@ -6,9 +6,7 @@ using DevBase.Api.Exceptions;
 using DevBase.Api.Serializer;
 using DevBase.Cryptography.BouncyCastle.Sealing;
 using DevBase.Enums;
-using DevBase.Web;
-using DevBase.Web.RequestData;
-using DevBase.Web.ResponseData;
+using DevBase.Net.Core;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -31,22 +29,19 @@ public class OpenLyricsClient : ApiClient
 
     public async Task<JsonOpenLyricsClientAccess> GetAccessToken(string refreshToken)
     {
-        RequestData data = new RequestData($"{this._baseUrl}/auth/spotify/refresh");
-
         JObject jObject = new JObject();
         jObject["refreshToken"] = refreshToken;
         
-        data.AddContent(jObject.ToString());
-        data.SetContentType(EnumContentType.APPLICATION_JSON);
+        Response response = await new Request($"{this._baseUrl}/auth/spotify/refresh")
+            .AsPost()
+            .WithJsonBody(jObject.ToString())
+            .SendAsync();
         
-        ResponseData responseData = await new Request(data).GetResponseAsync();
-        return new JsonDeserializer<JsonOpenLyricsClientAccess>().Deserialize(responseData.GetContentAsString());
+        return await response.ParseJsonAsync<JsonOpenLyricsClientAccess>(false);
     } 
     
     public async Task<JsonOpenLyricsClientAiSyncItem[]> AiSync(JsonOpenLyricsClientSubscription subscription, string title, string album, long duration, string model = "", params string[] artists)
     {
-        RequestData data = new RequestData($"{this._baseUrl}/ai/sync");
-        
         JObject jObject = new JObject();
         
         jObject["title"] = title;
@@ -56,46 +51,35 @@ public class OpenLyricsClient : ApiClient
         jObject["model"] = model;
         jObject["sealedAccess"] = ToSealedAccess(subscription);
 
-        data.Timeout = TimeSpan.FromMinutes(10);
-        data.AddContent(jObject.ToString());
-        data.SetContentType(EnumContentType.APPLICATION_JSON);
+        Response response = await new Request($"{this._baseUrl}/ai/sync")
+            .AsPost()
+            .WithTimeout(TimeSpan.FromMinutes(10))
+            .WithJsonBody(jObject.ToString())
+            .SendAsync();
         
-        ResponseData responseData = await new Request(data).GetResponseAsync();
-        return new JsonDeserializer<JsonOpenLyricsClientAiSyncItem[]>().Deserialize(responseData.GetContentAsString());
+        return await response.ParseJsonAsync<JsonOpenLyricsClientAiSyncItem[]>(false);
     } 
     
     #pragma warning disable S1133
     [Obsolete("This api call only works with a older backend")]
     public async Task<JsonOpenLyricsClientAiPredictionResult> GetAiSyncResult(string songID)
     {
-        RequestData data = new RequestData($"{this._baseUrl}/ai/result");
-
         JObject jObject = new JObject();
         jObject["id"] = songID;
+
+        Response response = await new Request($"{this._baseUrl}/ai/result")
+            .AsPost()
+            .WithJsonBody(jObject.ToString())
+            .SendAsync();
+            
+        if (response.StatusCode == HttpStatusCode.NotFound)
+             return Throw<object>(new OpenLyricsClientException(EnumOpenLyricsClientExceptionType.PredictionInProgress));
+             
+        if (response.StatusCode == HttpStatusCode.Conflict)
+             return Throw<object>(new OpenLyricsClientException(EnumOpenLyricsClientExceptionType.PredictionUnavailable));
         
-        data.AddContent(jObject.ToString());
-        data.SetContentType(EnumContentType.APPLICATION_JSON);
-
-        try
-        {
-            ResponseData responseData = await new Request(data).GetResponseAsync();
-            return new JsonDeserializer<JsonOpenLyricsClientAiPredictionResult>().Deserialize(responseData.GetContentAsString());
-        }
-        catch (System.Net.WebException e)
-        {
-            HttpWebResponse webResponse = (HttpWebResponse)e.Response!;
-
-            switch (webResponse.StatusCode)
-            {
-                case HttpStatusCode.NotFound:
-                    return Throw<object>(
-                        new OpenLyricsClientException(EnumOpenLyricsClientExceptionType.PredictionInProgress));
-                
-                case HttpStatusCode.Conflict:
-                    return Throw<object>(
-                        new OpenLyricsClientException(EnumOpenLyricsClientExceptionType.PredictionUnavailable));
-            }
-        }
+        if (response.IsSuccessStatusCode)
+             return await response.ParseJsonAsync<JsonOpenLyricsClientAiPredictionResult>(false);
 
         return null;
     }
@@ -105,23 +89,18 @@ public class OpenLyricsClient : ApiClient
     {
         CheckSealing();
         
-        RequestData data = new RequestData($"{this._baseUrl}/subscription/create");
-        Request request = new Request(data);
-        ResponseData response = await request.GetResponseAsync();
-        return new JsonDeserializer<JsonOpenLyricsClientSubscription>().Deserialize(response.GetContentAsString());
+        Response response = await new Request($"{this._baseUrl}/subscription/create").SendAsync();
+        return await response.ParseJsonAsync<JsonOpenLyricsClientSubscription>(false);
     }
 
     public async Task<JsonOpenLyricsClientSubscriptionModel> CheckSubscription(JsonOpenLyricsClientSubscription subscription)
     {
-        RequestData data = new RequestData($"{this._baseUrl}/subscription/check");
+        Response response = await new Request($"{this._baseUrl}/subscription/check")
+            .AsPost()
+            .WithJsonBody(ToSealedAccess(subscription).ToString())
+            .SendAsync();
         
-        data.AddContent(ToSealedAccess(subscription).ToString());
-        data.SetContentType(EnumContentType.APPLICATION_JSON);
-
-        Request request = new Request(data);
-        ResponseData response = await request.GetResponseAsync();
-        
-        return new JsonDeserializer<JsonOpenLyricsClientSubscriptionModel>().Deserialize(response.GetContentAsString());
+        return await response.ParseJsonAsync<JsonOpenLyricsClientSubscriptionModel>(false);
     }
 
     private JObject ToSealedAccess(JsonOpenLyricsClientSubscription subscription)

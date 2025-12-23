@@ -1,11 +1,8 @@
 ﻿using System.Text.Json.Nodes;
 using DevBase.Api.Apis.Musixmatch.Json;
-using DevBase.Api.Apis.OpenAi.Json;
 using DevBase.Api.Serializer;
 using DevBase.Enums;
-using DevBase.Web;
-using DevBase.Web.RequestData;
-using DevBase.Web.ResponseData;
+using DevBase.Net.Core;
 using Newtonsoft.Json.Linq;
 
 namespace DevBase.Api.Apis.Musixmatch;
@@ -21,7 +18,7 @@ public class MusixMatch : ApiClient
 
     public async Task<JsonMusixMatchAuthResponse> Login(string email, string password)
     {
-        RequestData requestData = new RequestData(string.Format("{0}/ws/1.1/account.post", this._authEndpoint), EnumRequestMethod.POST);
+        string url = $"{this._authEndpoint}/ws/1.1/account.post";
 
         JObject jObject = new JObject
         {
@@ -44,12 +41,11 @@ public class MusixMatch : ApiClient
             }
         };
         
-        requestData.AddContent(jObject.ToString());
-        requestData.ContentTypeHolder.GetContentType(EnumContentType.APPLICATION_JSON);
-
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
+        Response response = await new Request(url)
+            .AsPost()
+            .WithJsonBody(jObject.ToString())
+            .SendAsync();
         
-        return new JsonDeserializer<JsonMusixMatchAuthResponse>().Deserialize(responseData.GetContentAsString());
+        return await response.ParseJsonAsync<JsonMusixMatchAuthResponse>(false);
     }
 }

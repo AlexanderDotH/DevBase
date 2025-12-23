@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
+using DevBase.Net.Data.Header.UserAgent.Bogus.Generator;
 using DevBase.Test.Test;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Header.UserAgent.Bogus.Generator;

@@ -18,6 +18,18 @@ public class ApiClient
         return ToType<T>();
     }
     
+    protected (string, bool) ThrowTuple(
+        System.Exception exception,
+        [CallerMemberName] string callerMember = "", 
+        [CallerFilePath] string callerFilePath = "", 
+        [CallerLineNumber] int callerLineNumber = 0)
+    {
+        if (StrictErrorHandling)
+            throw exception;
+        
+        return (string.Empty, false);
+    }
+    
     private dynamic ToType<T>()
     {
         T type = (T)Activator.CreateInstance(typeof(T));

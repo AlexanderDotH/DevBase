@@ -2,8 +2,8 @@ using System.Diagnostics;
 using System.Text;
 using Bogus.DataSets;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Data.Body;
-using DevBase.Requests.Objects;
+using DevBase.Net.Data.Body;
+using DevBase.Net.Objects;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Header.Body;
 

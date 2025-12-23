@@ -7,10 +7,8 @@ using DevBase.Format.Formats.KLyricsFormat;
 using DevBase.Format.Formats.LrcFormat;
 using DevBase.Format.Structure;
 using DevBase.Generics;
+using DevBase.Net.Core;
 using DevBase.Utilities;
-using DevBase.Web;
-using DevBase.Web.RequestData;
-using DevBase.Web.ResponseData;
 
 namespace DevBase.Api.Apis.NetEase;
 
@@ -28,28 +26,26 @@ public class NetEase : ApiClient
     {
         string separated = StringUtils.Separate(trackIds, ",");
 
-        RequestData requestData = new RequestData($"{this._baseUrl}/song/detail?ids={separated}");
-        requestData.Timeout = TimeSpan.FromMinutes(1);
-        
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
+        Response response = await new Request($"{this._baseUrl}/song/detail?ids={separated}")
+            .WithTimeout(TimeSpan.FromMinutes(1))
+            .SendAsync();
 
-        string content = responseData.GetContentAsString();
-        return new JsonDeserializer<JsonNetEaseDetailResponse>().Deserialize(content);
+        return await response.ParseJsonAsync<JsonNetEaseDetailResponse>(false);
     }
     #pragma warning restore SYSLIB0013
 
     #pragma warning disable SYSLIB0013
     public async Task<JsonNetEaseSearchResult> Search(string keyword, int limit = 50, int type = 1)
     {
-        string url = Uri.EscapeUriString($"{this._baseUrl}/search?limit={limit}&type={type}&keywords={keyword}");
+        Response response = await new Request($"{this._baseUrl}/search")
+            .WithParameters(
+                ("limit", limit.ToString()),
+                ("type", type.ToString()),
+                ("keywords", keyword)
+            )
+            .SendAsync();
 
-        Request request = new Request(url);
-        ResponseData responseData = await request.GetResponseAsync();
-
-        string content = responseData.GetContentAsString();
-        
-        return new JsonDeserializer<JsonNetEaseSearchResult>().Deserialize(content);
+        return await response.ParseJsonAsync<JsonNetEaseSearchResult>(false);
     }
     #pragma warning restore SYSLIB0013
     
@@ -92,10 +88,8 @@ public class NetEase : ApiClient
         {
             JsonNetEaseUrlResponseData data = urlResponse.data[i];
 
-            Request request = new Request(data.url);
-            ResponseData responseData = await request.GetResponseAsync();
-            
-            return responseData.Content;
+            Response response = await new Request(data.url).SendAsync();
+            return await response.GetBytesAsync();
         }
 
         return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.DownloadTrack));
@@ -105,14 +99,11 @@ public class NetEase : ApiClient
     #pragma warning disable SYSLIB0013
     public async Task<JsonNetEaseUrlResponse> Url(string trackId)
     {
-        string url = Uri.EscapeUriString($"{this._baseUrl}/song/url?id={trackId}");
+        Response response = await new Request($"{this._baseUrl}/song/url")
+            .WithParameter("id", trackId)
+            .SendAsync();
 
-        Request request = new Request(url);
-        ResponseData responseData = await request.GetResponseAsync();
-
-        string content = responseData.GetContentAsString();
-        
-        return new JsonDeserializer<JsonNetEaseUrlResponse>().Deserialize(content);
+        return await response.ParseJsonAsync<JsonNetEaseUrlResponse>(false);
     }
     #pragma warning restore SYSLIB0013
     
@@ -153,15 +144,12 @@ public class NetEase : ApiClient
     #pragma warning disable SYSLIB0013
     public async Task<JsonNetEaseLyricResponse> RawLyrics(string trackId)
     {
-        RequestData requestData = new RequestData($"{this._baseUrl}/lyric?id={trackId}");
-        requestData.Timeout = TimeSpan.FromMinutes(1);
-        
-        Request request = new Request(requestData);
-        
-        ResponseData responseData = await request.GetResponseAsync();
+        Response response = await new Request($"{this._baseUrl}/lyric")
+            .WithParameter("id", trackId)
+            .WithTimeout(TimeSpan.FromMinutes(1))
+            .SendAsync();
 
-        string content = responseData.GetContentAsString();
-        return new JsonDeserializer<JsonNetEaseLyricResponse>().Deserialize(content);
+        return await response.ParseJsonAsync<JsonNetEaseLyricResponse>(false);
     }
     #pragma warning restore SYSLIB0013
 }

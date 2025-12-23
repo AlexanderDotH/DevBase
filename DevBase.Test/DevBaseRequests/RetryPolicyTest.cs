@@ -1,5 +1,5 @@
-using DevBase.Requests.Configuration;
-using DevBase.Requests.Configuration.Enums;
+using DevBase.Net.Configuration;
+using DevBase.Net.Configuration.Enums;
 using NUnit.Framework;
 
 namespace DevBase.Test.DevBaseRequests;

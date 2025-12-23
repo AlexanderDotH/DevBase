@@ -4,9 +4,7 @@ using DevBase.Api.Exceptions;
 using DevBase.Api.Serializer;
 using DevBase.Enums;
 using DevBase.Generics;
-using DevBase.Web;
-using DevBase.Web.RequestData;
-using DevBase.Web.ResponseData;
+using DevBase.Net.Core;
 using Newtonsoft.Json.Linq;
 
 namespace DevBase.Api.Apis.Replicate;
@@ -42,15 +40,13 @@ public class Replicate : ApiClient
             {"webhook", webhook}
         };
 
-        RequestData requestData = new RequestData($"{this._endpoint}/predictions");
-        
-        requestData.AddContent(jObject.ToString());
-        requestData.Header.Add("Authorization",$"Token {apiKey}");
+        Response response = await new Request($"{this._endpoint}/predictions")
+            .AsPost()
+            .WithJsonBody(jObject.ToString())
+            .WithHeader("Authorization",$"Token {apiKey}")
+            .SendAsync();
 
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
-
-        return new JsonDeserializer<ReplicatePredictionResponse>().Deserialize(responseData.GetContentAsString());
+        return await response.ParseJsonAsync<ReplicatePredictionResponse>(false);
     }
 
     public async Task<ReplicatePredictionResponse> Predict(string modelID, string linkToAudio, string model, string webhook = "https://example.com")
@@ -63,15 +59,12 @@ public class Replicate : ApiClient
 
     public async Task<ReplicatePredictionResult> GetResult(string predictionID, string apiKey)
     {
-        RequestData requestData = new RequestData($"{this._endpoint}/predictions/{predictionID}");
+        Response response = await new Request($"{this._endpoint}/predictions/{predictionID}")
+            .AsGet()
+            .WithAcceptJson()
+            .WithHeader("Authorization", $"Token {apiKey}")
+            .SendAsync();
 
-        requestData.SetContentType(EnumContentType.APPLICATION_JSON);
-
-        requestData.Header.Add("Authorization", $"Token {apiKey}");
-        
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
-
-        return new JsonDeserializer<ReplicatePredictionResult>().Deserialize(responseData.GetContentAsString());
+        return await response.ParseJsonAsync<ReplicatePredictionResult>(false);
     }
 }

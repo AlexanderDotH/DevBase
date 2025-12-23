@@ -1,5 +1,5 @@
 using System.Text;
-using DevBase.Requests.Parsing;
+using DevBase.Net.Parsing;
 using NUnit.Framework;
 
 namespace DevBase.Test.DevBaseRequests;

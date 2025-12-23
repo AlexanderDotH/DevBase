@@ -1,5 +1,5 @@
-using DevBase.Requests.Data.Header.UserAgent;
-using DevBase.Requests.Exceptions;
+using DevBase.Net.Data.Header.UserAgent;
+using DevBase.Net.Exceptions;
 
 namespace DevBase.Test.DevBaseRequests.Builder;
 

@@ -11,7 +11,15 @@
         <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
         <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
         <Version>1.0.1</Version>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="ConsoleTables" Version="2.7.0" />

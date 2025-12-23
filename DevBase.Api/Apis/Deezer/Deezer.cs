@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using System.Text;
 using DevBase.Api.Apis.Deezer.Structure.Json;
 using DevBase.Api.Apis.Deezer.Structure.Objects;
@@ -10,10 +10,8 @@ using DevBase.Enums;
 using DevBase.Format.Formats.LrcFormat;
 using DevBase.Format.Structure;
 using DevBase.Generics;
-using DevBase.Web;
-using DevBase.Web.RequestData;
-using DevBase.Web.RequestData.Data;
-using DevBase.Web.ResponseData;
+using DevBase.Net.Core;
+using DevBase.Net.Data.Body;
 using Newtonsoft.Json.Linq;
 
 namespace DevBase.Api.Apis.Deezer;
@@ -47,92 +45,88 @@ public class Deezer : ApiClient
         if (!IsArlTokenPresent())
             return Throw<object>(new DeezerException(EnumDeezerExceptionType.ArlToken));
         
-        RequestData requestData = new RequestData($"{this._authEndpoint}/login/arl?i=c&jo=p&rto=n", EnumRequestMethod.POST);
+        string url = $"{this._authEndpoint}/login/arl?i=c&jo=p&rto=n";
+        
+        Request request = new Request(url)
+            .AsPost()
+            .WithTimeout(TimeSpan.FromMinutes(1))
+            .WithHeader("Accept", "*/*")
+            .WithHeader("Accept-Encoding", "gzip, deflate, br")
+            .WithJsonBody("{}");
 
-        requestData.Timeout = TimeSpan.FromMinutes(1);
+        ApplyCookies(request, url);
+        
+        Response response = await request.SendAsync();
+        UpdateCookies(response);
 
-        requestData.Header.Add("Accept", "*/*");
-        requestData.Header.Add("Accept-Encoding", "gzip, deflate, br");
-        
-        requestData.CookieContainer = this._cookieContainer;
-        
-        requestData.SetContentType(EnumContentType.APPLICATION_JSON);
-        
-        ResponseData responseData = new Request(requestData).GetResponse();
-        return new JsonDeserializer<JsonDeezerJwtToken>().Deserialize(responseData.GetContentAsString());
+        return await response.ParseJsonAsync<JsonDeezerJwtToken>(false);
     }
 
     public async Task<JsonDeezerAuthTokenResponse> GetAccessToken(string appID = "457142")
     {
-        RequestData requestData = new RequestData($"{this._apiEndpoint}/platform/generic/token/unlogged", EnumRequestMethod.POST);
-        requestData.Header.Add("Accept", "*/*");
-
-        AList<FormKeypair> formData = new AList<FormKeypair>();
-        formData.Add(new FormKeypair("app_id", appID));
+        string url = $"{this._apiEndpoint}/platform/generic/token/unlogged";
         
-        requestData.AddFormData(formData);
+        Request request = new Request(url)
+            .AsPost()
+            .WithHeader("Accept", "*/*")
+            .WithEncodedForm(("app_id", appID));
         
-        requestData.CookieContainer = this._cookieContainer;
+        ApplyCookies(request, url);
         
-        ResponseData responseData = await new Request(requestData).GetResponseAsync();
+        Response response = await request.SendAsync();
+        UpdateCookies(response);
 
-        string response = responseData.GetContentAsString();
+        string content = await response.GetStringAsync();
 
-        if (response.Contains("unable to get unlogged token for this app"))
+        if (content.Contains("unable to get unlogged token for this app"))
             return Throw<object>(new DeezerException(EnumDeezerExceptionType.AppId));
         
-        return new JsonDeserializer<JsonDeezerAuthTokenResponse>().Deserialize(response);
+        return await response.ParseJsonAsync<JsonDeezerAuthTokenResponse>(false);
     }
     
     public async Task<JsonDeezerAuthTokenResponse> GetAccessToken(string sessionID, string appID = "457142")
     {
-        RequestData requestData = new RequestData($"{this._apiEndpoint}/platform/generic/token/create-from-session", EnumRequestMethod.POST);
-        requestData.Header.Add("Accept", "*/*");
+        string url = $"{this._apiEndpoint}/platform/generic/token/create-from-session";
 
-        AList<FormKeypair> formData = new AList<FormKeypair>();
-        formData.Add(new FormKeypair("app_id", appID));
-        formData.Add(new FormKeypair("sid", sessionID));
+        Request request = new Request(url)
+            .AsPost()
+            .WithHeader("Accept", "*/*")
+            .WithEncodedForm(("app_id", appID), ("sid", sessionID));
         
-        requestData.AddFormData(formData);
+        ApplyCookies(request, url);
         
-        requestData.CookieContainer = this._cookieContainer;
-        
-        ResponseData responseData = await new Request(requestData).GetResponseAsync();
+        Response response = await request.SendAsync();
+        UpdateCookies(response);
 
-        string response = responseData.GetContentAsString();
+        string content = await response.GetStringAsync();
 
-        if (response.Contains("Internal Server Error"))
+        if (content.Contains("Internal Server Error"))
             return Throw<object>(new DeezerException(EnumDeezerExceptionType.AppSessionId));
         
-        if (response.Contains("unable to get unlogged token for this app"))
+        if (content.Contains("unable to get unlogged token for this app"))
             return Throw<object>(new DeezerException(EnumDeezerExceptionType.AppId));
 
-        if (response.Contains("No session found"))
+        if (content.Contains("No session found"))
             return Throw<object>(new DeezerException(EnumDeezerExceptionType.SessionId));
         
-        return new JsonDeserializer<JsonDeezerAuthTokenResponse>().Deserialize(response);
+        return await response.ParseJsonAsync<JsonDeezerAuthTokenResponse>(false);
     }
 
     public async Task<string> GetArlTokenFromSession(string sessionID)
     {
-        RequestData requestData = new RequestData(
-            $"{this._websiteEndpoint}/ajax/gw-light.php?method=user.getArl&input=3&api_version=1.0&api_token=null", 
-            EnumRequestMethod.GET);
+        string url = $"{this._websiteEndpoint}/ajax/gw-light.php?method=user.getArl&input=3&api_version=1.0&api_token=null";
 
-        CookieContainer cookieContainer = new CookieContainer();
-        cookieContainer.Add(new Cookie("sid", sessionID, "/", "deezer.com"));
-
-        requestData.CookieContainer = cookieContainer;
+        Request request = new Request(url)
+            .AsGet()
+            .WithCookie($"sid={sessionID}");
         
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
+        Response response = await request.SendAsync();
+        string content = await response.GetStringAsync();
 
-        string response = responseData.GetContentAsString();
-
-        if (response.Contains("Require user auth"))
+        if (content.Contains("Require user auth"))
             return Throw<object>(new DeezerException(EnumDeezerExceptionType.SessionId));
 
-        JsonDeezerArlTokenResponse token = new JsonDeserializer<JsonDeezerArlTokenResponse>().Deserialize(response);
+        JsonDeezerArlTokenResponse token = await response.ParseJsonAsync<JsonDeezerArlTokenResponse>(false);
         return token.results;
     }
     
@@ -150,37 +144,34 @@ public class Deezer : ApiClient
         if (string.IsNullOrEmpty(csrfToken))
             return Throw<object>(new DeezerException(EnumDeezerExceptionType.InvalidCsrfToken));
 
-        RequestData requestData = new RequestData(
-            $"{this._websiteEndpoint}/ajax/gw-light.php?method=song.getLyrics&api_version=1.0&input=3&api_token={csrfToken}&cid={this.RandomCid}",
-            EnumRequestMethod.POST);
+        string url = $"{this._websiteEndpoint}/ajax/gw-light.php?method=song.getLyrics&api_version=1.0&input=3&api_token={csrfToken}&cid={this.RandomCid}";
 
-        requestData.Timeout = TimeSpan.FromMinutes(1);
-        
         JObject jsonTrackID = new JObject();
         jsonTrackID["sng_id"] = trackID;
 
-        requestData.AddContent(jsonTrackID.ToString());
-        requestData.SetContentType(EnumContentType.APPLICATION_JSON);
-
-        requestData.CookieContainer = this._cookieContainer;
+        Request request = new Request(url)
+            .AsPost()
+            .WithTimeout(TimeSpan.FromMinutes(1))
+            .WithJsonBody(jsonTrackID.ToString());
         
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
+        ApplyCookies(request, url);
+        
+        Response response = await request.SendAsync();
+        UpdateCookies(response);
 
-        string response = responseData.GetContentAsString();
+        string content = await response.GetStringAsync();
 
-        if (response.Contains("Invalid CSRF token"))
+        if (content.Contains("Invalid CSRF token"))
             return Throw<object>(new DeezerException(EnumDeezerExceptionType.NoCsrfToken));
         
-        return new JsonDeserializer<JsonDeezerRawLyricsResponse>().Deserialize(response);
+        return await response.ParseJsonAsync<JsonDeezerRawLyricsResponse>(false);
     }
     
     public async Task<JsonDeezerLyricsResponse> GetLyricsGraph(string trackID)
     {
         JsonDeezerJwtToken jwtToken = await this.GetJwtToken();
+        string url = $"{this._pipeEndpoint}/api";
         
-        RequestData requestData = new RequestData($"{this._pipeEndpoint}/api", EnumRequestMethod.POST);
-
         JObject trackId = new JObject();
         trackId["trackId"] = trackID;
 
@@ -188,23 +179,22 @@ public class Deezer : ApiClient
         jObject["query"] = "query SynchronizedTrackLyrics($trackId: String!) {  track(trackId: $trackId) {    ...SynchronizedTrackLyrics    __typename  }}fragment SynchronizedTrackLyrics on Track {  id  lyrics {    ...Lyrics    __typename  }  album {    cover {      small: urls(pictureRequest: {width: 100, height: 100})      medium: urls(pictureRequest: {width: 264, height: 264})      large: urls(pictureRequest: {width: 800, height: 800})      explicitStatus      __typename    }    __typename  }  __typename}fragment Lyrics on Lyrics {  id  copyright  text  writers  synchronizedLines {    ...LyricsSynchronizedLines    __typename  }  __typename}fragment LyricsSynchronizedLines on LyricsSynchronizedLine {  lrcTimestamp  line  lineTranslated  milliseconds  duration  __typename}";
         jObject["variables"] = trackId;
 
-        requestData.CookieContainer = this._cookieContainer;
+        Request request = new Request(url)
+            .AsPost()
+            .WithJsonBody(jObject.ToString())
+            .UseBearerAuthentication(jwtToken.jwt);
         
-        requestData.AddContent(jObject.ToString());
+        ApplyCookies(request, url);
         
-        requestData.SetContentType(EnumContentType.APPLICATION_JSON);
-            
-        requestData.AddAuthMethod(new Auth(jwtToken.jwt, EnumAuthType.OAUTH2));
+        Response response = await request.SendAsync();
+        UpdateCookies(response);
 
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
+        string content = await response.GetStringAsync();
 
-        string response = responseData.GetContentAsString();
-
-        if (response.Contains("JwtTokenExpiredError"))
+        if (content.Contains("JwtTokenExpiredError"))
             return Throw<object>(new DeezerException(EnumDeezerExceptionType.JwtExpired));
         
-        return new JsonDeserializer<JsonDeezerLyricsResponse>().Deserialize(responseData.GetContentAsString());
+        return await response.ParseJsonAsync<JsonDeezerLyricsResponse>(false);
     }
 
     public async Task<string> GetCsrfToken()
@@ -234,23 +224,23 @@ public class Deezer : ApiClient
         if (string.IsNullOrEmpty(rawUserData))
             return null;
         
-        return new JsonDeserializer<JsonDeezerUserData>().Deserialize(rawUserData);
+        return await new JsonDeserializer<JsonDeezerUserData>().DeserializeAsync(rawUserData);
     }
 
     public async Task<string> GetUserDataRaw(int retries = 5)
     {
-        RequestData requestData = new RequestData(
-            $"{this._websiteEndpoint}/ajax/gw-light.php?method=deezer.getUserData&api_version=1.0&input=3&api_token=&cid={this.RandomCid}", 
-            EnumRequestMethod.GET);
+        string url = $"{this._websiteEndpoint}/ajax/gw-light.php?method=deezer.getUserData&api_version=1.0&input=3&api_token=&cid={this.RandomCid}";
 
-        requestData.Timeout = TimeSpan.FromSeconds(10);
+        Request request = new Request(url)
+            .AsGet()
+            .WithTimeout(TimeSpan.FromSeconds(10));
         
-        requestData.CookieContainer = this._cookieContainer;
-            
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
+        ApplyCookies(request, url);
+        
+        Response response = await request.SendAsync();
+        UpdateCookies(response);
 
-        string content = Encoding.ASCII.GetString(responseData.Content);
+        string content = await response.GetStringAsync(Encoding.ASCII);
             
         if (!content.Contains("deprecated?method=deezer.getUserData"))
             return content;
@@ -294,28 +284,26 @@ public class Deezer : ApiClient
         if (trackID == "0")
             return Throw<object>(new DeezerException(EnumDeezerExceptionType.WrongParameter));
         
+        string url = $"{this._websiteEndpoint}/ajax/gw-light.php?method=deezer.pageTrack&api_version=1.0&input=3&api_token={csrfToken}";
+
         for (int i = 0; i < retries; i++)
         {
             try
             {
-                RequestData requestData = new RequestData(
-                    $"{this._websiteEndpoint}/ajax/gw-light.php?method=deezer.pageTrack&api_version=1.0&input=3&api_token={csrfToken}", 
-                    EnumRequestMethod.POST);
-
-                requestData.Timeout = TimeSpan.FromSeconds(10);
-            
                 JObject jObject = new JObject();
                 jObject["sng_id"] = trackID;
             
-                requestData.AddContent(jObject.ToString());
-                requestData.SetContentType(EnumContentType.APPLICATION_JSON);
+                Request request = new Request(url)
+                    .AsPost()
+                    .WithTimeout(TimeSpan.FromSeconds(10))
+                    .WithJsonBody(jObject.ToString());
+                
+                ApplyCookies(request, url);
         
-                requestData.CookieContainer = this._cookieContainer;
-        
-                Request request = new Request(requestData);
-                ResponseData responseData = await request.GetResponseAsync();
+                Response response = await request.SendAsync();
+                UpdateCookies(response);
             
-                string content = responseData.GetContentAsString();
+                string content = await response.GetStringAsync();
 
                 if (content.Contains("Invalid CSRF token"))
                     return Throw<object>(new DeezerException(EnumDeezerExceptionType.InvalidCsrfToken));
@@ -324,7 +312,7 @@ public class Deezer : ApiClient
                     return Throw<object>(new DeezerException(EnumDeezerExceptionType.WrongParameter));
             
                 if (!content.Contains("deprecated?method=deezer.pageTrack"))
-                    return new JsonDeserializer<JsonDeezerSongDetails>().Deserialize(content);
+                    return await response.ParseJsonAsync<JsonDeezerSongDetails>(false);
             }
             catch (System.Exception e)
             {
@@ -337,7 +325,7 @@ public class Deezer : ApiClient
     
     public async Task<JsonDeezerSongSource> GetSongUrls(string trackToken, string licenseToken)
     {
-        RequestData requestData = new RequestData($"{this._mediaEndpoint}/v1/get_url", EnumRequestMethod.POST);
+        string url = $"{this._mediaEndpoint}/v1/get_url";
         
         JObject jObject = new JObject
         {
@@ -375,15 +363,16 @@ public class Deezer : ApiClient
             }}
         };
         
-        requestData.AddContent(jObject.ToString());
-        requestData.SetContentType(EnumContentType.APPLICATION_JSON);
+        Request request = new Request(url)
+            .AsPost()
+            .WithJsonBody(jObject.ToString());
         
-        requestData.CookieContainer = this._cookieContainer;
+        ApplyCookies(request, url);
         
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
+        Response response = await request.SendAsync();
+        UpdateCookies(response);
         
-        return new JsonDeserializer<JsonDeezerSongSource>().Deserialize(responseData.GetContentAsString());
+        return await response.ParseJsonAsync<JsonDeezerSongSource>(false);
     }
 
     #pragma warning disable S1751
@@ -419,10 +408,9 @@ public class Deezer : ApiClient
                 {
                     JsonDeezerSongSourceDataMediaSource source = media.sources[i];
 
-                    Request request = new Request(source.url);
-                    ResponseData responseData = await request.GetResponseAsync();
+                    Response response = await new Request(source.url).SendAsync();
                     
-                    byte[] buffer = responseData.Content;
+                    byte[] buffer = await response.GetBytesAsync();
                     byte[] key = CalculateDecryptionKey(trackID);
                     
                     return DecryptSongData(buffer, key);
@@ -478,31 +466,26 @@ public class Deezer : ApiClient
     
     public async Task<JsonDeezerSearchResponse> Search(string query)
     {
-        RequestData requestData = new RequestData($"{this._apiEndpoint}/search?q={query}");
+        Response response = await new Request($"{this._apiEndpoint}/search?q={query}")
+            .SendAsync();
         
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
-        
-        return new JsonDeserializer<JsonDeezerSearchResponse>().Deserialize(responseData.GetContentAsString());
+        return await response.ParseJsonAsync<JsonDeezerSearchResponse>(false);
     }
     
     public async Task<JsonDeezerSearchResponse> Search(string track = "", string artist = "", string album = "", bool strict = false)
     {
-        return new JsonDeserializer<JsonDeezerSearchResponse>()
-            .Deserialize(await SearchRaw(track, artist, album, strict));
+        return await new JsonDeserializer<JsonDeezerSearchResponse>()
+            .DeserializeAsync(await SearchRaw(track, artist, album, strict));
     }
 
     private async Task<string> SearchRaw(string track = "", string artist = "", string album = "", bool strict = false)
     {
         string strictSearch = strict ? "?strict=on" : "";
         
-        RequestData requestData = new RequestData(
-            $"{this._apiEndpoint}/search?q=track:\"{track}\" artist:\"{artist}\" album:\"{album}\"{strictSearch}");
-        
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
+        Response response = await new Request($"{this._apiEndpoint}/search?q=track:\"{track}\" artist:\"{artist}\" album:\"{album}\"{strictSearch}")
+            .SendAsync();
 
-        return responseData.GetContentAsString();
+        return await response.GetStringAsync();
     }
     
     public async Task<List<DeezerTrack>> SearchSongData(
@@ -643,6 +626,30 @@ public class Deezer : ApiClient
         return convertedArtists.ToArray();
     }
     
+    private void ApplyCookies(Request request, string url)
+    {
+        string cookieHeader = this._cookieContainer.GetCookieHeader(new Uri(url));
+        if (!string.IsNullOrEmpty(cookieHeader))
+        {
+            request.WithHeader("Cookie", cookieHeader);
+        }
+    }
+
+    private void UpdateCookies(Response response)
+    {
+        CookieCollection cookies = response.GetCookies();
+        if (cookies.Count > 0 && response.RequestUri != null)
+        {
+            foreach (Cookie cookie in cookies)
+            {
+                if (string.IsNullOrEmpty(cookie.Domain))
+                    cookie.Domain = response.RequestUri.Host;
+                
+                this._cookieContainer.Add(cookie);
+            }
+        }
+    }
+
     private bool IsArlTokenPresent()
     {
         CookieCollection cookies = this._cookieContainer.GetAllCookies();

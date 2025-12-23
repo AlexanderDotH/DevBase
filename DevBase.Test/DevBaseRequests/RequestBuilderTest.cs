@@ -1,5 +1,5 @@
-using DevBase.Requests.Data;
-using DevBase.Requests.Data.Parameters;
+using DevBase.Net.Data;
+using DevBase.Net.Data.Parameters;
 using Dumpify;
 
 namespace DevBase.Test.DevBaseRequests;

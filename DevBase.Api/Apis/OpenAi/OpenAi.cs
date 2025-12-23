@@ -2,10 +2,8 @@
 using DevBase.Api.Serializer;
 using DevBase.Enums;
 using DevBase.Generics;
-using DevBase.Web;
-using DevBase.Web.RequestData;
-using DevBase.Web.RequestData.Data;
-using DevBase.Web.ResponseData;
+using DevBase.Net.Core;
+using DevBase.Net.Data.Body;
 
 namespace DevBase.Api.Apis.OpenAi;
 
@@ -22,23 +20,20 @@ public class OpenAi : ApiClient
 
     public async Task<OpenAiTranscription> Transcribe(byte[] audioFile)
     {
-        RequestData requestData = new RequestData(string.Format("{0}/audio/transcriptions", this._baseUrl), EnumRequestMethod.POST);
+        string url = $"{this._baseUrl}/audio/transcriptions";
 
-        requestData.AddAuthMethod(new Auth(this._apiKey, EnumAuthType.OAUTH2));
-        
-        AList<MultipartElement> formData = new AList<MultipartElement>();
-        formData.Add(new MultipartElement("file", audioFile));
-        formData.Add(new MultipartElement("model", "whisper-1"));
-        formData.Add(new MultipartElement("response_format", "verbose_json"));
+        RequestKeyValueListBodyBuilder form = new RequestKeyValueListBodyBuilder()
+            .AddFile("file", audioFile)
+            .AddText("model", "whisper-1")
+            .AddText("response_format", "verbose_json");
 
-        requestData.AddMultipartFormData(formData);
+        Response response = await new Request(url)
+            .AsPost()
+            .UseBearerAuthentication(this._apiKey)
+            .WithForm(form)
+            .WithTimeout(TimeSpan.FromMinutes(10))
+            .SendAsync();
 
-        requestData.SetAccept(EnumCharsetType.ALL);
-        requestData.Timeout = TimeSpan.FromMinutes(10);
-        
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
-
-        return new JsonDeserializer<OpenAiTranscription>().Deserialize(responseData.GetContentAsString());
+        return await response.ParseJsonAsync<OpenAiTranscription>(false);
     }
 }

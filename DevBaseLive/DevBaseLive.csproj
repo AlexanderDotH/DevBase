@@ -11,6 +11,7 @@
       <ProjectReference Include="..\DevBase.Api\DevBase.Api.csproj" />
       <ProjectReference Include="..\DevBase.Cryptography.BouncyCastle\DevBase.Cryptography.BouncyCastle.csproj" />
       <ProjectReference Include="..\DevBase.Format\DevBase.Format.csproj" />
+      <ProjectReference Include="..\DevBase.Net\DevBase.Net.csproj" />
       <ProjectReference Include="..\DevBase\DevBase.csproj" />
     </ItemGroup>
 

@@ -1,9 +1,9 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Net;
-using DevBase.Requests.Configuration;
-using DevBase.Requests.Core;
-using DevBase.Requests.Security.Token;
-using DevBase.Requests.Validation;
+using DevBase.Net.Configuration;
+using DevBase.Net.Core;
+using DevBase.Net.Security.Token;
+using DevBase.Net.Validation;
 
 namespace DevBaseLive;
 
@@ -38,7 +38,7 @@ class Program
     {
         Console.OutputEncoding = System.Text.Encoding.UTF8;
         
-        PrintHeader("DevBase.Requests Test Suite");
+        PrintHeader("DevBase.Net Test Suite");
         Console.WriteLine($"  Started: {DateTime.Now:yyyy-MM-dd HH:mm:ss}");
         Console.WriteLine();
 
@@ -257,7 +257,7 @@ class Program
         {
             return (true, "Timeout triggered correctly", "Timeout", "Timeout");
         }
-        catch (DevBase.Requests.Exceptions.RequestTimeoutException)
+        catch (DevBase.Net.Exceptions.RequestTimeoutException)
         {
             return (true, "Timeout triggered correctly", "Timeout", "Timeout");
         }
@@ -274,7 +274,7 @@ class Program
         Console.WriteLine($"  Running {iterations} iterations for each method...");
         Console.WriteLine();
 
-        // DevBase.Requests + JsonPath
+        // DevBase.Net + JsonPath
         Console.Write($"  {"DevBase + JsonPath",-35}");
         List<long> jsonPathTimes = new();
         List<string> jsonPathData = new();
@@ -310,7 +310,7 @@ class Program
         Console.WriteLine($"Avg: {httpClientAvg:F1}ms (Min: {httpClientTimes.Skip(1).Min()}ms, Max: {httpClientTimes.Skip(1).Max()}ms)");
         Console.ResetColor();
 
-        // DevBase.Requests + Full Deserialization
+        // DevBase.Net + Full Deserialization
         Console.Write($"  {"DevBase + Full Deser.",-35}");
         List<long> devbaseFullTimes = new();
         List<string> devbaseFullData = new();
@@ -425,9 +425,9 @@ class Program
     private static void PrintHeader(string title)
     {
         Console.ForegroundColor = ConsoleColor.White;
-        Console.WriteLine($"╔{'═'.ToString().PadRight(58, '═')}╗");
-        Console.WriteLine($"║  {title.PadRight(56)}║");
-        Console.WriteLine($"╚{'═'.ToString().PadRight(58, '═')}╝");
+        Console.WriteLine($"+{'-'.ToString().PadRight(58, '-')}+");
+        Console.WriteLine($"�  {title.PadRight(56)}�");
+        Console.WriteLine($"+{'-'.ToString().PadRight(58, '-')}+");
         Console.ResetColor();
         Console.WriteLine();
     }
@@ -463,7 +463,7 @@ class Program
             foreach (var test in _testResults.Where(t => !t.Passed))
             {
                 Console.ForegroundColor = ConsoleColor.DarkRed;
-                Console.WriteLine($"    ✗ {test.Name}");
+                Console.WriteLine($"    ? {test.Name}");
                 Console.ForegroundColor = ConsoleColor.DarkGray;
                 Console.WriteLine($"      Expected: {test.Expected}");
                 Console.WriteLine($"      Actual:   {test.Actual}");
@@ -474,8 +474,8 @@ class Program
         Console.WriteLine();
         Console.ForegroundColor = passRate == 100 ? ConsoleColor.Green : ConsoleColor.Yellow;
         Console.WriteLine(passRate == 100 
-            ? "  ✓ All tests passed!" 
-            : $"  ⚠ {_failedTests} test(s) need attention");
+            ? "  ? All tests passed!" 
+            : $"  ? {_failedTests} test(s) need attention");
         Console.ResetColor();
     }
 

@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
 using DevBase.IO;
-using DevBase.Requests.Abstract;
-using DevBase.Requests.Objects;
+using DevBase.Net.Abstract;
+using DevBase.Net.Objects;
 
 namespace DevBase.Test.DevBase.IO.AFile;
 
