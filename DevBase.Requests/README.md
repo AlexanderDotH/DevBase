@@ -684,6 +684,63 @@ Requests session = new Requests()
 await session.SendAllAsync();
 ```
 
+### Request-Queue (Hintergrundverarbeitung)
+
+```csharp
+using DevBase.Requests.Core;
+
+// Queue erstellen mit Callbacks
+Requests queue = new Requests()
+    .WithRateLimit(10, TimeSpan.FromSeconds(1))
+    .OnResponse(response => Console.WriteLine($"✓ {response.StatusCode}"))
+    .OnError((request, ex) => Console.WriteLine($"✗ {ex.Message}"));
+
+// Requests jederzeit hinzufügen (Enqueue)
+queue.Enqueue("https://api.example.com/item/1");
+queue.Enqueue("https://api.example.com/item/2");
+queue.Enqueue(new Request("https://api.example.com/item/3").AsPost());
+
+// Mit Konfiguration
+queue.Enqueue("https://api.example.com/data", request => 
+{
+    request.AsPost();
+    request.WithJsonBody(new { id = 1 });
+});
+
+// Mit Factory
+queue.Enqueue(() => new Request("https://api.example.com/dynamic")
+    .WithHeader("X-Timestamp", DateTime.UtcNow.ToString()));
+
+// Hintergrundverarbeitung starten
+queue.StartProcessing();
+
+// Requests können jederzeit hinzugefügt werden
+await Task.Delay(1000);
+queue.Enqueue("https://api.example.com/item/4");
+queue.Enqueue("https://api.example.com/item/5");
+
+// Verarbeitung stoppen
+await queue.StopProcessingAsync();
+
+// Oder: Einmalig alle verarbeiten und warten
+await queue.ProcessUntilEmptyAsync();
+
+// Responses abrufen
+while (queue.TryDequeueResponse(out Response? response))
+{
+    Console.WriteLine($"Response: {await response.GetStringAsync()}");
+}
+
+// Oder alle auf einmal
+List<Response> allResponses = queue.DequeueAllResponses();
+
+// Statistiken
+Console.WriteLine($"Processed: {queue.ProcessedCount}");
+Console.WriteLine($"Errors: {queue.ErrorCount}");
+Console.WriteLine($"In Queue: {queue.QueueCount}");
+Console.WriteLine($"Responses Ready: {queue.ResponseQueueCount}");
+```
+
 ---
 
 ## Response-Caching
