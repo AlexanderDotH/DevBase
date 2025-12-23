@@ -1,5 +1,6 @@
 using System.Text;
 using DevBase.Requests.Constants;
+using DevBase.Requests.Security.Token;
 
 namespace DevBase.Requests.Validation;
 
@@ -35,6 +36,15 @@ public static class HeaderValidator
 
     public static ValidationResult ValidateBearerAuth(string headerValue)
     {
+        return ValidateBearerAuth(headerValue, verifySignature: false, secret: null, checkExpiration: false);
+    }
+
+    public static ValidationResult ValidateBearerAuth(
+        string headerValue, 
+        bool verifySignature, 
+        string? secret, 
+        bool checkExpiration = true)
+    {
         if (string.IsNullOrWhiteSpace(headerValue))
             return ValidationResult.Fail("Bearer authentication header is empty");
 
@@ -46,13 +56,49 @@ public static class HeaderValidator
         if (string.IsNullOrWhiteSpace(token))
             return ValidationResult.Fail("Bearer token is empty");
 
-        if (IsValidJwt(token))
-            return ValidationResult.Success();
-
         if (token.Length < 10)
             return ValidationResult.Fail("Bearer token is too short");
 
+        if (!IsValidJwt(token))
+            return ValidationResult.Success();
+
+        return ValidateJwtToken(token, verifySignature, secret, checkExpiration);
+    }
+
+    public static ValidationResult ValidateJwtToken(
+        string token, 
+        bool verifySignature = false, 
+        string? secret = null, 
+        bool checkExpiration = true)
+    {
+        AuthenticationToken? jwt = AuthenticationToken.FromString(
+            token, 
+            verifyToken: verifySignature && !string.IsNullOrEmpty(secret), 
+            tokenSecret: secret ?? "");
+
+        if (jwt == null)
+            return ValidationResult.Fail("Failed to parse JWT token");
+
+        if (verifySignature && !string.IsNullOrEmpty(secret) && !jwt.Signature.Verified)
+            return ValidationResult.Fail("JWT signature verification failed");
+
+        if (checkExpiration && jwt.Payload.ExpiresAt != default && jwt.Payload.ExpiresAt < DateTime.UtcNow)
+            return ValidationResult.Fail($"JWT token expired at {jwt.Payload.ExpiresAt:O}");
+
+        if (checkExpiration && jwt.Payload.NotBefore != default && DateTime.UtcNow < DateTimeOffset.FromUnixTimeSeconds(jwt.Payload.NotBefore).UtcDateTime)
+            return ValidationResult.Fail("JWT token not yet valid (nbf claim)");
+
         return ValidationResult.Success();
+    }
+
+    public static AuthenticationToken? ParseJwtToken(string token)
+    {
+        return AuthenticationToken.FromString(token, verifyToken: false);
+    }
+
+    public static AuthenticationToken? ParseAndVerifyJwtToken(string token, string secret)
+    {
+        return AuthenticationToken.FromString(token, verifyToken: true, tokenSecret: secret);
     }
 
     public static ValidationResult ValidateContentType(string? contentType)

@@ -8,6 +8,7 @@ using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 using DevBase.Requests.Data.Parameters;
 using DevBase.Requests.Interfaces;
 using DevBase.Requests.Proxy;
+using DevBase.Requests.Security.Token;
 
 namespace DevBase.Requests.Core;
 
@@ -159,6 +160,19 @@ public sealed partial class Request
         this.EnsureHeaderBuilder();
         this._requestBuilder.RequestHeaderBuilder!.UseBearerAuthentication(token);
         return this;
+    }
+
+    public Request UseJwtAuthentication(AuthenticationToken token)
+    {
+        return UseBearerAuthentication(token.RawToken);
+    }
+
+    public Request UseJwtAuthentication(string rawToken)
+    {
+        AuthenticationToken? token = AuthenticationToken.FromString(rawToken);
+        if (token == null)
+            throw new ArgumentException("Invalid JWT token format", nameof(rawToken));
+        return UseBearerAuthentication(token.RawToken);
     }
 
     public Request WithRawBody(RequestRawBodyBuilder bodyBuilder)

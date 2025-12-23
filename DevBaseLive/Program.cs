@@ -156,7 +156,6 @@ namespace DevBaseLive
         {
             Response response = await new Request("https://api.n.exchange/en/api/v1/currency/")
                 .AsGet()
-                .With
                 .WithAcceptJson()
                 .SendAsync();
 
