@@ -1,13 +1,49 @@
-using System.Text.RegularExpressions;
-using DevBase.Requests.Configuration;
+using System.Text;
 using DevBase.Requests.Configuration.Enums;
 using DevBase.Requests.Core;
 using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 
 namespace DevBase.Requests.Spoofing;
 
-public static partial class BrowserSpoofing
+public static class BrowserSpoofing
 {
+    [ThreadStatic] private static StringBuilder? _headerBuilder;
+    
+    // Header names (used multiple times)
+    private static readonly ReadOnlyMemory<char> HeaderSecChUa = "sec-ch-ua".AsMemory();
+    private static readonly ReadOnlyMemory<char> HeaderSecChUaMobile = "sec-ch-ua-mobile".AsMemory();
+    private static readonly ReadOnlyMemory<char> HeaderSecChUaPlatform = "sec-ch-ua-platform".AsMemory();
+    private static readonly ReadOnlyMemory<char> HeaderUpgradeInsecureRequests = "Upgrade-Insecure-Requests".AsMemory();
+    private static readonly ReadOnlyMemory<char> HeaderAcceptLanguage = "Accept-Language".AsMemory();
+    private static readonly ReadOnlyMemory<char> HeaderAcceptEncoding = "Accept-Encoding".AsMemory();
+    private static readonly ReadOnlyMemory<char> HeaderSecFetchSite = "sec-fetch-site".AsMemory();
+    private static readonly ReadOnlyMemory<char> HeaderSecFetchMode = "sec-fetch-mode".AsMemory();
+    private static readonly ReadOnlyMemory<char> HeaderSecFetchUser = "sec-fetch-user".AsMemory();
+    private static readonly ReadOnlyMemory<char> HeaderSecFetchDest = "sec-fetch-dest".AsMemory();
+    private static readonly ReadOnlyMemory<char> HeaderDnt = "DNT".AsMemory();
+    
+    // Header values (used multiple times)
+    private static readonly ReadOnlyMemory<char> ValueOne = "1".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueQuestionOne = "?1".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueQuestionZero = "?0".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueNone = "none".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueNavigate = "navigate".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueDocument = "document".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueAcceptEncodingGzip = "gzip, deflate, br".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueAcceptLanguageDefault = "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueAcceptLanguageSafari = "de-DE,de;q=0.9".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueAcceptChromium = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueAcceptFirefox = "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueAcceptEdge = "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8".AsMemory();
+    private static readonly ReadOnlyMemory<char> ValueAcceptSafari = "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8".AsMemory();
+    
+    // sec-ch-ua building blocks
+    private static readonly char[] ChUaChromiumPrefix = "\"Chromium\";v=\"".ToCharArray();
+    private static readonly char[] ChUaChromePrefix = "\", \"Google Chrome\";v=\"".ToCharArray();
+    private static readonly char[] ChUaEdgePrefix = "\"Microsoft Edge\";v=\"".ToCharArray();
+    private static readonly char[] ChUaChromiumInfix = "\", \"Chromium\";v=\"".ToCharArray();
+    private static readonly char[] ChUaSuffix = "\", \"Not-A.Brand\";v=\"99\"".ToCharArray();
+    
     private static readonly string[] SearchEngines =
     [
         "https://www.google.com/",
@@ -16,15 +52,6 @@ public static partial class BrowserSpoofing
         "https://www.yahoo.com/",
         "https://www.ecosia.org/"
     ];
-
-    [GeneratedRegex(@"Chrome/([\d]+)", RegexOptions.Compiled)]
-    private static partial Regex ChromeVersionRegex();
-
-    [GeneratedRegex(@"Edg/([\d]+)", RegexOptions.Compiled)]
-    private static partial Regex EdgeVersionRegex();
-
-    [GeneratedRegex(@"\(([^)]+)\)", RegexOptions.Compiled)]
-    private static partial Regex PlatformRegex();
 
     public static void ApplyBrowserProfile(Request request, EnumBrowserProfile profile)
     {
@@ -48,76 +75,101 @@ public static partial class BrowserSpoofing
     private static void ApplyChromeHeaders(Request request)
     {
         BogusChromeUserAgentGenerator generator = new BogusChromeUserAgentGenerator();
-        string userAgent = generator.UserAgentPart.ToString();
+        UserAgentMetadata metadata = generator.Generate();
         
-        string chromeVersion = ExtractChromeVersion(userAgent);
-        string platform = ExtractPlatform(userAgent);
-        bool isMobile = userAgent.Contains("Mobile");
+        StringBuilder sb = _headerBuilder ??= new StringBuilder(128);
+        sb.Clear();
         
-        request.WithHeader("sec-ch-ua", $"\"Chromium\";v=\"{chromeVersion}\", \"Google Chrome\";v=\"{chromeVersion}\", \"Not-A.Brand\";v=\"99\"");
-        request.WithHeader("sec-ch-ua-mobile", isMobile ? "?1" : "?0");
-        request.WithHeader("sec-ch-ua-platform", $"\"{platform}\"");
-        request.WithHeader("Upgrade-Insecure-Requests", "1");
-        request.WithUserAgent(userAgent);
-        request.WithAccept("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8");
-        request.WithHeader("Accept-Language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
-        request.WithHeader("Accept-Encoding", "gzip, deflate, br");
-        request.WithHeader("sec-fetch-site", "none");
-        request.WithHeader("sec-fetch-mode", "navigate");
-        request.WithHeader("sec-fetch-user", "?1");
-        request.WithHeader("sec-fetch-dest", "document");
+        // sec-ch-ua header
+        sb.Append(ChUaChromiumPrefix);
+        sb.Append(metadata.ChromiumVersion);
+        sb.Append(ChUaChromePrefix);
+        sb.Append(metadata.BrowserVersion);
+        sb.Append(ChUaSuffix);
+        request.WithHeader(HeaderSecChUa, sb.ToString());
+        
+        request.WithHeader(HeaderSecChUaMobile, metadata.IsMobile ? ValueQuestionOne : ValueQuestionZero);
+        
+        // sec-ch-ua-platform header
+        sb.Clear();
+        sb.Append('"');
+        sb.Append(metadata.Platform);
+        sb.Append('"');
+        request.WithHeader(HeaderSecChUaPlatform, sb.ToString());
+        
+        request.WithHeader(HeaderUpgradeInsecureRequests, ValueOne);
+        request.WithUserAgent(metadata.UserAgent);
+        request.WithAccept(ValueAcceptChromium);
+        request.WithHeader(HeaderAcceptLanguage, ValueAcceptLanguageDefault);
+        request.WithHeader(HeaderAcceptEncoding, ValueAcceptEncodingGzip);
+        request.WithHeader(HeaderSecFetchSite, ValueNone);
+        request.WithHeader(HeaderSecFetchMode, ValueNavigate);
+        request.WithHeader(HeaderSecFetchUser, ValueQuestionOne);
+        request.WithHeader(HeaderSecFetchDest, ValueDocument);
     }
 
     private static void ApplyFirefoxHeaders(Request request)
     {
         BogusFirefoxUserAgentGenerator generator = new BogusFirefoxUserAgentGenerator();
-        string userAgent = generator.UserAgentPart.ToString();
+        UserAgentMetadata metadata = generator.Generate();
         
-        request.WithUserAgent(userAgent);
-        request.WithAccept("text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8");
-        request.WithHeader("Accept-Language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
-        request.WithHeader("Accept-Encoding", "gzip, deflate, br");
-        request.WithHeader("DNT", "1");
-        request.WithHeader("Upgrade-Insecure-Requests", "1");
-        request.WithHeader("Sec-Fetch-Dest", "document");
-        request.WithHeader("Sec-Fetch-Mode", "navigate");
-        request.WithHeader("Sec-Fetch-Site", "none");
-        request.WithHeader("Sec-Fetch-User", "?1");
+        request.WithUserAgent(metadata.UserAgent);
+        request.WithAccept(ValueAcceptFirefox);
+        request.WithHeader(HeaderAcceptLanguage, ValueAcceptLanguageDefault);
+        request.WithHeader(HeaderAcceptEncoding, ValueAcceptEncodingGzip);
+        request.WithHeader(HeaderDnt, ValueOne);
+        request.WithHeader(HeaderUpgradeInsecureRequests, ValueOne);
+        request.WithHeader(HeaderSecFetchDest, ValueDocument);
+        request.WithHeader(HeaderSecFetchMode, ValueNavigate);
+        request.WithHeader(HeaderSecFetchSite, ValueNone);
+        request.WithHeader(HeaderSecFetchUser, ValueQuestionOne);
     }
 
     private static void ApplyEdgeHeaders(Request request)
     {
         BogusEdgeUserAgentGenerator generator = new BogusEdgeUserAgentGenerator();
-        string userAgent = generator.UserAgentPart.ToString();
+        UserAgentMetadata metadata = generator.Generate();
         
-        string chromeVersion = ExtractChromeVersion(userAgent);
-        string edgeVersion = ExtractEdgeVersion(userAgent);
-        string platform = ExtractPlatform(userAgent);
-        bool isMobile = userAgent.Contains("Mobile");
+        StringBuilder sb = _headerBuilder ??= new StringBuilder(128);
+        sb.Clear();
         
-        request.WithHeader("sec-ch-ua", $"\"Microsoft Edge\";v=\"{edgeVersion}\", \"Chromium\";v=\"{chromeVersion}\", \"Not-A.Brand\";v=\"99\"");
-        request.WithHeader("sec-ch-ua-mobile", isMobile ? "?1" : "?0");
-        request.WithHeader("sec-ch-ua-platform", $"\"{platform}\"");
-        request.WithHeader("Upgrade-Insecure-Requests", "1");
-        request.WithUserAgent(userAgent);
-        request.WithAccept("text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8");
-        request.WithHeader("Accept-Language", "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7");
-        request.WithHeader("Accept-Encoding", "gzip, deflate, br");
-        request.WithHeader("sec-fetch-site", "none");
-        request.WithHeader("sec-fetch-mode", "navigate");
-        request.WithHeader("sec-fetch-user", "?1");
-        request.WithHeader("sec-fetch-dest", "document");
+        // sec-ch-ua header
+        sb.Append(ChUaEdgePrefix);
+        sb.Append(metadata.BrowserVersion);
+        sb.Append(ChUaChromiumInfix);
+        sb.Append(metadata.ChromiumVersion);
+        sb.Append(ChUaSuffix);
+        request.WithHeader(HeaderSecChUa, sb.ToString());
+        
+        request.WithHeader(HeaderSecChUaMobile, metadata.IsMobile ? ValueQuestionOne : ValueQuestionZero);
+        
+        // sec-ch-ua-platform header
+        sb.Clear();
+        sb.Append('"');
+        sb.Append(metadata.Platform);
+        sb.Append('"');
+        request.WithHeader(HeaderSecChUaPlatform, sb.ToString());
+        
+        request.WithHeader(HeaderUpgradeInsecureRequests, ValueOne);
+        request.WithUserAgent(metadata.UserAgent);
+        request.WithAccept(ValueAcceptEdge);
+        request.WithHeader(HeaderAcceptLanguage, ValueAcceptLanguageDefault);
+        request.WithHeader(HeaderAcceptEncoding, ValueAcceptEncodingGzip);
+        request.WithHeader(HeaderSecFetchSite, ValueNone);
+        request.WithHeader(HeaderSecFetchMode, ValueNavigate);
+        request.WithHeader(HeaderSecFetchUser, ValueQuestionOne);
+        request.WithHeader(HeaderSecFetchDest, ValueDocument);
     }
 
     private static void ApplySafariHeaders(Request request)
     {
         BogusOperaUserAgentGenerator generator = new BogusOperaUserAgentGenerator();
-        string userAgent = generator.UserAgentPart.ToString();
+        UserAgentMetadata metadata = generator.Generate();
         
-        request.WithUserAgent(userAgent);
-        request.WithAccept("text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        request.WithHeader("Accept-Language", "de-DE,de;q=0.9");
-        request.WithHeader("Accept-Encoding", "gzip, deflate, br");
+        request.WithUserAgent(metadata.UserAgent);
+        request.WithAccept(ValueAcceptSafari);
+        request.WithHeader(HeaderAcceptLanguage, "de-DE,de;q=0.9");
+        request.WithHeader(HeaderAcceptEncoding, ValueAcceptEncodingGzip);
     }
 
     public static string GetRandomSearchEngineReferer()
@@ -130,7 +182,7 @@ public static partial class BrowserSpoofing
         string? referer = strategy switch
         {
             EnumRefererStrategy.PreviousUrl when previousUrl != null => previousUrl,
-            EnumRefererStrategy.BaseHost when request.GetUri() != null => $"{request.GetUri()!.Scheme}://{request.GetUri()!.Host}/",
+            EnumRefererStrategy.BaseHost when request.GetUri() != null => BuildBaseHostReferer(request.GetUri()!),
             EnumRefererStrategy.SearchEngine => GetRandomSearchEngineReferer(),
             _ => null
         };
@@ -138,37 +190,16 @@ public static partial class BrowserSpoofing
         if (referer != null)
             request.WithReferer(referer);
     }
-
-    private static string ExtractChromeVersion(string userAgent)
+    
+    private static string BuildBaseHostReferer(Uri uri)
     {
-        Match match = ChromeVersionRegex().Match(userAgent);
-        return match.Success ? match.Groups[1].Value : "131";
+        StringBuilder sb = _headerBuilder ??= new StringBuilder(64);
+        sb.Clear();
+        sb.Append(uri.Scheme);
+        sb.Append("://");
+        sb.Append(uri.Host);
+        sb.Append('/');
+        return sb.ToString();
     }
 
-    private static string ExtractEdgeVersion(string userAgent)
-    {
-        Match match = EdgeVersionRegex().Match(userAgent);
-        return match.Success ? match.Groups[1].Value : "131";
-    }
-
-    private static string ExtractPlatform(string userAgent)
-    {
-        Match match = PlatformRegex().Match(userAgent);
-        if (!match.Success) return "Windows";
-        
-        string platformInfo = match.Groups[1].Value;
-        
-        if (platformInfo.Contains("Windows"))
-            return "Windows";
-        if (platformInfo.Contains("Macintosh") || platformInfo.Contains("Mac OS"))
-            return "macOS";
-        if (platformInfo.Contains("Linux"))
-            return "Linux";
-        if (platformInfo.Contains("Android"))
-            return "Android";
-        if (platformInfo.Contains("iPhone") || platformInfo.Contains("iPad"))
-            return "iOS";
-            
-        return "Windows";
-    }
 }

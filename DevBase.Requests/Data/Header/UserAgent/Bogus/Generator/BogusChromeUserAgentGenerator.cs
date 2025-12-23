@@ -1,31 +1,36 @@
 ﻿using System.Text;
+using DevBase.Requests.Constants;
 using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 
 public class BogusChromeUserAgentGenerator : IBogusUserAgentGenerator
 {
-    private static readonly char[] _platformTag = "AppleWebKit".ToCharArray();
-    private static readonly char[] _compatibilityTag = "(KHTML, like Gecko)".ToCharArray();
-    private static readonly char[] _chromeProduct = "Chrome".ToCharArray();
-    private static readonly char[] _safariProduct = "Safari".ToCharArray();
+    public ReadOnlySpan<char> UserAgentPart => Generate().UserAgent;
     
-    private ReadOnlySpan<char> BogusChromeUserAgent()
+    public UserAgentMetadata Generate()
     {
         StringBuilder chromeUserAgent = new StringBuilder(100);
 
         ReadOnlySpan<char> product = BogusUtils.RandomProductName();
         ReadOnlySpan<char> productVersion = BogusUtils.RandomProductVersion();
         
-        ReadOnlySpan<char> chromeVersion = BogusUtils.RandomVersion(
-            minMajor: 1, maxMajor: 60, 
-            useSubVersion: true, minSubVersion: 1, maxSubVersion: 9, 
+        string chromeVersion = BogusUtils.RandomVersion(
+            minMajor: 100, maxMajor: 131, 
+            useSubVersion: true, minSubVersion: 0, maxSubVersion: 0, 
             useMinor: true, minMinor: 1000, maxMinor: 9000, 
-            usePatch: true, minPatch: 1, maxPatch: 900);
+            usePatch: true, minPatch: 1, maxPatch: 200).ToString();
 
         PlatformID platformId = BogusUtils.RandomPlatformId();
-
-        ReadOnlySpan<char> osPlatform = BogusUtils.RandomOperatingSystem(platformId);
+        string osPlatform = BogusUtils.RandomOperatingSystem(platformId).ToString();
+        
+        ReadOnlyMemory<char> platform = platformId switch
+        {
+            PlatformID.Win32NT => PlatformConstants.Windows,
+            PlatformID.Unix => PlatformConstants.Linux,
+            PlatformID.MacOSX => PlatformConstants.MacOS,
+            _ => PlatformConstants.Windows
+        };
 
         ReadOnlySpan<char> webKitVersion = RandomWebKitVersion();
 
@@ -42,27 +47,36 @@ public class BogusChromeUserAgentGenerator : IBogusUserAgentGenerator
         chromeUserAgent.Append(' ');
         
         // AppleWebKit/537.36
-        chromeUserAgent.Append(_platformTag);
+        chromeUserAgent.Append(UserAgentConstants.AppleWebKit.Span);
         chromeUserAgent.Append('/');
         chromeUserAgent.Append(webKitVersion);
         chromeUserAgent.Append(' ');
         
         // (KHTML, like Gecko)
-        chromeUserAgent.Append(_compatibilityTag);
+        chromeUserAgent.Append(UserAgentConstants.KhtmlLikeGecko.Span);
         chromeUserAgent.Append(' ');
 
         // Chrome/37.0.2062.94
-        chromeUserAgent.Append(_chromeProduct);
+        chromeUserAgent.Append(UserAgentConstants.Chrome.Span);
         chromeUserAgent.Append('/');
         chromeUserAgent.Append(chromeVersion);
         chromeUserAgent.Append(' ');
 
         // Safari/537.36
-        chromeUserAgent.Append(_safariProduct);
+        chromeUserAgent.Append(UserAgentConstants.Safari.Span);
         chromeUserAgent.Append('/');
         chromeUserAgent.Append(webKitVersion);
 
-        return chromeUserAgent.ToString();
+        string majorVersion = chromeVersion.Split('.')[0];
+        
+        return new UserAgentMetadata
+        {
+            UserAgent = chromeUserAgent.ToString(),
+            BrowserVersion = majorVersion,
+            ChromiumVersion = majorVersion,
+            Platform = platform.ToString(),
+            IsMobile = false
+        };
     }
     
     private ReadOnlySpan<char> RandomWebKitVersion()
@@ -75,7 +89,4 @@ public class BogusChromeUserAgentGenerator : IBogusUserAgentGenerator
 
         return webKitVersion.ToString();
     }
-   
-    
-    public ReadOnlySpan<char> UserAgentPart => BogusChromeUserAgent();
 }

@@ -1,4 +1,5 @@
 using DevBase.Requests.Configuration;
+using DevBase.Requests.Configuration.Enums;
 using NUnit.Framework;
 
 namespace DevBase.Test.DevBaseRequests;
@@ -12,7 +13,7 @@ public class RetryPolicyTest
         var policy = RetryPolicy.Default;
         
         Assert.That(policy.MaxRetries, Is.EqualTo(3));
-        Assert.That(policy.BackoffStrategy, Is.EqualTo(BackoffStrategy.Exponential));
+        Assert.That(policy.BackoffStrategy, Is.EqualTo(EnumBackoffStrategy.Exponential));
     }
 
     [Test]
@@ -37,7 +38,7 @@ public class RetryPolicyTest
         var policy = new RetryPolicy
         {
             MaxRetries = 5,
-            BackoffStrategy = BackoffStrategy.Exponential,
+            BackoffStrategy = EnumBackoffStrategy.Exponential,
             InitialDelay = TimeSpan.FromSeconds(1),
             MaxDelay = TimeSpan.FromMinutes(1)
         };
@@ -56,7 +57,7 @@ public class RetryPolicyTest
         var policy = new RetryPolicy
         {
             MaxRetries = 5,
-            BackoffStrategy = BackoffStrategy.Linear,
+            BackoffStrategy = EnumBackoffStrategy.Linear,
             InitialDelay = TimeSpan.FromSeconds(1),
             MaxDelay = TimeSpan.FromMinutes(1)
         };
@@ -77,7 +78,7 @@ public class RetryPolicyTest
         var policy = new RetryPolicy
         {
             MaxRetries = 5,
-            BackoffStrategy = BackoffStrategy.Fixed,
+            BackoffStrategy = EnumBackoffStrategy.Fixed,
             InitialDelay = TimeSpan.FromSeconds(2),
             MaxDelay = TimeSpan.FromMinutes(1)
         };
@@ -96,7 +97,7 @@ public class RetryPolicyTest
         var policy = new RetryPolicy
         {
             MaxRetries = 10,
-            BackoffStrategy = BackoffStrategy.Exponential,
+            BackoffStrategy = EnumBackoffStrategy.Exponential,
             InitialDelay = TimeSpan.FromSeconds(1),
             MaxDelay = TimeSpan.FromSeconds(10)
         };

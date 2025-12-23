@@ -6,6 +6,7 @@ namespace DevBase.Requests.Data.Header.Authentication;
 
 public class AuthenticationHeaderBuilder : HttpFieldBuilder<AuthenticationHeaderBuilder>
 {
+    private static readonly ReadOnlyMemory<char> HeaderAuthorization = "Authorization".AsMemory();
     private AuthenticationHeader? AuthenticationHeader { get; set; }
 
     public AuthenticationHeaderBuilder UseBasicAuthentication(string username, string password)
@@ -45,7 +46,7 @@ public class AuthenticationHeaderBuilder : HttpFieldBuilder<AuthenticationHeader
         entryBuilder.Append(this.Token);
         
         this.FieldEntry = KeyValuePair.Create(
-            "Authorization", 
+            HeaderAuthorization.ToString(), 
             entryBuilder.ToString());
     };
 }

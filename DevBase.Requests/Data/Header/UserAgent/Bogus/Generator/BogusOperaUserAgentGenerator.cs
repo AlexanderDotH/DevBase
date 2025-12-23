@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using DevBase.Requests.Constants;
 using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
@@ -6,32 +7,36 @@ namespace DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 public class BogusOperaUserAgentGenerator : IBogusUserAgentGenerator
 {
     private static readonly BogusChromeUserAgentGenerator _chromeUserAgentGenerator = new();
-    private static readonly char[] _operaTag = "OPR".ToCharArray();
     
-    private ReadOnlySpan<char> BogusOperaUserAgent()
+    public ReadOnlySpan<char> UserAgentPart => Generate().UserAgent;
+    
+    public UserAgentMetadata Generate()
     {
         StringBuilder operaUserAgent = new StringBuilder(100);
         
-        ReadOnlySpan<char> chromeUserAgent = _chromeUserAgentGenerator.UserAgentPart;
+        UserAgentMetadata chromeMetadata = _chromeUserAgentGenerator.Generate();
 
-        ReadOnlySpan<char> operaTag = _operaTag;
-        ReadOnlySpan<char> randomOperaVersion = BogusUtils.RandomVersion(
-            minMajor: 50, maxMajor: 90, 
-            useSubVersion: true, minSubVersion: 1, maxSubVersion: 9, 
+        string operaVersion = BogusUtils.RandomVersion(
+            minMajor: 100, maxMajor: 115, 
+            useSubVersion: true, minSubVersion: 0, maxSubVersion: 0, 
             useMinor: true, minMinor: 100, maxMinor: 900, 
-            usePatch: true, minPatch: 30, maxPatch: 60);
+            usePatch: true, minPatch: 30, maxPatch: 60).ToString();
         
-        // Mozilla/5.0 (Windows NT 4.1; Win64) AppleWebKit/416.3 (KHTML, like Gecko) Chrome/74.5.5678.737 Safari/416.3
-        operaUserAgent.Append(chromeUserAgent);
+        operaUserAgent.Append(chromeMetadata.UserAgent);
         operaUserAgent.Append(' ');
         
         // OPR/46.6.785.54
-        operaUserAgent.Append(operaTag);
+        operaUserAgent.Append(UserAgentConstants.Opera.Span);
         operaUserAgent.Append('/');
-        operaUserAgent.Append(randomOperaVersion);
+        operaUserAgent.Append(operaVersion);
         
-        return operaUserAgent.ToString();
+        return new UserAgentMetadata
+        {
+            UserAgent = operaUserAgent.ToString(),
+            BrowserVersion = operaVersion.Split('.')[0],
+            ChromiumVersion = chromeMetadata.ChromiumVersion,
+            Platform = chromeMetadata.Platform,
+            IsMobile = chromeMetadata.IsMobile
+        };
     }
-
-    public ReadOnlySpan<char> UserAgentPart => BogusOperaUserAgent();
 }

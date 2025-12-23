@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using System.Text;
 using DevBase.Requests.Abstract;
+using DevBase.Requests.Constants;
 using DevBase.Requests.Data.Body.Mime;
 using DevBase.Requests.Data.Header.Authentication;
 using DevBase.Requests.Data.Header.UserAgent;
@@ -108,7 +109,7 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         
         string combined = StringUtils.Separate(resolvedTypes);
         
-        base.AddEntry("Accept", combined);
+        base.AddEntry(HeaderConstants.Accept.ToString(), combined);
         return this;
     }
 
@@ -129,11 +130,11 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         this.UserAgentHeaderBuilder?.TryBuild();
         this.AuthenticationHeaderBuilder?.TryBuild(); 
 
-        if (!base.AnyEntry("Accept"))
-            this.WithAccept("*/*");
+        if (!base.AnyEntry(HeaderConstants.Accept.ToString()))
+            this.WithAccept(MimeConstants.Wildcard.ToString());
 
         if (this.UserAgentHeaderBuilder!.Usable)
-            base.AddOrSetEntry("User-Agent", this.UserAgentHeaderBuilder.UserAgent.ToString());
+            base.AddOrSetEntry(HeaderConstants.UserAgent.ToString(), this.UserAgentHeaderBuilder.UserAgent.ToString());
 
         if (this.AuthenticationHeaderBuilder!.Usable)
         {

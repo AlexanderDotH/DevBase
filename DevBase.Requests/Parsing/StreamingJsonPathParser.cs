@@ -13,6 +13,113 @@ public sealed class StreamingJsonPathParser
         _bufferSize = bufferSize;
     }
 
+    /// <summary>
+    /// Fast path for extracting primitive values (strings, numbers, bools) from arrays.
+    /// Avoids MemoryStream and JsonSerializer overhead.
+    /// </summary>
+    public List<T> ParseAllFast<T>(ReadOnlySpan<byte> json, string path) where T : IConvertible
+    {
+        List<PathSegment> segments = ParsePath(path);
+        List<T> results = new List<T>();
+        
+        // Pre-encode the target property name as UTF8 for fast comparison
+        byte[]? targetPropertyUtf8 = null;
+        foreach (PathSegment segment in segments)
+        {
+            if (segment.PropertyName != null)
+            {
+                targetPropertyUtf8 = Encoding.UTF8.GetBytes(segment.PropertyName);
+                break;
+            }
+        }
+
+        Utf8JsonReader reader = new Utf8JsonReader(json);
+        int matchDepth = 0;
+        int targetDepth = segments.Count;
+        bool inTargetArray = false;
+        bool expectValue = false;
+
+        while (reader.Read())
+        {
+            switch (reader.TokenType)
+            {
+                case JsonTokenType.StartArray:
+                    if (matchDepth < targetDepth && segments[matchDepth].IsWildcard)
+                    {
+                        matchDepth++;
+                        inTargetArray = true;
+                    }
+                    break;
+
+                case JsonTokenType.EndArray:
+                    if (inTargetArray && matchDepth > 0)
+                    {
+                        matchDepth--;
+                        inTargetArray = false;
+                    }
+                    break;
+
+                case JsonTokenType.StartObject:
+                    break;
+
+                case JsonTokenType.EndObject:
+                    expectValue = false;
+                    break;
+
+                case JsonTokenType.PropertyName:
+                    if (inTargetArray && targetPropertyUtf8 != null)
+                    {
+                        // Use ValueTextEquals for zero-allocation comparison
+                        expectValue = reader.ValueTextEquals(targetPropertyUtf8);
+                        if (!expectValue)
+                        {
+                            // Skip this property's value entirely
+                            reader.Read();
+                            reader.TrySkip();
+                        }
+                    }
+                    break;
+
+                case JsonTokenType.String:
+                    if (expectValue)
+                    {
+                        if (typeof(T) == typeof(string))
+                        {
+                            results.Add((T)(object)reader.GetString()!);
+                        }
+                        expectValue = false;
+                    }
+                    break;
+
+                case JsonTokenType.Number:
+                    if (expectValue)
+                    {
+                        if (typeof(T) == typeof(int) && reader.TryGetInt32(out int intVal))
+                            results.Add((T)(object)intVal);
+                        else if (typeof(T) == typeof(long) && reader.TryGetInt64(out long longVal))
+                            results.Add((T)(object)longVal);
+                        else if (typeof(T) == typeof(double) && reader.TryGetDouble(out double doubleVal))
+                            results.Add((T)(object)doubleVal);
+                        else if (typeof(T) == typeof(decimal) && reader.TryGetDecimal(out decimal decVal))
+                            results.Add((T)(object)decVal);
+                        expectValue = false;
+                    }
+                    break;
+
+                case JsonTokenType.True:
+                case JsonTokenType.False:
+                    if (expectValue && typeof(T) == typeof(bool))
+                    {
+                        results.Add((T)(object)(reader.TokenType == JsonTokenType.True));
+                        expectValue = false;
+                    }
+                    break;
+            }
+        }
+
+        return results;
+    }
+
     public async IAsyncEnumerable<T> ParseStreamAsync<T>(
         Stream stream,
         string path,
@@ -170,16 +277,17 @@ public sealed class StreamingJsonPathParser
                         break;
 
                     case JsonTokenType.PropertyName:
-                        string? propertyName = reader.GetString();
-                        if (currentSegment?.PropertyName != null &&
-                            currentSegment.Value.PropertyName!.Equals(propertyName, StringComparison.Ordinal))
+                        if (currentSegment?.PropertyNameUtf8 != null &&
+                            reader.ValueTextEquals(currentSegment.Value.PropertyNameUtf8))
                         {
                             state.DepthAtMatch[state.MatchDepth] = state.Depth;
                             state.MatchDepth++;
                         }
                         else if (optimizeProperties && state.MatchDepth < segments.Count)
                         {
-                            SkipValue(ref reader);
+                            // Use TrySkip for faster skipping
+                            if (reader.Read())
+                                reader.TrySkip();
                             consumed = (int)reader.BytesConsumed;
                         }
                         break;
@@ -300,7 +408,7 @@ public sealed class StreamingJsonPathParser
                 if (i > start)
                 {
                     string propName = span[start..i].ToString();
-                    segments.Add(new PathSegment { PropertyName = propName });
+                    segments.Add(PathSegment.FromPropertyName(propName));
                 }
             }
             else if (span[i] == '[')

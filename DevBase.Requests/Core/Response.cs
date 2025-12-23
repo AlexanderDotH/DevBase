@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Xml.Linq;
 using AngleSharp;
 using AngleSharp.Dom;
+using DevBase.Requests.Constants;
 using DevBase.Requests.Metrics;
 using DevBase.Requests.Parsing;
 using Newtonsoft.Json;
@@ -31,6 +32,7 @@ public sealed class Response : IDisposable, IAsyncDisposable
     public RequestMetrics Metrics { get; }
     public bool FromCache { get; init; }
     public Uri? RequestUri { get; init; }
+
 
     internal Response(HttpResponseMessage httpResponse, MemoryStream contentStream, RequestMetrics metrics)
     {
@@ -148,6 +150,23 @@ public sealed class Response : IDisposable, IAsyncDisposable
     public async Task<List<T>> ParseJsonPathListAsync<T>(string path, CancellationToken cancellationToken = default)
     {
         byte[] bytes = await this.GetBytesAsync(cancellationToken);
+        
+        // Use fast path for primitive types (string, int, long, double, decimal, bool)
+        StreamingJsonPathParser fastParser = new StreamingJsonPathParser();
+        
+        if (typeof(T) == typeof(string))
+            return (List<T>)(object)fastParser.ParseAllFast<string>(bytes, path);
+        if (typeof(T) == typeof(int))
+            return (List<T>)(object)fastParser.ParseAllFast<int>(bytes, path);
+        if (typeof(T) == typeof(long))
+            return (List<T>)(object)fastParser.ParseAllFast<long>(bytes, path);
+        if (typeof(T) == typeof(double))
+            return (List<T>)(object)fastParser.ParseAllFast<double>(bytes, path);
+        if (typeof(T) == typeof(decimal))
+            return (List<T>)(object)fastParser.ParseAllFast<decimal>(bytes, path);
+        if (typeof(T) == typeof(bool))
+            return (List<T>)(object)fastParser.ParseAllFast<bool>(bytes, path);
+        
         JsonPathParser parser = new JsonPathParser();
         return parser.ParseList<T>(bytes, path);
     }
@@ -214,7 +233,7 @@ public sealed class Response : IDisposable, IAsyncDisposable
     {
         CookieCollection cookies = new CookieCollection();
 
-        if (!this.Headers.TryGetValues("Set-Cookie", out IEnumerable<string>? cookieHeaders))
+        if (!this.Headers.TryGetValues(HeaderConstants.SetCookie.ToString(), out IEnumerable<string>? cookieHeaders))
             return cookies;
 
         foreach (string header in cookieHeaders)

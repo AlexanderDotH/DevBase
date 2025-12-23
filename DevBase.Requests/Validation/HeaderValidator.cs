@@ -1,21 +1,10 @@
 using System.Text;
-using System.Text.RegularExpressions;
+using DevBase.Requests.Constants;
 
 namespace DevBase.Requests.Validation;
 
-public static partial class HeaderValidator
+public static class HeaderValidator
 {
-    [GeneratedRegex(@"^[A-Za-z0-9+/=]+$")]
-    private static partial Regex Base64Regex();
-
-    [GeneratedRegex(@"^[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]+\.[A-Za-z0-9\-_]*$")]
-    private static partial Regex JwtRegex();
-
-    [GeneratedRegex(@"^[a-zA-Z0-9!#$%&'*+.^_`|~-]+/[a-zA-Z0-9!#$%&'*+.^_`|~-]+")]
-    private static partial Regex MimeTypeRegex();
-
-    [GeneratedRegex(@"^[^=;\s]+=[^;\s]*(?:;\s*[^=;\s]+=[^;\s]*)*$")]
-    private static partial Regex CookieRegex();
 
     public static ValidationResult ValidateBasicAuth(string headerValue)
     {
@@ -23,11 +12,11 @@ public static partial class HeaderValidator
             return ValidationResult.Fail("Basic authentication header is empty");
 
         string[] parts = headerValue.Split(' ', 2);
-        if (parts.Length != 2 || !parts[0].Equals("Basic", StringComparison.OrdinalIgnoreCase))
+        if (parts.Length != 2 || !parts[0].AsSpan().Equals(AuthConstants.Basic.Span, StringComparison.OrdinalIgnoreCase))
             return ValidationResult.Fail("Invalid Basic authentication format");
 
         string base64Part = parts[1];
-        if (!Base64Regex().IsMatch(base64Part))
+        if (!IsValidBase64(base64Part))
             return ValidationResult.Fail("Invalid Base64 encoding in Basic authentication");
 
         try
@@ -50,14 +39,14 @@ public static partial class HeaderValidator
             return ValidationResult.Fail("Bearer authentication header is empty");
 
         string[] parts = headerValue.Split(' ', 2);
-        if (parts.Length != 2 || !parts[0].Equals("Bearer", StringComparison.OrdinalIgnoreCase))
+        if (parts.Length != 2 || !parts[0].AsSpan().Equals(AuthConstants.Bearer.Span, StringComparison.OrdinalIgnoreCase))
             return ValidationResult.Fail("Invalid Bearer authentication format");
 
         string token = parts[1];
         if (string.IsNullOrWhiteSpace(token))
             return ValidationResult.Fail("Bearer token is empty");
 
-        if (JwtRegex().IsMatch(token))
+        if (IsValidJwt(token))
             return ValidationResult.Success();
 
         if (token.Length < 10)
@@ -71,7 +60,7 @@ public static partial class HeaderValidator
         if (string.IsNullOrWhiteSpace(contentType))
             return ValidationResult.Fail("Content-Type is empty");
 
-        if (!MimeTypeRegex().IsMatch(contentType))
+        if (!IsValidMimeType(contentType))
             return ValidationResult.Fail($"Invalid Content-Type format: {contentType}");
 
         return ValidationResult.Success();
@@ -125,14 +114,14 @@ public static partial class HeaderValidator
         if (string.IsNullOrWhiteSpace(accept))
             return ValidationResult.Fail("Accept header is empty");
 
-        if (accept == "*/*")
+        if (accept.AsSpan().SequenceEqual(MimeConstants.Wildcard.Span))
             return ValidationResult.Success();
 
         string[] parts = accept.Split(',');
         foreach (string part in parts)
         {
             string mimeType = part.Split(';')[0].Trim();
-            if (mimeType != "*/*" && !MimeTypeRegex().IsMatch(mimeType))
+            if (!mimeType.AsSpan().SequenceEqual(MimeConstants.Wildcard.Span) && !IsValidMimeType(mimeType))
                 return ValidationResult.Fail($"Invalid Accept MIME type: {mimeType}");
         }
 
@@ -144,7 +133,7 @@ public static partial class HeaderValidator
         if (string.IsNullOrWhiteSpace(cookie))
             return ValidationResult.Fail("Cookie header is empty");
 
-        if (!CookieRegex().IsMatch(cookie))
+        if (!IsValidCookie(cookie))
             return ValidationResult.Fail("Invalid cookie format");
 
         return ValidationResult.Success();
@@ -155,16 +144,95 @@ public static partial class HeaderValidator
         if (string.IsNullOrWhiteSpace(acceptEncoding))
             return ValidationResult.Fail("Accept-Encoding header is empty");
 
-        string[] validEncodings = new[] { "gzip", "deflate", "br", "identity", "*" };
         string[] parts = acceptEncoding.Split(',');
         
         foreach (string part in parts)
         {
             string encoding = part.Split(';')[0].Trim().ToLowerInvariant();
-            if (!validEncodings.Contains(encoding))
+            if (!IsValidEncoding(encoding.AsSpan()))
                 return ValidationResult.Fail($"Invalid Accept-Encoding value: {encoding}");
         }
 
         return ValidationResult.Success();
+    }
+
+    private static bool IsValidBase64(string value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return false;
+
+        foreach (char c in value)
+        {
+            if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '+' || c == '/' || c == '='))
+                return false;
+        }
+        return true;
+    }
+
+    private static bool IsValidJwt(string token)
+    {
+        if (string.IsNullOrEmpty(token))
+            return false;
+
+        int dotCount = 0;
+        foreach (char c in token)
+        {
+            if (c == '.')
+            {
+                dotCount++;
+                continue;
+            }
+            if (!((c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '-' || c == '_'))
+                return false;
+        }
+        return dotCount == 2;
+    }
+
+    private static bool IsValidMimeType(string mimeType)
+    {
+        if (string.IsNullOrEmpty(mimeType))
+            return false;
+
+        int slashIndex = mimeType.IndexOf('/');
+        if (slashIndex <= 0 || slashIndex == mimeType.Length - 1)
+            return false;
+
+        for (int i = 0; i < mimeType.Length; i++)
+        {
+            char c = mimeType[i];
+            if (i == slashIndex)
+                continue;
+            if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || 
+                  c == '!' || c == '#' || c == '$' || c == '%' || c == '&' || c == '\'' || 
+                  c == '*' || c == '+' || c == '.' || c == '^' || c == '_' || c == '`' || 
+                  c == '|' || c == '~' || c == '-'))
+                return false;
+        }
+        return true;
+    }
+
+    private static bool IsValidCookie(string cookie)
+    {
+        if (string.IsNullOrEmpty(cookie))
+            return false;
+
+        bool hasEquals = false;
+        foreach (char c in cookie)
+        {
+            if (c == '=')
+                hasEquals = true;
+            if (char.IsWhiteSpace(c) && c != ' ')
+                return false;
+        }
+        return hasEquals;
+    }
+
+    private static bool IsValidEncoding(ReadOnlySpan<char> encoding)
+    {
+        return encoding.Equals(EncodingConstants.Gzip.Span, StringComparison.OrdinalIgnoreCase) ||
+               encoding.Equals(EncodingConstants.Deflate.Span, StringComparison.OrdinalIgnoreCase) ||
+               encoding.Equals(EncodingConstants.Br.Span, StringComparison.OrdinalIgnoreCase) ||
+               encoding.Equals(EncodingConstants.Identity.Span, StringComparison.OrdinalIgnoreCase) ||
+               encoding.SequenceEqual("*");
     }
 }

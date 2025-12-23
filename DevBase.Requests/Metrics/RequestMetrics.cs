@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace DevBase.Requests.Metrics;
 
 public sealed class RequestMetrics
@@ -28,9 +30,8 @@ public sealed class RequestMetrics
     public DateTime StartTime { get; init; }
     public DateTime EndTime { get; init; }
 
-    public override string ToString() =>
-        $"Duration: {Duration.TotalMilliseconds:F0}ms, " +
-        $"Bytes: {BytesSent}↑/{BytesReceived}↓, " +
-        $"Protocol: {Protocol ?? "unknown"}, " +
-        $"Retries: {RetryCount}";
+    public override string ToString()
+    {
+        return string.Create(CultureInfo.InvariantCulture, $"Duration: {Duration.TotalMilliseconds:F0}ms, Bytes: {BytesSent}↑/{BytesReceived}↓, Protocol: {Protocol ?? "unknown"}, Retries: {RetryCount}");
+    }
 }

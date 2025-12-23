@@ -1,14 +1,11 @@
 using System.Net;
-using System.Text.RegularExpressions;
+using DevBase.Requests.Constants;
 
 namespace DevBase.Requests.Validation;
 
-public static partial class UrlValidator
+public static class UrlValidator
 {
     private const int MaxUrlLength = 2048;
-    
-    [GeneratedRegex(@"^[a-zA-Z0-9\-._~:/?#\[\]@!$&'()*+,;=%]+$")]
-    private static partial Regex AllowedUrlCharactersRegex();
 
     public static ValidationResult Validate(Uri? uri, bool validateProtocol = true, bool validateHost = true, bool validateLength = true)
     {
@@ -26,7 +23,7 @@ public static partial class UrlValidator
         if (validateHost && !IsValidHost(uri.Host))
             return ValidationResult.Fail($"Invalid host: {uri.Host}");
 
-        if (!AllowedUrlCharactersRegex().IsMatch(url))
+        if (!IsValidUrlCharacters(url))
             return ValidationResult.Fail("URL contains invalid characters");
 
         return ValidationResult.Success();
@@ -34,8 +31,23 @@ public static partial class UrlValidator
 
     public static bool IsValidProtocol(string scheme)
     {
-        return scheme.Equals("http", StringComparison.OrdinalIgnoreCase) ||
-               scheme.Equals("https", StringComparison.OrdinalIgnoreCase);
+        ReadOnlySpan<char> schemeSpan = scheme.AsSpan();
+        return schemeSpan.Equals(ProtocolConstants.Http.Span, StringComparison.OrdinalIgnoreCase) ||
+               schemeSpan.Equals(ProtocolConstants.Https.Span, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private static bool IsValidUrlCharacters(string url)
+    {
+        foreach (char c in url)
+        {
+            if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') ||
+                  c == '-' || c == '.' || c == '_' || c == '~' || c == ':' || c == '/' ||
+                  c == '?' || c == '#' || c == '[' || c == ']' || c == '@' || c == '!' ||
+                  c == '$' || c == '&' || c == '\'' || c == '(' || c == ')' || c == '*' ||
+                  c == '+' || c == ',' || c == ';' || c == '=' || c == '%'))
+                return false;
+        }
+        return true;
     }
 
     public static bool IsValidHost(string host)

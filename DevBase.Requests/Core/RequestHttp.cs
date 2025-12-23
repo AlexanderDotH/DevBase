@@ -3,14 +3,18 @@ using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Net.Security;
 using System.Net.Sockets;
+using System.Text;
 using DevBase.Requests.Configuration.Enums;
+using DevBase.Requests.Constants;
 using DevBase.Requests.Exceptions;
 using DevBase.Requests.Metrics;
+using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Core;
 
 public sealed partial class Request
 {
+
     public Request Build()
     {
         if (this._isBuilt)
@@ -93,7 +97,11 @@ public sealed partial class Request
                 await httpResponse.Content.CopyToAsync(contentStream, combinedCts.Token);
                 metricsBuilder.MarkDownloadEnd();
                 metricsBuilder.SetBytesReceived(contentStream.Length);
-                metricsBuilder.SetProtocol($"HTTP/{httpResponse.Version}");
+                
+                StringBuilder sb = StringBuilderPool.Acquire(64);
+                sb.Append(HttpConstants.ProtocolHttpPrefix.Span);
+                sb.Append(httpResponse.Version);
+                metricsBuilder.SetProtocol(sb.ToStringAndRelease());
 
                 this._proxy?.ReportSuccess();
 
@@ -199,8 +207,19 @@ public sealed partial class Request
 
     private string BuildClientKey()
     {
-        string proxyKey = this._proxy?.Key ?? "direct";
-        return $"{proxyKey}|validate:{this._validateCertificates}|redirect:{this._followRedirects}";
+        StringBuilder sb = StringBuilderPool.Acquire(128);
+        
+        if (this._proxy != null)
+            sb.Append(this._proxy.Key);
+        else
+            sb.Append(HttpConstants.DirectProxyKey.Span);
+            
+        sb.Append("|validate:");
+        sb.Append(this._validateCertificates);
+        sb.Append("|redirect:");
+        sb.Append(this._followRedirects);
+        
+        return sb.ToStringAndRelease();
     }
 
     private SocketsHttpHandler CreateHandler()

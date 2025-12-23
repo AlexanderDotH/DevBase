@@ -71,7 +71,7 @@ public sealed class JsonPathParser
                 if (i > start)
                 {
                     string propName = span[start..i].ToString();
-                    segments.Add(new PathSegment { PropertyName = propName });
+                    segments.Add(PathSegment.FromPropertyName(propName));
                 }
             }
             else if (span[i] == '[')

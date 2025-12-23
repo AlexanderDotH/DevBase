@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using DevBase.Requests.Configuration;
+using DevBase.Requests.Constants;
 using DevBase.Requests.Data.Body;
 using DevBase.Requests.Data.Header;
 using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
@@ -12,6 +13,7 @@ namespace DevBase.Requests.Core;
 
 public sealed partial class Request
 {
+
     public Request WithUrl(string url)
     {
         this._requestBuilder.WithUrl(url);
@@ -73,6 +75,27 @@ public sealed partial class Request
         return this;
     }
 
+    public Request WithHeader(ReadOnlyMemory<char> name, ReadOnlyMemory<char> value)
+    {
+        this.EnsureHeaderBuilder();
+        this._requestBuilder.RequestHeaderBuilder!.SetHeader(name.ToString(), value.ToString());
+        return this;
+    }
+
+    public Request WithHeader(ReadOnlyMemory<char> name, string value)
+    {
+        this.EnsureHeaderBuilder();
+        this._requestBuilder.RequestHeaderBuilder!.SetHeader(name.ToString(), value);
+        return this;
+    }
+
+    public Request WithAccept(ReadOnlyMemory<char> acceptType)
+    {
+        this.EnsureHeaderBuilder();
+        this._requestBuilder.RequestHeaderBuilder!.WithAccept(acceptType.ToString());
+        return this;
+    }
+
     public Request WithAccept(params string[] acceptTypes)
     {
         this.EnsureHeaderBuilder();
@@ -80,9 +103,9 @@ public sealed partial class Request
         return this;
     }
 
-    public Request WithAcceptJson() => this.WithAccept("json");
-    public Request WithAcceptXml() => this.WithAccept("xml");
-    public Request WithAcceptHtml() => this.WithAccept("html");
+    public Request WithAcceptJson() => this.WithAccept(MimeConstants.Json.ToString());
+    public Request WithAcceptXml() => this.WithAccept(MimeConstants.Xml.ToString());
+    public Request WithAcceptHtml() => this.WithAccept(MimeConstants.Html.ToString());
 
     public Request WithUserAgent(string userAgent)
     {
@@ -114,9 +137,9 @@ public sealed partial class Request
         return this;
     }
 
-    public Request WithReferer(string referer) => this.WithHeader("Referer", referer);
+    public Request WithReferer(string referer) => this.WithHeader(HeaderConstants.Referer.ToString(), referer);
 
-    public Request WithCookie(string cookie) => this.WithHeader("Cookie", cookie);
+    public Request WithCookie(string cookie) => this.WithHeader(HeaderConstants.Cookie.ToString(), cookie);
 
     private void EnsureHeaderBuilder()
     {

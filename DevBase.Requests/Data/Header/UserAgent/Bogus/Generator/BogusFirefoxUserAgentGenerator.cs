@@ -1,15 +1,15 @@
-﻿using System.Text;
+using System.Text;
+using DevBase.Requests.Constants;
 using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 
 public class BogusFirefoxUserAgentGenerator : IBogusUserAgentGenerator
 {
-    private static readonly char[] _firefoxProduct = "Firefox".ToCharArray();
-    private static readonly char[] _geckoEngine = "Gecko".ToCharArray();
-    private static readonly char[] _geckoTrail = "20100101".ToCharArray();
     
-    private ReadOnlySpan<char> BogusFirefoxUserAgent()
+    public ReadOnlySpan<char> UserAgentPart => Generate().UserAgent;
+    
+    public UserAgentMetadata Generate()
     {
         StringBuilder firefoxUserAgent = new StringBuilder();
 
@@ -17,10 +17,21 @@ public class BogusFirefoxUserAgentGenerator : IBogusUserAgentGenerator
         ReadOnlySpan<char> productVersion = BogusUtils.RandomProductVersion();
 
         PlatformID platformId = BogusUtils.RandomPlatformId();
-
-        ReadOnlySpan<char> osPlatform = BogusUtils.RandomOperatingSystem(platformId);
-
-        ReadOnlySpan<char> firefoxVersion = RandomFirefoxVersion();
+        string osPlatform = BogusUtils.RandomOperatingSystem(platformId).ToString();
+        
+        ReadOnlyMemory<char> platform = platformId switch
+        {
+            PlatformID.Win32NT => PlatformConstants.Windows,
+            PlatformID.Unix => PlatformConstants.Linux,
+            PlatformID.MacOSX => PlatformConstants.MacOS,
+            _ => PlatformConstants.Windows
+        };
+        
+        string firefoxMajor = new string(BogusUtils.RandomNumber(100, 133));
+        StringBuilder versionBuilder = new StringBuilder(8);
+        versionBuilder.Append(firefoxMajor);
+        versionBuilder.Append(".0");
+        string firefoxVersion = versionBuilder.ToString();
 
         // Mozilla/5.0
         firefoxUserAgent.Append(product);
@@ -31,39 +42,29 @@ public class BogusFirefoxUserAgentGenerator : IBogusUserAgentGenerator
         // (Windows NT 6.1; Win64; rv:42.0)
         firefoxUserAgent.Append('(');
         firefoxUserAgent.Append(osPlatform);
-        firefoxUserAgent.Append(';');
-        firefoxUserAgent.Append(' ');
-        firefoxUserAgent.Append('r');
-        firefoxUserAgent.Append('v');
-        firefoxUserAgent.Append(':');
+        firefoxUserAgent.Append(UserAgentConstants.RvPrefix.Span);
         firefoxUserAgent.Append(firefoxVersion);
         firefoxUserAgent.Append(')');
         firefoxUserAgent.Append(' ');
         
         // Gecko/20100101
-        firefoxUserAgent.Append(_geckoEngine);
+        firefoxUserAgent.Append(UserAgentConstants.Gecko.Span);
         firefoxUserAgent.Append('/');
-        firefoxUserAgent.Append(_geckoTrail);
+        firefoxUserAgent.Append(UserAgentConstants.GeckoTrail.Span);
         firefoxUserAgent.Append(' ');
 
         // Firefox/42.0
-        firefoxUserAgent.Append(_firefoxProduct);
+        firefoxUserAgent.Append(UserAgentConstants.Firefox.Span);
         firefoxUserAgent.Append('/');
         firefoxUserAgent.Append(firefoxVersion);
 
-        return firefoxUserAgent.ToString();
+        return new UserAgentMetadata
+        {
+            UserAgent = firefoxUserAgent.ToString(),
+            BrowserVersion = firefoxMajor,
+            ChromiumVersion = null,
+            Platform = platform.ToString(),
+            IsMobile = false
+        };
     }
-    
-    private ReadOnlySpan<char> RandomFirefoxVersion()
-    {
-        StringBuilder firefoxVersion = new StringBuilder();
-        
-        firefoxVersion.Append(BogusUtils.RandomNumber(40, 121));
-        firefoxVersion.Append('.');
-        firefoxVersion.Append('0');
-
-        return firefoxVersion.ToString();
-    }
-    
-    public ReadOnlySpan<char> UserAgentPart => BogusFirefoxUserAgent();
 }

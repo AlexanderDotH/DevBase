@@ -668,7 +668,8 @@ public class MimeDictionary
 
         // Add self-mappings for values (e.g. "application/json" -> "application/json")
         // This allows looking up by full mime type as well as extension
-        foreach (ReadOnlyMemory<char> value in dict.Values.Distinct())
+        List<ReadOnlyMemory<char>> distinctValues = dict.Values.Distinct().ToList();
+        foreach (ReadOnlyMemory<char> value in distinctValues)
         {
             string valueString = value.ToString();
             dict.TryAdd(valueString, value);

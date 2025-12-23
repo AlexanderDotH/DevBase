@@ -1,6 +1,8 @@
 using System.Collections.Concurrent;
 using System.Net;
+using System.Text;
 using System.Threading.Channels;
+using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Core;
 
@@ -247,8 +249,20 @@ public sealed class Requests : IDisposable, IAsyncDisposable
             CookieCollection cookies = container.GetCookies(uri);
             if (cookies.Count > 0)
             {
-                string cookieHeader = string.Join("; ", cookies.Cast<Cookie>().Select(c => $"{c.Name}={c.Value}"));
-                request.WithCookie(cookieHeader);
+                StringBuilder sb = StringBuilderPool.Acquire(512);
+                
+                for (int i = 0; i < cookies.Count; i++)
+                {
+                    if (i > 0)
+                        sb.Append("; ");
+                    
+                    Cookie cookie = cookies[i];
+                    sb.Append(cookie.Name);
+                    sb.Append('=');
+                    sb.Append(cookie.Value);
+                }
+                
+                request.WithCookie(sb.ToStringAndRelease());
             }
         }
 

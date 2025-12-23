@@ -2,8 +2,10 @@ using System.Buffers;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using DevBase.Requests.Constants;
 using DevBase.Requests.Proxy.HttpToSocks5.Dns;
 using DevBase.Requests.Proxy.HttpToSocks5.Enums;
+using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Proxy.HttpToSocks5;
 
@@ -80,7 +82,10 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
         if (InternalServerPort == 0)
             InternalServerPort = ((IPEndPoint)_internalServerSocket.LocalEndPoint!).Port;
 
-        _proxyUri = new Uri($"http://127.0.0.1:{InternalServerPort}");
+        StringBuilder sb = StringBuilderPool.Acquire(64);
+        sb.Append(HttpConstants.HttpSchemePrefix.Span);
+        sb.Append(InternalServerPort);
+        _proxyUri = new Uri(sb.ToStringAndRelease());
         _internalServerSocket.Listen(16);
         _ = AcceptConnectionsAsync();
     }
@@ -184,8 +189,10 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
                             }
                             else
                             {
-                                await SendStringAsync(clientSocket, 
-                                    $"{parseResult.HttpVersion}200 Connection established\r\nProxy-Agent: DevBase-HttpToSocks5Proxy\r\n\r\n");
+                                StringBuilder sb = StringBuilderPool.Acquire(128);
+                                sb.Append(parseResult.HttpVersion);
+                                sb.Append(HttpConstants.HttpConnectionEstablished.Span);
+                                await SendStringAsync(clientSocket, sb.ToStringAndRelease());
                             }
                         }
                     }
@@ -406,16 +413,29 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
 
     private static async Task SendErrorAsync(Socket socket, Socks5ConnectionResult error, string httpVersion = "HTTP/1.1 ")
     {
-        string response = error switch
-        {
-            Socks5ConnectionResult.AuthenticationError => $"{httpVersion}401 Unauthorized\r\n\r\n",
-            Socks5ConnectionResult.HostUnreachable or 
-            Socks5ConnectionResult.ConnectionRefused or 
-            Socks5ConnectionResult.ConnectionReset => $"{httpVersion}502 {error}\r\n\r\n",
-            _ => $"{httpVersion}500 Internal Server Error\r\nX-Proxy-Error-Type: {error}\r\n\r\n"
-        };
+        StringBuilder sb = StringBuilderPool.Acquire(128);
+        sb.Append(httpVersion);
         
-        await SendStringAsync(socket, response);
+        switch (error)
+        {
+            case Socks5ConnectionResult.AuthenticationError:
+                sb.Append(HttpConstants.Http401Unauthorized.Span);
+                break;
+            case Socks5ConnectionResult.HostUnreachable:
+            case Socks5ConnectionResult.ConnectionRefused:
+            case Socks5ConnectionResult.ConnectionReset:
+                sb.Append(HttpConstants.Http502Prefix.Span);
+                sb.Append(error);
+                sb.Append(HttpConstants.HttpCrlfCrlf.Span);
+                break;
+            default:
+                sb.Append(HttpConstants.Http500InternalError.Span);
+                sb.Append(error);
+                sb.Append(HttpConstants.HttpCrlfCrlf.Span);
+                break;
+        }
+        
+        await SendStringAsync(socket, sb.ToStringAndRelease());
     }
 
     public void StopInternalServer()
