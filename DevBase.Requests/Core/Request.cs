@@ -28,6 +28,7 @@ public sealed partial class Request : IDisposable, IAsyncDisposable
     private HostCheckConfig? _hostCheckConfig;
     private LoggingConfig? _loggingConfig;
     private bool _validateCertificates = true;
+    private bool _validateHeaders = true;
     private bool _followRedirects = true;
     private int _maxRedirects = 50;
     private readonly List<IRequestInterceptor> _requestInterceptors = [];
@@ -48,6 +49,7 @@ public sealed partial class Request : IDisposable, IAsyncDisposable
     public HostCheckConfig? HostCheckConfig => this._hostCheckConfig;
     public LoggingConfig? LoggingConfig => this._loggingConfig;
     public bool ValidateCertificates => this._validateCertificates;
+    public bool HeaderValidationEnabled => this._validateHeaders;
     public bool FollowRedirects => this._followRedirects;
     public int MaxRedirects => this._maxRedirects;
     public IReadOnlyList<IRequestInterceptor> RequestInterceptors => this._requestInterceptors;

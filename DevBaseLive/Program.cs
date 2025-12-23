@@ -35,8 +35,6 @@ namespace DevBaseLive
     {
         public static async Task Main(string[] args)
         {
-            Stopwatch sw1 = new Stopwatch();
-            
             Console.WriteLine("=== DevBase.Requests Performance Test ===");
             Console.WriteLine($"API: https://api.n.exchange/en/api/v1/currency/");
             Console.WriteLine($"Iterations: 10");
@@ -158,6 +156,7 @@ namespace DevBaseLive
         {
             Response response = await new Request("https://api.n.exchange/en/api/v1/currency/")
                 .AsGet()
+                .With
                 .WithAcceptJson()
                 .SendAsync();
 

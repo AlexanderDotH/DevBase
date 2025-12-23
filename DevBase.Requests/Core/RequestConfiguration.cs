@@ -282,6 +282,12 @@ public sealed partial class Request
         return this;
     }
 
+    public Request WithHeaderValidation(bool validate)
+    {
+        this._validateHeaders = validate;
+        return this;
+    }
+
     public Request WithFollowRedirects(bool follow, int maxRedirects = 50)
     {
         this._followRedirects = follow;

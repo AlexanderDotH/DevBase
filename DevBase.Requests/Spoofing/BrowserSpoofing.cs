@@ -2,12 +2,12 @@ using System.Text;
 using DevBase.Requests.Configuration.Enums;
 using DevBase.Requests.Core;
 using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
+using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Spoofing;
 
 public static class BrowserSpoofing
 {
-    [ThreadStatic] private static StringBuilder? _headerBuilder;
     
     // Header names (used multiple times)
     private static readonly ReadOnlyMemory<char> HeaderSecChUa = "sec-ch-ua".AsMemory();
@@ -77,8 +77,7 @@ public static class BrowserSpoofing
         BogusChromeUserAgentGenerator generator = new BogusChromeUserAgentGenerator();
         UserAgentMetadata metadata = generator.Generate();
         
-        StringBuilder sb = _headerBuilder ??= new StringBuilder(128);
-        sb.Clear();
+        StringBuilder sb = StringBuilderPool.Acquire(128);
         
         // sec-ch-ua header
         sb.Append(ChUaChromiumPrefix);
@@ -130,8 +129,7 @@ public static class BrowserSpoofing
         BogusEdgeUserAgentGenerator generator = new BogusEdgeUserAgentGenerator();
         UserAgentMetadata metadata = generator.Generate();
         
-        StringBuilder sb = _headerBuilder ??= new StringBuilder(128);
-        sb.Clear();
+        StringBuilder sb = StringBuilderPool.Acquire(128);
         
         // sec-ch-ua header
         sb.Append(ChUaEdgePrefix);
@@ -193,8 +191,7 @@ public static class BrowserSpoofing
     
     private static string BuildBaseHostReferer(Uri uri)
     {
-        StringBuilder sb = _headerBuilder ??= new StringBuilder(64);
-        sb.Clear();
+        StringBuilder sb = StringBuilderPool.Acquire(64);
         sb.Append(uri.Scheme);
         sb.Append("://");
         sb.Append(uri.Host);

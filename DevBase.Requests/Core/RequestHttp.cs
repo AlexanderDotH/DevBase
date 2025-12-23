@@ -9,6 +9,7 @@ using DevBase.Requests.Constants;
 using DevBase.Requests.Exceptions;
 using DevBase.Requests.Metrics;
 using DevBase.Requests.Utils;
+using DevBase.Requests.Validation;
 
 namespace DevBase.Requests.Core;
 
@@ -21,8 +22,59 @@ public sealed partial class Request
             return this;
         
         this._requestBuilder.Build();
+        
+        if (this._validateHeaders)
+            ValidateHeaders();
+        
         this._isBuilt = true;
         return this;
+    }
+
+    private void ValidateHeaders()
+    {
+        Data.Header.RequestHeaderBuilder? headers = this._requestBuilder.RequestHeaderBuilder;
+        if (headers == null)
+            return;
+
+        foreach (KeyValuePair<string, string> header in headers.GetEntries())
+        {
+            string name = header.Key;
+            string value = header.Value;
+            ValidationResult result;
+
+            if (name.Equals("Authorization", StringComparison.OrdinalIgnoreCase))
+            {
+                if (value.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
+                    result = HeaderValidator.ValidateBasicAuth(value);
+                else if (value.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                    result = HeaderValidator.ValidateBearerAuth(value);
+                else
+                    continue;
+            }
+            else if (name.Equals("Content-Type", StringComparison.OrdinalIgnoreCase))
+            {
+                result = HeaderValidator.ValidateContentType(value);
+            }
+            else if (name.Equals("Accept", StringComparison.OrdinalIgnoreCase))
+            {
+                result = HeaderValidator.ValidateAccept(value);
+            }
+            else if (name.Equals("Cookie", StringComparison.OrdinalIgnoreCase))
+            {
+                result = HeaderValidator.ValidateCookie(value);
+            }
+            else if (name.Equals("Accept-Encoding", StringComparison.OrdinalIgnoreCase))
+            {
+                result = HeaderValidator.ValidateAcceptEncoding(value);
+            }
+            else
+            {
+                continue;
+            }
+
+            if (!result.IsValid)
+                throw new HeaderValidationException(name, result.ErrorMessage ?? "Validation failed");
+        }
     }
 
     public async Task<Response> SendAsync(CancellationToken cancellationToken = default)
