@@ -11,7 +11,7 @@
         <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase</PackageProjectUrl>
         <PackageLicenseUrl>https://github.com/AlexanderDotH/DevBase/blob/master/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/AlexanderDotH/DevBase</RepositoryUrl>
-        <Version>1.1.3</Version>
+        <Version>1.1.4</Version>
         <TargetFramework>net9.0</TargetFramework>
     </PropertyGroup>
 

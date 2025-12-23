@@ -4,6 +4,13 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <TargetFrameworks>net9.0</TargetFrameworks>
+        <Title>DevBase.Extensions</Title>
+        <Authors>AlexanderDotH</Authors>
+        <Description>Extension methods for DevBase</Description>
+        <Copyright>AlexanderDotH</Copyright>
+        <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
+        <Version>1.0.1</Version>
     </PropertyGroup>
 
     <ItemGroup>

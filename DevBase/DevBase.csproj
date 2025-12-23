@@ -11,7 +11,7 @@
     <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
     <RepositoryType>Public</RepositoryType>
-    <Version>1.3.3</Version>
+    <Version>1.3.4</Version>
     <PackageLicenseUrl>https://github.com/AlexanderDotH/DevBase/blob/master/LICENSE</PackageLicenseUrl>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
     <AssemblyOriginatorKeyFile>Key.snk</AssemblyOriginatorKeyFile>
