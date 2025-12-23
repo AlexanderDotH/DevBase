@@ -31,14 +31,14 @@ internal static class Socks5Protocol
         try
         {
             // Send HELLO
-            var helloMessage = BuildHelloMessage(proxy.Authenticate);
+            byte[] helloMessage = BuildHelloMessage(proxy.Authenticate);
             await socket.SendAsync(helloMessage, SocketFlags.None, cancellationToken);
 
             // Receive HELLO response
-            var buffer = BufferPool.Rent(256);
+            byte[] buffer = BufferPool.Rent(256);
             try
             {
-                var received = await socket.ReceiveAsync(buffer.AsMemory(0, 2), SocketFlags.None, cancellationToken);
+                int received = await socket.ReceiveAsync(buffer.AsMemory(0, 2), SocketFlags.None, cancellationToken);
                 
                 if (received != 2)
                     return Socks5ConnectionResult.InvalidProxyResponse;
@@ -71,13 +71,13 @@ internal static class Socks5Protocol
                 }
 
                 // Resolve hostname locally if requested
-                var resolvedAddress = destAddress;
+                string resolvedAddress = destAddress;
                 if (dnsResolver != null)
                 {
-                    var addressType = GetAddressType(destAddress);
+                    Socks5AddressType addressType = GetAddressType(destAddress);
                     if (addressType == Socks5AddressType.DomainName)
                     {
-                        var ipAddress = dnsResolver.TryResolve(destAddress);
+                        IPAddress? ipAddress = dnsResolver.TryResolve(destAddress);
                         if (ipAddress == null)
                             return Socks5ConnectionResult.HostUnreachable;
                         
@@ -86,7 +86,7 @@ internal static class Socks5Protocol
                 }
 
                 // Send CONNECT request
-                var requestMessage = BuildRequestMessage(resolvedAddress, destPort);
+                byte[] requestMessage = BuildRequestMessage(resolvedAddress, destPort);
                 await socket.SendAsync(requestMessage, SocketFlags.None, cancellationToken);
 
                 // Receive response
@@ -107,8 +107,8 @@ internal static class Socks5Protocol
                 if (buffer[2] != 0)
                     return Socks5ConnectionResult.InvalidProxyResponse;
 
-                var boundAddressType = (Socks5AddressType)buffer[3];
-                var expectedLength = boundAddressType switch
+                Socks5AddressType boundAddressType = (Socks5AddressType)buffer[3];
+                int expectedLength = boundAddressType switch
                 {
                     Socks5AddressType.IPv4 => 10,
                     Socks5AddressType.IPv6 => 22,
@@ -147,7 +147,7 @@ internal static class Socks5Protocol
 
     private static byte[] BuildRequestMessage(string address, int port)
     {
-        var addressType = GetAddressType(address);
+        Socks5AddressType addressType = GetAddressType(address);
         
         byte[] addressBytes;
         int addressLength;
@@ -161,7 +161,7 @@ internal static class Socks5Protocol
                 break;
 
             case Socks5AddressType.DomainName:
-                var domainBytes = Encoding.UTF8.GetBytes(address);
+                byte[] domainBytes = Encoding.UTF8.GetBytes(address);
                 addressLength = 1 + domainBytes.Length;
                 addressBytes = new byte[addressLength];
                 addressBytes[0] = (byte)domainBytes.Length;
@@ -172,7 +172,7 @@ internal static class Socks5Protocol
                 throw new ArgumentException("Unknown address type");
         }
 
-        var request = new byte[6 + addressLength];
+        byte[] request = new byte[6 + addressLength];
         request[0] = SocksVersion;
         request[1] = ConnectCommand;
         request[2] = 0x00; // Reserved
@@ -186,7 +186,7 @@ internal static class Socks5Protocol
 
     private static Socks5AddressType GetAddressType(string hostname)
     {
-        if (IPAddress.TryParse(hostname, out var ip))
+        if (IPAddress.TryParse(hostname, out IPAddress? ip))
         {
             return ip.AddressFamily == System.Net.Sockets.AddressFamily.InterNetwork
                 ? Socks5AddressType.IPv4

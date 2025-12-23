@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 
-namespace DevBase.Requests;
+namespace DevBase.Requests.Core;
 
 internal class BaseResponse
 {

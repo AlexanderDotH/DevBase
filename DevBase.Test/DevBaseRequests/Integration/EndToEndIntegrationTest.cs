@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using DevBase.Requests;
+using DevBase.Requests.Core;
 using DevBase.Requests.Proxy.HttpToSocks5;
 using NUnit.Framework;
 

@@ -1,9 +1,8 @@
 using System.Collections.Concurrent;
 using System.Net;
 using System.Threading.Channels;
-using DevBase.Requests.Configuration;
 
-namespace DevBase.Requests;
+namespace DevBase.Requests.Core;
 
 public sealed class Requests : IDisposable, IAsyncDisposable
 {
@@ -23,133 +22,119 @@ public sealed class Requests : IDisposable, IAsyncDisposable
     private DateTime _windowStart = DateTime.UtcNow;
     private int _requestsInWindow;
 
-    public int QueueCount => _queue.Count;
-    public int RateLimit => _rateLimit;
-    public int Parallelism => _parallelism;
-    public bool PersistCookies => _persistCookies;
-    public bool PersistReferer => _persistReferer;
+    public int QueueCount => this._queue.Count;
+    public int RateLimit => this._rateLimit;
+    public int Parallelism => this._parallelism;
+    public bool PersistCookies => this._persistCookies;
+    public bool PersistReferer => this._persistReferer;
 
     public Requests()
     {
-        _rateLimitSemaphore = new SemaphoreSlim(1, 1);
+        this._rateLimitSemaphore = new SemaphoreSlim(1, 1);
     }
-
-    #region Configuration
 
     public Requests WithRateLimit(int requestsPerWindow, TimeSpan? window = null)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(requestsPerWindow);
-        _rateLimit = requestsPerWindow;
-        _rateLimitWindow = window ?? TimeSpan.FromSeconds(1);
+        this._rateLimit = requestsPerWindow;
+        this._rateLimitWindow = window ?? TimeSpan.FromSeconds(1);
         return this;
     }
 
     public Requests WithParallelism(int maxParallel)
     {
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(maxParallel);
-        _parallelism = maxParallel;
+        this._parallelism = maxParallel;
         return this;
     }
 
     public Requests WithCookiePersistence(bool persist = true)
     {
-        _persistCookies = persist;
+        this._persistCookies = persist;
         return this;
     }
 
     public Requests WithRefererPersistence(bool persist = true)
     {
-        _persistReferer = persist;
+        this._persistReferer = persist;
         return this;
     }
-
-    #endregion
-
-    #region Queue Management
 
     public Requests Add(Request request)
     {
         ArgumentNullException.ThrowIfNull(request);
-        _queue.Enqueue(request);
+        this._queue.Enqueue(request);
         return this;
     }
 
     public Requests Add(IEnumerable<Request> requests)
     {
-        foreach (var request in requests)
-            Add(request);
+        foreach (Request request in requests)
+            this.Add(request);
         return this;
     }
 
     public Requests Add(string url)
     {
-        return Add(new Request(url));
+        return this.Add(new Request(url));
     }
 
     public Requests Add(IEnumerable<string> urls)
     {
-        foreach (var url in urls)
-            Add(url);
+        foreach (string url in urls)
+            this.Add(url);
         return this;
     }
 
     public void Clear()
     {
-        while (_queue.TryDequeue(out _)) { }
+        while (this._queue.TryDequeue(out _)) { }
     }
-
-    #endregion
-
-    #region Callbacks
 
     public Requests OnResponse(Func<Response, Task> callback)
     {
         ArgumentNullException.ThrowIfNull(callback);
-        _responseCallbacks.Add(callback);
+        this._responseCallbacks.Add(callback);
         return this;
     }
 
     public Requests OnResponse(Action<Response> callback)
     {
         ArgumentNullException.ThrowIfNull(callback);
-        _responseCallbacks.Add(r => { callback(r); return Task.CompletedTask; });
+        this._responseCallbacks.Add(r => { callback(r); return Task.CompletedTask; });
         return this;
     }
 
-    #endregion
-
-    #region Execution
-
     public async Task<List<Response>> SendAllAsync(CancellationToken cancellationToken = default)
     {
-        var responses = new ConcurrentBag<Response>();
-        var requests = new List<Request>();
+        ConcurrentBag<Response> responses = new ConcurrentBag<Response>();
+        List<Request> requests = new List<Request>();
 
-        while (_queue.TryDequeue(out var request))
+        while (this._queue.TryDequeue(out Request? request))
             requests.Add(request);
 
-        if (_parallelism <= 1)
+        if (this._parallelism <= 1)
         {
-            foreach (var request in requests)
+            foreach (Request request in requests)
             {
                 if (cancellationToken.IsCancellationRequested)
                     break;
 
-                var response = await SendWithRateLimitAsync(request, cancellationToken);
+                Response response = await this.SendWithRateLimitAsync(request, cancellationToken);
                 responses.Add(response);
-                await InvokeCallbacksAsync(response);
+                await this.InvokeCallbacksAsync(response);
             }
         }
         else
         {
-            var channel = Channel.CreateBounded<Request>(new BoundedChannelOptions(_parallelism * 2)
+            Channel<Request> channel = Channel.CreateBounded<Request>(new BoundedChannelOptions(this._parallelism * 2)
             {
                 FullMode = BoundedChannelFullMode.Wait
             });
 
-            var producer = Task.Run(async () =>
+            Task producer = Task.Run(async () =>
             {
-                foreach (var request in requests)
+                foreach (Request request in requests)
                 {
                     if (cancellationToken.IsCancellationRequested)
                         break;
@@ -158,16 +143,16 @@ public sealed class Requests : IDisposable, IAsyncDisposable
                 channel.Writer.Complete();
             }, cancellationToken);
 
-            var consumers = Enumerable.Range(0, _parallelism)
+            Task[] consumers = Enumerable.Range(0, this._parallelism)
                 .Select(_ => Task.Run(async () =>
                 {
-                    await foreach (var request in channel.Reader.ReadAllAsync(cancellationToken))
+                    await foreach (Request request in channel.Reader.ReadAllAsync(cancellationToken))
                     {
                         try
                         {
-                            var response = await SendWithRateLimitAsync(request, cancellationToken);
+                            Response response = await this.SendWithRateLimitAsync(request, cancellationToken);
                             responses.Add(response);
-                            await InvokeCallbacksAsync(response);
+                            await this.InvokeCallbacksAsync(response);
                         }
                         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
                         {
@@ -191,83 +176,83 @@ public sealed class Requests : IDisposable, IAsyncDisposable
     public async IAsyncEnumerable<Response> SendAllAsyncEnumerable(
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        while (_queue.TryDequeue(out var request))
+        while (this._queue.TryDequeue(out Request? request))
         {
             if (cancellationToken.IsCancellationRequested)
                 yield break;
 
-            var response = await SendWithRateLimitAsync(request, cancellationToken);
-            await InvokeCallbacksAsync(response);
+            Response response = await this.SendWithRateLimitAsync(request, cancellationToken);
+            await this.InvokeCallbacksAsync(response);
             yield return response;
         }
     }
 
     private async Task<Response> SendWithRateLimitAsync(Request request, CancellationToken cancellationToken)
     {
-        await EnforceRateLimitAsync(cancellationToken);
+        await this.EnforceRateLimitAsync(cancellationToken);
         
-        ApplyPersistence(request);
+        this.ApplyPersistence(request);
         
-        var response = await request.SendAsync(cancellationToken);
+        Response response = await request.SendAsync(cancellationToken);
         
-        StorePersistence(request, response);
+        this.StorePersistence(request, response);
         
         return response;
     }
 
     private async Task EnforceRateLimitAsync(CancellationToken cancellationToken)
     {
-        if (_rateLimit <= 0)
+        if (this._rateLimit <= 0)
             return;
 
-        await _rateLimitSemaphore.WaitAsync(cancellationToken);
+        await this._rateLimitSemaphore.WaitAsync(cancellationToken);
         try
         {
-            var now = DateTime.UtcNow;
+            DateTime now = DateTime.UtcNow;
             
-            if (now - _windowStart >= _rateLimitWindow)
+            if (now - this._windowStart >= this._rateLimitWindow)
             {
-                _windowStart = now;
-                _requestsInWindow = 0;
+                this._windowStart = now;
+                this._requestsInWindow = 0;
             }
 
-            if (_requestsInWindow >= _rateLimit)
+            if (this._requestsInWindow >= this._rateLimit)
             {
-                var waitTime = _rateLimitWindow - (now - _windowStart);
+                TimeSpan waitTime = this._rateLimitWindow - (now - this._windowStart);
                 if (waitTime > TimeSpan.Zero)
                     await Task.Delay(waitTime, cancellationToken);
                 
-                _windowStart = DateTime.UtcNow;
-                _requestsInWindow = 0;
+                this._windowStart = DateTime.UtcNow;
+                this._requestsInWindow = 0;
             }
 
-            _requestsInWindow++;
+            this._requestsInWindow++;
         }
         finally
         {
-            _rateLimitSemaphore.Release();
+            this._rateLimitSemaphore.Release();
         }
     }
 
     private void ApplyPersistence(Request request)
     {
-        var uri = request.GetUri();
+        Uri? uri = request.GetUri();
         if (uri == null)
             return;
 
-        var host = uri.Host;
+        string host = uri.Host;
 
-        if (_persistCookies && _cookies.TryGetValue(host, out var container))
+        if (this._persistCookies && this._cookies.TryGetValue(host, out CookieContainer? container))
         {
-            var cookies = container.GetCookies(uri);
+            CookieCollection cookies = container.GetCookies(uri);
             if (cookies.Count > 0)
             {
-                var cookieHeader = string.Join("; ", cookies.Cast<Cookie>().Select(c => $"{c.Name}={c.Value}"));
+                string cookieHeader = string.Join("; ", cookies.Cast<Cookie>().Select(c => $"{c.Name}={c.Value}"));
                 request.WithCookie(cookieHeader);
             }
         }
 
-        if (_persistReferer && _referers.TryGetValue(host, out var referer))
+        if (this._persistReferer && this._referers.TryGetValue(host, out string? referer))
         {
             request.WithReferer(referer);
         }
@@ -275,32 +260,32 @@ public sealed class Requests : IDisposable, IAsyncDisposable
 
     private void StorePersistence(Request request, Response response)
     {
-        var uri = request.GetUri();
+        Uri? uri = request.GetUri();
         if (uri == null)
             return;
 
-        var host = uri.Host;
+        string host = uri.Host;
 
-        if (_persistCookies)
+        if (this._persistCookies)
         {
-            var responseCookies = response.GetCookies();
+            CookieCollection responseCookies = response.GetCookies();
             if (responseCookies.Count > 0)
             {
-                var container = _cookies.GetOrAdd(host, _ => new CookieContainer());
+                CookieContainer container = this._cookies.GetOrAdd(host, _ => new CookieContainer());
                 foreach (Cookie cookie in responseCookies)
                     container.Add(uri, cookie);
             }
         }
 
-        if (_persistReferer)
+        if (this._persistReferer)
         {
-            _referers[host] = uri.ToString();
+            this._referers[host] = uri.ToString();
         }
     }
 
     private async Task InvokeCallbacksAsync(Response response)
     {
-        foreach (var callback in _responseCallbacks)
+        foreach (Func<Response, Task> callback in this._responseCallbacks)
         {
             try
             {
@@ -313,27 +298,21 @@ public sealed class Requests : IDisposable, IAsyncDisposable
         }
     }
 
-    #endregion
-
-    #region Disposal
-
     public void Dispose()
     {
-        if (_disposed) return;
-        _disposed = true;
+        if (this._disposed) return;
+        this._disposed = true;
 
-        _rateLimitSemaphore.Dispose();
-        Clear();
-        _cookies.Clear();
-        _referers.Clear();
-        _responseCallbacks.Clear();
+        this._rateLimitSemaphore.Dispose();
+        this.Clear();
+        this._cookies.Clear();
+        this._referers.Clear();
+        this._responseCallbacks.Clear();
     }
 
     public ValueTask DisposeAsync()
     {
-        Dispose();
+        this.Dispose();
         return ValueTask.CompletedTask;
     }
-
-    #endregion
 }

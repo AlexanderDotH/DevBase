@@ -2,6 +2,7 @@ using System.Diagnostics;
 using System.Net;
 using DevBase.Requests;
 using DevBase.Requests.Configuration;
+using DevBase.Requests.Core;
 using NUnit.Framework;
 
 namespace DevBase.Test.DevBaseRequests.Integration;

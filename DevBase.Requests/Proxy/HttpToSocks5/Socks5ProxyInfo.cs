@@ -51,15 +51,15 @@ public sealed class Socks5ProxyInfo
 
     private static byte[] BuildAuthenticationMessage(string username, string password)
     {
-        var usernameBytes = Encoding.UTF8.GetBytes(username);
+        byte[] usernameBytes = Encoding.UTF8.GetBytes(username);
         if (usernameBytes.Length > 255)
             throw new ArgumentOutOfRangeException(nameof(username), "Username is too long (max 255 bytes)");
 
-        var passwordBytes = Encoding.UTF8.GetBytes(password);
+        byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
         if (passwordBytes.Length > 255)
             throw new ArgumentOutOfRangeException(nameof(password), "Password is too long (max 255 bytes)");
 
-        var authMessage = new byte[3 + usernameBytes.Length + passwordBytes.Length];
+        byte[] authMessage = new byte[3 + usernameBytes.Length + passwordBytes.Length];
         authMessage[0] = 0x01; // Subnegotiation version
         authMessage[1] = (byte)usernameBytes.Length;
         Buffer.BlockCopy(usernameBytes, 0, authMessage, 2, usernameBytes.Length);

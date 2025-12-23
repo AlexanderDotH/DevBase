@@ -11,21 +11,17 @@ namespace DevBase.Requests.Data.Header;
 
 public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder, string, string>
 {
+    private static readonly MimeDictionary SharedMimeDictionary = new();
+
     private UserAgentHeaderBuilder? UserAgentHeaderBuilder { get; set; }
     private AuthenticationHeaderBuilder? AuthenticationHeaderBuilder { get; set; }
-    
-    private MimeDictionary MimeDictionary { get; set; }
 
     public RequestHeaderBuilder()
     {
         this.UserAgentHeaderBuilder = new UserAgentHeaderBuilder();
         this.AuthenticationHeaderBuilder = new AuthenticationHeaderBuilder();
-
-        this.MimeDictionary = new MimeDictionary();
     }
     
-    #region UserAgent
-
     public RequestHeaderBuilder WithUserAgent(string userAgent)
     {
         this.UserAgentHeaderBuilder?.WithOverwrite(userAgent);
@@ -44,12 +40,10 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         return this;
     }
 
-    #region Generics
-
     public RequestHeaderBuilder WithBogusUserAgent<T>() 
         where T : IBogusUserAgentGenerator 
     {
-        this.UserAgentHeaderBuilder = UserAgentHeaderBuilder.BogusOf(CreateInstance<T>());
+        this.UserAgentHeaderBuilder = UserAgentHeaderBuilder.BogusOf(this.CreateInstance<T>());
         this.UserAgentHeaderBuilder.BuildBogus();
         return this;
     }
@@ -59,30 +53,27 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         where T2 : IBogusUserAgentGenerator
     {
         this.UserAgentHeaderBuilder = UserAgentHeaderBuilder.BogusOf(
-            CreateInstance<T1>(),
-            CreateInstance<T2>());
+            this.CreateInstance<T1>(),
+            this.CreateInstance<T2>());
         
         this.UserAgentHeaderBuilder.BuildBogus();
         return this;
     }
     
-    #pragma warning disable S2436
     public RequestHeaderBuilder WithBogusUserAgent<T1, T2, T3>() 
         where T1 : IBogusUserAgentGenerator 
         where T2 : IBogusUserAgentGenerator
         where T3 : IBogusUserAgentGenerator
     {
         this.UserAgentHeaderBuilder = UserAgentHeaderBuilder.BogusOf(
-            CreateInstance<T1>(),
-            CreateInstance<T2>(),
-            CreateInstance<T3>());
+            this.CreateInstance<T1>(),
+            this.CreateInstance<T2>(),
+            this.CreateInstance<T3>());
         
         this.UserAgentHeaderBuilder.BuildBogus();
         return this;
     }
-    #pragma warning restore S2436
     
-    #pragma warning disable S2436
     public RequestHeaderBuilder WithBogusUserAgent<T1, T2, T3, T4>() 
         where T1 : IBogusUserAgentGenerator 
         where T2 : IBogusUserAgentGenerator
@@ -90,33 +81,26 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         where T4 : IBogusUserAgentGenerator
     {
         this.UserAgentHeaderBuilder = UserAgentHeaderBuilder.BogusOf(
-            CreateInstance<T1>(),
-            CreateInstance<T2>(),
-            CreateInstance<T3>(),
-            CreateInstance<T4>());
+            this.CreateInstance<T1>(),
+            this.CreateInstance<T2>(),
+            this.CreateInstance<T3>(),
+            this.CreateInstance<T4>());
         
         this.UserAgentHeaderBuilder.BuildBogus();
         return this;
     }
-    #pragma warning restore S2436
 
     private IBogusUserAgentGenerator CreateInstance<T>() => (IBogusUserAgentGenerator)Activator.CreateInstance(typeof(T));
     
-    #endregion
-    
-    #endregion
-
-    #region Accept
-
     public RequestHeaderBuilder WithAccept(params string[] acceptTypes)
     {
         string[] resolvedTypes = new string[acceptTypes.Length];
         
-        for (var i = 0; i < acceptTypes.Length; i++)
+        for (int i = 0; i < acceptTypes.Length; i++)
         {
             string currentTyoe = acceptTypes[i];
 
-            if (this.MimeDictionary.TryGetMimeTypeAsString(currentTyoe, out string result))
+            if (SharedMimeDictionary.TryGetMimeTypeAsString(currentTyoe, out string result))
                 currentTyoe = result;
             
             resolvedTypes[i] = currentTyoe;
@@ -128,23 +112,17 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         return this;
     }
 
-    #endregion
-
-    #region Authentication
-
     public RequestHeaderBuilder UseBasicAuthentication(string username, string password)
     {
-        AuthenticationHeaderBuilder?.UseBasicAuthentication(username, password);
+        this.AuthenticationHeaderBuilder?.UseBasicAuthentication(username, password);
         return this;
     }
 
     public RequestHeaderBuilder UseBearerAuthentication(string token)
     {
-        AuthenticationHeaderBuilder?.UseBearerAuthentication(token);
+        this.AuthenticationHeaderBuilder?.UseBearerAuthentication(token);
         return this;
     }
-    
-    #endregion
     
     protected override Action BuildAction => () =>
     {
@@ -152,7 +130,7 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         this.AuthenticationHeaderBuilder?.TryBuild(); 
 
         if (!base.AnyEntry("Accept"))
-            WithAccept("*/*");
+            this.WithAccept("*/*");
 
         if (this.UserAgentHeaderBuilder!.Usable)
             base.AddOrSetEntry("User-Agent", this.UserAgentHeaderBuilder.UserAgent.ToString());

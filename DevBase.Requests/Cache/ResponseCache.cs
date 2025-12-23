@@ -1,5 +1,6 @@
 using System.Security.Cryptography;
 using System.Text;
+using DevBase.Requests.Core;
 using ZiggyCreatures.Caching.Fusion;
 
 namespace DevBase.Requests.Cache;
@@ -28,7 +29,7 @@ public sealed class ResponseCache : IDisposable
         if (!Enabled)
             return null;
 
-        var key = GenerateCacheKey(request);
+        string key = GenerateCacheKey(request);
         return await _cache.GetOrDefaultAsync<CachedResponse>(key, token: cancellationToken);
     }
 
@@ -37,15 +38,15 @@ public sealed class ResponseCache : IDisposable
         if (!Enabled)
             return;
 
-        var key = GenerateCacheKey(request);
-        var cached = await CachedResponse.FromResponseAsync(response, cancellationToken);
+        string key = GenerateCacheKey(request);
+        CachedResponse cached = await CachedResponse.FromResponseAsync(response, cancellationToken);
         
         await _cache.SetAsync(key, cached, expiration ?? DefaultExpiration, token: cancellationToken);
     }
 
     public async Task<bool> RemoveAsync(Request request, CancellationToken cancellationToken = default)
     {
-        var key = GenerateCacheKey(request);
+        string key = GenerateCacheKey(request);
         await _cache.RemoveAsync(key, token: cancellationToken);
         return true;
     }
@@ -57,13 +58,13 @@ public sealed class ResponseCache : IDisposable
 
     private static string GenerateCacheKey(Request request)
     {
-        var keyBuilder = new StringBuilder();
+        StringBuilder keyBuilder = new StringBuilder();
         keyBuilder.Append(request.Method);
         keyBuilder.Append('|');
         keyBuilder.Append(request.GetUri()?.ToString() ?? string.Empty);
 
-        var keyBytes = Encoding.UTF8.GetBytes(keyBuilder.ToString());
-        var hashBytes = SHA256.HashData(keyBytes);
+        byte[] keyBytes = Encoding.UTF8.GetBytes(keyBuilder.ToString());
+        byte[] hashBytes = SHA256.HashData(keyBytes);
         return Convert.ToHexString(hashBytes);
     }
 

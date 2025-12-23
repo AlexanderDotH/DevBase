@@ -21,7 +21,7 @@ internal static class HttpHelpers
         const byte R = (byte)'\r';
         const byte N = (byte)'\n';
 
-        var foundOne = false;
+        bool foundOne = false;
         endOfHeader = offset;
         
         for (; endOfHeader < buffer.Length; endOfHeader++)

@@ -43,8 +43,6 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
 
     private volatile bool _stopped;
 
-    #region Constructors
-    
     /// <summary>
     /// Create an HTTP(s) to SOCKS5 proxy using no authentication.
     /// </summary>
@@ -86,8 +84,6 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
         _internalServerSocket.Listen(16);
         _ = AcceptConnectionsAsync();
     }
-    
-    #endregion
 
     private async Task AcceptConnectionsAsync()
     {
@@ -95,7 +91,7 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
         {
             try
             {
-                var clientSocket = await _internalServerSocket.AcceptAsync();
+                Socket clientSocket = await _internalServerSocket.AcceptAsync();
                 _ = Task.Run(() => HandleRequestAsync(clientSocket));
             }
             catch when (_stopped)
@@ -112,18 +108,18 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
     private async Task HandleRequestAsync(Socket clientSocket)
     {
         Socket? socks5Socket = null;
-        var success = true;
+        bool success = true;
 
         try
         {
-            var parseResult = await TryReadTargetAsync(clientSocket);
+            HttpRequestParseResult parseResult = await TryReadTargetAsync(clientSocket);
             
             if (parseResult.Success)
             {
                 try
                 {
                     socks5Socket = new Socket(SocketType.Stream, ProtocolType.Tcp);
-                    var proxyAddress = _dnsResolver.TryResolve(_proxyList[0].Hostname);
+                    IPAddress? proxyAddress = _dnsResolver.TryResolve(_proxyList[0].Hostname);
                     
                     if (proxyAddress == null)
                     {
@@ -149,11 +145,11 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
                 if (success && socks5Socket != null)
                 {
                     // Chain through proxies
-                    for (var i = 0; i < _proxyList.Length - 1 && success; i++)
+                    for (int i = 0; i < _proxyList.Length - 1 && success; i++)
                     {
-                        var proxy = _proxyList[i];
-                        var nextProxy = _proxyList[i + 1];
-                        var result = await Socks5Protocol.TryCreateTunnelAsync(
+                        Socks5ProxyInfo proxy = _proxyList[i];
+                        Socks5ProxyInfo nextProxy = _proxyList[i + 1];
+                        Socks5ConnectionResult result = await Socks5Protocol.TryCreateTunnelAsync(
                             socks5Socket, nextProxy.Hostname, nextProxy.Port, proxy,
                             ResolveHostnamesLocally ? _dnsResolver : null);
                         
@@ -166,8 +162,8 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
 
                     if (success)
                     {
-                        var lastProxy = _proxyList[^1];
-                        var result = await Socks5Protocol.TryCreateTunnelAsync(
+                        Socks5ProxyInfo lastProxy = _proxyList[^1];
+                        Socks5ConnectionResult result = await Socks5Protocol.TryCreateTunnelAsync(
                             socks5Socket, parseResult.Hostname!, parseResult.Port, lastProxy,
                             ResolveHostnamesLocally ? _dnsResolver : null);
                         
@@ -221,42 +217,42 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
 
     private async Task<HttpRequestParseResult> TryReadTargetAsync(Socket clientSocket)
     {
-        var result = new HttpRequestParseResult();
+        HttpRequestParseResult result = new HttpRequestParseResult();
         
-        var headersResult = await TryReadHeadersAsync(clientSocket);
+        HeadersParseResult headersResult = await TryReadHeadersAsync(clientSocket);
         if (!headersResult.Success)
             return result;
 
-        var headerString = headersResult.Headers!;
-        var headerLines = headerString.Split('\n')
+        string headerString = headersResult.Headers!;
+        List<string> headerLines = headerString.Split('\n')
             .Select(i => i.TrimEnd('\r'))
             .Where(i => i.Length > 0)
             .ToList();
         
-        var methodLine = headerLines[0].Split(' ');
+        string[] methodLine = headerLines[0].Split(' ');
         if (methodLine.Length != 3)
         {
             await SendErrorAsync(clientSocket, Socks5ConnectionResult.InvalidRequest);
             return result;
         }
 
-        var method = methodLine[0];
+        string method = methodLine[0];
         result.HttpVersion = methodLine[2].Trim() + " ";
         result.IsConnect = method.Equals("CONNECT", StringComparison.OrdinalIgnoreCase);
         string? hostHeader = null;
 
         if (result.IsConnect)
         {
-            foreach (var headerLine in headerLines)
+            foreach (string headerLine in headerLines)
             {
-                var colonIndex = headerLine.IndexOf(':');
+                int colonIndex = headerLine.IndexOf(':');
                 if (colonIndex == -1)
                 {
                     await SendErrorAsync(clientSocket, Socks5ConnectionResult.InvalidRequest, result.HttpVersion);
                     return result;
                 }
                 
-                var headerName = headerLine.AsSpan(0, colonIndex).Trim().ToString();
+                string headerName = headerLine.AsSpan(0, colonIndex).Trim().ToString();
                 if (headerName.Equals("Host", StringComparison.OrdinalIgnoreCase))
                 {
                     hostHeader = headerLine[(colonIndex + 1)..].Trim();
@@ -266,8 +262,8 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
         }
         else
         {
-            var hostUri = new Uri(methodLine[1]);
-            var requestBuilder = new StringBuilder(512);
+            Uri hostUri = new Uri(methodLine[1]);
+            StringBuilder requestBuilder = new StringBuilder(512);
 
             requestBuilder.Append(methodLine[0]);
             requestBuilder.Append(' ');
@@ -276,12 +272,12 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
             requestBuilder.Append(' ');
             requestBuilder.Append(methodLine[2]);
 
-            for (var i = 1; i < headerLines.Count; i++)
+            for (int i = 1; i < headerLines.Count; i++)
             {
-                var colonIndex = headerLines[i].IndexOf(':');
+                int colonIndex = headerLines[i].IndexOf(':');
                 if (colonIndex == -1) continue;
                 
-                var headerName = headerLines[i].AsSpan(0, colonIndex).Trim().ToString();
+                string headerName = headerLines[i].AsSpan(0, colonIndex).Trim().ToString();
 
                 if (headerName.Equals("Host", StringComparison.OrdinalIgnoreCase))
                 {
@@ -311,13 +307,13 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
 
         if (string.IsNullOrEmpty(hostHeader))
         {
-            var requestTarget = methodLine[1];
+            string requestTarget = methodLine[1];
             result.Hostname = requestTarget;
-            var colonIndex = requestTarget.LastIndexOf(':');
+            int colonIndex = requestTarget.LastIndexOf(':');
             
             if (colonIndex != -1)
             {
-                if (int.TryParse(requestTarget.AsSpan(colonIndex + 1), out var port))
+                if (int.TryParse(requestTarget.AsSpan(colonIndex + 1), out int port))
                 {
                     result.Port = port;
                     result.Hostname = requestTarget[..colonIndex];
@@ -326,15 +322,15 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
         }
         else
         {
-            var colonIndex = hostHeader.LastIndexOf(':');
+            int colonIndex = hostHeader.LastIndexOf(':');
             
             if (colonIndex == -1)
             {
                 result.Hostname = hostHeader;
-                var requestTarget = methodLine[1];
+                string requestTarget = methodLine[1];
                 colonIndex = requestTarget.LastIndexOf(':');
                 
-                if (colonIndex != -1 && int.TryParse(requestTarget.AsSpan(colonIndex + 1), out var port))
+                if (colonIndex != -1 && int.TryParse(requestTarget.AsSpan(colonIndex + 1), out int port))
                 {
                     result.Port = port;
                 }
@@ -342,7 +338,7 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
             else
             {
                 result.Hostname = hostHeader[..colonIndex];
-                if (int.TryParse(hostHeader.AsSpan(colonIndex + 1), out var port))
+                if (int.TryParse(hostHeader.AsSpan(colonIndex + 1), out int port))
                 {
                     result.Port = port;
                 }
@@ -356,13 +352,13 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
 
     private static async Task<HeadersParseResult> TryReadHeadersAsync(Socket clientSocket)
     {
-        var result = new HeadersParseResult();
-        var buffer = BufferPool.Rent(8192);
+        HeadersParseResult result = new HeadersParseResult();
+        byte[] buffer = BufferPool.Rent(8192);
         
         try
         {
-            var received = 0;
-            var left = 8192;
+            int received = 0;
+            int left = 8192;
 
             do
             {
@@ -372,8 +368,8 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
                     return result;
                 }
 
-                var offset = received;
-                var read = await clientSocket.ReceiveAsync(buffer.AsMemory(received, left), SocketFlags.None);
+                int offset = received;
+                int read = await clientSocket.ReceiveAsync(buffer.AsMemory(received, left), SocketFlags.None);
                 
                 if (read == 0)
                     return result;
@@ -381,14 +377,14 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
                 received += read;
                 left -= read;
             }
-            while (!HttpHelpers.ContainsDoubleNewLine(buffer.AsSpan(0, received), Math.Max(0, received - 3 - 4), out var endOfHeader));
+            while (!HttpHelpers.ContainsDoubleNewLine(buffer.AsSpan(0, received), Math.Max(0, received - 3 - 4), out int endOfHeader));
 
-            HttpHelpers.ContainsDoubleNewLine(buffer.AsSpan(0, received), 0, out var actualEnd);
+            HttpHelpers.ContainsDoubleNewLine(buffer.AsSpan(0, received), 0, out int actualEnd);
             result.Headers = Encoding.ASCII.GetString(buffer, 0, actualEnd);
 
             if (received != actualEnd)
             {
-                var overReadCount = received - actualEnd;
+                int overReadCount = received - actualEnd;
                 result.OverRead = new byte[overReadCount];
                 Buffer.BlockCopy(buffer, actualEnd, result.OverRead, 0, overReadCount);
             }
@@ -404,13 +400,13 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
 
     private static async Task SendStringAsync(Socket socket, string text)
     {
-        var bytes = Encoding.UTF8.GetBytes(text);
+        byte[] bytes = Encoding.UTF8.GetBytes(text);
         await socket.SendAsync(bytes, SocketFlags.None);
     }
 
     private static async Task SendErrorAsync(Socket socket, Socks5ConnectionResult error, string httpVersion = "HTTP/1.1 ")
     {
-        var response = error switch
+        string response = error switch
         {
             Socks5ConnectionResult.AuthenticationError => $"{httpVersion}401 Unauthorized\r\n\r\n",
             Socks5ConnectionResult.HostUnreachable or 

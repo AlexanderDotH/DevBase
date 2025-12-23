@@ -24,7 +24,7 @@ public sealed class Socks4Client : IDisposable
         
         await _socket.ConnectAsync(_proxyInfo.Host, _proxyInfo.Port, cancellationToken);
         
-        var stream = new NetworkStream(_socket, ownsSocket: false);
+        NetworkStream stream = new NetworkStream(_socket, ownsSocket: false);
 
         await SendConnectCommandAsync(stream, host, port, cancellationToken);
 
@@ -33,18 +33,18 @@ public sealed class Socks4Client : IDisposable
 
     private async Task SendConnectCommandAsync(NetworkStream stream, string host, int port, CancellationToken cancellationToken)
     {
-        var addresses = await Dns.GetHostAddressesAsync(host, cancellationToken);
+        IPAddress[] addresses = await Dns.GetHostAddressesAsync(host, cancellationToken);
         if (addresses.Length == 0)
             throw new InvalidOperationException($"Could not resolve hostname: {host}");
 
-        var address = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)
+        IPAddress address = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)
             ?? throw new InvalidOperationException("SOCKS4 only supports IPv4 addresses");
         
-        var addressBytes = address.GetAddressBytes();
-        var userId = _proxyInfo.Credentials?.UserName ?? string.Empty;
-        var userIdBytes = Encoding.ASCII.GetBytes(userId);
+        byte[] addressBytes = address.GetAddressBytes();
+        string userId = _proxyInfo.Credentials?.UserName ?? string.Empty;
+        byte[] userIdBytes = Encoding.ASCII.GetBytes(userId);
 
-        var request = new byte[9 + userIdBytes.Length];
+        byte[] request = new byte[9 + userIdBytes.Length];
         request[0] = Socks4Version;
         request[1] = ConnectCommand;
         request[2] = (byte)(port >> 8);
@@ -55,15 +55,15 @@ public sealed class Socks4Client : IDisposable
 
         await stream.WriteAsync(request, cancellationToken);
 
-        var response = new byte[8];
-        var bytesRead = await stream.ReadAsync(response, cancellationToken);
+        byte[] response = new byte[8];
+        int bytesRead = await stream.ReadAsync(response, cancellationToken);
         
         if (bytesRead < 8)
             throw new InvalidOperationException("Invalid SOCKS4 response");
 
         if (response[1] != RequestGranted)
         {
-            var errorMessage = response[1] switch
+            string errorMessage = response[1] switch
             {
                 0x5B => "Request rejected or failed",
                 0x5C => "Request failed because client is not running identd",

@@ -23,7 +23,7 @@ public sealed class TrackedProxyInfo
             if (!IsTimedOut || TimeoutUntil == null)
                 return null;
                 
-            var remaining = TimeoutUntil.Value - DateTime.UtcNow;
+            TimeSpan remaining = TimeoutUntil.Value - DateTime.UtcNow;
             return remaining > TimeSpan.Zero ? remaining : null;
         }
     }
@@ -99,7 +99,7 @@ public sealed class TrackedProxyInfo
 
     public IWebProxy ToWebProxy()
     {
-        var webProxy = new WebProxy(Proxy.Host, Proxy.Port);
+        WebProxy webProxy = new WebProxy(Proxy.Host, Proxy.Port);
         
         if (Proxy.Credentials != null)
             webProxy.Credentials = Proxy.Credentials;

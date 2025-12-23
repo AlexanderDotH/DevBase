@@ -11,7 +11,7 @@ using DevBase.Requests.Metrics;
 using DevBase.Requests.Parsing;
 using Newtonsoft.Json;
 
-namespace DevBase.Requests;
+namespace DevBase.Requests.Core;
 
 public sealed class Response : IDisposable, IAsyncDisposable
 {
@@ -20,53 +20,51 @@ public sealed class Response : IDisposable, IAsyncDisposable
     private bool _disposed;
     private byte[]? _cachedContent;
 
-    public HttpStatusCode StatusCode => _httpResponse.StatusCode;
-    public bool IsSuccessStatusCode => _httpResponse.IsSuccessStatusCode;
-    public HttpResponseHeaders Headers => _httpResponse.Headers;
-    public HttpContentHeaders? ContentHeaders => _httpResponse.Content?.Headers;
-    public string? ContentType => ContentHeaders?.ContentType?.MediaType;
-    public long? ContentLength => ContentHeaders?.ContentLength;
-    public Version HttpVersion => _httpResponse.Version;
-    public string? ReasonPhrase => _httpResponse.ReasonPhrase;
+    public HttpStatusCode StatusCode => this._httpResponse.StatusCode;
+    public bool IsSuccessStatusCode => this._httpResponse.IsSuccessStatusCode;
+    public HttpResponseHeaders Headers => this._httpResponse.Headers;
+    public HttpContentHeaders? ContentHeaders => this._httpResponse.Content?.Headers;
+    public string? ContentType => this.ContentHeaders?.ContentType?.MediaType;
+    public long? ContentLength => this.ContentHeaders?.ContentLength;
+    public Version HttpVersion => this._httpResponse.Version;
+    public string? ReasonPhrase => this._httpResponse.ReasonPhrase;
     public RequestMetrics Metrics { get; }
     public bool FromCache { get; init; }
     public Uri? RequestUri { get; init; }
 
     internal Response(HttpResponseMessage httpResponse, MemoryStream contentStream, RequestMetrics metrics)
     {
-        _httpResponse = httpResponse ?? throw new ArgumentNullException(nameof(httpResponse));
-        _contentStream = contentStream ?? throw new ArgumentNullException(nameof(contentStream));
-        Metrics = metrics ?? throw new ArgumentNullException(nameof(metrics));
+        this._httpResponse = httpResponse ?? throw new ArgumentNullException(nameof(httpResponse));
+        this._contentStream = contentStream ?? throw new ArgumentNullException(nameof(contentStream));
+        this.Metrics = metrics ?? throw new ArgumentNullException(nameof(metrics));
     }
-
-    #region Content Access
 
     public async Task<byte[]> GetBytesAsync(CancellationToken cancellationToken = default)
     {
-        if (_cachedContent != null)
-            return _cachedContent;
+        if (this._cachedContent != null)
+            return this._cachedContent;
 
-        _contentStream.Position = 0;
-        _cachedContent = _contentStream.ToArray();
-        return _cachedContent;
+        this._contentStream.Position = 0;
+        this._cachedContent = this._contentStream.ToArray();
+        return this._cachedContent;
     }
 
     public async Task<string> GetStringAsync(Encoding? encoding = null, CancellationToken cancellationToken = default)
     {
-        var bytes = await GetBytesAsync(cancellationToken);
-        encoding ??= DetectEncoding() ?? Encoding.UTF8;
+        byte[] bytes = await this.GetBytesAsync(cancellationToken);
+        encoding ??= this.DetectEncoding() ?? Encoding.UTF8;
         return encoding.GetString(bytes);
     }
 
     public Stream GetStream()
     {
-        _contentStream.Position = 0;
-        return _contentStream;
+        this._contentStream.Position = 0;
+        return this._contentStream;
     }
 
     private Encoding? DetectEncoding()
     {
-        var charset = ContentHeaders?.ContentType?.CharSet;
+        string? charset = this.ContentHeaders?.ContentType?.CharSet;
         if (string.IsNullOrEmpty(charset))
             return null;
 
@@ -80,38 +78,34 @@ public sealed class Response : IDisposable, IAsyncDisposable
         }
     }
 
-    #endregion
-
-    #region Generic Parsing
-
     public async Task<T> GetAsync<T>(CancellationToken cancellationToken = default)
     {
-        var targetType = typeof(T);
+        Type targetType = typeof(T);
 
         if (targetType == typeof(string))
-            return (T)(object)await GetStringAsync(cancellationToken: cancellationToken);
+            return (T)(object)await this.GetStringAsync(cancellationToken: cancellationToken);
 
         if (targetType == typeof(byte[]))
-            return (T)(object)await GetBytesAsync(cancellationToken);
+            return (T)(object)await this.GetBytesAsync(cancellationToken);
 
         if (targetType == typeof(Stream) || targetType == typeof(MemoryStream))
-            return (T)(object)GetStream();
+            return (T)(object)this.GetStream();
 
         if (targetType == typeof(XDocument))
-            return (T)(object)await ParseXmlAsync(cancellationToken);
+            return (T)(object)await this.ParseXmlAsync(cancellationToken);
 
         if (targetType == typeof(IDocument))
-            return (T)(object)await ParseHtmlAsync(cancellationToken);
+            return (T)(object)await this.ParseHtmlAsync(cancellationToken);
 
         if (targetType == typeof(JsonDocument))
-            return (T)(object)await ParseJsonDocumentAsync(cancellationToken);
+            return (T)(object)await this.ParseJsonDocumentAsync(cancellationToken);
 
-        return await ParseJsonAsync<T>(true, cancellationToken);
+        return await this.ParseJsonAsync<T>(true, cancellationToken);
     }
 
     public async Task<T> ParseJsonAsync<T>(bool useSystemTextJson = true, CancellationToken cancellationToken = default)
     {
-        var content = await GetStringAsync(cancellationToken: cancellationToken);
+        string content = await this.GetStringAsync(cancellationToken: cancellationToken);
 
         if (useSystemTextJson)
         {
@@ -126,54 +120,46 @@ public sealed class Response : IDisposable, IAsyncDisposable
 
     public async Task<JsonDocument> ParseJsonDocumentAsync(CancellationToken cancellationToken = default)
     {
-        _contentStream.Position = 0;
-        return await JsonDocument.ParseAsync(_contentStream, cancellationToken: cancellationToken);
+        this._contentStream.Position = 0;
+        return await JsonDocument.ParseAsync(this._contentStream, cancellationToken: cancellationToken);
     }
 
     public async Task<XDocument> ParseXmlAsync(CancellationToken cancellationToken = default)
     {
-        _contentStream.Position = 0;
-        return await XDocument.LoadAsync(_contentStream, LoadOptions.None, cancellationToken);
+        this._contentStream.Position = 0;
+        return await XDocument.LoadAsync(this._contentStream, LoadOptions.None, cancellationToken);
     }
 
     public async Task<IDocument> ParseHtmlAsync(CancellationToken cancellationToken = default)
     {
-        var content = await GetStringAsync(cancellationToken: cancellationToken);
-        var config = AngleSharp.Configuration.Default;
-        var context = BrowsingContext.New(config);
+        string content = await this.GetStringAsync(cancellationToken: cancellationToken);
+        IConfiguration config = AngleSharp.Configuration.Default;
+        IBrowsingContext context = BrowsingContext.New(config);
         return await context.OpenAsync(req => req.Content(content), cancellationToken);
     }
 
-    #endregion
-
-    #region JSON Path Parsing
-
     public async Task<T> ParseJsonPathAsync<T>(string path, CancellationToken cancellationToken = default)
     {
-        var bytes = await GetBytesAsync(cancellationToken);
-        var parser = new JsonPathParser();
+        byte[] bytes = await this.GetBytesAsync(cancellationToken);
+        JsonPathParser parser = new JsonPathParser();
         return parser.Parse<T>(bytes, path);
     }
 
     public async Task<List<T>> ParseJsonPathListAsync<T>(string path, CancellationToken cancellationToken = default)
     {
-        var bytes = await GetBytesAsync(cancellationToken);
-        var parser = new JsonPathParser();
+        byte[] bytes = await this.GetBytesAsync(cancellationToken);
+        JsonPathParser parser = new JsonPathParser();
         return parser.ParseList<T>(bytes, path);
     }
 
-    #endregion
-
-    #region Streaming
-
     public async IAsyncEnumerable<string> StreamLinesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        _contentStream.Position = 0;
-        using var reader = new StreamReader(_contentStream, leaveOpen: true);
+        this._contentStream.Position = 0;
+        using StreamReader reader = new StreamReader(this._contentStream, leaveOpen: true);
 
         while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
         {
-            var line = await reader.ReadLineAsync(cancellationToken);
+            string? line = await reader.ReadLineAsync(cancellationToken);
             if (line != null)
                 yield return line;
         }
@@ -183,15 +169,15 @@ public sealed class Response : IDisposable, IAsyncDisposable
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(chunkSize, 0);
 
-        _contentStream.Position = 0;
-        var buffer = ArrayPool<byte>.Shared.Rent(chunkSize);
+        this._contentStream.Position = 0;
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(chunkSize);
 
         try
         {
             int bytesRead;
-            while ((bytesRead = await _contentStream.ReadAsync(buffer.AsMemory(0, chunkSize), cancellationToken)) > 0)
+            while ((bytesRead = await this._contentStream.ReadAsync(buffer.AsMemory(0, chunkSize), cancellationToken)) > 0)
             {
-                var chunk = new byte[bytesRead];
+                byte[] chunk = new byte[bytesRead];
                 Buffer.BlockCopy(buffer, 0, chunk, 0, bytesRead);
                 yield return chunk;
             }
@@ -202,16 +188,12 @@ public sealed class Response : IDisposable, IAsyncDisposable
         }
     }
 
-    #endregion
-
-    #region Header Access
-
     public string? GetHeader(string name)
     {
-        if (Headers.TryGetValues(name, out var values))
+        if (this.Headers.TryGetValues(name, out IEnumerable<string>? values))
             return string.Join(", ", values);
 
-        if (ContentHeaders?.TryGetValues(name, out values) == true)
+        if (this.ContentHeaders?.TryGetValues(name, out values) == true)
             return string.Join(", ", values);
 
         return null;
@@ -219,10 +201,10 @@ public sealed class Response : IDisposable, IAsyncDisposable
 
     public IEnumerable<string> GetHeaderValues(string name)
     {
-        if (Headers.TryGetValues(name, out var values))
+        if (this.Headers.TryGetValues(name, out IEnumerable<string>? values))
             return values;
 
-        if (ContentHeaders?.TryGetValues(name, out values) == true)
+        if (this.ContentHeaders?.TryGetValues(name, out values) == true)
             return values;
 
         return [];
@@ -230,16 +212,16 @@ public sealed class Response : IDisposable, IAsyncDisposable
 
     public CookieCollection GetCookies()
     {
-        var cookies = new CookieCollection();
+        CookieCollection cookies = new CookieCollection();
 
-        if (!Headers.TryGetValues("Set-Cookie", out var cookieHeaders))
+        if (!this.Headers.TryGetValues("Set-Cookie", out IEnumerable<string>? cookieHeaders))
             return cookies;
 
-        foreach (var header in cookieHeaders)
+        foreach (string header in cookieHeaders)
         {
             try
             {
-                var parts = header.Split(';')[0].Split('=', 2);
+                string[] parts = header.Split(';')[0].Split('=', 2);
                 if (parts.Length == 2)
                 {
                     cookies.Add(new Cookie(parts[0].Trim(), parts[1].Trim()));
@@ -254,47 +236,37 @@ public sealed class Response : IDisposable, IAsyncDisposable
         return cookies;
     }
 
-    #endregion
-
-    #region Status Helpers
-
-    public bool IsRedirect => StatusCode is HttpStatusCode.MovedPermanently 
+    public bool IsRedirect => this.StatusCode is HttpStatusCode.MovedPermanently 
         or HttpStatusCode.Found 
         or HttpStatusCode.SeeOther 
         or HttpStatusCode.TemporaryRedirect 
         or HttpStatusCode.PermanentRedirect;
 
-    public bool IsClientError => (int)StatusCode >= 400 && (int)StatusCode < 500;
-    public bool IsServerError => (int)StatusCode >= 500;
-    public bool IsRateLimited => StatusCode == HttpStatusCode.TooManyRequests;
+    public bool IsClientError => (int)this.StatusCode >= 400 && (int)this.StatusCode < 500;
+    public bool IsServerError => (int)this.StatusCode >= 500;
+    public bool IsRateLimited => this.StatusCode == HttpStatusCode.TooManyRequests;
 
     public void EnsureSuccessStatusCode()
     {
-        if (!IsSuccessStatusCode)
-            throw new HttpRequestException($"Response status code does not indicate success: {(int)StatusCode} ({ReasonPhrase})");
+        if (!this.IsSuccessStatusCode)
+            throw new HttpRequestException($"Response status code does not indicate success: {(int)this.StatusCode} ({this.ReasonPhrase})");
     }
-
-    #endregion
-
-    #region Disposal
 
     public void Dispose()
     {
-        if (_disposed) return;
-        _disposed = true;
+        if (this._disposed) return;
+        this._disposed = true;
 
-        _contentStream.Dispose();
-        _httpResponse.Dispose();
+        this._contentStream.Dispose();
+        this._httpResponse.Dispose();
     }
 
     public async ValueTask DisposeAsync()
     {
-        if (_disposed) return;
-        _disposed = true;
+        if (this._disposed) return;
+        this._disposed = true;
 
-        await _contentStream.DisposeAsync();
-        _httpResponse.Dispose();
+        await this._contentStream.DisposeAsync();
+        this._httpResponse.Dispose();
     }
-
-    #endregion
 }

@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using System.Text.Json;
 using DevBase.Requests;
+using DevBase.Requests.Core;
 using DevBase.Requests.Parsing;
 using NUnit.Framework;
 

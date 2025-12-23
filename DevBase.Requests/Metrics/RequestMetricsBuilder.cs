@@ -44,7 +44,7 @@ public sealed class RequestMetricsBuilder
 
     public RequestMetrics Build()
     {
-        var endTime = DateTime.UtcNow;
+        DateTime endTime = DateTime.UtcNow;
         
         return new RequestMetrics
         {

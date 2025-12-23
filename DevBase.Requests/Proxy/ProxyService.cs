@@ -41,7 +41,7 @@ public sealed class ProxyService : IDisposable
             
             for (int i = 0; i < _trackedProxies.Count; i++)
             {
-                var proxy = _trackedProxies[_currentIndex];
+                TrackedProxyInfo proxy = _trackedProxies[_currentIndex];
                 _currentIndex = (_currentIndex + 1) % _trackedProxies.Count;
                 
                 if (proxy.IsAvailable())
@@ -59,7 +59,7 @@ public sealed class ProxyService : IDisposable
             if (!HasProxies) 
                 return null;
             
-            var availableProxies = _trackedProxies.Where(p => p.IsAvailable()).ToList();
+            List<TrackedProxyInfo> availableProxies = _trackedProxies.Where(p => p.IsAvailable()).ToList();
             
             if (availableProxies.Count > 0)
                 return availableProxies[Random.Shared.Next(availableProxies.Count)];
@@ -72,11 +72,11 @@ public sealed class ProxyService : IDisposable
     {
         lock (_lock)
         {
-            var active = 0;
-            var timedOut = 0;
-            var totalTimeouts = 0;
+            int active = 0;
+            int timedOut = 0;
+            int totalTimeouts = 0;
             
-            foreach (var proxy in _trackedProxies)
+            foreach (TrackedProxyInfo proxy in _trackedProxies)
             {
                 if (proxy.IsAvailable())
                     active++;
@@ -127,7 +127,7 @@ public sealed class ProxyService : IDisposable
     {
         lock (_lock)
         {
-            foreach (var proxy in _trackedProxies)
+            foreach (TrackedProxyInfo proxy in _trackedProxies)
                 proxy.ResetTimeout();
         }
     }

@@ -1,11 +1,6 @@
-namespace DevBase.Requests.Configuration;
+using DevBase.Requests.Configuration.Enums;
 
-public enum BackoffStrategy
-{
-    Fixed,
-    Linear,
-    Exponential
-}
+namespace DevBase.Requests.Configuration;
 
 public sealed class RetryPolicy
 {
@@ -13,7 +8,7 @@ public sealed class RetryPolicy
     public bool RetryOnProxyError { get; init; } = true;
     public bool RetryOnTimeout { get; init; } = true;
     public bool RetryOnNetworkError { get; init; } = true;
-    public BackoffStrategy BackoffStrategy { get; init; } = BackoffStrategy.Exponential;
+    public EnumBackoffStrategy BackoffStrategy { get; init; } = EnumBackoffStrategy.Exponential;
     public TimeSpan InitialDelay { get; init; } = TimeSpan.FromMilliseconds(500);
     public TimeSpan MaxDelay { get; init; } = TimeSpan.FromSeconds(30);
     public double BackoffMultiplier { get; init; } = 2.0;
@@ -23,16 +18,16 @@ public sealed class RetryPolicy
         if (attemptNumber <= 0)
             return TimeSpan.Zero;
 
-        var delay = BackoffStrategy switch
+        TimeSpan delay = this.BackoffStrategy switch
         {
-            BackoffStrategy.Fixed => InitialDelay,
-            BackoffStrategy.Linear => TimeSpan.FromTicks(InitialDelay.Ticks * attemptNumber),
-            BackoffStrategy.Exponential => TimeSpan.FromTicks(
-                (long)(InitialDelay.Ticks * Math.Pow(BackoffMultiplier, attemptNumber - 1))),
-            _ => InitialDelay
+            EnumBackoffStrategy.Fixed => this.InitialDelay,
+            EnumBackoffStrategy.Linear => TimeSpan.FromTicks(this.InitialDelay.Ticks * attemptNumber),
+            EnumBackoffStrategy.Exponential => TimeSpan.FromTicks(
+                (long)(this.InitialDelay.Ticks * Math.Pow(this.BackoffMultiplier, attemptNumber - 1))),
+            _ => this.InitialDelay
         };
 
-        return delay > MaxDelay ? MaxDelay : delay;
+        return delay > this.MaxDelay ? this.MaxDelay : delay;
     }
 
     public static RetryPolicy Default => new();
@@ -42,7 +37,7 @@ public sealed class RetryPolicy
     public static RetryPolicy Aggressive => new()
     {
         MaxRetries = 5,
-        BackoffStrategy = BackoffStrategy.Exponential,
+        BackoffStrategy = EnumBackoffStrategy.Exponential,
         InitialDelay = TimeSpan.FromMilliseconds(100),
         MaxDelay = TimeSpan.FromSeconds(10)
     };

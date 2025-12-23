@@ -123,14 +123,14 @@ internal sealed class SocketRelay
 
     private static void OnAsyncOperationCompleted(object? sender, SocketAsyncEventArgs e)
     {
-        var relay = (SocketRelay)e.UserToken!;
+        SocketRelay relay = (SocketRelay)e.UserToken!;
         relay.Process();
     }
 
     public static void RelayBidirectionally(Socket s1, Socket s2)
     {
-        var relayOne = new SocketRelay(s1, s2);
-        var relayTwo = new SocketRelay(s2, s1);
+        SocketRelay relayOne = new SocketRelay(s1, s2);
+        SocketRelay relayTwo = new SocketRelay(s2, s1);
 
         relayOne.Other = relayTwo;
         relayTwo.Other = relayOne;

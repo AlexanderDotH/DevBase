@@ -27,10 +27,10 @@ public class AuthenticationToken
         string rawToken
         )
     {
-        Header = header;
-        Payload = payload;
-        Signature = signature;
-        RawToken = rawToken;
+        this.Header = header;
+        this.Payload = payload;
+        this.Signature = signature;
+        this.RawToken = rawToken;
     }
 
     public static AuthenticationToken? FromString(
@@ -54,8 +54,6 @@ public class AuthenticationToken
         return new AuthenticationToken(tokenHeader, tokenPayload, tokenSignature, rawToken);
     }
 
-    #region Signing
- 
     private static AuthenticationTokenSignature? ParseSignature(
         AuthenticationTokenHeader tokenHeader, 
         AuthenticationTokenPayload tokenPayload, 
@@ -150,10 +148,6 @@ public class AuthenticationToken
         throw new TokenVerificationException(EnumTokenVerificationExceptionType.AlgorithmNotAvailable);
     }    
 
-    #endregion
-
-    #region Header
-
     private static AuthenticationTokenHeader? ParseHeader(Base64EncodedAString header)
     {
         string decoded = header.GetDecoded().ToString();
@@ -179,10 +173,6 @@ public class AuthenticationToken
 
         return tokenHeader;
     }
-
-    #endregion
-
-    #region Payload
 
     private static AuthenticationTokenPayload? ParsePayload(Base64EncodedAString payload)
     {
@@ -223,8 +213,6 @@ public class AuthenticationToken
         };
         return tokenPayload;
     }
-
-    #endregion
     
     private static Dictionary<string, object>? GetRaw(JObject? parsed)
     {

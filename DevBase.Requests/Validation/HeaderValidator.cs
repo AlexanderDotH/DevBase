@@ -22,17 +22,17 @@ public static partial class HeaderValidator
         if (string.IsNullOrWhiteSpace(headerValue))
             return ValidationResult.Fail("Basic authentication header is empty");
 
-        var parts = headerValue.Split(' ', 2);
+        string[] parts = headerValue.Split(' ', 2);
         if (parts.Length != 2 || !parts[0].Equals("Basic", StringComparison.OrdinalIgnoreCase))
             return ValidationResult.Fail("Invalid Basic authentication format");
 
-        var base64Part = parts[1];
+        string base64Part = parts[1];
         if (!Base64Regex().IsMatch(base64Part))
             return ValidationResult.Fail("Invalid Base64 encoding in Basic authentication");
 
         try
         {
-            var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(base64Part));
+            string decoded = Encoding.UTF8.GetString(Convert.FromBase64String(base64Part));
             if (!decoded.Contains(':'))
                 return ValidationResult.Fail("Basic authentication must contain username:password");
         }
@@ -49,11 +49,11 @@ public static partial class HeaderValidator
         if (string.IsNullOrWhiteSpace(headerValue))
             return ValidationResult.Fail("Bearer authentication header is empty");
 
-        var parts = headerValue.Split(' ', 2);
+        string[] parts = headerValue.Split(' ', 2);
         if (parts.Length != 2 || !parts[0].Equals("Bearer", StringComparison.OrdinalIgnoreCase))
             return ValidationResult.Fail("Invalid Bearer authentication format");
 
-        var token = parts[1];
+        string token = parts[1];
         if (string.IsNullOrWhiteSpace(token))
             return ValidationResult.Fail("Bearer token is empty");
 
@@ -82,7 +82,7 @@ public static partial class HeaderValidator
         if (string.IsNullOrWhiteSpace(contentLength))
             return ValidationResult.Success();
 
-        if (!long.TryParse(contentLength, out var declaredLength))
+        if (!long.TryParse(contentLength, out long declaredLength))
             return ValidationResult.Fail("Content-Length must be a valid number");
 
         if (declaredLength != actualLength)
@@ -98,7 +98,7 @@ public static partial class HeaderValidator
 
         if (requestUri != null)
         {
-            var expectedHost = requestUri.Port == 80 || requestUri.Port == 443
+            string expectedHost = requestUri.Port == 80 || requestUri.Port == 443
                 ? requestUri.Host
                 : $"{requestUri.Host}:{requestUri.Port}";
 
@@ -128,10 +128,10 @@ public static partial class HeaderValidator
         if (accept == "*/*")
             return ValidationResult.Success();
 
-        var parts = accept.Split(',');
-        foreach (var part in parts)
+        string[] parts = accept.Split(',');
+        foreach (string part in parts)
         {
-            var mimeType = part.Split(';')[0].Trim();
+            string mimeType = part.Split(';')[0].Trim();
             if (mimeType != "*/*" && !MimeTypeRegex().IsMatch(mimeType))
                 return ValidationResult.Fail($"Invalid Accept MIME type: {mimeType}");
         }
@@ -155,12 +155,12 @@ public static partial class HeaderValidator
         if (string.IsNullOrWhiteSpace(acceptEncoding))
             return ValidationResult.Fail("Accept-Encoding header is empty");
 
-        var validEncodings = new[] { "gzip", "deflate", "br", "identity", "*" };
-        var parts = acceptEncoding.Split(',');
+        string[] validEncodings = new[] { "gzip", "deflate", "br", "identity", "*" };
+        string[] parts = acceptEncoding.Split(',');
         
-        foreach (var part in parts)
+        foreach (string part in parts)
         {
-            var encoding = part.Split(';')[0].Trim().ToLowerInvariant();
+            string encoding = part.Split(';')[0].Trim().ToLowerInvariant();
             if (!validEncodings.Contains(encoding))
                 return ValidationResult.Fail($"Invalid Accept-Encoding value: {encoding}");
         }

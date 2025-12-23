@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using DevBase.Requests;
 using DevBase.Requests.Configuration;
+using DevBase.Requests.Core;
 using DevBase.Requests.Data.Body;
 using DevBase.Requests.Data.Header;
 using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;

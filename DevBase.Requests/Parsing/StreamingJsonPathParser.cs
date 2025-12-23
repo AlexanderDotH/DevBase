@@ -19,28 +19,28 @@ public sealed class StreamingJsonPathParser
         bool optimizeProperties = true,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var segments = ParsePath(path);
-        var buffer = ArrayPool<byte>.Shared.Rent(_bufferSize);
+        List<PathSegment> segments = ParsePath(path);
+        byte[] buffer = ArrayPool<byte>.Shared.Rent(_bufferSize);
 
         try
         {
-            var state = new JsonParserState();
-            var resultBuffer = new MemoryStream();
-            var bytesInBuffer = 0;
+            JsonParserState state = new JsonParserState();
+            MemoryStream resultBuffer = new MemoryStream();
+            int bytesInBuffer = 0;
 
             while (true)
             {
-                var bytesRead = await stream.ReadAsync(buffer.AsMemory(bytesInBuffer, _bufferSize - bytesInBuffer), cancellationToken);
+                int bytesRead = await stream.ReadAsync(buffer.AsMemory(bytesInBuffer, _bufferSize - bytesInBuffer), cancellationToken);
                 if (bytesRead == 0 && bytesInBuffer == 0)
                     break;
 
                 bytesInBuffer += bytesRead;
-                var consumed = ProcessBuffer(buffer.AsSpan(0, bytesInBuffer), ref state, segments, resultBuffer, optimizeProperties);
+                int consumed = ProcessBuffer(buffer.AsSpan(0, bytesInBuffer), ref state, segments, resultBuffer, optimizeProperties);
 
                 if (state.HasCompleteResult)
                 {
                     resultBuffer.Position = 0;
-                    var result = await JsonSerializer.DeserializeAsync<T>(resultBuffer, cancellationToken: cancellationToken);
+                    T? result = await JsonSerializer.DeserializeAsync<T>(resultBuffer, cancellationToken: cancellationToken);
                     if (result != null)
                         yield return result;
 
@@ -70,9 +70,9 @@ public sealed class StreamingJsonPathParser
 
     public T ParseSingle<T>(ReadOnlySpan<byte> json, string path, bool optimizeProperties = true)
     {
-        var segments = ParsePath(path);
-        var state = new JsonParserState();
-        var resultBuffer = new MemoryStream();
+        List<PathSegment> segments = ParsePath(path);
+        JsonParserState state = new JsonParserState();
+        MemoryStream resultBuffer = new MemoryStream();
 
         ProcessBuffer(json, ref state, segments, resultBuffer, optimizeProperties);
 
@@ -85,21 +85,21 @@ public sealed class StreamingJsonPathParser
 
     public List<T> ParseAll<T>(ReadOnlySpan<byte> json, string path, bool optimizeProperties = true)
     {
-        var segments = ParsePath(path);
-        var results = new List<T>();
-        var state = new JsonParserState();
-        var resultBuffer = new MemoryStream();
-        var offset = 0;
+        List<PathSegment> segments = ParsePath(path);
+        List<T> results = new List<T>();
+        JsonParserState state = new JsonParserState();
+        MemoryStream resultBuffer = new MemoryStream();
+        int offset = 0;
 
         while (offset < json.Length)
         {
-            var consumed = ProcessBuffer(json[offset..], ref state, segments, resultBuffer, optimizeProperties);
+            int consumed = ProcessBuffer(json[offset..], ref state, segments, resultBuffer, optimizeProperties);
             offset += consumed;
 
             if (state.HasCompleteResult)
             {
                 resultBuffer.Position = 0;
-                var result = JsonSerializer.Deserialize<T>(resultBuffer.ToArray());
+                T? result = JsonSerializer.Deserialize<T>(resultBuffer.ToArray());
                 if (result != null)
                     results.Add(result);
 
@@ -121,8 +121,8 @@ public sealed class StreamingJsonPathParser
         MemoryStream resultBuffer,
         bool optimizeProperties)
     {
-        var reader = new Utf8JsonReader(buffer, isFinalBlock: false, state.JsonReaderState);
-        var consumed = 0;
+        Utf8JsonReader reader = new Utf8JsonReader(buffer, isFinalBlock: false, state.JsonReaderState);
+        int consumed = 0;
 
         try
         {
@@ -170,7 +170,7 @@ public sealed class StreamingJsonPathParser
                         break;
 
                     case JsonTokenType.PropertyName:
-                        var propertyName = reader.GetString();
+                        string? propertyName = reader.GetString();
                         if (currentSegment?.PropertyName != null &&
                             currentSegment.Value.PropertyName!.Equals(propertyName, StringComparison.Ordinal))
                         {
@@ -197,7 +197,7 @@ public sealed class StreamingJsonPathParser
 
     private static void WriteValue(ref Utf8JsonReader reader, MemoryStream output)
     {
-        using var writer = new Utf8JsonWriter(output);
+        using Utf8JsonWriter writer = new Utf8JsonWriter(output);
         WriteCurrentValue(ref reader, writer);
         writer.Flush();
     }
@@ -208,7 +208,7 @@ public sealed class StreamingJsonPathParser
         {
             case JsonTokenType.StartObject:
                 writer.WriteStartObject();
-                var objectDepth = reader.CurrentDepth;
+                int objectDepth = reader.CurrentDepth;
                 while (reader.Read() && !(reader.TokenType == JsonTokenType.EndObject && reader.CurrentDepth == objectDepth))
                 {
                     if (reader.TokenType == JsonTokenType.PropertyName)
@@ -223,7 +223,7 @@ public sealed class StreamingJsonPathParser
 
             case JsonTokenType.StartArray:
                 writer.WriteStartArray();
-                var arrayDepth = reader.CurrentDepth;
+                int arrayDepth = reader.CurrentDepth;
                 while (reader.Read() && !(reader.TokenType == JsonTokenType.EndArray && reader.CurrentDepth == arrayDepth))
                 {
                     WriteCurrentValue(ref reader, writer);
@@ -236,9 +236,9 @@ public sealed class StreamingJsonPathParser
                 break;
 
             case JsonTokenType.Number:
-                if (reader.TryGetInt64(out var longValue))
+                if (reader.TryGetInt64(out long longValue))
                     writer.WriteNumberValue(longValue);
-                else if (reader.TryGetDouble(out var doubleValue))
+                else if (reader.TryGetDouble(out double doubleValue))
                     writer.WriteNumberValue(doubleValue);
                 break;
 
@@ -263,7 +263,7 @@ public sealed class StreamingJsonPathParser
 
         if (reader.TokenType == JsonTokenType.StartObject || reader.TokenType == JsonTokenType.StartArray)
         {
-            var depth = reader.CurrentDepth;
+            int depth = reader.CurrentDepth;
             while (reader.Read())
             {
                 if ((reader.TokenType == JsonTokenType.EndObject || reader.TokenType == JsonTokenType.EndArray)
@@ -275,9 +275,9 @@ public sealed class StreamingJsonPathParser
 
     private static List<PathSegment> ParsePath(string path)
     {
-        var segments = new List<PathSegment>();
-        var span = path.AsSpan();
-        var i = 0;
+        List<PathSegment> segments = new List<PathSegment>();
+        ReadOnlySpan<char> span = path.AsSpan();
+        int i = 0;
 
         if (span.Length > 0 && span[0] == '$')
             i++;
@@ -293,29 +293,29 @@ public sealed class StreamingJsonPathParser
                     segments.Add(new PathSegment { IsRecursive = true });
                 }
 
-                var start = i;
+                int start = i;
                 while (i < span.Length && span[i] != '.' && span[i] != '[')
                     i++;
 
                 if (i > start)
                 {
-                    var propName = span[start..i].ToString();
+                    string propName = span[start..i].ToString();
                     segments.Add(new PathSegment { PropertyName = propName });
                 }
             }
             else if (span[i] == '[')
             {
                 i++;
-                var start = i;
+                int start = i;
                 while (i < span.Length && span[i] != ']')
                     i++;
 
-                var indexStr = span[start..i].ToString().Trim();
+                string indexStr = span[start..i].ToString().Trim();
                 i++;
 
                 if (indexStr == "*")
                     segments.Add(new PathSegment { IsWildcard = true });
-                else if (int.TryParse(indexStr, out var index))
+                else if (int.TryParse(indexStr, out int index))
                     segments.Add(new PathSegment { ArrayIndex = index });
             }
             else

@@ -2,6 +2,7 @@
 using System.Reflection;
 using DevBase.Generics;
 using DevBase.Requests.Abstract;
+using DevBase.Requests.Core;
 using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
 using DevBase.Requests.Utils;
 
@@ -60,7 +61,7 @@ public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuil
         if (this.HeaderStringBuilder.Length != 0)
             return;
         
-        Assembly assembly = typeof(DevBase.Requests.Request).Assembly;
+        Assembly assembly = typeof(Request).Assembly;
         AssemblyName assemblyName = assembly.GetName();
         
         ReadOnlySpan<char> productName = this._productName;

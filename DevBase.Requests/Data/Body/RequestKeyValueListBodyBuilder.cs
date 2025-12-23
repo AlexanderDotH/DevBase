@@ -18,24 +18,24 @@ public class RequestKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestKey
     {
         ContentDispositionBounds bounds = ContentDispositionUtils.GetBounds();
 
-        Bounds = bounds.Bounds;
-        Separator = bounds.Separator;
-        Tail = bounds.Tail;
+        this.Bounds = bounds.Bounds;
+        this.Separator = bounds.Separator;
+        this.Tail = bounds.Tail;
     }
 
     protected override Action BuildAction => () =>
     {
         List<Memory<byte>> buffer = new List<Memory<byte>>();
         
-        for (var i = 0; i < Entries.Count; i++)
+        for (int i = 0; i < this.Entries.Count; i++)
         {
-            KeyValuePair<string, object> formEntry = Entries[i];
+            KeyValuePair<string, object> formEntry = this.Entries[i];
 
             if (!(formEntry.Value is string || formEntry.Value is MimeFileObject))
                 continue;
             
             buffer.Add(ContentDispositionUtils.NewLine);
-            buffer.Add(Separator);
+            buffer.Add(this.Separator);
             buffer.Add(ContentDispositionUtils.NewLine);
             
             if (formEntry.Value is MimeFileObject mimeEntry) 
@@ -46,60 +46,51 @@ public class RequestKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestKey
         }
  
         buffer.Add(ContentDispositionUtils.NewLine);
-        buffer.Add(Tail);
+        buffer.Add(this.Tail);
 
-        Buffer = BufferUtils.Combine(buffer);
+        this.Buffer = BufferUtils.Combine(buffer);
     };
     
-    #region MimeFile Content
-    public RequestKeyValueListBodyBuilder AddFile(byte[] buffer) => AddFile(AFileObject.FromBuffer(buffer));
-    public RequestKeyValueListBodyBuilder AddFile(AFileObject fileObject) => AddFile(MimeFileObject.FromAFileObject(fileObject));
-    public RequestKeyValueListBodyBuilder AddFile(FileInfo fileInfo) => AddFile(MimeFileObject.FromFile(fileInfo));
-    public RequestKeyValueListBodyBuilder AddFile(string filePath) => AddFile(MimeFileObject.FromFile(filePath));
+    public RequestKeyValueListBodyBuilder AddFile(byte[] buffer) => this.AddFile(AFileObject.FromBuffer(buffer));
+    public RequestKeyValueListBodyBuilder AddFile(AFileObject fileObject) => this.AddFile(MimeFileObject.FromAFileObject(fileObject));
+    public RequestKeyValueListBodyBuilder AddFile(FileInfo fileInfo) => this.AddFile(MimeFileObject.FromFile(fileInfo));
+    public RequestKeyValueListBodyBuilder AddFile(string filePath) => this.AddFile(MimeFileObject.FromFile(filePath));
     
-    public RequestKeyValueListBodyBuilder AddFile(string fieldName, byte[] buffer) => AddFile(fieldName, AFileObject.FromBuffer(buffer));
-    public RequestKeyValueListBodyBuilder AddFile(string fieldName, AFileObject fileObject) => AddFile(fieldName, MimeFileObject.FromAFileObject(fileObject));
-    public RequestKeyValueListBodyBuilder AddFile(string fieldName, FileInfo fileInfo) => AddFile(fieldName, MimeFileObject.FromFile(fileInfo));
-    public RequestKeyValueListBodyBuilder AddFile(string fieldName, string filePath) => AddFile(fieldName, MimeFileObject.FromFile(filePath));
+    public RequestKeyValueListBodyBuilder AddFile(string fieldName, byte[] buffer) => this.AddFile(fieldName, AFileObject.FromBuffer(buffer));
+    public RequestKeyValueListBodyBuilder AddFile(string fieldName, AFileObject fileObject) => this.AddFile(fieldName, MimeFileObject.FromAFileObject(fileObject));
+    public RequestKeyValueListBodyBuilder AddFile(string fieldName, FileInfo fileInfo) => this.AddFile(fieldName, MimeFileObject.FromFile(fileInfo));
+    public RequestKeyValueListBodyBuilder AddFile(string fieldName, string filePath) => this.AddFile(fieldName, MimeFileObject.FromFile(filePath));
 
-    public RequestKeyValueListBodyBuilder AddFile(MimeFileObject mimeFile) => AddFile(mimeFile, out string fieldName);
+    public RequestKeyValueListBodyBuilder AddFile(MimeFileObject mimeFile) => this.AddFile(mimeFile, out string fieldName);
     
     private RequestKeyValueListBodyBuilder AddFile(MimeFileObject mimeFile, out string fieldName)
     {
         fieldName = mimeFile.FileInfo.Name;
-        AddFile(fieldName, mimeFile);
+        this.AddFile(fieldName, mimeFile);
         return this;
     }
     
     public RequestKeyValueListBodyBuilder AddFile(string fieldName, MimeFileObject mimeFile)
     {
-        AddEntry(fieldName, mimeFile);
+        this.AddEntry(fieldName, mimeFile);
         return this;
     }
     
-    #endregion
-
-    #region Text Content
-
     public RequestKeyValueListBodyBuilder AddText(string key, string value)
     {
-        AddEntry(key, value);
+        this.AddEntry(key, value);
         return this;
     }
 
-    #endregion
-
-    #region Fields
-
     public RequestKeyValueListBodyBuilder RemoveEntryAt(int index)
     {
-        RemoveEntry(index);
+        this.RemoveEntry(index);
         return this;
     }
 
     public RequestKeyValueListBodyBuilder Remove(string fieldName)
     {
-        RemoveEntryKey(fieldName);
+        this.RemoveEntryKey(fieldName);
         return this;
     }
     
@@ -109,7 +100,7 @@ public class RequestKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestKey
         {
             if (value is null)
             {
-                RemoveEntryKey(fieldName);
+                this.RemoveEntryKey(fieldName);
                 return;
             }
             
@@ -117,15 +108,13 @@ public class RequestKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestKey
                 throw new ElementValidationException(EnumValidationReason.DataMismatch);
 
             if (value is byte[] buffer)
-                AddFile(fieldName, buffer);
+                this.AddFile(fieldName, buffer);
             
             if (value is MimeFileObject mimeFileContent)
-                AddFile(fieldName, mimeFileContent);
+                this.AddFile(fieldName, mimeFileContent);
 
             if (value is string textContent)
-                AddText(fieldName, textContent);
+                this.AddText(fieldName, textContent);
         }
     }
-
-    #endregion
 }

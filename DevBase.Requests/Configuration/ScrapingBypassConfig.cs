@@ -1,27 +1,12 @@
+using DevBase.Requests.Configuration.Enums;
+
 namespace DevBase.Requests.Configuration;
-
-public enum RefererStrategy
-{
-    None,
-    PreviousUrl,
-    BaseHost,
-    SearchEngine
-}
-
-public enum BrowserProfile
-{
-    None,
-    Chrome,
-    Firefox,
-    Edge,
-    Safari
-}
 
 public sealed class ScrapingBypassConfig
 {
     public bool Enabled { get; init; }
-    public RefererStrategy RefererStrategy { get; init; } = RefererStrategy.None;
-    public BrowserProfile BrowserProfile { get; init; } = BrowserProfile.None;
+    public EnumRefererStrategy RefererStrategy { get; init; } = EnumRefererStrategy.None;
+    public EnumBrowserProfile BrowserProfile { get; init; } = EnumBrowserProfile.None;
     public bool RandomizeUserAgent { get; init; } = true;
     public bool PersistCookies { get; init; } = true;
     public bool EnableTlsSpoofing { get; init; }
@@ -29,8 +14,8 @@ public sealed class ScrapingBypassConfig
     public static ScrapingBypassConfig Default => new()
     {
         Enabled = true,
-        RefererStrategy = RefererStrategy.PreviousUrl,
-        BrowserProfile = BrowserProfile.Chrome,
+        RefererStrategy = EnumRefererStrategy.PreviousUrl,
+        BrowserProfile = EnumBrowserProfile.Chrome,
         RandomizeUserAgent = true,
         PersistCookies = true
     };

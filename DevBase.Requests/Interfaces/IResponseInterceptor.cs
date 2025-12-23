@@ -1,3 +1,5 @@
+using DevBase.Requests.Core;
+
 namespace DevBase.Requests.Interfaces;
 
 public interface IResponseInterceptor

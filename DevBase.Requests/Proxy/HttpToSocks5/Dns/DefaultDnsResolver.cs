@@ -10,12 +10,12 @@ public sealed class DefaultDnsResolver : IDnsResolver
 {
     public IPAddress? TryResolve(string hostname)
     {
-        if (IPAddress.TryParse(hostname, out var address))
+        if (IPAddress.TryParse(hostname, out IPAddress? address))
             return address;
 
         try
         {
-            var addresses = System.Net.Dns.GetHostAddresses(hostname);
+            IPAddress[] addresses = System.Net.Dns.GetHostAddresses(hostname);
             return addresses.FirstOrDefault(a => 
                 a.AddressFamily == AddressFamily.InterNetwork || 
                 a.AddressFamily == AddressFamily.InterNetworkV6);

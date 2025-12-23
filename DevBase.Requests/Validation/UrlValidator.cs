@@ -15,7 +15,7 @@ public static partial class UrlValidator
         if (uri == null)
             return ValidationResult.Fail("URL is required");
 
-        var url = uri.ToString();
+        string url = uri.ToString();
 
         if (validateLength && url.Length > MaxUrlLength)
             return ValidationResult.Fail($"URL exceeds maximum length of {MaxUrlLength} characters");
@@ -54,7 +54,7 @@ public static partial class UrlValidator
 
     public static ValidationResult ValidateQueryParameters(IEnumerable<KeyValuePair<string, string>> parameters)
     {
-        foreach (var param in parameters)
+        foreach (KeyValuePair<string, string> param in parameters)
         {
             if (string.IsNullOrWhiteSpace(param.Key))
                 return ValidationResult.Fail("Query parameter key cannot be empty");

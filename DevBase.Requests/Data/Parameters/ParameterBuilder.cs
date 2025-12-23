@@ -23,7 +23,7 @@ public class ParameterBuilder : HttpHeaderBuilder<ParameterBuilder>
     
     public ParameterBuilder AddParameters(params (string key, string value)[] parameters)
     {
-        for (var i = 0; i < parameters.Length; i++)
+        for (int i = 0; i < parameters.Length; i++)
             AddParameter(parameters[i].key, parameters[i].value);
 
         return this;

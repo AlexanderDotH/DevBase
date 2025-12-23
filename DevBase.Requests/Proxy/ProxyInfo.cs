@@ -10,7 +10,7 @@ public sealed class ProxyInfo
     public EnumProxyType Type { get; }
     public NetworkCredential? Credentials { get; }
     
-    public string Key => $"{Type}://{Host}:{Port}";
+    public string Key => $"{this.Type}://{this.Host}:{this.Port}";
 
     public ProxyInfo(string host, int port, EnumProxyType type = EnumProxyType.Http, NetworkCredential? credentials = null)
     {
@@ -18,10 +18,10 @@ public sealed class ProxyInfo
         ArgumentOutOfRangeException.ThrowIfNegativeOrZero(port);
         ArgumentOutOfRangeException.ThrowIfGreaterThan(port, 65535);
         
-        Host = host;
-        Port = port;
-        Type = type;
-        Credentials = credentials;
+        this.Host = host;
+        this.Port = port;
+        this.Type = type;
+        this.Credentials = credentials;
     }
 
     public ProxyInfo(string host, int port, string username, string password, EnumProxyType type = EnumProxyType.Http)
@@ -33,8 +33,8 @@ public sealed class ProxyInfo
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(proxyString);
         
-        var type = EnumProxyType.Http;
-        var remaining = proxyString.AsSpan();
+        EnumProxyType type = EnumProxyType.Http;
+        ReadOnlySpan<char> remaining = proxyString.AsSpan();
         
         if (remaining.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
         {
@@ -63,31 +63,31 @@ public sealed class ProxyInfo
         }
 
         NetworkCredential? credentials = null;
-        var atIndex = remaining.IndexOf('@');
+        int atIndex = remaining.IndexOf('@');
         
         if (atIndex > 0)
         {
-            var authPart = remaining[..atIndex];
-            var colonIndex = authPart.IndexOf(':');
+            ReadOnlySpan<char> authPart = remaining[..atIndex];
+            int colonIndex = authPart.IndexOf(':');
             
             if (colonIndex > 0)
             {
-                var username = authPart[..colonIndex].ToString();
-                var password = authPart[(colonIndex + 1)..].ToString();
+                string username = authPart[..colonIndex].ToString();
+                string password = authPart[(colonIndex + 1)..].ToString();
                 credentials = new NetworkCredential(username, password);
             }
             
             remaining = remaining[(atIndex + 1)..];
         }
 
-        var portSeparatorIndex = remaining.LastIndexOf(':');
+        int portSeparatorIndex = remaining.LastIndexOf(':');
         if (portSeparatorIndex <= 0)
             throw new FormatException("Invalid proxy format. Expected: [protocol://][user:pass@]host:port");
 
-        var host = remaining[..portSeparatorIndex].ToString();
-        var portStr = remaining[(portSeparatorIndex + 1)..];
+        string host = remaining[..portSeparatorIndex].ToString();
+        ReadOnlySpan<char> portStr = remaining[(portSeparatorIndex + 1)..];
         
-        if (!int.TryParse(portStr, out var port))
+        if (!int.TryParse(portStr, out int port))
             throw new FormatException($"Invalid port number: {portStr.ToString()}");
 
         return new ProxyInfo(host, port, type, credentials);
@@ -109,7 +109,7 @@ public sealed class ProxyInfo
 
     public Uri ToUri()
     {
-        var scheme = Type switch
+        string scheme = this.Type switch
         {
             EnumProxyType.Http => "http",
             EnumProxyType.Https => "https",
@@ -119,13 +119,13 @@ public sealed class ProxyInfo
             _ => "http"
         };
         
-        return new Uri($"{scheme}://{Host}:{Port}");
+        return new Uri($"{scheme}://{this.Host}:{this.Port}");
     }
 
-    public override string ToString() => Key;
+    public override string ToString() => this.Key;
     
-    public override int GetHashCode() => HashCode.Combine(Host, Port, Type);
+    public override int GetHashCode() => HashCode.Combine(this.Host, this.Port, this.Type);
     
     public override bool Equals(object? obj) => 
-        obj is ProxyInfo other && Host == other.Host && Port == other.Port && Type == other.Type;
+        obj is ProxyInfo other && this.Host == other.Host && this.Port == other.Port && this.Type == other.Type;
 }

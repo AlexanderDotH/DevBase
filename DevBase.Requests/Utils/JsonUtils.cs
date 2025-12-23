@@ -11,15 +11,13 @@ public class JsonUtils
 
     public static bool TryGetEntries(JObject parsedDocument, out Dictionary<string, dynamic> jsonEntries, params string[] except)
     {
-        IEnumerator<KeyValuePair<string, JToken?>> enumerable = parsedDocument.GetEnumerator();
-
-        Dictionary<string, dynamic> jsonEntriesList = new Dictionary<string, dynamic>();
+        HashSet<string>? exceptSet = except.Length > 0 ? new HashSet<string>(except, StringComparer.Ordinal) : null;
         
-        while (enumerable.MoveNext())
+        Dictionary<string, dynamic> jsonEntriesList = new Dictionary<string, dynamic>(parsedDocument.Count);
+        
+        foreach (KeyValuePair<string, JToken?> current in parsedDocument)
         {
-            KeyValuePair<string, JToken> current = enumerable.Current!;
-            
-            if (except.Contains(current.Key))
+            if (exceptSet != null && exceptSet.Contains(current.Key))
                 continue;
 
             KeyValuePair<string, dynamic> dynamic = GetDynamic(current.Key, current.Value!);
@@ -97,8 +95,6 @@ public class JsonUtils
         convertedDateTime = GetTimeDate(token, fieldName);
     }
 
-    #region Extraction
-
     private static KeyValuePair<string, dynamic> GetDynamic(string fieldName, JToken token)
     {
         KeyValuePair<string, dynamic> dynamicData = new KeyValuePair<string, dynamic>(fieldName, default);
@@ -164,8 +160,6 @@ public class JsonUtils
         throw new ElementValidationException(EnumValidationReason.InvalidData);
     }
 
-    #endregion
-    
     private static KeyValuePair<string, string> ToPair(string fieldName, string content) =>
         KeyValuePair.Create(fieldName, content);
     

@@ -30,7 +30,7 @@ public sealed class Socks5Client : IDisposable
         
         await _socket.ConnectAsync(_proxyInfo.Host, _proxyInfo.Port, cancellationToken);
         
-        var stream = new NetworkStream(_socket, ownsSocket: false);
+        NetworkStream stream = new NetworkStream(_socket, ownsSocket: false);
 
         await NegotiateAuthenticationAsync(stream, cancellationToken);
         await SendConnectCommandAsync(stream, host, port, cancellationToken);
@@ -40,15 +40,15 @@ public sealed class Socks5Client : IDisposable
 
     private async Task NegotiateAuthenticationAsync(NetworkStream stream, CancellationToken cancellationToken)
     {
-        var hasCredentials = _proxyInfo.Credentials != null;
-        var authMethods = hasCredentials 
+        bool hasCredentials = _proxyInfo.Credentials != null;
+        byte[] authMethods = hasCredentials 
             ? new byte[] { Socks5Version, 2, NoAuthRequired, UsernamePasswordAuth }
             : new byte[] { Socks5Version, 1, NoAuthRequired };
 
         await stream.WriteAsync(authMethods, cancellationToken);
 
-        var response = new byte[2];
-        var bytesRead = await stream.ReadAsync(response, cancellationToken);
+        byte[] response = new byte[2];
+        int bytesRead = await stream.ReadAsync(response, cancellationToken);
         
         if (bytesRead != 2)
             throw new InvalidOperationException("Invalid SOCKS5 authentication response");
@@ -75,13 +75,13 @@ public sealed class Socks5Client : IDisposable
 
     private async Task AuthenticateWithUsernamePasswordAsync(NetworkStream stream, CancellationToken cancellationToken)
     {
-        var username = _proxyInfo.Credentials!.UserName;
-        var password = _proxyInfo.Credentials.Password;
+        string username = _proxyInfo.Credentials!.UserName;
+        string password = _proxyInfo.Credentials.Password;
 
-        var usernameBytes = Encoding.UTF8.GetBytes(username);
-        var passwordBytes = Encoding.UTF8.GetBytes(password);
+        byte[] usernameBytes = Encoding.UTF8.GetBytes(username);
+        byte[] passwordBytes = Encoding.UTF8.GetBytes(password);
 
-        var authRequest = new byte[3 + usernameBytes.Length + passwordBytes.Length];
+        byte[] authRequest = new byte[3 + usernameBytes.Length + passwordBytes.Length];
         authRequest[0] = 0x01; // Version
         authRequest[1] = (byte)usernameBytes.Length;
         Array.Copy(usernameBytes, 0, authRequest, 2, usernameBytes.Length);
@@ -90,8 +90,8 @@ public sealed class Socks5Client : IDisposable
 
         await stream.WriteAsync(authRequest, cancellationToken);
 
-        var response = new byte[2];
-        var bytesRead = await stream.ReadAsync(response, cancellationToken);
+        byte[] response = new byte[2];
+        int bytesRead = await stream.ReadAsync(response, cancellationToken);
         
         if (bytesRead != 2 || response[1] != 0x00)
             throw new InvalidOperationException("SOCKS5 username/password authentication failed");
@@ -103,12 +103,12 @@ public sealed class Socks5Client : IDisposable
 
         if (_resolveHostnameLocally && IPAddress.TryParse(host, out _) == false)
         {
-            var addresses = await Dns.GetHostAddressesAsync(host, cancellationToken);
+            IPAddress[] addresses = await Dns.GetHostAddressesAsync(host, cancellationToken);
             if (addresses.Length == 0)
                 throw new InvalidOperationException($"Could not resolve hostname: {host}");
 
-            var address = addresses.First(a => a.AddressFamily == AddressFamily.InterNetwork);
-            var addressBytes = address.GetAddressBytes();
+            IPAddress address = addresses.First(a => a.AddressFamily == AddressFamily.InterNetwork);
+            byte[] addressBytes = address.GetAddressBytes();
 
             request = new byte[10];
             request[0] = Socks5Version;
@@ -121,7 +121,7 @@ public sealed class Socks5Client : IDisposable
         }
         else
         {
-            var hostBytes = Encoding.UTF8.GetBytes(host);
+            byte[] hostBytes = Encoding.UTF8.GetBytes(host);
             request = new byte[7 + hostBytes.Length];
             request[0] = Socks5Version;
             request[1] = ConnectCommand;
@@ -135,8 +135,8 @@ public sealed class Socks5Client : IDisposable
 
         await stream.WriteAsync(request, cancellationToken);
 
-        var response = new byte[10];
-        var bytesRead = await stream.ReadAsync(response.AsMemory(0, 4), cancellationToken);
+        byte[] response = new byte[10];
+        int bytesRead = await stream.ReadAsync(response.AsMemory(0, 4), cancellationToken);
         
         if (bytesRead < 4)
             throw new InvalidOperationException("Invalid SOCKS5 connect response");
@@ -146,7 +146,7 @@ public sealed class Socks5Client : IDisposable
 
         if (response[1] != 0x00)
         {
-            var errorMessage = response[1] switch
+            string errorMessage = response[1] switch
             {
                 0x01 => "General SOCKS server failure",
                 0x02 => "Connection not allowed by ruleset",
@@ -162,8 +162,8 @@ public sealed class Socks5Client : IDisposable
         }
 
         // Read the rest of the response based on address type
-        var addressType = response[3];
-        var remainingBytes = addressType switch
+        byte addressType = response[3];
+        int remainingBytes = addressType switch
         {
             Ipv4AddressType => 6,
             Ipv6AddressType => 18,
