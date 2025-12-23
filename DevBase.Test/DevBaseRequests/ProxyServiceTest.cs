@@ -1,5 +1,5 @@
-using DevBase.Requests.Proxy;
-using DevBase.Requests.Proxy.Enums;
+using DevBase.Net.Proxy;
+using DevBase.Net.Proxy.Enums;
 using NUnit.Framework;
 
 namespace DevBase.Test.DevBaseRequests;

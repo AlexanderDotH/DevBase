@@ -13,7 +13,12 @@
         <RepositoryUrl>https://github.com/AlexanderDotH/DevBase</RepositoryUrl>
         <Version>1.1.4</Version>
         <TargetFramework>net9.0</TargetFramework>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
     <ItemGroup>
       <ProjectReference Include="..\DevBase.Avalonia\DevBase.Avalonia.csproj" />

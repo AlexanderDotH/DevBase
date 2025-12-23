@@ -6,8 +6,7 @@ using DevBase.Api.Exceptions;
 using DevBase.Api.Serializer;
 using DevBase.Format.Structure;
 using DevBase.Generics;
-using DevBase.Web;
-using DevBase.Web.ResponseData;
+using DevBase.Net.Core;
 using Newtonsoft.Json.Linq;
 
 namespace DevBase.Api.Apis.BeautifulLyrics;
@@ -25,6 +24,9 @@ public class BeautifulLyrics : ApiClient
     {
         (string RawLyric, bool IsRichSync) rawLyrics = await this.GetRawLyrics(isrc);
 
+        if (string.IsNullOrEmpty(rawLyrics.RawLyric))
+            return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
+
         if (rawLyrics.IsRichSync)
         {
             return ParseRichSyncStampedLyrics(rawLyrics.RawLyric);
@@ -39,16 +41,15 @@ public class BeautifulLyrics : ApiClient
     {
         string url = $"{this._baseUrl}/lyrics/{isrc}";
 
-        Request request = new Request(url);
-        ResponseData responseData = await request.GetResponseAsync();
+        Response response = await new Request(url).SendAsync();
 
-        if (responseData.StatusCode != HttpStatusCode.OK)
-            return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
+        if (response.StatusCode != HttpStatusCode.OK)
+            return ThrowTuple(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
         
-        string rawData = responseData.GetContentAsString();
+        string rawData = await response.GetStringAsync();
 
         if (string.IsNullOrEmpty(rawData))
-            return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
+            return ThrowTuple(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
         
         JObject responseObject = JObject.Parse(rawData);
         bool isRichSync = responseObject.Value<string>("Type") == "Syllable";

@@ -34,9 +34,9 @@ DevBase.Format contains parsers for the following file formats:
 
 DevBase.Logging is a lightweight logger that makes it easy to log and debug your application. It offers a simple interface for logging messages, errors, and other information at various levels of granularity.
 
-## DevBase.Requests
+## DevBase.Net
 
-DevBase.Requests is a high-performance HTTP client library featuring:
+DevBase.Net is a high-performance HTTP client library featuring:
 
 - **Builder pattern** for fluent request construction
 - **Memory<>/Span<>** optimizations for performance
@@ -50,7 +50,7 @@ DevBase.Requests is a high-performance HTTP client library featuring:
 The `HttpToSocks5Proxy` component allows using SOCKS5 proxies with any HTTP client that supports `IWebProxy`. It creates a local HTTP proxy server that tunnels traffic through SOCKS5.
 
 ```csharp
-using DevBase.Requests.Proxy.HttpToSocks5;
+using DevBase.Net.Proxy.HttpToSocks5;
 
 // Simple usage
 var proxy = new HttpToSocks5Proxy("socks-server.com", 1080);

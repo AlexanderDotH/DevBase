@@ -9,12 +9,18 @@
         <Description>This is a wrapper for Bouncycastle</Description>
         <Copyright>AlexanderDotH</Copyright>
         <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase</PackageProjectUrl>
-        <PackageLicenseUrl>https://github.com/AlexanderDotH/DevBase/blob/master/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/AlexanderDotH/DevBase</RepositoryUrl>
-        <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <Title>DevBase.Cryptography.BouncyCastle</Title>
         <Version>1.2.1</Version>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <RepositoryType>git</RepositoryType>
     </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
 
     <ItemGroup>
       <PackageReference Include="BouncyCastle.NetCore" Version="2.2.1" />

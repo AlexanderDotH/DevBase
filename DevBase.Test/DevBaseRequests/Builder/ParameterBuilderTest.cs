@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using Bogus.DataSets;
-using DevBase.Requests.Data.Parameters;
+using DevBase.Net.Data.Parameters;
 
 namespace DevBase.Test.DevBaseRequests.Builder;
 

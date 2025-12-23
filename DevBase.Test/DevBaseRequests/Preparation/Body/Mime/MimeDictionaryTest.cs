@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Data.Body.Mime;
+using DevBase.Net.Data.Body.Mime;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Body.Mime;
 

@@ -1,7 +1,7 @@
 using System.Net;
 using System.Text.Json;
-using DevBase.Requests;
-using DevBase.Requests.Proxy.HttpToSocks5;
+using DevBase.Net;
+using DevBase.Net.Proxy.HttpToSocks5;
 using NUnit.Framework;
 
 namespace DevBase.Test.DevBaseRequests.Integration;

@@ -1,17 +1,15 @@
 ﻿using System.Net;
 using System.Text.RegularExpressions;
+using DevBase.Net.Core;
+using DevBase.Net.Security.Token;
 using DevBase.Api.Apis.AppleMusic.Structure.Json;
 using DevBase.Api.Apis.AppleMusic.Structure.Objects;
 using DevBase.Api.Enums;
 using DevBase.Api.Exceptions;
 using DevBase.Api.Serializer;
 using DevBase.Enums;
-using DevBase.Requests.Security.Token;
-using DevBase.Web;
-using DevBase.Web.RequestData;
-using DevBase.Web.RequestData.Data;
-using DevBase.Web.ResponseData;
 using HtmlAgilityPack;
+using Newtonsoft.Json;
 
 namespace DevBase.Api.Apis.AppleMusic;
 
@@ -46,49 +44,40 @@ public class AppleMusic : ApiClient
     {
         string url = $"{_webAuthUrl}/account/web/auth";
 
-        RequestData requestData = new RequestData(url, EnumRequestMethod.POST);
-        requestData.ContentTypeHolder.Set(EnumContentType.APPLICATION_JSON);
-        requestData.Header.Add("Origin", this._baseUrl);
+        Response response = await new Request(url)
+            .AsPost()
+            .WithHeader("Origin", this._baseUrl)
+            .WithAccept("*/*")
+            .WithCookie($"myacinfo={myacinfoCookie}")
+            .SendAsync();
 
-        requestData.Accept = "*/*";
-        
-        requestData.CookieContainer.Add(new Cookie("myacinfo", myacinfoCookie, "/", "apple.com"));
-            
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
-
-        WebHeaderCollection headers = responseData.Response.Headers;
-        this._userMediaToken = GetMediaUserToken(headers);
+        this._userMediaToken = GetMediaUserToken(response.Headers);
     }
 
-    private GenericAuthenticationToken GetMediaUserToken(WebHeaderCollection headerCollection)
+    private GenericAuthenticationToken GetMediaUserToken(System.Net.Http.Headers.HttpResponseHeaders headerCollection)
     {
-        string? header = headerCollection.Get("Set-Cookie");
+        if (!headerCollection.TryGetValues("Set-Cookie", out IEnumerable<string> values))
+            return new GenericAuthenticationToken();
         
-        string[] splitted = header.Split(",");
-
         string parsedToken = string.Empty;
         string parsedExpiresIn = string.Empty;
-        
-        for (var i = 0; i < splitted.Length; i++)
-        {
-            string element = splitted[i].Trim();
 
+        foreach (string element in values)
+        {
             if (element.Contains("media-user-token"))
             {
-                string[] cookie = element.Split(";");
+                string[] cookieParts = element.Split(";");
 
-                for (int j = 0; j < cookie.Length; j++)
+                foreach (string part in cookieParts)
                 {
-                    string elementInCookie = cookie[j];
+                    string trimmed = part.Trim();
+                    
+                    if (trimmed.StartsWith("media-user-token="))
+                        parsedToken = trimmed.Split("=")[1];
 
-                    if (elementInCookie.Contains("media-user-token"))
-                        parsedToken = elementInCookie.Split("=")[1];
-
-                    if (elementInCookie.Contains("Max-Age"))
+                    if (trimmed.StartsWith("Max-Age="))
                     {
-                        parsedExpiresIn = elementInCookie.Split("=")[1];
-                        break;
+                        parsedExpiresIn = trimmed.Split("=")[1];
                     }
                 }
             }
@@ -112,8 +101,11 @@ public class AppleMusic : ApiClient
     {
         string url = $"{_baseWebsite}/us/browse";
 
-        HtmlWeb htmlWeb = new HtmlWeb();
-        HtmlDocument htmlDocument = await htmlWeb.LoadFromWebAsync(url);
+        Response response = await new Request(url).SendAsync();
+        string content = await response.GetStringAsync();
+
+        HtmlDocument htmlDocument = new HtmlDocument();
+        htmlDocument.LoadHtml(content);
 
         HtmlDocument assetDocument = await GetAssetContent(htmlDocument);
 
@@ -158,17 +150,13 @@ public class AppleMusic : ApiClient
         string url =
             $"{this._baseUrl}/v1/catalog/de/search?fields[artists]=url,name,artwork&include[songs]=artists&limit={limit}&types=songs&with=lyricHighlights,lyrics,serverBubbles&term={searchTerm}";
 
-        RequestData requestData = new RequestData(url);
-        requestData.Header.Add("Origin", this._baseUrl);
-        
-        requestData.AddAuthMethod(new Auth(this._apiToken.RawToken, EnumAuthType.OAUTH2));
+        Response response = await new Request(url)
+            .AsGet()
+            .WithHeader("Origin", this._baseUrl)
+            .UseBearerAuthentication(this._apiToken.RawToken)
+            .SendAsync();
 
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
-
-        string response = responseData.GetContentAsString();
-
-        return new JsonDeserializer<JsonAppleMusicSearchResult>().Deserialize(response);
+        return await response.ParseJsonAsync<JsonAppleMusicSearchResult>(false);
     }
     
     public async Task<JsonAppleMusicLyricsResponse> GetLyrics(string trackId)
@@ -178,18 +166,14 @@ public class AppleMusic : ApiClient
         
         string url = $"{this._baseUrl}/v1/catalog/de/songs/{trackId}/syllable-lyrics";
 
-        RequestData requestData = new RequestData(url);
-        requestData.Header.Add("Origin", this._baseUrl);
-        requestData.Header.Add("Media-User-Token", this._userMediaToken.Token);
-        
-        requestData.AddAuthMethod(new Auth(this._apiToken.RawToken, EnumAuthType.OAUTH2));
+        Response response = await new Request(url)
+            .AsGet()
+            .WithHeader("Origin", this._baseUrl)
+            .WithHeader("Media-User-Token", this._userMediaToken.Token)
+            .UseBearerAuthentication(this._apiToken.RawToken)
+            .SendAsync();
 
-        Request request = new Request(requestData);
-        ResponseData responseData = await request.GetResponseAsync();
-
-        string response = responseData.GetContentAsString();
-
-        return new JsonDeserializer<JsonAppleMusicLyricsResponse>().Deserialize(response);
+        return await response.ParseJsonAsync<JsonAppleMusicLyricsResponse>(false);
     }
 
     private static async Task<HtmlDocument> GetAssetContent(HtmlDocument htmlDocument)
@@ -210,7 +194,13 @@ public class AppleMusic : ApiClient
 
         string url = $"{_baseWebsite}{assetPath}";
 
-        return await new HtmlWeb().LoadFromWebAsync(url);
+        Response response = await new Request(url).SendAsync();
+        string content = await response.GetStringAsync();
+        
+        HtmlDocument doc = new HtmlDocument();
+        doc.LoadHtml(content);
+        
+        return doc;
     }
     
     private static string GetAccessToken(HtmlDocument assetDocument)

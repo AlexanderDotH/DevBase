@@ -1,13 +1,13 @@
 using System.Net;
 using System.Text;
-using DevBase.Requests;
-using DevBase.Requests.Configuration;
-using DevBase.Requests.Core;
-using DevBase.Requests.Data.Body;
-using DevBase.Requests.Data.Header;
-using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
-using DevBase.Requests.Data.Parameters;
-using DevBase.Requests.Proxy;
+using DevBase.Net;
+using DevBase.Net.Configuration;
+using DevBase.Net.Core;
+using DevBase.Net.Data.Body;
+using DevBase.Net.Data.Header;
+using DevBase.Net.Data.Header.UserAgent.Bogus.Generator;
+using DevBase.Net.Data.Parameters;
+using DevBase.Net.Proxy;
 using NUnit.Framework;
 
 namespace DevBase.Test.DevBaseRequests;

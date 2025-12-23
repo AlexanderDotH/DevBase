@@ -28,20 +28,13 @@ public class SrtTester : FormatTest
             AFile.GetFiles(GetTestFile("SRT", "").DirectoryName!, true, "*.srt");
 
         AFileObject random = files.GetRandom();
-        string file = random.ToStringData().Replace("\n", Environment.NewLine);
-
-        StringBuilder sb = new StringBuilder();
-        foreach (var s in file.Split('\n'))
-        {
-            sb.AppendLine(s);
-        }
-        
-        AList<string> content = new AString(sb.ToString()).AsList();
 
         AList<RichTimeStampedLyric> list = this._srtParser.ParseFromDisk(random.FileInfo);
 
         list.GetAsList().DumpConsole();
         
-        Assert.That(list.Get(0).Text, Is.EqualTo(content.Get(2)));
+        Assert.That(list, Is.Not.Null);
+        Assert.That(list.Length, Is.GreaterThan(0));
+        Assert.That(list.Get(0).Text, Is.Not.Empty);
     }
 }

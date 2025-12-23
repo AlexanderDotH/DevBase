@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.Net;
-using DevBase.Requests;
-using DevBase.Requests.Configuration;
-using DevBase.Requests.Core;
+using DevBase.Net;
+using DevBase.Net.Configuration;
+using DevBase.Net.Core;
 using NUnit.Framework;
 
 namespace DevBase.Test.DevBaseRequests.Integration;

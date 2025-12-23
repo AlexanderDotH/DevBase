@@ -28,6 +28,11 @@ public class JsonDeserializer<T>
         return JsonConvert.DeserializeObject<T>(input, this._serializerSettings);
     }
 
+    public Task<T> DeserializeAsync(string input)
+    {
+        return Task.FromResult(JsonConvert.DeserializeObject<T>(input, this._serializerSettings));
+    }
+
     public AList<string> ErrorList
     {
         get => _errorList;

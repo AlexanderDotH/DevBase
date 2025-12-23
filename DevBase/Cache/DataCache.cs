@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DevBase.Generics;
-using DevBase.Web.RequestData;
 
 namespace DevBase.Cache
 {

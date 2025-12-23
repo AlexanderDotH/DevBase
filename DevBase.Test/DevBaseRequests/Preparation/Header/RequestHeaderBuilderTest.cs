@@ -1,8 +1,8 @@
 using System.Reflection;
 using System.Text;
-using DevBase.Requests.Data.Header;
-using DevBase.Requests.Data.Header.UserAgent;
-using DevBase.Requests.Data.Header.UserAgent.Bogus.Generator;
+using DevBase.Net.Data.Header;
+using DevBase.Net.Data.Header.UserAgent;
+using DevBase.Net.Data.Header.UserAgent.Bogus.Generator;
 using Dumpify;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Header;

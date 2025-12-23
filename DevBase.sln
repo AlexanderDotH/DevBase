@@ -25,7 +25,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Cryptography.Bouncy
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Avalonia.Extension", "DevBase.Avalonia.Extension\DevBase.Avalonia.Extension.csproj", "{45BDD112-D62B-43A1-8592-C12D6FF3D157}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Requests", "DevBase.Requests\DevBase.Requests.csproj", "{402CC730-6E99-4A79-A093-49236C9AE5F5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Net", "DevBase.Net\DevBase.Net.csproj", "{402CC730-6E99-4A79-A093-49236C9AE5F5}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevBase.Extensions", "DevBase.Extensions\DevBase.Extensions.csproj", "{3953BD60-3D3F-4CE3-A2EA-737C8D249CEA}"
 EndProject

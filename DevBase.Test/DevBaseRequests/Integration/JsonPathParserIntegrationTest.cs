@@ -1,9 +1,9 @@
 using System.Net;
 using System.Text;
 using System.Text.Json;
-using DevBase.Requests;
-using DevBase.Requests.Core;
-using DevBase.Requests.Parsing;
+using DevBase.Net;
+using DevBase.Net.Core;
+using DevBase.Net.Parsing;
 using NUnit.Framework;
 
 namespace DevBase.Test.DevBaseRequests.Integration;

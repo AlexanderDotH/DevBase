@@ -1,8 +1,8 @@
 using System.Diagnostics;
 using System.Text;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Objects;
-using DevBase.Requests.Utils;
+using DevBase.Net.Objects;
+using DevBase.Net.Utils;
 using DevBase.Test.Test;
 using Org.BouncyCastle.Crmf;
 

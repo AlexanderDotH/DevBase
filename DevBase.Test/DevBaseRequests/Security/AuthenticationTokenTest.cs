@@ -1,4 +1,4 @@
-using DevBase.Requests.Security.Token;
+using DevBase.Net.Security.Token;
 using Dumpify;
 
 namespace DevBase.Test.DevBaseRequests.Security;

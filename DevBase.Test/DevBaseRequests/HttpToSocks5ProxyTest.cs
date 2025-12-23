@@ -1,7 +1,7 @@
 using System.Net;
-using DevBase.Requests.Proxy.HttpToSocks5;
-using DevBase.Requests.Proxy.HttpToSocks5.Dns;
-using DevBase.Requests.Proxy.HttpToSocks5.Enums;
+using DevBase.Net.Proxy.HttpToSocks5;
+using DevBase.Net.Proxy.HttpToSocks5.Dns;
+using DevBase.Net.Proxy.HttpToSocks5.Enums;
 using NUnit.Framework;
 
 namespace DevBase.Test.DevBaseRequests;

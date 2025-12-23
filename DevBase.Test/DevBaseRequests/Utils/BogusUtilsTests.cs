@@ -1,6 +1,6 @@
 using System.Diagnostics;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Utils;
+using DevBase.Net.Utils;
 
 namespace DevBase.Test.DevBaseRequests.Utils;
 

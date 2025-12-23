@@ -10,8 +10,16 @@
     <Copyright>AlexanderDotH</Copyright>
     <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
-    <Version>1.4.4</Version>
+    <Version>1.5.0</Version>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="README.md" Pack="true" PackagePath="\"/>
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="HtmlAgilityPack" Version="1.12.4" />
@@ -22,7 +30,7 @@
     <ProjectReference Include="..\DevBase.Cryptography.BouncyCastle\DevBase.Cryptography.BouncyCastle.csproj" />
     <ProjectReference Include="..\DevBase.Cryptography\DevBase.Cryptography.csproj" />
     <ProjectReference Include="..\DevBase.Format\DevBase.Format.csproj" />
-    <ProjectReference Include="..\DevBase.Requests\DevBase.Requests.csproj" />
+    <ProjectReference Include="..\DevBase.Net\DevBase.Net.csproj" />
     <ProjectReference Include="..\DevBase\DevBase.csproj" />
   </ItemGroup>
 

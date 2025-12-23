@@ -2,7 +2,7 @@ using System.Diagnostics;
 using System.Text;
 using Bogus.DataSets;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Data.Body;
+using DevBase.Net.Data.Body;
 
 namespace DevBase.Test.DevBaseRequests.Preparation.Header.Body;
 
