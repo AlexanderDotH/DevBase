@@ -45,6 +45,7 @@ public sealed class Requests : IDisposable, IAsyncDisposable
     public Requests()
     {
         this._rateLimitSemaphore = new SemaphoreSlim(1, 1);
+        StartProcessing();
     }
 
     public Requests WithRateLimit(int requestsPerWindow, TimeSpan? window = null)
