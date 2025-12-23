@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using DevBase.Requests.Extensions;
+using DevBase.Requests.Utils;
 
 namespace DevBase.Requests.Utils;
 
@@ -261,7 +262,7 @@ public static class BogusUtils
                         digitsMaxSubVersion + digitsMinMinor +
                         digitsMaxMinor + digitsMinPatch + digitsMaxPatch;
 
-        return new StringBuilder(sumDigits, sumDigits);
+        return StringBuilderPool.Acquire(sumDigits);
     }
     
     private static StringBuilder StringBuilderFromPlatform(PlatformID platformId)
@@ -269,13 +270,13 @@ public static class BogusUtils
         switch (platformId)
         {
             case PlatformID.Win32NT:
-                return new StringBuilder(22, 23);
+                return StringBuilderPool.Acquire(23);
             case PlatformID.MacOSX:
-                return new StringBuilder(33, 33);
+                return StringBuilderPool.Acquire(33);
             case PlatformID.Unix:
-                return new StringBuilder(15, 17);
+                return StringBuilderPool.Acquire(17);
             default:
-                return new StringBuilder();
+                return StringBuilderPool.Acquire(32);
         }
     }
 

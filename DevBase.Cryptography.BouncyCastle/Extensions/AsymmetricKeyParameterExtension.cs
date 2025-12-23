@@ -33,7 +33,7 @@ public static class AsymmetricKeyParameterExtension
         throw new ArgumentException("Unsupported private key type");
     }
     
-    public static AsymmetricKeyParameter ToECDHPublicKey(this byte[] keySequence)
+    public static AsymmetricKeyParameter ToEcdhPublicKey(this byte[] keySequence)
     {
         try
         {
@@ -52,7 +52,7 @@ public static class AsymmetricKeyParameterExtension
         }
     }
     
-    public static AsymmetricKeyParameter ToECDHPrivateKey(this byte[] keySequence)
+    public static AsymmetricKeyParameter ToEcdhPrivateKey(this byte[] keySequence)
     {
         try
         {

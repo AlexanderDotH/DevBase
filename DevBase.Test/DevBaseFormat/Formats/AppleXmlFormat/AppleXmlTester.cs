@@ -1,4 +1,4 @@
-﻿using DevBase.Format;
+using DevBase.Format;
 using DevBase.Format.Formats.AppleLrcXmlFormat;
 using DevBase.Format.Formats.AppleRichXmlFormat;
 using DevBase.Format.Formats.AppleXmlFormat;
@@ -8,7 +8,7 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseFormat.Formats.AppleXmlFormat;
 
-public class AppleXmlTester
+public class AppleXmlTester : FormatTest
 {
     private FileParser<AppleRichXmlParser, AList<RichTimeStampedLyric>> _richXmlParser;
     private FileParser<AppleLrcXmlParser, AList<TimeStampedLyric>> _lineXmlParser;
@@ -26,13 +26,11 @@ public class AppleXmlTester
     [Test]
     public void TestFormatFromFileRich()
     {
-        FileInfo fileInfo =
-            new FileInfo("..\\..\\..\\DevBaseFormatData\\XML\\RickAstley.xml");
-        
-        AList<RichTimeStampedLyric> list = this._richXmlParser.ParseFromDisk(fileInfo);
+        AList<RichTimeStampedLyric> list = 
+            this._richXmlParser.ParseFromDisk(this.GetTestFile("XML", "RickAstley.xml"));
 
         list.GetAsList().DumpConsole();
-        Assert.AreEqual(list.Get(0).Text, "We're no strangers to love");
+        Assert.That(list.Get(0).Text, Is.EqualTo("We're no strangers to love"));
     }
     
     [Test]
@@ -40,66 +38,58 @@ public class AppleXmlTester
     {
         AList<RichTimeStampedLyric> richTimeStampedLyrics = null;
         
-        FileInfo fileInfo =
-            new FileInfo("..\\..\\..\\DevBaseFormatData\\XML\\RickAstley.xml");
-
-        this._richXmlParser.TryParseFromDisk(fileInfo.FullName, out richTimeStampedLyrics);
+        this._richXmlParser.TryParseFromDisk(
+            this.GetTestFile("XML", "RickAstley.xml").FullName, 
+            out richTimeStampedLyrics);
 
         richTimeStampedLyrics.DumpConsole();
-        
-        Assert.AreEqual(richTimeStampedLyrics.Get(0).Text, "We're no strangers to love");
+        Assert.That(richTimeStampedLyrics.Get(0).Text, Is.EqualTo("We're no strangers to love"));
     }
     
     [Test]
     public void TestFormatFromFileLine()
     {
-        FileInfo fileInfo =
-            new FileInfo("..\\..\\..\\DevBaseFormatData\\XML\\Liebe.xml");
-
-        AList<TimeStampedLyric> list = this._lineXmlParser.ParseFromDisk(fileInfo);
+        AList<TimeStampedLyric> list = 
+            this._lineXmlParser.ParseFromDisk(
+                this.GetTestFile("XML", "Liebe.xml"));
 
         list.GetAsList().DumpConsole();
-        Assert.AreEqual(list.Get(0).Text, "Die Sterne ziehen vorbei, Lichtgeschwindigkeit");
+        Assert.That(list.Get(0).Text, Is.EqualTo("Die Sterne ziehen vorbei, Lichtgeschwindigkeit"));
     }
 
     [Test]
     public void TestTryParseTimeStampedXml()
     {
         AList<TimeStampedLyric> timeStampedLyrics = null;
-        
-        FileInfo fileInfo =
-            new FileInfo("..\\..\\..\\DevBaseFormatData\\XML\\Liebe.xml");
 
-        this._lineXmlParser.TryParseFromDisk(fileInfo.FullName, out timeStampedLyrics);
+        this._lineXmlParser.TryParseFromDisk(
+            this.GetTestFile("XML", "Liebe.xml").FullName, 
+            out timeStampedLyrics);
 
         timeStampedLyrics.DumpConsole();
-        
-        Assert.AreEqual(timeStampedLyrics.Get(0).Text, "Die Sterne ziehen vorbei, Lichtgeschwindigkeit");
+        Assert.That(timeStampedLyrics.Get(0).Text, Is.EqualTo("Die Sterne ziehen vorbei, Lichtgeschwindigkeit"));
     }
     
     [Test]
     public void TestFormatFromNone()
     {
-        FileInfo fileInfo =
-            new FileInfo("..\\..\\..\\DevBaseFormatData\\XML\\RickAstleyUnsynced.xml");
-
-        AList<RawLyric> list = this._rawXmlParser.ParseFromDisk(fileInfo);
+        AList<RawLyric> list = this._rawXmlParser.ParseFromDisk(
+            this.GetTestFile("XML", "RickAstleyUnsynced.xml"));
 
         list.GetAsList().DumpConsole();
-        Assert.AreEqual(list.Get(0).Text, "Move yourself");
+        Assert.That(list.Get(0).Text, Is.EqualTo("Move yourself"));
     }
     
     [Test]
     public void TestTryParseFromNone()
     {
         AList<RawLyric> rawLyrics = null;
-        
-        FileInfo fileInfo =
-            new FileInfo("..\\..\\..\\DevBaseFormatData\\XML\\RickAstleyUnsynced.xml");
 
-        this._rawXmlParser.TryParseFromDisk(fileInfo.FullName, out rawLyrics);
+        this._rawXmlParser.TryParseFromDisk(
+            this.GetTestFile("XML", "RickAstleyUnsynced.xml").FullName, 
+            out rawLyrics);
 
         rawLyrics.GetAsList().DumpConsole();
-        Assert.AreEqual(rawLyrics.Get(0).Text, "Move yourself");
+        Assert.That(rawLyrics.Get(0).Text, Is.EqualTo("Move yourself"));
     }
 }

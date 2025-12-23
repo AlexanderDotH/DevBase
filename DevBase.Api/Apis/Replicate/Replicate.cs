@@ -1,4 +1,6 @@
 ﻿using DevBase.Api.Apis.Replicate.Structure;
+using DevBase.Api.Enums;
+using DevBase.Api.Exceptions;
 using DevBase.Api.Serializer;
 using DevBase.Enums;
 using DevBase.Generics;
@@ -9,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DevBase.Api.Apis.Replicate;
 
-public class Replicate
+public class Replicate : ApiClient
 {
     private readonly string _endpoint;
 
@@ -40,11 +42,10 @@ public class Replicate
             {"webhook", webhook}
         };
 
-        RequestData requestData = new RequestData(string.Format("{0}/predictions", this._endpoint));
+        RequestData requestData = new RequestData($"{this._endpoint}/predictions");
         
         requestData.AddContent(jObject.ToString());
-        requestData.Header.Add("Authorization", 
-            string.Format("Token {0}", apiKey));
+        requestData.Header.Add("Authorization",$"Token {apiKey}");
 
         Request request = new Request(requestData);
         ResponseData responseData = await request.GetResponseAsync();
@@ -54,20 +55,19 @@ public class Replicate
 
     public async Task<ReplicatePredictionResponse> Predict(string modelID, string linkToAudio, string model, string webhook = "https://example.com")
     {
-        if (this._tokens == null)
-            return null;
+        if (this._tokens.IsEmpty())
+            return Throw<object>(new ReplicateException(EnumReplicateExceptionType.TokenNotProvided));
         
         return await Predict(modelID, linkToAudio, model, this._tokens.GetRandom(), webhook);
     }
 
     public async Task<ReplicatePredictionResult> GetResult(string predictionID, string apiKey)
     {
-        RequestData requestData = new RequestData(string.Format("{0}/predictions/{1}", this._endpoint, predictionID));
+        RequestData requestData = new RequestData($"{this._endpoint}/predictions/{predictionID}");
 
         requestData.SetContentType(EnumContentType.APPLICATION_JSON);
 
-        requestData.Header.Add("Authorization", 
-            string.Format("Token {0}", apiKey));
+        requestData.Header.Add("Authorization", $"Token {apiKey}");
         
         Request request = new Request(requestData);
         ResponseData responseData = await request.GetResponseAsync();

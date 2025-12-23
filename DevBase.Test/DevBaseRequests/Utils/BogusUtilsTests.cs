@@ -1,6 +1,5 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using DevBase.Extensions.Stopwatch;
-using DevBase.Requests.Preparation.Header.UserAgent.Bogus.Generator;
 using DevBase.Requests.Utils;
 
 namespace DevBase.Test.DevBaseRequests.Utils;
@@ -25,8 +24,10 @@ public class BogusUtilsTests
         
         sw.Stop();
         
-        Console.WriteLine(sw.GetTimeTable().ToString());
-        
+        sw.PrintTimeTable();
+
         Console.WriteLine(generated.ToString());
+        
+        Assert.That(generated.ToString(), Is.Not.Null);
     }
 }

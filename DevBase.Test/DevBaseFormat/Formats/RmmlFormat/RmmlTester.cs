@@ -1,4 +1,4 @@
-﻿using System.Text;
+using System.Text;
 using DevBase.Format;
 using DevBase.Format.Formats.RmmlFormat;
 using DevBase.Format.Structure;
@@ -9,7 +9,7 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseFormat.Formats.RmmlFormat;
 
-public class RmmlTester
+public class RmmlTester : FormatTest
 {
     private FileParser<RmmlParser, AList<RichTimeStampedLyric>> _rmmlParser;
 
@@ -22,15 +22,12 @@ public class RmmlTester
     [Test]
     public void TestFormatFromFile()
     {
-        FileInfo fileInfo =
-            new FileInfo("..\\..\\..\\DevBaseFormatData\\RMML\\rick.rmml");
-
-        string content = File.ReadAllText(fileInfo.FullName);
+        string content = File.ReadAllText(GetTestFile("RMML", "rick.rmml").FullName);
         
         AList<RichTimeStampedLyric> list = this._rmmlParser.ParseFromString(content);
         
         list.GetAsList().DumpConsole();
         
-        Assert.IsTrue(content.Contains(list.Get(0).Text));
+        Assert.That(content.Contains(list.Get(0).Text), Is.True);
     }
 }

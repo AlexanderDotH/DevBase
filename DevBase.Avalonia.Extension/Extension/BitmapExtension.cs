@@ -1,8 +1,8 @@
 ﻿using System.Drawing.Imaging;
-using Avalonia.Media.Imaging;
+using SixLabors.ImageSharp;
 using Bitmap = System.Drawing.Bitmap;
 
-namespace DevBase.Avalonia.Color.Extensions;
+namespace DevBase.Avalonia.Extension.Extension;
 
 public static class BitmapExtension
 {

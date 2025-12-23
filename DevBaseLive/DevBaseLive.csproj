@@ -4,11 +4,10 @@
         <OutputType>Exe</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net6.0;net7.0</TargetFrameworks>
+        <TargetFramework>net9.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DevBase.Api\DevBase.Api.csproj" />
       <ProjectReference Include="..\DevBase.Api\DevBase.Api.csproj" />
       <ProjectReference Include="..\DevBase.Cryptography.BouncyCastle\DevBase.Cryptography.BouncyCastle.csproj" />
       <ProjectReference Include="..\DevBase.Format\DevBase.Format.csproj" />
@@ -17,9 +16,9 @@
 
     <ItemGroup>
       <PackageReference Include="CrypticWizard.RandomWordGenerator" Version="0.9.5" />
-      <PackageReference Include="CsvHelper" Version="30.0.1" />
-      <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
-      <PackageReference Include="SpotifyAPI.Web" Version="7.0.0" />
+      <PackageReference Include="CsvHelper" Version="33.1.0" />
+      <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+      <PackageReference Include="SpotifyAPI.Web" Version="7.2.1" />
     </ItemGroup>
 
 </Project>

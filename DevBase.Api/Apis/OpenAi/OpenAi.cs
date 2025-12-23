@@ -9,7 +9,7 @@ using DevBase.Web.ResponseData;
 
 namespace DevBase.Api.Apis.OpenAi;
 
-public class OpenAi
+public class OpenAi : ApiClient
 {
     private readonly string _baseUrl;
     private readonly string _apiKey;

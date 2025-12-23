@@ -1,4 +1,4 @@
-﻿using DevBase.Cryptography.BouncyCastle.AES;
+using DevBase.Cryptography.BouncyCastle.AES;
 
 namespace DevBase.Test.DevBaseCryptographyBouncyCastle.AES;
 
@@ -20,6 +20,6 @@ public class AESBuilderEngineTest
         string encrypted = this._aesBuilderEngine.EncryptString(buffer);
         string decrypted = this._aesBuilderEngine.DecryptString(encrypted);
         
-        Assert.AreEqual(buffer, decrypted);
+        Assert.That(decrypted, Is.EqualTo(buffer));
     }
 }

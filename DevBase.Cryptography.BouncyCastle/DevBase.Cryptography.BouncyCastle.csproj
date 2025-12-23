@@ -3,7 +3,7 @@
     <PropertyGroup>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
-        <TargetFrameworks>net7.0;net6.0</TargetFrameworks>
+        <TargetFramework>net9.0</TargetFramework>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Authors>AlexanderDotH</Authors>
         <Description>This is a wrapper for Bouncycastle</Description>
@@ -13,11 +13,11 @@
         <RepositoryUrl>https://github.com/AlexanderDotH/DevBase</RepositoryUrl>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
         <Title>DevBase.Cryptography.BouncyCastle</Title>
-        <Version>1.1.9</Version>
+        <Version>1.2.1</Version>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="BouncyCastle.NetCore" Version="1.9.0" />
+      <PackageReference Include="BouncyCastle.NetCore" Version="2.2.1" />
     </ItemGroup>
 
     <ItemGroup>

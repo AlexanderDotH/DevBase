@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <Title>DevBase.Logging</Title>
@@ -11,6 +11,7 @@
         <PackageLicenseUrl>https://github.com/AlexanderDotH/DevBase/blob/master/LICENSE</PackageLicenseUrl>
         <RepositoryUrl>https://github.com/AlexanderDotH/DevBase</RepositoryUrl>
         <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+        <Version>1.0.1</Version>
     </PropertyGroup>
 
 </Project>

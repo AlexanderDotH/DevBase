@@ -10,7 +10,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DevBase.Api.Apis.Musixmatch;
 
-public class MusixMatch
+public class MusixMatch : ApiClient
 {
     private readonly string _authEndpoint;
 

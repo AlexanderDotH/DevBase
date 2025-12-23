@@ -1,13 +1,15 @@
 ﻿using Avalonia.Media.Imaging;
 using DevBase.Avalonia.Color.Extensions;
+using DevBase.Avalonia.Extension.Extension;
+using SixLabors.ImageSharp.Processing;
 using Bitmap = System.Drawing.Bitmap;
 
 namespace DevBase.Avalonia.Extension.Processing;
 
 public class ImagePreProcessor
 {
-    private float _sigma;
-    private int _rounds;
+    private readonly float _sigma;
+    private readonly int _rounds;
     
     public ImagePreProcessor(float sigma, int rounds = 10)
     {
