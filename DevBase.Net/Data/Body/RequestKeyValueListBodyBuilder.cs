@@ -1,4 +1,5 @@
-﻿using DevBase.IO;
+﻿using System.Text;
+using DevBase.IO;
 using DevBase.Net.Abstract;
 using DevBase.Net.Enums;
 using DevBase.Net.Exceptions;
@@ -13,6 +14,8 @@ public class RequestKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestKey
     public Memory<byte> Bounds { get; private set; }
     public Memory<byte> Separator { get; private set; }
     public Memory<byte> Tail { get; private set; }
+    
+    public string BoundaryString => Encoding.UTF8.GetString(this.Bounds.Span);
     
     public RequestKeyValueListBodyBuilder() 
     {

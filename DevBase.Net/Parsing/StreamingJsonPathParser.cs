@@ -123,7 +123,7 @@ public sealed class StreamingJsonPathParser
     public async IAsyncEnumerable<T> ParseStreamAsync<T>(
         Stream stream,
         string path,
-        bool optimizeProperties = true,
+        bool optimizeProperties = false,
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         List<PathSegment> segments = ParsePath(path);
@@ -175,7 +175,7 @@ public sealed class StreamingJsonPathParser
         }
     }
 
-    public T ParseSingle<T>(ReadOnlySpan<byte> json, string path, bool optimizeProperties = true)
+    public T ParseSingle<T>(ReadOnlySpan<byte> json, string path, bool optimizeProperties = false)
     {
         List<PathSegment> segments = ParsePath(path);
         JsonParserState state = new JsonParserState();
@@ -190,7 +190,7 @@ public sealed class StreamingJsonPathParser
         return JsonSerializer.Deserialize<T>(resultBuffer.ToArray())!;
     }
 
-    public List<T> ParseAll<T>(ReadOnlySpan<byte> json, string path, bool optimizeProperties = true)
+    public List<T> ParseAll<T>(ReadOnlySpan<byte> json, string path, bool optimizeProperties = false)
     {
         List<PathSegment> segments = ParsePath(path);
         List<T> results = new List<T>();

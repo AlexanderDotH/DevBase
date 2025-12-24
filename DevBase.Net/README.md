@@ -5,6 +5,7 @@ A modern, high-performance HTTP client library for .NET 9.0 with fluent API, SOC
 ## Features
 
 - Fluent request builder API
+- **Browser spoofing and anti-detection** (Chrome, Firefox, Edge, Safari)
 - SOCKS5 proxy support with HttpToSocks5Proxy
 - Configurable retry policies (linear/exponential backoff)
 - JSON, HTML, XML parsing
@@ -130,6 +131,48 @@ var response = await new Request(url)
     .WithRetryPolicy(RetryPolicy.Exponential(maxRetries: 3))
     .SendAsync();
 ```
+
+### Browser Spoofing and Anti-Detection
+
+```csharp
+using DevBase.Net.Configuration;
+using DevBase.Net.Configuration.Enums;
+
+// Simple Chrome emulation with default settings
+var response = await new Request("https://protected-site.com")
+    .WithScrapingBypass(ScrapingBypassConfig.Default)
+    .SendAsync();
+
+// Custom configuration
+var config = new ScrapingBypassConfig
+{
+    Enabled = true,
+    BrowserProfile = EnumBrowserProfile.Chrome,
+    RefererStrategy = EnumRefererStrategy.SearchEngine
+};
+
+var response = await new Request("https://target-site.com")
+    .WithScrapingBypass(config)
+    .SendAsync();
+
+// User headers always take priority
+var response = await new Request("https://api.example.com")
+    .WithScrapingBypass(ScrapingBypassConfig.Default)
+    .WithUserAgent("MyCustomBot/1.0")  // Overrides Chrome user agent
+    .SendAsync();
+```
+
+**Available Browser Profiles:**
+- `Chrome` - Emulates Google Chrome with client hints
+- `Firefox` - Emulates Mozilla Firefox
+- `Edge` - Emulates Microsoft Edge
+- `Safari` - Emulates Apple Safari
+
+**Referer Strategies:**
+- `None` - No referer header
+- `PreviousUrl` - Use previous URL (for sequential scraping)
+- `BaseHost` - Use base host URL
+- `SearchEngine` - Random search engine URL
 
 ### Batch Requests with Rate Limiting
 

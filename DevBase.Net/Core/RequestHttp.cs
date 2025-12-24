@@ -4,9 +4,11 @@ using System.Net.NetworkInformation;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
+using DevBase.Net.Configuration;
 using DevBase.Net.Configuration.Enums;
 using DevBase.Net.Constants;
 using DevBase.Net.Exceptions;
+using DevBase.Net.Spoofing;
 using DevBase.Net.Metrics;
 using DevBase.Net.Proxy.Enums;
 using DevBase.Net.Utils;
@@ -16,11 +18,21 @@ namespace DevBase.Net.Core;
 
 public partial class Request
 {
-
     public Request Build()
     {
         if (this._isBuilt)
             return this;
+        
+        List<KeyValuePair<string, string>>? userHeaders = null;
+        string? userDefinedUserAgent = null;
+        
+        if (this._requestBuilder.RequestHeaderBuilder != null)
+        {
+            userHeaders = this._requestBuilder.RequestHeaderBuilder.GetEntries().ToList();
+            userDefinedUserAgent = this._requestBuilder.RequestHeaderBuilder.GetPreBuildUserAgent();
+        }
+        
+        ApplyScrapingBypassIfConfigured(userHeaders, userDefinedUserAgent);
         
         this._requestBuilder.Build();
         
@@ -94,7 +106,7 @@ public partial class Request
             await interceptor.OnRequestAsync(this, token);
         }
 
-        if (this._hostCheckConfig?.Enabled == true)
+        if (this._hostCheckConfig != null)
         {
             await this.CheckHostReachabilityAsync(token);
         }
@@ -227,10 +239,17 @@ public partial class Request
             byte[] bodyArray = this.Body.ToArray();
             message.Content = new ByteArrayContent(bodyArray);
             
-            if (SharedMimeDictionary.TryGetMimeTypeAsString("json", out string jsonMime) && 
-                this._requestBuilder.RequestHeaderBuilder?.GetHeader("Content-Type") == null)
+            if (this._requestBuilder.RequestHeaderBuilder?.GetHeader("Content-Type") == null)
             {
-                message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(jsonMime);
+                if (this._formBuilder != null)
+                {
+                    message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(
+                        $"multipart/form-data; boundary={this._formBuilder.BoundaryString}");
+                }
+                else if (SharedMimeDictionary.TryGetMimeTypeAsString("json", out string jsonMime))
+                {
+                    message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(jsonMime);
+                }
             }
         }
 
@@ -346,6 +365,38 @@ public partial class Request
                ex.StatusCode == HttpStatusCode.ProxyAuthenticationRequired;
     }
 
+    private void ApplyScrapingBypassIfConfigured(List<KeyValuePair<string, string>>? userHeaders, string? userDefinedUserAgent)
+    {
+        ScrapingBypassConfig? config = this._scrapingBypass;
+        if (config == null)
+            return;
+
+        if (config.BrowserProfile != EnumBrowserProfile.None)
+        {
+            BrowserSpoofing.ApplyBrowserProfile(this, config.BrowserProfile);
+        }
+
+        if (config.RefererStrategy != EnumRefererStrategy.None)
+        {
+            BrowserSpoofing.ApplyRefererStrategy(this, config.RefererStrategy);
+        }
+
+        if (userHeaders != null && userHeaders.Count > 0)
+        {
+            foreach (KeyValuePair<string, string> header in userHeaders)
+            {
+                this._requestBuilder.RequestHeaderBuilder!.SetHeader(header.Key, header.Value);
+            }
+        }
+        
+        // Re-apply user-defined User-Agent after browser spoofing (priority: user > spoofing)
+        // This handles WithUserAgent(), WithBogusUserAgent(), and WithBogusUserAgent<T>()
+        if (!string.IsNullOrEmpty(userDefinedUserAgent))
+        {
+            this.WithUserAgent(userDefinedUserAgent);
+        }
+    }
+
     private RateLimitException HandleRateLimitResponse(HttpResponseMessage response)
     {
         Uri requestUri = new Uri(this.Uri.ToString());
@@ -385,11 +436,6 @@ public partial class Request
         if (maxConnections.HasValue)
             MaxConnectionsPerServer = maxConnections.Value;
     }
-
-    public static Request Create() => new();
-    public static Request Create(string url) => new(url);
-    public static Request Create(Uri uri) => new(uri);
-    public static Request Create(string url, HttpMethod method) => new(url, method);
 
     public static void ClearClientPool()
     {

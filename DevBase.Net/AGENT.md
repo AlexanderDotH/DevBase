@@ -173,7 +173,7 @@ Request WithHeaderValidation(bool validate)
 Request WithFollowRedirects(bool follow, int maxRedirects = 50)
 
 // Advanced Configuration
-Request WithScrapingBypass(ScrapingBypassConfig config)
+Request WithScrapingBypass(ScrapingBypassConfig config)  // Browser spoofing and anti-detection
 Request WithJsonPathParsing(JsonPathConfig config)
 Request WithHostCheck(HostCheckConfig config)
 Request WithLogging(LoggingConfig config)
@@ -246,6 +246,9 @@ Task<XDocument> ParseXmlAsync(CancellationToken cancellationToken = default)
 Task<IDocument> ParseHtmlAsync(CancellationToken cancellationToken = default)
 Task<T> ParseJsonPathAsync<T>(string path, CancellationToken cancellationToken = default)
 Task<List<T>> ParseJsonPathListAsync<T>(string path, CancellationToken cancellationToken = default)
+Task<MultiSelectorResult> ParseMultipleJsonPathsAsync(MultiSelectorConfig config, CancellationToken cancellationToken = default)
+Task<MultiSelectorResult> ParseMultipleJsonPathsAsync(CancellationToken cancellationToken = default, params (string name, string path)[] selectors)
+Task<MultiSelectorResult> ParseMultipleJsonPathsOptimizedAsync(CancellationToken cancellationToken = default, params (string name, string path)[] selectors)
 ```
 
 #### Streaming Methods
@@ -603,6 +606,44 @@ TimeSpan GetDelay(int attemptNumber)
 
 ---
 
+### ScrapingBypassConfig Class
+
+**Namespace:** `DevBase.Net.Configuration`
+
+Configures browser spoofing and anti-detection features to bypass scraping protections.
+
+#### Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `BrowserProfile` | `EnumBrowserProfile` | None | Browser to emulate (Chrome, Firefox, Edge, Safari) |
+| `RefererStrategy` | `EnumRefererStrategy` | None | Referer header strategy |
+
+> **Note:** Providing a `ScrapingBypassConfig` implies it is enabled. To disable browser spoofing, simply don't call `WithScrapingBypass()`.
+
+#### Static Presets
+
+```csharp
+static ScrapingBypassConfig Default  // Chrome profile with PreviousUrl referer
+```
+
+#### Browser Profiles
+
+- **Chrome**: Emulates Google Chrome with Chromium client hints (sec-ch-ua headers)
+- **Firefox**: Emulates Mozilla Firefox with appropriate headers
+- **Edge**: Emulates Microsoft Edge with Chromium client hints
+- **Safari**: Emulates Apple Safari with appropriate headers
+- **None**: No browser spoofing applied
+
+#### Referer Strategies
+
+- **None**: No Referer header added
+- **PreviousUrl**: Use previous request URL as referer (for sequential requests)
+- **BaseHost**: Use base host URL as referer (e.g., https://example.com/)
+- **SearchEngine**: Use random search engine URL as referer (Google, Bing, DuckDuckGo)
+
+---
+
 ### Enums
 
 #### EnumProxyType
@@ -896,10 +937,98 @@ await foreach (string line in response.StreamLinesAsync())
 string userId = await response.ParseJsonPathAsync<string>("$.user.id");
 
 // Extract array
-List<string> names = await response.ParseJsonPathAsync<List<string>>("$.users[*].name");
+List<string> names = await response.ParseJsonPathListAsync<string>("$.users[*].name");
 
 // Extract nested value
 decimal price = await response.ParseJsonPathAsync<decimal>("$.product.pricing.amount");
+```
+
+### Pattern 5b: Multi-Selector JSON Path Extraction
+
+**Extract multiple values from the same JSON response efficiently with path reuse optimization:**
+
+```csharp
+using DevBase.Net.Configuration;
+using DevBase.Net.Parsing;
+
+// Standard extraction (no optimization) - disabled by default
+var result = await response.ParseMultipleJsonPathsAsync(
+    default,
+    ("userId", "$.user.id"),
+    ("userName", "$.user.name"),
+    ("userEmail", "$.user.email"),
+    ("city", "$.user.address.city")
+);
+
+// Access extracted values
+string userId = result.GetString("userId");
+string userName = result.GetString("userName");
+string userEmail = result.GetString("userEmail");
+string city = result.GetString("city");
+
+// Type-safe extraction
+int? age = result.GetInt("age");
+bool? isActive = result.GetBool("isActive");
+double? balance = result.GetDouble("balance");
+
+// Generic extraction
+var user = result.Get<UserDto>("user");
+
+// Optimized extraction with path reuse - navigates to $.user once, then extracts multiple fields
+var optimizedResult = await response.ParseMultipleJsonPathsOptimizedAsync(
+    default,
+    ("id", "$.user.id"),
+    ("name", "$.user.name"),
+    ("email", "$.user.email")  // Shares $.user prefix - only navigates once!
+);
+
+// Advanced: Full configuration control
+var config = MultiSelectorConfig.CreateOptimized(
+    ("productId", "$.data.product.id"),
+    ("productName", "$.data.product.name"),
+    ("productPrice", "$.data.product.price"),
+    ("categoryName", "$.data.category.name")
+);
+var configResult = await response.ParseMultipleJsonPathsAsync(config);
+
+// Check if value exists
+if (configResult.HasValue("productId"))
+{
+    string id = configResult.GetString("productId");
+}
+
+// Iterate over all extracted values
+foreach (string name in configResult.Names)
+{
+    Console.WriteLine($"{name}: {configResult.GetString(name)}");
+}
+```
+
+**Optimization Behavior:**
+
+- **Disabled by default**: `ParseMultipleJsonPathsAsync()` - No optimization, each path parsed independently
+- **Enabled when requested**: `ParseMultipleJsonPathsOptimizedAsync()` - Path reuse optimization enabled
+- **Path Reuse**: When multiple selectors share a common prefix (e.g., `$.user.id`, `$.user.name`), the parser navigates to `$.user` once and extracts both values without re-reading the entire path
+- **Performance**: Significant improvement for large JSON documents with multiple extractions from the same section
+
+**Configuration Options:**
+
+```csharp
+// Create config without optimization (default)
+var config = MultiSelectorConfig.Create(
+    ("field1", "$.path.to.field1"),
+    ("field2", "$.path.to.field2")
+);
+// OptimizePathReuse = false
+// OptimizeProperties = false
+
+// Create config with optimization
+var optimizedConfig = MultiSelectorConfig.CreateOptimized(
+    ("field1", "$.path.to.field1"),
+    ("field2", "$.path.to.field2")
+);
+// OptimizePathReuse = true
+// OptimizeProperties = true
 ```
 
 ### Pattern 6: Retry with Exponential Backoff
@@ -961,7 +1090,112 @@ var response = await new Request("https://api.example.com/upload")
     .SendAsync();
 ```
 
-### Pattern 10: Batch Requests with Rate Limiting
+### Pattern 10: Browser Spoofing and Anti-Detection
+
+**Bypass scraping protections by emulating real browsers:**
+
+```csharp
+using DevBase.Net.Configuration;
+using DevBase.Net.Configuration.Enums;
+
+// Simple Chrome emulation
+var response = await new Request("https://protected-site.com")
+    .WithScrapingBypass(ScrapingBypassConfig.Default)
+    .SendAsync();
+
+// Custom configuration
+var config = new ScrapingBypassConfig
+{
+    BrowserProfile = EnumBrowserProfile.Chrome,
+    RefererStrategy = EnumRefererStrategy.SearchEngine
+};
+
+var response = await new Request("https://target-site.com")
+    .WithScrapingBypass(config)
+    .SendAsync();
+
+// Different browser profiles
+var firefoxConfig = new ScrapingBypassConfig
+{
+    BrowserProfile = EnumBrowserProfile.Firefox,
+    RefererStrategy = EnumRefererStrategy.BaseHost
+};
+
+var edgeConfig = new ScrapingBypassConfig
+{
+    BrowserProfile = EnumBrowserProfile.Edge,
+    RefererStrategy = EnumRefererStrategy.PreviousUrl
+};
+
+// User headers always take priority
+var response = await new Request("https://api.example.com")
+    .WithScrapingBypass(ScrapingBypassConfig.Default)
+    .WithUserAgent("MyCustomBot/1.0")  // Overrides Chrome user agent
+    .WithHeader("Accept", "application/json")  // Overrides Chrome Accept header
+    .SendAsync();
+```
+
+**What gets applied:**
+
+- **Chrome Profile**: User-Agent, Accept, Accept-Language, Accept-Encoding, sec-ch-ua headers, sec-fetch-* headers
+- **Firefox Profile**: User-Agent, Accept, Accept-Language, Accept-Encoding, DNT, sec-fetch-* headers
+- **Edge Profile**: User-Agent, Accept, Accept-Language, Accept-Encoding, sec-ch-ua headers, sec-fetch-* headers
+- **Safari Profile**: User-Agent, Accept, Accept-Language, Accept-Encoding
+
+**Referer Strategies:**
+
+```csharp
+// No referer
+RefererStrategy = EnumRefererStrategy.None
+
+// Use previous URL (for sequential scraping)
+RefererStrategy = EnumRefererStrategy.PreviousUrl
+
+// Use base host (e.g., https://example.com/)
+RefererStrategy = EnumRefererStrategy.BaseHost
+
+// Random search engine (Google, Bing, DuckDuckGo, Yahoo, Ecosia)
+RefererStrategy = EnumRefererStrategy.SearchEngine
+```
+
+**Header Priority System:**
+
+User-defined headers **always take priority** over browser spoofing headers. This applies to:
+
+| Method | Priority | Description |
+|--------|----------|-------------|
+| `WithHeader("User-Agent", ...)` | User > Spoofing | Directly sets header in entries list |
+| `WithUserAgent(string)` | User > Spoofing | Uses `UserAgentHeaderBuilder` |
+| `WithBogusUserAgent()` | User > Spoofing | Random user agent from built-in generators |
+| `WithBogusUserAgent<T>()` | User > Spoofing | Specific bogus user agent generator |
+| `WithAccept(...)` | User > Spoofing | Accept header |
+| `WithReferer(...)` | User > Spoofing | Referer header |
+| All other `WithHeader()` calls | User > Spoofing | Any custom header |
+
+**Example: Custom User-Agent with Browser Spoofing**
+
+```csharp
+// Use Chrome browser profile but with custom User-Agent
+var response = await new Request("https://api.example.com")
+    .WithScrapingBypass(ScrapingBypassConfig.Default)
+    .WithBogusUserAgent<BogusFirefoxUserAgentGenerator>()  // Overrides Chrome UA
+    .SendAsync();
+
+// Or use a completely custom User-Agent
+var response = await new Request("https://api.example.com")
+    .WithUserAgent("MyBot/1.0")
+    .WithScrapingBypass(new ScrapingBypassConfig 
+    { 
+        BrowserProfile = EnumBrowserProfile.Chrome,
+        RefererStrategy = EnumRefererStrategy.SearchEngine
+    })
+    .SendAsync();
+// Result: User-Agent is "MyBot/1.0", but Chrome's sec-ch-ua and other headers are applied
+```
+
+The order of method calls does not matter - user headers are captured before spoofing and re-applied after.
+
+### Pattern 11: Batch Requests with Rate Limiting
 
 **For processing many requests with controlled concurrency:**
 
@@ -1393,8 +1627,12 @@ if (m.TotalTime.TotalSeconds > 5)
 | Set timeout | `.WithTimeout(TimeSpan)` |
 | Use proxy | `.WithProxy(TrackedProxyInfo)` |
 | Retry policy | `.WithRetryPolicy(RetryPolicy.Exponential(3))` |
+| Browser spoofing | `.WithScrapingBypass(ScrapingBypassConfig.Default)` |
 | Parse JSON | `await response.ParseJsonAsync<T>()` |
 | JSON Path | `await response.ParseJsonPathAsync<T>(path)` |
+| JSON Path List | `await response.ParseJsonPathListAsync<T>(path)` |
+| Multi-selector (no opt) | `await response.ParseMultipleJsonPathsAsync(default, ("name", "$.path")...)` |
+| Multi-selector (optimized) | `await response.ParseMultipleJsonPathsOptimizedAsync(default, ("name", "$.path")...)` |
 | Parse HTML | `await response.ParseHtmlAsync()` |
 | Stream lines | `await foreach (var line in response.StreamLinesAsync())` |
 | Get string | `await response.GetStringAsync()` |

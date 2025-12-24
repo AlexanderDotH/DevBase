@@ -14,7 +14,6 @@ namespace DevBase.Net.Core;
 
 public partial class Request
 {
-
     public Request WithUrl(string url)
     {
         this._requestBuilder.WithUrl(url);
@@ -196,6 +195,8 @@ public partial class Request
         builder.WithJson(jsonContent, encoding);
         return this.WithRawBody(builder);
     }
+    
+    public Request WithJsonBody(string jsonContent) => this.WithJsonBody(jsonContent, Encoding.UTF8);
 
     public Request WithJsonBody<T>(T obj)
     {
@@ -232,6 +233,7 @@ public partial class Request
     public Request WithForm(RequestKeyValueListBodyBuilder formBuilder)
     {
         this._requestBuilder.WithForm(formBuilder);
+        this._formBuilder = formBuilder;
         return this;
     }
 

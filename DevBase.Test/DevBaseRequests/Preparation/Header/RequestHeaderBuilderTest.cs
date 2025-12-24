@@ -169,6 +169,24 @@ public class RequestHeaderBuilderTest
     }
 
     [Test]
+    public void WithAccept_CalledMultipleTimes_ReplacesInsteadOfConcatenating()
+    {
+        // Regression test: WithAccept should replace existing Accept header, not add duplicate
+        RequestHeaderBuilder builder = new RequestHeaderBuilder()
+            .WithAccept("first-accept")
+            .WithAccept("second-accept")
+            .Build();
+
+        string value = builder["Accept"];
+        
+        // Should be "second-accept", not "first-accept, second-accept"
+        Assert.That(value, Is.EqualTo("second-accept"));
+        Assert.That(value, Does.Not.Contain("first-accept"));
+
+        value.DumpConsole();
+    }
+
+    [Test]
     public void UseBasicAuthenticationTest()
     {
         string username = "admin";

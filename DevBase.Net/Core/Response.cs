@@ -7,9 +7,12 @@ using System.Text.Json;
 using System.Xml.Linq;
 using AngleSharp;
 using AngleSharp.Dom;
+using DevBase.Net.Configuration;
 using DevBase.Net.Constants;
 using DevBase.Net.Metrics;
 using DevBase.Net.Parsing;
+using DevBase.Net.Security.Token;
+using DevBase.Net.Validation;
 using Newtonsoft.Json;
 
 namespace DevBase.Net.Core;
@@ -171,6 +174,33 @@ public sealed class Response : IDisposable, IAsyncDisposable
         return parser.ParseList<T>(bytes, path);
     }
 
+    public async Task<MultiSelectorResult> ParseMultipleJsonPathsAsync(
+        MultiSelectorConfig config,
+        CancellationToken cancellationToken = default)
+    {
+        byte[] bytes = await this.GetBytesAsync(cancellationToken);
+        MultiSelectorParser parser = new MultiSelectorParser();
+        return parser.Parse(bytes, config);
+    }
+    
+    public async Task<MultiSelectorResult> ParseMultipleJsonPathsAsync(
+        CancellationToken cancellationToken = default,
+        params (string name, string path)[] selectors)
+    {
+        byte[] bytes = await this.GetBytesAsync(cancellationToken);
+        MultiSelectorParser parser = new MultiSelectorParser();
+        return parser.Parse(bytes, selectors);
+    }
+    
+    public async Task<MultiSelectorResult> ParseMultipleJsonPathsOptimizedAsync(
+        CancellationToken cancellationToken = default,
+        params (string name, string path)[] selectors)
+    {
+        byte[] bytes = await this.GetBytesAsync(cancellationToken);
+        MultiSelectorParser parser = new MultiSelectorParser();
+        return parser.ParseOptimized(bytes, selectors);
+    }
+
     public async IAsyncEnumerable<string> StreamLinesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         this._contentStream.Position = 0;
@@ -264,6 +294,39 @@ public sealed class Response : IDisposable, IAsyncDisposable
     public bool IsClientError => (int)this.StatusCode >= 400 && (int)this.StatusCode < 500;
     public bool IsServerError => (int)this.StatusCode >= 500;
     public bool IsRateLimited => this.StatusCode == HttpStatusCode.TooManyRequests;
+
+    public AuthenticationToken? ParseBearerToken()
+    {
+        string? authHeader = this.GetHeader("Authorization");
+        if (string.IsNullOrWhiteSpace(authHeader))
+            return null;
+        
+        if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            return null;
+        
+        string token = authHeader.Substring(7);
+        return HeaderValidator.ParseJwtToken(token);
+    }
+
+    public AuthenticationToken? ParseAndVerifyBearerToken(string secret)
+    {
+        string? authHeader = this.GetHeader("Authorization");
+        if (string.IsNullOrWhiteSpace(authHeader))
+            return null;
+        
+        if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            return null;
+        
+        string token = authHeader.Substring(7);
+        return HeaderValidator.ParseAndVerifyJwtToken(token, secret);
+    }
+
+    public ValidationResult ValidateContentLength()
+    {
+        string? contentLengthHeader = this.ContentLength?.ToString();
+        long actualLength = this._contentStream.Length;
+        return HeaderValidator.ValidateContentLength(contentLengthHeader, actualLength);
+    }
 
     public void EnsureSuccessStatusCode()
     {

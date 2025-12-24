@@ -1,5 +1,6 @@
 ﻿using DevBase.Net.Configuration;
 using DevBase.Net.Data;
+using DevBase.Net.Data.Body;
 using DevBase.Net.Data.Body.Mime;
 using DevBase.Net.Data.Header;
 using DevBase.Net.Interfaces;
@@ -22,7 +23,7 @@ public partial class Request : IDisposable, IAsyncDisposable
     private TimeSpan _timeout = TimeSpan.FromSeconds(30);
     private CancellationToken _cancellationToken = CancellationToken.None;
     private TrackedProxyInfo? _proxy;
-    private RetryPolicy _retryPolicy = RetryPolicy.Default;
+    private RetryPolicy _retryPolicy = RetryPolicy.None;
     private ScrapingBypassConfig? _scrapingBypass;
     private JsonPathConfig? _jsonPathConfig;
     private HostCheckConfig? _hostCheckConfig;
@@ -33,6 +34,7 @@ public partial class Request : IDisposable, IAsyncDisposable
     private int _maxRedirects = 50;
     private readonly List<IRequestInterceptor> _requestInterceptors = [];
     private readonly List<IResponseInterceptor> _responseInterceptors = [];
+    private RequestKeyValueListBodyBuilder? _formBuilder;
     private bool _isBuilt;
     private bool _disposed;
 

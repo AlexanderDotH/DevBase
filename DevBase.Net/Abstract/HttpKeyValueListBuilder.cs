@@ -31,13 +31,13 @@ public abstract class HttpKeyValueListBuilder<T, TKeyK, TKeyV>
     protected void RemoveEntry(int index) => Entries.RemoveAt(index);
     
     protected void RemoveEntryKey(TKeyK key) => 
-        this.Entries.RemoveAll((kv) => kv.Key!.Equals(key));
+        this.Entries.RemoveAll((kv) => KeyEquals(kv.Key, key));
     
     protected void RemoveEntryValue(TKeyK value) => 
         this.Entries.RemoveAll((kv) => kv.Value!.Equals(value));
     
     protected TKeyV GetEntryValue(TKeyK key) => 
-        this.Entries.FirstOrDefault(e => e.Key!.Equals(key)).Value;
+        this.Entries.FirstOrDefault(e => KeyEquals(e.Key, key)).Value;
 
     protected TKeyV GetEntryValue(int index) =>
         this.Entries[index].Value;
@@ -45,9 +45,13 @@ public abstract class HttpKeyValueListBuilder<T, TKeyK, TKeyV>
     protected void SetEntryValue(TKeyK key, TKeyV value)
     {
         int index = this.Entries
-            .FindIndex(e => e.Key!.Equals(key));
+            .FindIndex(e => KeyEquals(e.Key, key));
         
-        this.Entries[index] = KeyValuePair.Create(key, value);
+        if (index >= 0)
+        {
+            TKeyK existingKey = this.Entries[index].Key;
+            this.Entries[index] = KeyValuePair.Create(existingKey, value);
+        }
     }
     
     protected void SetEntryValue(int index, TKeyV value)
@@ -57,6 +61,14 @@ public abstract class HttpKeyValueListBuilder<T, TKeyK, TKeyV>
     }
     
     protected bool AnyEntry(TKeyK key) => 
-        this.Entries.Exists(e => e.Key!.Equals(key));
+        this.Entries.Exists(e => KeyEquals(e.Key, key));
+    
+    private static bool KeyEquals(TKeyK? a, TKeyK? b)
+    {
+        if (a is string strA && b is string strB)
+            return string.Equals(strA, strB, StringComparison.OrdinalIgnoreCase);
+        
+        return EqualityComparer<TKeyK>.Default.Equals(a, b);
+    }
 }
 #pragma warning restore S2436
