@@ -1,3 +1,6 @@
+using DevBase.Net.Batch;
+using DevBase.Net.Batch.Proxied;
+using DevBase.Net.Batch.Strategies;
 using DevBase.Net.Core;
 using DevBase.Net.Proxy;
 using DevBase.Net.Proxy.Enums;

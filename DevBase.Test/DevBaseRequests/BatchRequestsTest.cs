@@ -1,3 +1,4 @@
+using DevBase.Net.Batch;
 using DevBase.Net.Core;
 
 namespace DevBase.Test.DevBaseRequests;
