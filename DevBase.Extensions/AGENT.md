@@ -6,7 +6,60 @@ This guide helps AI agents effectively use the DevBase.Extensions library for en
 
 DevBase.Extensions provides enhanced timing capabilities with detailed time breakdowns and formatted output.
 
-**Target Framework:** .NET 9.0
+**Target Framework:** .NET 9.0  
+**Current Version:** 1.0.0
+
+---
+
+## Project Structure
+
+```
+DevBase.Extensions/
+├── Stopwatch/
+│   └── StopwatchExtension.cs    # Stopwatch extension methods
+├── Utils/
+│   └── TimeUtils.cs             # Time breakdown utilities
+└── Exceptions/
+    └── StopwatchException.cs
+```
+
+---
+
+## Class Reference
+
+### StopwatchExtension Class (Static)
+
+**Namespace:** `DevBase.Extensions.Stopwatch`
+
+Extension methods for `System.Diagnostics.Stopwatch`.
+
+#### Methods
+
+```csharp
+static void PrintTimeTable(this Stopwatch stopwatch)
+static string GetTimeTable(this Stopwatch stopwatch)
+```
+
+---
+
+### TimeUtils Class (Static)
+
+**Namespace:** `DevBase.Extensions.Utils`
+
+Utilities for breaking down elapsed time.
+
+#### Methods
+
+```csharp
+static (int Hours, string Unit) GetHours(Stopwatch stopwatch)
+static (int Minutes, string Unit) GetMinutes(Stopwatch stopwatch)
+static (int Seconds, string Unit) GetSeconds(Stopwatch stopwatch)
+static (int Milliseconds, string Unit) GetMilliseconds(Stopwatch stopwatch)
+static (long Microseconds, string Unit) GetMicroseconds(Stopwatch stopwatch)
+static (long Nanoseconds, string Unit) GetNanoseconds(Stopwatch stopwatch)
+```
+
+---
 
 ## Core Components
 

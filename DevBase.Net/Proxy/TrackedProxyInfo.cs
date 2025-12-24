@@ -96,15 +96,7 @@ public sealed class TrackedProxyInfo
         }
     }
 
-    public IWebProxy ToWebProxy()
-    {
-        WebProxy webProxy = new WebProxy(Proxy.Host, Proxy.Port);
-        
-        if (Proxy.Credentials != null)
-            webProxy.Credentials = Proxy.Credentials;
-            
-        return webProxy;
-    }
+    public IWebProxy ToWebProxy() => Proxy.ToWebProxy();
 
     public override string ToString() => 
         $"{Key} [Failures: {FailureCount}/{MaxFailures}, TimedOut: {IsTimedOut}]";

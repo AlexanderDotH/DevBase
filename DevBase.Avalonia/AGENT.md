@@ -6,7 +6,70 @@ This guide helps AI agents effectively use DevBase.Avalonia for color analysis i
 
 DevBase.Avalonia provides color extraction and analysis tools for Avalonia UI bitmaps.
 
-**Target Framework:** .NET 9.0, Avalonia UI 11.x
+**Target Framework:** .NET 9.0, Avalonia UI 11.x  
+**Current Version:** 1.0.0
+
+---
+
+## Project Structure
+
+```
+DevBase.Avalonia/
+├── Color/
+│   ├── Image/
+│   │   ├── BrightestColorCalculator.cs   # Find brightest color
+│   │   ├── GroupColorCalculator.cs       # Group similar colors
+│   │   └── NearestColorCalculator.cs     # Find nearest color
+│   └── ColorUtils.cs                     # Color utilities
+└── Data/
+    └── ...                               # Data structures
+```
+
+---
+
+## Class Reference
+
+### BrightestColorCalculator Class
+
+**Namespace:** `DevBase.Avalonia.Color.Image`
+
+Finds the brightest color in a bitmap.
+
+#### Methods
+
+```csharp
+Color Calculate(Bitmap bitmap)
+```
+
+---
+
+### GroupColorCalculator Class
+
+**Namespace:** `DevBase.Avalonia.Color.Image`
+
+Groups similar colors and counts occurrences.
+
+#### Methods
+
+```csharp
+Dictionary<Color, int> Calculate(Bitmap bitmap)
+```
+
+---
+
+### NearestColorCalculator Class
+
+**Namespace:** `DevBase.Avalonia.Color.Image`
+
+Finds the nearest color to a target.
+
+#### Methods
+
+```csharp
+Color FindNearest(Bitmap bitmap, Color target)
+```
+
+---
 
 ## Core Components
 

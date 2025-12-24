@@ -8,7 +8,88 @@ DevBase.Cryptography provides:
 - **Blowfish** - Symmetric block cipher (CBC mode)
 - **MD5** - Fast hashing for checksums
 
-**Target Framework:** .NET 9.0
+**Target Framework:** .NET 9.0  
+**Current Version:** 1.0.0
+
+---
+
+## Project Structure
+
+```
+DevBase.Cryptography/
+├── Blowfish/
+│   ├── Blowfish.cs       # CBC mode encryption/decryption
+│   ├── Codec.cs          # Low-level block cipher
+│   ├── Extensions.cs     # Helper extensions
+│   └── Init.cs           # S-boxes and P-array initialization
+└── MD5/
+    └── MD5.cs            # Fast MD5 hashing
+```
+
+---
+
+## Class Reference
+
+### Blowfish Class
+
+**Namespace:** `DevBase.Cryptography.Blowfish`
+
+Blowfish symmetric block cipher in CBC mode.
+
+#### Constructor
+
+```csharp
+Blowfish(byte[] key)
+```
+
+#### Methods
+
+```csharp
+bool Encrypt(Span<byte> data, ReadOnlySpan<byte> initVector)
+bool Decrypt(Span<byte> data, ReadOnlySpan<byte> initVector)
+```
+
+**Requirements:**
+- `data` must be a multiple of 8 bytes
+- `initVector` must be exactly 8 bytes
+
+---
+
+### Codec Class
+
+**Namespace:** `DevBase.Cryptography.Blowfish`
+
+Low-level Blowfish block cipher (8-byte blocks).
+
+#### Constructor
+
+```csharp
+Codec(byte[] key)
+```
+
+#### Methods
+
+```csharp
+void Encrypt(Span<byte> block)    // 8-byte block
+void Decrypt(Span<byte> block)    // 8-byte block
+```
+
+---
+
+### MD5 Class (Static)
+
+**Namespace:** `DevBase.Cryptography.MD5`
+
+Fast MD5 hashing utility.
+
+#### Methods
+
+```csharp
+static string Hash(string input)
+static string Hash(byte[] data)
+```
+
+---
 
 ## Core Components
 

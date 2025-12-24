@@ -1,16 +1,28 @@
+using System.Collections.Concurrent;
 using System.Net;
 using DevBase.Net.Proxy.Enums;
+using DevBase.Net.Proxy.HttpToSocks5;
 
 namespace DevBase.Net.Proxy;
 
 public sealed class ProxyInfo
 {
+    private static readonly ConcurrentDictionary<string, IWebProxy> ProxyCache = new();
+    
     public string Host { get; }
     public int Port { get; }
     public EnumProxyType Type { get; }
     public NetworkCredential? Credentials { get; }
     
+    public bool BypassLocalAddresses { get; init; }
+    public string[]? BypassList { get; init; }
+    public bool ResolveHostnamesLocally { get; init; }
+    public TimeSpan ConnectionTimeout { get; init; } = TimeSpan.FromSeconds(30);
+    public TimeSpan ReadWriteTimeout { get; init; } = TimeSpan.FromSeconds(60);
+    public int InternalServerPort { get; init; }
+    
     public string Key => $"{this.Type}://{this.Host}:{this.Port}";
+    public bool HasAuthentication => Credentials != null;
 
     public ProxyInfo(string host, int port, EnumProxyType type = EnumProxyType.Http, NetworkCredential? credentials = null)
     {
@@ -27,6 +39,19 @@ public sealed class ProxyInfo
     public ProxyInfo(string host, int port, string username, string password, EnumProxyType type = EnumProxyType.Http)
         : this(host, port, type, new NetworkCredential(username, password))
     {
+    }
+
+    public static ProxyInfo FromConfiguration(ProxyConfiguration config)
+    {
+        return new ProxyInfo(config.Host, config.Port, config.Type, config.Credentials)
+        {
+            BypassLocalAddresses = config.BypassLocalAddresses,
+            BypassList = config.BypassList,
+            ResolveHostnamesLocally = config.ResolveHostnamesLocally,
+            ConnectionTimeout = config.ConnectionTimeout,
+            ReadWriteTimeout = config.ReadWriteTimeout,
+            InternalServerPort = config.InternalServerPort
+        };
     }
 
     public static ProxyInfo Parse(string proxyString)
@@ -90,7 +115,16 @@ public sealed class ProxyInfo
         if (!int.TryParse(portStr, out int port))
             throw new FormatException($"Invalid port number: {portStr.ToString()}");
 
-        return new ProxyInfo(host, port, type, credentials);
+        return new ProxyInfo(host, port, type, credentials)
+        {
+            ResolveHostnamesLocally = type switch
+            {
+                EnumProxyType.Socks5 => true,   // socks5:// = local DNS
+                EnumProxyType.Socks5h => false, // socks5h:// = remote DNS
+                EnumProxyType.Socks4 => true,   // SOCKS4 always local
+                _ => false
+            }
+        };
     }
 
     public static bool TryParse(string proxyString, out ProxyInfo? proxyInfo)
@@ -114,12 +148,111 @@ public sealed class ProxyInfo
             EnumProxyType.Http => "http",
             EnumProxyType.Https => "https",
             EnumProxyType.Socks4 => "socks4",
-            EnumProxyType.Socks5 => "socks5",
+            EnumProxyType.Socks5 => ResolveHostnamesLocally ? "socks5" : "socks5h",
             EnumProxyType.Socks5h => "socks5h",
             _ => "http"
         };
         
         return new Uri($"{scheme}://{this.Host}:{this.Port}");
+    }
+
+    public IWebProxy ToWebProxy()
+    {
+        return ProxyCache.GetOrAdd(Key, _ => CreateWebProxy());
+    }
+
+    private IWebProxy CreateWebProxy()
+    {
+        switch (Type)
+        {
+            case EnumProxyType.Http:
+            case EnumProxyType.Https:
+                return CreateHttpProxy();
+
+            case EnumProxyType.Socks4:
+                return CreateSocks4Proxy();
+
+            case EnumProxyType.Socks5:
+            case EnumProxyType.Socks5h:
+                return CreateSocks5Proxy();
+
+            default:
+                throw new NotSupportedException($"Proxy type {Type} is not supported");
+        }
+    }
+
+    private WebProxy CreateHttpProxy()
+    {
+        var httpAddress = $"http://{Host}:{Port}";
+        var httpProxy = new WebProxy(httpAddress)
+        {
+            BypassProxyOnLocal = BypassLocalAddresses
+        };
+
+        if (BypassList != null && BypassList.Length > 0)
+            httpProxy.BypassList = BypassList;
+
+        if (Credentials != null)
+            httpProxy.Credentials = Credentials;
+
+        return httpProxy;
+    }
+
+    private HttpToSocks5Proxy CreateSocks4Proxy()
+    {
+        try
+        {
+            HttpToSocks5Proxy proxy;
+            if (Credentials != null && !string.IsNullOrEmpty(Credentials.UserName))
+            {
+                proxy = new HttpToSocks5Proxy(Host, Port, Credentials.UserName, string.Empty, InternalServerPort);
+            }
+            else
+            {
+                proxy = new HttpToSocks5Proxy(Host, Port, InternalServerPort);
+            }
+
+            proxy.ResolveHostnamesLocally = true;
+            return proxy;
+        }
+        catch (System.Exception e)
+        {
+            throw new NotSupportedException($"SOCKS4 proxy creation failed: {e.Message}", e);
+        }
+    }
+
+    private HttpToSocks5Proxy CreateSocks5Proxy()
+    {
+        try
+        {
+            HttpToSocks5Proxy proxy;
+            if (Credentials != null)
+            {
+                proxy = new HttpToSocks5Proxy(
+                    Host,
+                    Port,
+                    Credentials.UserName,
+                    Credentials.Password,
+                    InternalServerPort);
+            }
+            else
+            {
+                proxy = new HttpToSocks5Proxy(Host, Port, InternalServerPort);
+            }
+
+            proxy.ResolveHostnamesLocally = ResolveHostnamesLocally;
+
+            return proxy;
+        }
+        catch (System.Exception e)
+        {
+            throw new NotSupportedException($"SOCKS5 proxy creation failed: {e.Message}", e);
+        }
+    }
+
+    public static void ClearProxyCache()
+    {
+        ProxyCache.Clear();
     }
 
     public override string ToString() => this.Key;

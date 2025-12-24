@@ -10,7 +10,7 @@
         <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase</PackageProjectUrl>
         <RepositoryUrl>https://github.com/AlexanderDotH/DevBase</RepositoryUrl>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-        <Version>1.0.1</Version>
+        <Version>1.0.2</Version>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackageReadmeFile>README.md</PackageReadmeFile>
