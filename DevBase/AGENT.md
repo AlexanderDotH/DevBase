@@ -6,6 +6,298 @@ This guide helps AI agents effectively use the DevBase core library.
 
 DevBase is the foundational library providing core utilities for the entire DevBase solution. It targets **.NET 9.0** and has no external dependencies.
 
+**Target Framework:** .NET 9.0  
+**Current Version:** 1.3.4
+
+---
+
+## Project Structure
+
+```
+DevBase/
+├── Async/                   # Asynchronous utilities
+│   ├── Task/                # Task management
+│   │   └── Multitasking.cs  # Concurrent task manager
+│   └── Thread/              # Thread utilities
+├── Cache/                   # Caching
+│   └── DataCache.cs         # Time-based cache
+├── Generics/                # Generic collections
+│   ├── AList.cs             # Core list type
+│   └── ATupleList.cs        # Tuple list
+├── IO/                      # File operations
+│   ├── AFile.cs             # Static file methods
+│   └── AFileObject.cs       # File wrapper
+├── Typography/              # String utilities
+│   ├── AString.cs           # String wrapper
+│   └── Encoded/             # Encoding utilities
+├── Utilities/               # Helpers
+│   ├── StringUtils.cs       # String utilities
+│   └── MemoryUtils.cs       # Memory utilities
+└── Exception/               # Custom exceptions
+```
+
+---
+
+## Class Reference
+
+### AList<T> Class
+
+**Namespace:** `DevBase.Generics`
+
+The core collection type used throughout DevBase. Prefer over `List<T>` for consistency.
+
+#### Constructors
+
+```csharp
+AList()
+AList(List<T> list)
+AList(params T[] array)
+```
+
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `Length` | `int` | Number of elements |
+| `this[int index]` | `T` | Indexer for get/set |
+
+#### Search Methods
+
+```csharp
+T FindEntry(T searchObject)           // Throws AListEntryException if not found
+T Find(Predicate<T> predicate)        // Returns default if not found
+bool Contains(T item)                 // Size-optimized check
+bool SafeContains(T item)             // Standard equality check
+```
+
+#### Element Access
+
+```csharp
+T Get(int index)
+void Set(int index, T value)
+T GetRandom()
+T GetRandom(Random random)
+T[] GetRangeAsArray(int min, int max)
+AList<T> GetRangeAsAList(int min, int max)
+List<T> GetRangeAsList(int min, int max)
+```
+
+#### Add Methods
+
+```csharp
+void Add(T item)
+void AddRange(params T[] array)
+void AddRange(AList<T> array)
+void AddRange(List<T> arrayList)
+```
+
+#### Remove Methods
+
+```csharp
+void Remove(T item)                   // Size-optimized removal
+void Remove(int index)                // Remove at index
+void SafeRemove(T item)               // Standard equality removal
+void RemoveRange(int minIndex, int maxIndex)
+void Clear()
+```
+
+#### Transformation Methods
+
+```csharp
+AList<AList<T>> Slice(int size)       // Split into chunks
+void Sort(IComparer<T> comparer)
+void Sort(int index, int count, IComparer<T> comparer)
+void ForEach(Action<T> action)
+```
+
+#### Conversion Methods
+
+```csharp
+List<T> GetAsList()
+T[] GetAsArray()
+bool IsEmpty()
+IEnumerator<T> GetEnumerator()
+```
+
+---
+
+### AFile Class (Static)
+
+**Namespace:** `DevBase.IO`
+
+Static methods for file operations with automatic encoding detection.
+
+#### Methods
+
+```csharp
+static AList<AFileObject> GetFiles(string directory, bool readContent = false, string filter = "*.txt")
+static AFileObject ReadFileToObject(string filePath)
+static AFileObject ReadFileToObject(FileInfo file)
+static Memory<byte> ReadFile(string filePath)
+static Memory<byte> ReadFile(string filePath, out Encoding encoding)
+static Memory<byte> ReadFile(FileInfo fileInfo)
+static Memory<byte> ReadFile(FileInfo fileInfo, out Encoding encoding)
+static bool CanFileBeAccessed(FileInfo fileInfo, FileAccess fileAccess = FileAccess.Read)
+```
+
+---
+
+### AFileObject Class
+
+**Namespace:** `DevBase.IO`
+
+Wraps file content with metadata.
+
+#### Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `FileInfo` | `FileInfo` | File metadata |
+| `Buffer` | `Memory<byte>` | File content |
+| `Encoding` | `Encoding` | Detected encoding |
+
+#### Constructors
+
+```csharp
+AFileObject(FileInfo fileInfo, bool readFile = false)
+AFileObject(FileInfo fileInfo, Memory<byte> binaryData)
+AFileObject(FileInfo fileInfo, Memory<byte> binaryData, Encoding encoding)
+```
+
+#### Methods
+
+```csharp
+static AFileObject FromBuffer(byte[] buffer, string fileName = "buffer.bin")
+AList<string> ToList()                // Split by lines
+string ToStringData()
+string ToString()
+```
+
+---
+
+### DataCache<K,V> Class
+
+**Namespace:** `DevBase.Cache`
+
+Time-based key-value cache with automatic expiration.
+
+#### Constructors
+
+```csharp
+DataCache()                           // 2000ms default expiration
+DataCache(int expirationMS)
+```
+
+#### Methods
+
+```csharp
+void WriteToCache(K key, V value)
+V DataFromCache(K key)                // Returns default if expired/not found
+AList<V> DataFromCacheAsList(K key)   // Get all values for key
+bool IsInCache(K key)
+```
+
+---
+
+### Multitasking Class
+
+**Namespace:** `DevBase.Async.Task`
+
+Manages concurrent tasks with capacity limits.
+
+#### Constructor
+
+```csharp
+Multitasking(int capacity, int scheduleDelay = 100)
+```
+
+#### Methods
+
+```csharp
+Task Register(Task task)
+Task Register(Action action)
+Task WaitAll()                        // Wait for all tasks to complete
+Task KillAll()                        // Cancel pending and wait
+```
+
+---
+
+### StringUtils Class (Static)
+
+**Namespace:** `DevBase.Utilities`
+
+String utility methods.
+
+#### Methods
+
+```csharp
+static string RandomString(int length)
+static string RandomString(int length, string chars)
+static string Separate(string[] items, string separator)
+static string[] DeSeparate(string input, string separator)
+```
+
+---
+
+### AString Class
+
+**Namespace:** `DevBase.Typography`
+
+String wrapper with utility methods.
+
+#### Methods
+
+```csharp
+AList<string> AsList()                // Split by newlines
+string CapitalizeFirst()
+```
+
+---
+
+### Base64EncodedAString Class
+
+**Namespace:** `DevBase.Typography.Encoded`
+
+Base64 encoding/decoding wrapper.
+
+#### Constructors
+
+```csharp
+Base64EncodedAString(string plainText)
+Base64EncodedAString(string base64, bool isEncoded)
+```
+
+#### Methods
+
+```csharp
+string ToString()                     // Get encoded
+string GetDecoded()
+```
+
+---
+
+### Exceptions
+
+#### AListEntryException
+
+```csharp
+namespace DevBase.Exception;
+
+public class AListEntryException : System.Exception
+{
+    public Type ExceptionType { get; }
+    
+    public enum Type
+    {
+        EntryNotFound,
+        OutOfBounds,
+        InvalidRange
+    }
+}
+```
+
+---
+
 ## Key Concepts
 
 ### 1. AList<T> - The Core Collection Type

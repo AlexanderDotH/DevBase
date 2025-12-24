@@ -6,7 +6,61 @@ This guide helps AI agents effectively use the DevBase.Logging library for simpl
 
 DevBase.Logging is a lightweight logging library that writes to the Debug console. It's designed for simplicity and ease of use.
 
-**Target Framework:** .NET 9.0
+**Target Framework:** .NET 9.0  
+**Current Version:** 1.0.0
+
+---
+
+## Project Structure
+
+```
+DevBase.Logging/
+├── Logger/
+│   └── Logger.cs           # Generic logger class
+└── Enums/
+    └── LogType.cs          # Log level enum
+```
+
+---
+
+## Class Reference
+
+### Logger<T> Class
+
+**Namespace:** `DevBase.Logging.Logger`
+
+Generic logger that outputs to Debug console.
+
+#### Constructor
+
+```csharp
+Logger(T type)
+```
+
+#### Methods
+
+```csharp
+void Write(string message, LogType logType)
+void Write(Exception exception)
+```
+
+---
+
+### LogType Enum
+
+**Namespace:** `DevBase.Logging.Enums`
+
+```csharp
+public enum LogType
+{
+    INFO,
+    WARNING,
+    ERROR,
+    DEBUG
+}
+```
+
+---
 
 ## Core Components
 

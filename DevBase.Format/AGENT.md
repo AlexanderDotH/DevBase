@@ -6,7 +6,143 @@ This guide helps AI agents effectively use the DevBase.Format library for parsin
 
 DevBase.Format provides parsers for various text-based formats, primarily focused on lyrics formats (LRC, SRT, ELRC, etc.) and configuration files (ENV).
 
-**Target Framework:** .NET 9.0
+**Target Framework:** .NET 9.0  
+**Current Version:** 1.0.0
+
+---
+
+## Project Structure
+
+```
+DevBase.Format/
+├── FileFormat.cs                 # Abstract base class for parsers
+├── FileParser.cs                 # Generic parser wrapper
+├── RevertableFileFormat.cs       # Base for reversible formats
+├── Formats/
+│   ├── LrcFormat/                # Standard LRC lyrics
+│   ├── ElrcFormat/               # Enhanced LRC with word timing
+│   ├── RlrcFormat/               # Rich LRC format
+│   ├── SrtFormat/                # SubRip subtitles
+│   ├── EnvFormat/                # Environment configuration
+│   ├── KLyricsFormat/            # Karaoke lyrics
+│   ├── MmlFormat/                # Music Macro Language
+│   ├── RmmlFormat/               # Rich MML
+│   ├── AppleXmlFormat/           # Apple Music XML lyrics
+│   ├── AppleLrcXmlFormat/        # Apple LRC XML
+│   └── AppleRichXmlFormat/       # Apple rich lyrics XML
+├── Structure/                    # Shared data structures
+│   ├── TimeStampedLyric.cs
+│   └── RichTimeStampedLyric.cs
+├── Exceptions/
+│   └── ParsingException.cs
+└── Utilities/
+```
+
+---
+
+## Class Reference
+
+### FileParser<P, T> Class
+
+**Namespace:** `DevBase.Format`
+
+Generic parser wrapper for format parsing.
+
+#### Type Parameters
+
+| Parameter | Constraint | Description |
+|-----------|------------|-------------|
+| `P` | `FileFormat<string, T>` | The format parser class |
+| `T` | - | The output type |
+
+#### Methods
+
+```csharp
+T ParseFromString(string content)
+bool TryParseFromString(string content, out T parsed)
+T ParseFromDisk(string filePath)
+T ParseFromDisk(FileInfo fileInfo)
+bool TryParseFromDisk(string filePath, out T parsed)
+```
+
+---
+
+### FileFormat<F, T> Class (Abstract)
+
+**Namespace:** `DevBase.Format`
+
+Base class for all format parsers.
+
+#### Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `StrictErrorHandling` | `bool` | `true` | Throw exceptions or return null |
+
+#### Abstract Methods
+
+```csharp
+abstract T Parse(F from)
+abstract bool TryParse(F from, out T parsed)
+```
+
+#### Protected Methods
+
+```csharp
+dynamic Error<TX>(string message)           // Throws or returns null
+dynamic Error<TX>(Exception exception)
+```
+
+---
+
+### Supported Formats
+
+| Format Class | Output Type | Description |
+|--------------|-------------|-------------|
+| `LrcFormat` | `AList<TimeStampedLyric>` | Standard LRC lyrics |
+| `ElrcFormat` | `AList<RichTimeStampedLyric>` | Enhanced LRC with word timing |
+| `RlrcFormat` | `AList<RichTimeStampedLyric>` | Rich LRC format |
+| `SrtFormat` | `AList<TimeStampedLyric>` | SubRip subtitles |
+| `EnvFormat` | `Dictionary<string, string>` | Environment variables |
+| `KLyricsFormat` | `AList<TimeStampedLyric>` | Karaoke lyrics |
+| `MmlFormat` | `MmlDocument` | Music Macro Language |
+| `AppleXmlFormat` | `AppleLyrics` | Apple Music XML |
+
+---
+
+### TimeStampedLyric Record
+
+**Namespace:** `DevBase.Format.Structure`
+
+```csharp
+public record TimeStampedLyric(
+    TimeSpan StartTime,
+    string Text
+);
+```
+
+---
+
+### RichTimeStampedLyric Record
+
+**Namespace:** `DevBase.Format.Structure`
+
+```csharp
+public record RichTimeStampedLyric(
+    TimeSpan StartTime,
+    TimeSpan EndTime,
+    string Text,
+    AList<WordTiming> Words
+);
+
+public record WordTiming(
+    TimeSpan StartTime,
+    TimeSpan EndTime,
+    string Word
+);
+```
+
+---
 
 ## Core Architecture
 

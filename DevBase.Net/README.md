@@ -79,15 +79,48 @@ var doc = await response.ParseHtmlAsync();
 var text = await response.GetStringAsync();
 ```
 
-### SOCKS5 Proxy
+### Proxy Support (HTTP/HTTPS/SOCKS4/SOCKS5)
 
 ```csharp
-using DevBase.Net.Proxy.HttpToSocks5;
+using DevBase.Net.Proxy;
+using DevBase.Net.Proxy.Enums;
 
-var proxy = new HttpToSocks5Proxy("127.0.0.1", 9050);
+// HTTP Proxy
+var httpProxy = new ProxyInfo("proxy.example.com", 8080, EnumProxyType.Http);
+
+// SOCKS5 Proxy with authentication
+var socks5Proxy = new ProxyInfo("proxy.example.com", 1080, "user", "pass", EnumProxyType.Socks5);
+
+// SOCKS5h Proxy (remote DNS - more private)
+var socks5hProxy = new ProxyInfo("proxy.example.com", 1080, EnumProxyType.Socks5h);
+
+// Parse from string
+var proxy = ProxyInfo.Parse("socks5://user:pass@proxy.example.com:1080");
+
+// Use with request
 var response = await new Request(url)
     .WithProxy(proxy)
     .SendAsync();
+```
+
+### Proxied Batch Requests with Rotation
+
+```csharp
+using DevBase.Net.Core;
+using DevBase.Net.Proxy;
+
+var proxiedBatch = new ProxiedBatchRequests()
+    .WithRateLimit(5)
+    .WithProxy("socks5://proxy1.example.com:1080")
+    .WithProxy("socks5://proxy2.example.com:1080")
+    .WithRoundRobinRotation()  // Or: WithRandomRotation(), WithLeastFailuresRotation()
+    .OnProxyFailure((proxy, ctx) => Console.WriteLine($"Proxy {proxy.Key} failed"));
+
+var batch = proxiedBatch.CreateBatch("scraping");
+for (int i = 0; i < 100; i++)
+    batch.Enqueue($"https://target.com/page/{i}");
+
+var responses = await proxiedBatch.ExecuteAllAsync();
 ```
 
 ### Retry Policies
@@ -96,6 +129,33 @@ var response = await new Request(url)
 var response = await new Request(url)
     .WithRetryPolicy(RetryPolicy.Exponential(maxRetries: 3))
     .SendAsync();
+```
+
+### Batch Requests with Rate Limiting
+
+```csharp
+using DevBase.Net.Core;
+
+// Process many requests with controlled concurrency
+var batchRequests = new BatchRequests()
+    .WithRateLimit(3)  // 3 concurrent requests per second
+    .WithCookiePersistence()
+    .OnResponse(r => Console.WriteLine($"Status: {r.StatusCode}"))
+    .OnProgress(p => Console.WriteLine($"{p.PercentComplete:F1}% complete"));
+
+// Create batches
+var batch = batchRequests.CreateBatch("api-calls");
+for (int i = 0; i < 100; i++)
+    batch.Enqueue($"https://api.example.com/item/{i}");
+
+// Execute - sends 3 requests concurrently per second
+var responses = await batchRequests.ExecuteAllAsync();
+
+// Or stream results
+await foreach (var response in batchRequests.ExecuteAllAsyncEnumerable())
+{
+    // Process as they complete
+}
 ```
 
 ## Credits

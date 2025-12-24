@@ -11,7 +11,265 @@ DevBase.Api provides ready-to-use API clients for:
 
 All clients extend `ApiClient` and use DevBase.Net for networking.
 
-**Target Framework:** .NET 9.0
+**Target Framework:** .NET 9.0  
+**Current Version:** 1.0.0
+
+---
+
+## Project Structure
+
+```
+DevBase.Api/
+├── Apis/
+│   ├── ApiClient.cs              # Base class for all API clients
+│   ├── AppleMusic/               # Apple Music API (20 files)
+│   │   └── AppleMusic.cs
+│   ├── BeautifulLyrics/          # BeautifulLyrics API (7 files)
+│   │   └── BeautifulLyrics.cs
+│   ├── Deezer/                   # Deezer API (83 files)
+│   │   └── Deezer.cs
+│   ├── Musixmatch/               # Musixmatch API (13 files)
+│   │   └── MusixMatch.cs
+│   ├── NetEase/                  # NetEase Music API (28 files)
+│   │   └── NetEase.cs
+│   ├── OpenAi/                   # OpenAI API (3 files)
+│   │   └── OpenAi.cs
+│   ├── OpenLyricsClient/         # OpenLyricsClient API (8 files)
+│   │   └── OpenLyricsClient.cs
+│   ├── Replicate/                # Replicate API (11 files)
+│   │   └── Replicate.cs
+│   └── Tidal/                    # Tidal API (16 files)
+│       └── Tidal.cs
+├── Enums/                        # API-specific enums
+├── Exceptions/                   # API-specific exceptions
+└── Serializer/                   # JSON serialization
+```
+
+---
+
+## Class Reference
+
+### ApiClient Class (Base)
+
+**Namespace:** `DevBase.Api.Apis`
+
+Base class for all API clients with error handling support.
+
+#### Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `StrictErrorHandling` | `bool` | `false` | Throw exceptions or return null |
+
+#### Protected Methods
+
+```csharp
+dynamic Throw<T>(Exception exception)     // Returns null or throws
+(string, bool) ThrowTuple(Exception ex)   // Returns ("", false) or throws
+```
+
+---
+
+### Deezer Class
+
+**Namespace:** `DevBase.Api.Apis.Deezer`
+
+Deezer music service API client.
+
+#### Constructor
+
+```csharp
+Deezer(string arlToken = "")
+```
+
+#### Authentication Methods
+
+```csharp
+Task<JsonDeezerJwtToken> GetJwtToken()
+Task<JsonDeezerAuthTokenResponse> GetAccessToken(string appID = "457142")
+Task<JsonDeezerAuthTokenResponse> GetAccessToken(string sessionID, string appID = "457142")
+Task<string> GetArlTokenFromSession(string sessionID)
+Task<string> GetCsrfToken()
+```
+
+#### Search & Retrieve Methods
+
+```csharp
+Task<JsonDeezerSearchResponse> Search(string query)
+Task<JsonDeezerSearchResponse> Search(string query, int limit, int index = 0)
+Task<JsonDeezerTrack> GetSong(string trackID)
+Task<JsonDeezerAlbum> GetAlbum(string albumID)
+Task<JsonDeezerArtist> GetArtist(string artistID)
+```
+
+#### Lyrics Methods
+
+```csharp
+Task<(string RawLyrics, AList<TimeStampedLyric> TimeStampedLyrics)> GetLyrics(string trackID)
+Task<JsonDeezerRawLyricsResponse> GetLyricsAjax(string trackID)
+Task<JsonDeezerRawLyricsGraphResponse> GetLyricsGraph(string trackID)
+```
+
+---
+
+### Tidal Class
+
+**Namespace:** `DevBase.Api.Apis.Tidal`
+
+Tidal music service API client with OAuth2 device flow.
+
+#### Constructor
+
+```csharp
+Tidal()
+```
+
+#### Authentication Methods
+
+```csharp
+Task<JsonTidalDeviceAuth> RegisterDevice()
+Task<JsonTidalAccountAccess> GetTokenFrom(string deviceCode)
+Task<JsonTidalSession> Login(string accessToken)
+Task<JsonTidalSession> RefreshSession(string refreshToken)
+```
+
+#### Search & Retrieve Methods
+
+```csharp
+Task<JsonTidalSearchResponse> Search(string query, string sessionId)
+Task<JsonTidalTrack> GetTrack(string trackId, string sessionId)
+Task<JsonTidalAlbum> GetAlbum(string albumId, string sessionId)
+Task<JsonTidalLyrics> GetLyrics(string trackId, string sessionId)
+```
+
+---
+
+### AppleMusic Class
+
+**Namespace:** `DevBase.Api.Apis.AppleMusic`
+
+Apple Music API client.
+
+#### Constructor
+
+```csharp
+AppleMusic(string developerToken)
+```
+
+#### Methods
+
+```csharp
+Task<JsonAppleMusicSearchResponse> SearchCatalog(string storefront, string query)
+Task<JsonAppleMusicSong> GetSong(string storefront, string id)
+Task<JsonAppleMusicLyrics> GetLyrics(string storefront, string id)
+```
+
+---
+
+### NetEase Class
+
+**Namespace:** `DevBase.Api.Apis.NetEase`
+
+NetEase Music API client (Chinese music).
+
+#### Constructor
+
+```csharp
+NetEase()
+```
+
+#### Methods
+
+```csharp
+Task<JsonNetEaseSearchResponse> Search(string query)
+Task<JsonNetEaseSongDetail> SongDetail(string id)
+Task<JsonNetEaseLyrics> Lyrics(string id)
+```
+
+---
+
+### BeautifulLyrics Class
+
+**Namespace:** `DevBase.Api.Apis.BeautifulLyrics`
+
+BeautifulLyrics API for rich-synced lyrics.
+
+#### Constructor
+
+```csharp
+BeautifulLyrics()
+```
+
+#### Methods
+
+```csharp
+Task<(string Lyrics, bool IsRichSync)> GetRawLyrics(string isrc)
+```
+
+---
+
+### MusixMatch Class
+
+**Namespace:** `DevBase.Api.Apis.Musixmatch`
+
+Musixmatch lyrics API client.
+
+#### Constructor
+
+```csharp
+MusixMatch()
+```
+
+#### Methods
+
+```csharp
+Task<string> SearchTrack(string title, string artist)
+Task<JsonMusixmatchLyrics> GetLyrics(string trackId)
+```
+
+---
+
+### OpenAi Class
+
+**Namespace:** `DevBase.Api.Apis.OpenAi`
+
+OpenAI API client.
+
+#### Constructor
+
+```csharp
+OpenAi(string apiKey)
+```
+
+#### Methods
+
+```csharp
+Task<JsonOpenAiChatResponse> ChatCompletion(string model, object[] messages)
+```
+
+---
+
+### Replicate Class
+
+**Namespace:** `DevBase.Api.Apis.Replicate`
+
+Replicate AI inference API client.
+
+#### Constructor
+
+```csharp
+Replicate(string apiToken)
+```
+
+#### Methods
+
+```csharp
+Task<JsonReplicatePrediction> CreatePrediction(string model, object input)
+Task<JsonReplicatePrediction> GetPrediction(string predictionId)
+Task<JsonReplicatePrediction> WaitForPrediction(string predictionId)
+```
+
+---
 
 ## Core Concept: ApiClient Base Class
 

@@ -9,8 +9,139 @@ DevBase.Cryptography.BouncyCastle provides enterprise-grade cryptography using B
 - **ECDH** - Key exchange
 - **Token Verification** - JWT and signature verification
 - **Secure Random** - Cryptographically secure RNG
+- **Hashing** - Various hash algorithms
 
-**Target Framework:** .NET 9.0
+**Target Framework:** .NET 9.0  
+**Current Version:** 1.0.0
+
+---
+
+## Project Structure
+
+```
+DevBase.Cryptography.BouncyCastle/
+├── AES/
+│   └── AESBuilderEngine.cs       # AES-GCM encryption
+├── ECDH/
+│   └── EcdhEngineBuilder.cs      # Elliptic curve key exchange
+├── Hashing/
+│   ├── SHA256.cs                 # SHA-256 hashing
+│   ├── SHA384.cs                 # SHA-384 hashing
+│   ├── SHA512.cs                 # SHA-512 hashing
+│   └── ...                       # Other hash algorithms
+├── Identifier/
+│   └── TokenVerifier/            # JWT signature verification
+│       ├── RsTokenVerifier.cs    # RSA signatures
+│       ├── EsTokenVerifier.cs    # ECDSA signatures
+│       ├── PsTokenVerifier.cs    # RSA-PSS signatures
+│       └── ShaTokenVerifier.cs   # HMAC signatures
+├── Random/
+│   └── SecureRandom.cs           # Cryptographic RNG
+├── Sealing/
+│   └── SealedBox.cs              # Public-key encryption
+└── Extensions/
+    └── ByteExtensions.cs
+```
+
+---
+
+## Class Reference
+
+### AESBuilderEngine Class
+
+**Namespace:** `DevBase.Cryptography.BouncyCastle.AES`
+
+AES-GCM authenticated encryption.
+
+#### Constructor
+
+```csharp
+AESBuilderEngine()
+```
+
+#### Methods
+
+```csharp
+byte[] Encrypt(byte[] buffer)
+byte[] Decrypt(byte[] buffer)
+void SetKey(byte[] key)
+byte[] GetKey()
+```
+
+---
+
+### EcdhEngineBuilder Class
+
+**Namespace:** `DevBase.Cryptography.BouncyCastle.ECDH`
+
+Elliptic Curve Diffie-Hellman key exchange.
+
+#### Methods
+
+```csharp
+(AsymmetricKeyParameter Public, AsymmetricKeyParameter Private) GenerateKeyPair()
+byte[] DeriveSharedSecret(AsymmetricKeyParameter privateKey, AsymmetricKeyParameter publicKey)
+byte[] ExportPublicKey(AsymmetricKeyParameter publicKey)
+AsymmetricKeyParameter ImportPublicKey(byte[] publicKeyBytes)
+```
+
+---
+
+### Token Verifiers
+
+**Namespace:** `DevBase.Cryptography.BouncyCastle.Identifier.TokenVerifier`
+
+| Class | Algorithm | Description |
+|-------|-----------|-------------|
+| `RsTokenVerifier` | RS256/384/512 | RSA PKCS#1 signatures |
+| `EsTokenVerifier` | ES256/384/512 | ECDSA signatures |
+| `PsTokenVerifier` | PS256/384/512 | RSA-PSS signatures |
+| `ShaTokenVerifier` | HS256/384/512 | HMAC signatures |
+
+#### Common Methods
+
+```csharp
+bool Verify(string token, byte[] key)
+bool Verify(string token, AsymmetricKeyParameter publicKey)
+```
+
+---
+
+### SecureRandom Class
+
+**Namespace:** `DevBase.Cryptography.BouncyCastle.Random`
+
+Cryptographically secure random number generator.
+
+#### Methods
+
+```csharp
+static byte[] GenerateBytes(int length)
+static int GenerateInt()
+static long GenerateLong()
+```
+
+---
+
+### Hashing Classes (Static)
+
+**Namespace:** `DevBase.Cryptography.BouncyCastle.Hashing`
+
+| Class | Output Size |
+|-------|-------------|
+| `SHA256` | 32 bytes |
+| `SHA384` | 48 bytes |
+| `SHA512` | 64 bytes |
+
+#### Methods
+
+```csharp
+static byte[] Hash(byte[] data)
+static string HashToHex(byte[] data)
+static string HashToBase64(byte[] data)
+```
+
+---
 
 ## Core Components
 
