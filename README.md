@@ -88,3 +88,5 @@ The original library has been integrated and optimized for performance with:
 ## 🌟 Join the DevBase Community and Contribute!
 
 We're excited to see DevBase grow and improve with the help of the community! If you'd like to contribute, we welcome your ideas, bug fixes, and enhancements. Join us in making DevBase even better, and let's build something amazing together!
+
+<!-- GitAds-Verify: VBE4GZBOLA67HUH4HIX2KZCK1C5NKGAL -->
