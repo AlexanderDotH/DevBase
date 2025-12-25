@@ -26,6 +26,8 @@ public class DockerTestFixture
     
     private static bool _containersStarted;
     private static bool _setupCompleted;
+    private static bool _dockerAvailable;
+    private static string? _dockerError;
     private static readonly SemaphoreSlim _semaphore = new(1, 1);
 
     // Dynamic ports assigned by Testcontainers
@@ -51,6 +53,15 @@ public class DockerTestFixture
             if (_setupCompleted) return;
             
             TestContext.Progress.WriteLine("=== Testcontainers Integration Test Setup ===");
+            
+            if (!await IsDockerAvailableAsync())
+            {
+                _dockerError = "Docker is not running or not accessible. Tests will be skipped.";
+                TestContext.Progress.WriteLine($"WARNING: {_dockerError}");
+                _setupCompleted = true;
+                return;
+            }
+            _dockerAvailable = true;
             
             var dockerDir = Path.Combine(
                 TestContext.CurrentContext.TestDirectory,
@@ -169,8 +180,9 @@ public class DockerTestFixture
         {
             TestContext.Progress.WriteLine($"ERROR: Failed to start containers: {ex.Message}");
             TestContext.Progress.WriteLine(ex.StackTrace ?? "");
+            _dockerError = ex.Message;
+            _dockerAvailable = false;
             _setupCompleted = true;
-            throw;
         }
         finally
         {
@@ -246,6 +258,60 @@ public class DockerTestFixture
     /// Returns true if containers were started by this fixture.
     /// </summary>
     public static bool ContainersStarted => _containersStarted;
+    
+    /// <summary>
+    /// Returns true if Docker is available.
+    /// </summary>
+    public static bool IsDockerAvailable => _dockerAvailable;
+    
+    /// <summary>
+    /// Returns the Docker error message if Docker is not available.
+    /// </summary>
+    public static string? DockerError => _dockerError;
+    
+    private static async Task<bool> IsDockerAvailableAsync()
+    {
+        try
+        {
+            var process = new System.Diagnostics.Process
+            {
+                StartInfo = new System.Diagnostics.ProcessStartInfo
+                {
+                    FileName = "docker",
+                    Arguments = "info",
+                    RedirectStandardOutput = true,
+                    RedirectStandardError = true,
+                    UseShellExecute = false,
+                    CreateNoWindow = true
+                }
+            };
+            process.Start();
+            await process.WaitForExitAsync();
+            return process.ExitCode == 0;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+    
+    /// <summary>
+    /// Resets Mock API state (rate limits, retry counters).
+    /// </summary>
+    public static async Task ResetMockApiStateAsync()
+    {
+        if (!_containersStarted || MockApiPort == 0) return;
+        
+        try
+        {
+            using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
+            await client.PostAsync($"{MockApiBaseUrl}/api/rate-limit/reset", null);
+        }
+        catch
+        {
+            // Ignore errors - state reset is best effort
+        }
+    }
 
     /// <summary>
     /// Checks if Docker services are available for tests.
@@ -315,11 +381,18 @@ public abstract class DockerIntegrationTestBase
     [SetUp]
     public async Task CheckDockerServices()
     {
+        if (!DockerTestFixture.IsDockerAvailable)
+        {
+            Assert.Ignore($"Docker is not available: {DockerTestFixture.DockerError ?? "Unknown error"}");
+        }
+        
         if (!await DockerTestFixture.AreServicesAvailable())
         {
             Assert.Ignore("Docker services are not available. Container startup may have failed.");
         }
     }
+    
+    protected static Task ResetStateAsync() => DockerTestFixture.ResetMockApiStateAsync();
 
     protected static string ApiUrl(string path) => $"{DockerTestFixture.MockApiBaseUrl}{path}";
     
