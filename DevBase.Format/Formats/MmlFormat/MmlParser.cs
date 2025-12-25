@@ -8,8 +8,16 @@ using Newtonsoft.Json;
 
 namespace DevBase.Format.Formats.MmlFormat
 {
+    /// <summary>
+    /// Parser for the MML (Musixmatch Lyric) JSON format.
+    /// </summary>
     public class MmlParser : FileFormat<string, AList<TimeStampedLyric>>
     {
+        /// <summary>
+        /// Parses the MML JSON string content into a list of time-stamped lyrics.
+        /// </summary>
+        /// <param name="from">The JSON string content.</param>
+        /// <returns>A list of <see cref="TimeStampedLyric"/> objects.</returns>
         public override AList<TimeStampedLyric> Parse(string from)
         {
             AList<TimeStampedLyric> timeStampedLyrics = new AList<TimeStampedLyric>();
@@ -48,6 +56,12 @@ namespace DevBase.Format.Formats.MmlFormat
             return timeStampedLyrics;
         }
 
+        /// <summary>
+        /// Attempts to parse the MML JSON string content.
+        /// </summary>
+        /// <param name="from">The JSON string content.</param>
+        /// <param name="parsed">The parsed list of lyrics, or null if parsing fails.</param>
+        /// <returns>True if parsing was successful; otherwise, false.</returns>
         public override bool TryParse(string from, out AList<TimeStampedLyric> parsed)
         {
             AList<TimeStampedLyric> p = Parse(from);

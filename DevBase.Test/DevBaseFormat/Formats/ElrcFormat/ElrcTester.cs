@@ -8,16 +8,25 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseFormat.Formats.ElrcFormat;
 
+/// <summary>
+/// Tests for ELRC format parser.
+/// </summary>
 public class ElrcTester : FormatTest
 {
     private ElrcParser _elrcParser;
 
+    /// <summary>
+    /// Sets up the ELRC parser.
+    /// </summary>
     [SetUp]
     public void Setup()
     {
         this._elrcParser = new ElrcParser();
     }
 
+    /// <summary>
+    /// Tests parsing ELRC format from file.
+    /// </summary>
     [Test]
     public void TestFormatFromFile()
     {
@@ -29,6 +38,9 @@ public class ElrcTester : FormatTest
         Assert.That(list.Get(0).Text, Is.EqualTo("Never gonna give you up"));
     }
     
+    /// <summary>
+    /// Tests formatting back to ELRC format.
+    /// </summary>
     [Test]
     public void TestFormatToFile()
     {

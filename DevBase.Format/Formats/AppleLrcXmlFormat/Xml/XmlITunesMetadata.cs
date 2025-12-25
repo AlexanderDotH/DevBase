@@ -2,6 +2,9 @@
 
 namespace DevBase.Format.Formats.AppleLrcXmlFormat.Xml;
 
+/// <summary>
+/// Represents iTunes specific metadata in Apple LRC XML.
+/// </summary>
 [XmlRoot(ElementName="iTunesMetadata", Namespace="http://music.apple.com/lyric-ttml-internal")]
 public class XmlITunesMetadata
 {

@@ -6,16 +6,26 @@ using Dumpify;
 
 namespace DevBase.Test.DevBase;
 
+/// <summary>
+/// Tests for StringUtils methods.
+/// </summary>
 public class StringUtilsTest
 {
     private int _count;
 
+    /// <summary>
+    /// Setup test environment.
+    /// </summary>
     [SetUp]
     public void Setup()
     {
         this._count = 1_000_000;
     }
     
+    /// <summary>
+    /// Tests the Separate method for joining string arrays.
+    /// Includes a performance test (PenetrationTest).
+    /// </summary>
     [Test]
     public void SeparateTest()
     {
@@ -35,6 +45,9 @@ public class StringUtilsTest
         stopwatch.PrintTimeTable();
     }
     
+    /// <summary>
+    /// Tests the DeSeparate method for splitting strings.
+    /// </summary>
     [Test]
     public void DeSeparateTest()
     {

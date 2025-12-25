@@ -5,6 +5,9 @@ using Org.BouncyCastle.Asn1.IsisMtt.X509;
 
 namespace DevBase.Test.DevBaseApi.Tidal;
 
+/// <summary>
+/// Tests for the Tidal API client.
+/// </summary>
 public class TidalTests
 {
     private string _authToken;
@@ -12,6 +15,9 @@ public class TidalTests
     private string _accessToken;
     private string _refreshToken;
     
+    /// <summary>
+    /// Sets up the test environment.
+    /// </summary>
     [SetUp]
     public void Setup()
     {
@@ -21,6 +27,10 @@ public class TidalTests
         this._refreshToken = "";
     }
     
+    /// <summary>
+    /// Tests converting an auth token to an access token.
+    /// Requires _authToken.
+    /// </summary>
     [Test]
     public async Task AuthTokenToAccess()
     {
@@ -37,6 +47,9 @@ public class TidalTests
         }
     }
 
+    /// <summary>
+    /// Tests device registration.
+    /// </summary>
     [Test]
     public async Task RegisterDevice()
     {
@@ -60,6 +73,10 @@ public class TidalTests
         }
     }
 
+    /// <summary>
+    /// Tests obtaining a token from a device code.
+    /// Requires _deviceCode.
+    /// </summary>
     [Test]
     public async Task GetTokenFromRegisterDevice()
     {
@@ -76,6 +93,10 @@ public class TidalTests
         }
     }
 
+    /// <summary>
+    /// Tests logging in with an access token.
+    /// Requires _accessToken.
+    /// </summary>
     [Test]
     public async Task Login()
     {
@@ -92,6 +113,9 @@ public class TidalTests
         }
     }
 
+    /// <summary>
+    /// Tests searching for tracks.
+    /// </summary>
     [Test]
     public async Task Search()
     {
@@ -115,6 +139,10 @@ public class TidalTests
         }
     }
 
+    /// <summary>
+    /// Tests refreshing the access token.
+    /// Requires _refreshToken.
+    /// </summary>
     [Test]
     public async Task RefreshToken()
     {
@@ -131,6 +159,10 @@ public class TidalTests
         }
     }
 
+    /// <summary>
+    /// Tests fetching lyrics.
+    /// Requires _accessToken.
+    /// </summary>
     [Test]
     public async Task GetLyrics()
     {
@@ -150,6 +182,10 @@ public class TidalTests
         }
     }
 
+    /// <summary>
+    /// Tests getting download info for a song.
+    /// Requires _accessToken.
+    /// </summary>
     [Test]
     public async Task DownloadSong()
     {
@@ -166,6 +202,10 @@ public class TidalTests
         }
     }
     
+    /// <summary>
+    /// Tests downloading actual song data.
+    /// Requires _accessToken.
+    /// </summary>
     [Test]
     public async Task DownloadSongData()
     {

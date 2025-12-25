@@ -7,77 +7,40 @@ using System.Text.Json;
 using System.Xml.Linq;
 using AngleSharp;
 using AngleSharp.Dom;
+using DevBase.Net.Configuration;
 using DevBase.Net.Constants;
 using DevBase.Net.Metrics;
 using DevBase.Net.Parsing;
+using DevBase.Net.Security.Token;
+using DevBase.Net.Validation;
 using Newtonsoft.Json;
 
 namespace DevBase.Net.Core;
 
-public sealed class Response : IDisposable, IAsyncDisposable
+/// <summary>
+/// HTTP response class that extends BaseResponse with parsing and streaming capabilities.
+/// </summary>
+public sealed class Response : BaseResponse
 {
-    private readonly HttpResponseMessage _httpResponse;
-    private readonly MemoryStream _contentStream;
-    private bool _disposed;
-    private byte[]? _cachedContent;
-
-    public HttpStatusCode StatusCode => this._httpResponse.StatusCode;
-    public bool IsSuccessStatusCode => this._httpResponse.IsSuccessStatusCode;
-    public HttpResponseHeaders Headers => this._httpResponse.Headers;
-    public HttpContentHeaders? ContentHeaders => this._httpResponse.Content?.Headers;
-    public string? ContentType => this.ContentHeaders?.ContentType?.MediaType;
-    public long? ContentLength => this.ContentHeaders?.ContentLength;
-    public Version HttpVersion => this._httpResponse.Version;
-    public string? ReasonPhrase => this._httpResponse.ReasonPhrase;
+    /// <summary>
+    /// Gets the request metrics for this response.
+    /// </summary>
     public RequestMetrics Metrics { get; }
+    
+    /// <summary>
+    /// Gets whether this response was served from cache.
+    /// </summary>
     public bool FromCache { get; init; }
+    
+    /// <summary>
+    /// Gets the original request URI.
+    /// </summary>
     public Uri? RequestUri { get; init; }
 
-
     internal Response(HttpResponseMessage httpResponse, MemoryStream contentStream, RequestMetrics metrics)
+        : base(httpResponse, contentStream)
     {
-        this._httpResponse = httpResponse ?? throw new ArgumentNullException(nameof(httpResponse));
-        this._contentStream = contentStream ?? throw new ArgumentNullException(nameof(contentStream));
         this.Metrics = metrics ?? throw new ArgumentNullException(nameof(metrics));
-    }
-
-    public async Task<byte[]> GetBytesAsync(CancellationToken cancellationToken = default)
-    {
-        if (this._cachedContent != null)
-            return this._cachedContent;
-
-        this._contentStream.Position = 0;
-        this._cachedContent = this._contentStream.ToArray();
-        return this._cachedContent;
-    }
-
-    public async Task<string> GetStringAsync(Encoding? encoding = null, CancellationToken cancellationToken = default)
-    {
-        byte[] bytes = await this.GetBytesAsync(cancellationToken);
-        encoding ??= this.DetectEncoding() ?? Encoding.UTF8;
-        return encoding.GetString(bytes);
-    }
-
-    public Stream GetStream()
-    {
-        this._contentStream.Position = 0;
-        return this._contentStream;
-    }
-
-    private Encoding? DetectEncoding()
-    {
-        string? charset = this.ContentHeaders?.ContentType?.CharSet;
-        if (string.IsNullOrEmpty(charset))
-            return null;
-
-        try
-        {
-            return Encoding.GetEncoding(charset);
-        }
-        catch
-        {
-            return null;
-        }
     }
 
     public async Task<T> GetAsync<T>(CancellationToken cancellationToken = default)
@@ -171,6 +134,33 @@ public sealed class Response : IDisposable, IAsyncDisposable
         return parser.ParseList<T>(bytes, path);
     }
 
+    public async Task<MultiSelectorResult> ParseMultipleJsonPathsAsync(
+        MultiSelectorConfig config,
+        CancellationToken cancellationToken = default)
+    {
+        byte[] bytes = await this.GetBytesAsync(cancellationToken);
+        MultiSelectorParser parser = new MultiSelectorParser();
+        return parser.Parse(bytes, config);
+    }
+    
+    public async Task<MultiSelectorResult> ParseMultipleJsonPathsAsync(
+        CancellationToken cancellationToken = default,
+        params (string name, string path)[] selectors)
+    {
+        byte[] bytes = await this.GetBytesAsync(cancellationToken);
+        MultiSelectorParser parser = new MultiSelectorParser();
+        return parser.Parse(bytes, selectors);
+    }
+    
+    public async Task<MultiSelectorResult> ParseMultipleJsonPathsOptimizedAsync(
+        CancellationToken cancellationToken = default,
+        params (string name, string path)[] selectors)
+    {
+        byte[] bytes = await this.GetBytesAsync(cancellationToken);
+        MultiSelectorParser parser = new MultiSelectorParser();
+        return parser.ParseOptimized(bytes, selectors);
+    }
+
     public async IAsyncEnumerable<string> StreamLinesAsync([EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         this._contentStream.Position = 0;
@@ -207,17 +197,6 @@ public sealed class Response : IDisposable, IAsyncDisposable
         }
     }
 
-    public string? GetHeader(string name)
-    {
-        if (this.Headers.TryGetValues(name, out IEnumerable<string>? values))
-            return string.Join(", ", values);
-
-        if (this.ContentHeaders?.TryGetValues(name, out values) == true)
-            return string.Join(", ", values);
-
-        return null;
-    }
-
     public IEnumerable<string> GetHeaderValues(string name)
     {
         if (this.Headers.TryGetValues(name, out IEnumerable<string>? values))
@@ -229,63 +208,37 @@ public sealed class Response : IDisposable, IAsyncDisposable
         return [];
     }
 
-    public CookieCollection GetCookies()
+    public AuthenticationToken? ParseBearerToken()
     {
-        CookieCollection cookies = new CookieCollection();
-
-        if (!this.Headers.TryGetValues(HeaderConstants.SetCookie.ToString(), out IEnumerable<string>? cookieHeaders))
-            return cookies;
-
-        foreach (string header in cookieHeaders)
-        {
-            try
-            {
-                string[] parts = header.Split(';')[0].Split('=', 2);
-                if (parts.Length == 2)
-                {
-                    cookies.Add(new Cookie(parts[0].Trim(), parts[1].Trim()));
-                }
-            }
-            catch
-            {
-                // Ignore malformed cookies
-            }
-        }
-
-        return cookies;
+        string? authHeader = this.GetHeader("Authorization");
+        if (string.IsNullOrWhiteSpace(authHeader))
+            return null;
+        
+        if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            return null;
+        
+        string token = authHeader.Substring(7);
+        return HeaderValidator.ParseJwtToken(token);
     }
 
-    public bool IsRedirect => this.StatusCode is HttpStatusCode.MovedPermanently 
-        or HttpStatusCode.Found 
-        or HttpStatusCode.SeeOther 
-        or HttpStatusCode.TemporaryRedirect 
-        or HttpStatusCode.PermanentRedirect;
-
-    public bool IsClientError => (int)this.StatusCode >= 400 && (int)this.StatusCode < 500;
-    public bool IsServerError => (int)this.StatusCode >= 500;
-    public bool IsRateLimited => this.StatusCode == HttpStatusCode.TooManyRequests;
-
-    public void EnsureSuccessStatusCode()
+    public AuthenticationToken? ParseAndVerifyBearerToken(string secret)
     {
-        if (!this.IsSuccessStatusCode)
-            throw new HttpRequestException($"Response status code does not indicate success: {(int)this.StatusCode} ({this.ReasonPhrase})");
+        string? authHeader = this.GetHeader("Authorization");
+        if (string.IsNullOrWhiteSpace(authHeader))
+            return null;
+        
+        if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+            return null;
+        
+        string token = authHeader.Substring(7);
+        return HeaderValidator.ParseAndVerifyJwtToken(token, secret);
     }
 
-    public void Dispose()
+    public ValidationResult ValidateContentLength()
     {
-        if (this._disposed) return;
-        this._disposed = true;
-
-        this._contentStream.Dispose();
-        this._httpResponse.Dispose();
+        string? contentLengthHeader = this.ContentLength?.ToString();
+        long actualLength = this._contentStream.Length;
+        return HeaderValidator.ValidateContentLength(contentLengthHeader, actualLength);
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        if (this._disposed) return;
-        this._disposed = true;
-
-        await this._contentStream.DisposeAsync();
-        this._httpResponse.Dispose();
-    }
 }

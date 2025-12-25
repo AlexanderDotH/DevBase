@@ -7,8 +7,16 @@ using DevBase.Generics;
 
 namespace DevBase.Format.Formats.AppleXmlFormat;
 
+/// <summary>
+/// Parser for Apple's basic XML format (TTML based with no timing).
+/// </summary>
 public class AppleXmlParser : FileFormat<string, AList<RawLyric>>
 {
+    /// <summary>
+    /// Parses the Apple XML string content into a list of raw lyrics.
+    /// </summary>
+    /// <param name="from">The XML string content.</param>
+    /// <returns>A list of <see cref="RawLyric"/> objects.</returns>
     public override AList<RawLyric> Parse(string from)
     {
         XmlSerializer serializer = new XmlSerializer(typeof(XmlTt));
@@ -56,6 +64,12 @@ public class AppleXmlParser : FileFormat<string, AList<RawLyric>>
         return proceeded;
     }
     
+    /// <summary>
+    /// Attempts to parse the Apple XML string content.
+    /// </summary>
+    /// <param name="rawTtmlResponse">The XML string content.</param>
+    /// <param name="rawLyrics">The parsed list of raw lyrics, or null if parsing fails.</param>
+    /// <returns>True if parsing was successful; otherwise, false.</returns>
     public override bool TryParse(string rawTtmlResponse, out AList<RawLyric> rawLyrics)
     {
         string unescaped = Regex.Unescape(rawTtmlResponse);

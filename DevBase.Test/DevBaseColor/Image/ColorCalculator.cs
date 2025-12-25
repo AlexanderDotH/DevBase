@@ -1,7 +1,13 @@
 namespace DevBase.Test.DevBaseColor.Image;
 
+/// <summary>
+/// Tests for ColorCalculator.
+/// </summary>
 public class ColorCalculator
 {
+    /// <summary>
+    /// Placeholder for color calculation tests.
+    /// </summary>
     [Test]
     public void TestCalculation()
     {

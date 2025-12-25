@@ -2,8 +2,15 @@ using DevBase.Async.Task;
 
 namespace DevBase.Test.DevBase;
 
+/// <summary>
+/// Tests for the Multitasking system.
+/// </summary>
 public class MultitaskingTest
 {
+    /// <summary>
+    /// Tests task registration and waiting mechanism in Multitasking.
+    /// Creates 200 tasks with a capacity of 2 and waits for all to complete.
+    /// </summary>
     [Test]
     public async Task MultitaskingRegisterAndWaitTest()
     {

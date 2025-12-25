@@ -5,8 +5,13 @@ using Org.BouncyCastle.OpenSsl;
 
 namespace DevBase.Cryptography.BouncyCastle.Hashing.Verification;
 
+/// <summary>
+/// Verifies RSASSA-PSS signatures for tokens.
+/// </summary>
+/// <typeparam name="T">The digest algorithm to use (e.g., SHA256).</typeparam>
 public class PsTokenVerifier<T> : AsymmetricTokenVerifier where T : IDigest
 {
+    /// <inheritdoc />
     protected override bool VerifySignature(byte[] content, byte[] signature, string publicKey)
     {
         IDigest digest = (IDigest)Activator.CreateInstance(typeof(T))!;

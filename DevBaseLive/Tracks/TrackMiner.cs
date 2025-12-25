@@ -6,12 +6,19 @@ using DevBaseLive.Objects;
 
 namespace DevBaseLive.Tracks;
 
+/// <summary>
+/// Mines tracks from Tidal using random word generation for search queries.
+/// </summary>
 public class TrackMiner
 {
     private string[] _searchParams;
 
     private Tidal _tidal;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="TrackMiner"/> class.
+    /// </summary>
+    /// <param name="searchParams">The number of random words to generate for search parameters.</param>
     public TrackMiner(int searchParams)
     {
         this._searchParams = new WordGenerator()
@@ -20,6 +27,10 @@ public class TrackMiner
         this._tidal = new Tidal();
     }
     
+    /// <summary>
+    /// Finds tracks by searching Tidal with the generated random words.
+    /// </summary>
+    /// <returns>A list of found tracks.</returns>
     public async Task<AList<Track>> FindTracks()
     {
         AList<Track> tracks = new AList<Track>();

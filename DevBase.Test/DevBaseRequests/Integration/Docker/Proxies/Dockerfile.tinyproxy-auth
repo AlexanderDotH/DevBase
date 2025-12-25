@@ -1,0 +1,15 @@
+FROM vimagick/tinyproxy:latest
+
+# Tinyproxy with basic authentication
+RUN echo 'User nobody' > /etc/tinyproxy/tinyproxy.conf && \
+    echo 'Group nogroup' >> /etc/tinyproxy/tinyproxy.conf && \
+    echo 'Port 8888' >> /etc/tinyproxy/tinyproxy.conf && \
+    echo 'Timeout 600' >> /etc/tinyproxy/tinyproxy.conf && \
+    echo 'DefaultErrorFile "/usr/share/tinyproxy/default.html"' >> /etc/tinyproxy/tinyproxy.conf && \
+    echo 'StatFile "/usr/share/tinyproxy/stats.html"' >> /etc/tinyproxy/tinyproxy.conf && \
+    echo 'LogLevel Info' >> /etc/tinyproxy/tinyproxy.conf && \
+    echo 'MaxClients 100' >> /etc/tinyproxy/tinyproxy.conf && \
+    echo 'Allow 0.0.0.0/0' >> /etc/tinyproxy/tinyproxy.conf && \
+    echo 'BasicAuth testuser testpass' >> /etc/tinyproxy/tinyproxy.conf
+
+EXPOSE 8888

@@ -2,11 +2,17 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseApi.MusixMatch;
 
+/// <summary>
+/// Tests for the MusixMatch API client.
+/// </summary>
 public class MusixMatchTest
 {
     private string _username;
     private string _password;
     
+    /// <summary>
+    /// Sets up the test environment.
+    /// </summary>
     [SetUp]
     public void Setup()
     {
@@ -14,6 +20,10 @@ public class MusixMatchTest
         this._password = "";
     }
     
+    /// <summary>
+    /// Tests the login functionality.
+    /// Requires username and password.
+    /// </summary>
     [Test]
     public async Task LoginTest()
     {

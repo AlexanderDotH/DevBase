@@ -3,6 +3,9 @@ using DevBase.Net.Proxy;
 
 namespace DevBase.Net.Batch.Proxied;
 
+/// <summary>
+/// Provides context about a proxy failure event.
+/// </summary>
 public sealed record ProxyFailureContext(
     TrackedProxyInfo Proxy,
     System.Exception Exception,

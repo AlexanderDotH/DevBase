@@ -8,8 +8,17 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.LrcFormat
 {
+    /// <summary>
+    /// Parser for the LRC (Lyric) file format.
+    /// Supports parsing string content into a list of time-stamped lyrics and reverting them back to string.
+    /// </summary>
     public class LrcParser : RevertableFileFormat<string, AList<TimeStampedLyric>>
     {
+        /// <summary>
+        /// Parses the LRC string content into a list of time-stamped lyrics.
+        /// </summary>
+        /// <param name="from">The LRC string content.</param>
+        /// <returns>A list of <see cref="TimeStampedLyric"/> objects.</returns>
         public override AList<TimeStampedLyric> Parse(string from)
         {
             AList<TimeStampedLyric> lyricElements = new AList<TimeStampedLyric>();
@@ -31,6 +40,12 @@ namespace DevBase.Format.Formats.LrcFormat
             return lyricElements;
         }
 
+        /// <summary>
+        /// Attempts to parse the LRC string content.
+        /// </summary>
+        /// <param name="from">The LRC string content.</param>
+        /// <param name="parsed">The parsed list of lyrics, or null if parsing fails.</param>
+        /// <returns>True if parsing was successful; otherwise, false.</returns>
         public override bool TryParse(string from, out AList<TimeStampedLyric> parsed)
         {
             AList<TimeStampedLyric> p = Parse(from);
@@ -45,6 +60,11 @@ namespace DevBase.Format.Formats.LrcFormat
             return true;
         }
 
+        /// <summary>
+        /// Reverts a list of time-stamped lyrics back to LRC string format.
+        /// </summary>
+        /// <param name="to">The list of lyrics to revert.</param>
+        /// <returns>The LRC string representation.</returns>
         public override string Revert(AList<TimeStampedLyric> to)
         {
             StringBuilder lrcContent = new StringBuilder();
@@ -58,6 +78,12 @@ namespace DevBase.Format.Formats.LrcFormat
             return lrcContent.ToString();
         }
 
+        /// <summary>
+        /// Attempts to revert a list of lyrics to LRC string format.
+        /// </summary>
+        /// <param name="to">The list of lyrics to revert.</param>
+        /// <param name="from">The LRC string representation, or null if reverting fails.</param>
+        /// <returns>True if reverting was successful; otherwise, false.</returns>
         public override bool TryRevert(AList<TimeStampedLyric> to, out string from)
         {
             string r = Revert(to);
@@ -82,7 +108,7 @@ namespace DevBase.Format.Formats.LrcFormat
             
             if (!RegexHolder.RegexLrc.IsMatch(lyricLine))
                 return Error<object>("LRC regex does not match");
-
+            
             Match match = RegexHolder.RegexLrc.Match(lyricLine);
 
             string rawLine = match.Groups[9].Value;

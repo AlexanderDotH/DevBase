@@ -1,5 +1,8 @@
 ﻿namespace DevBase.Async.Thread
 {
+    /// <summary>
+    /// Wrapper class for System.Threading.Thread to add additional functionality.
+    /// </summary>
     [Serializable]
     public class AThread
     {
@@ -37,9 +40,9 @@
                 _thread.Start(parameters);
         }
 
-        /// <returns>
+        /// <summary>
         /// Returns the given Thread
-        /// </returns>
+        /// </summary>
         public System.Threading.Thread Thread
         {
             get { return this._thread; }

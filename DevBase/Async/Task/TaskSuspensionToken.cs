@@ -7,12 +7,19 @@ using System.Threading.Tasks;
 
 namespace DevBase.Async.Task
 {
+    /// <summary>
+    /// A token that allows for suspending and resuming tasks.
+    /// </summary>
     public class TaskSuspensionToken
     {
         private readonly SemaphoreSlim _lock;
         private bool _suspended;
         private TaskCompletionSource<bool> _resumeRequestTcs;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskSuspensionToken"/> class.
+        /// </summary>
+        /// <param name="cancellationToken">The cancellation token source (not currently used in constructor logic but kept for signature).</param>
         public TaskSuspensionToken(CancellationTokenSource cancellationToken)
         {
             this._suspended = false;
@@ -20,8 +27,17 @@ namespace DevBase.Async.Task
             this._resumeRequestTcs = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TaskSuspensionToken"/> class with a default cancellation token source.
+        /// </summary>
         public TaskSuspensionToken() : this(new CancellationTokenSource()) { }
 
+        /// <summary>
+        /// Waits for the suspension to be released if currently suspended.
+        /// </summary>
+        /// <param name="delay">Optional delay before checking.</param>
+        /// <param name="token">Cancellation token.</param>
+        /// <returns>A task representing the wait operation.</returns>
         public async System.Threading.Tasks.Task WaitForRelease(int delay = 0, CancellationToken token = default(CancellationToken))
         {
             if (delay != 0)
@@ -59,6 +75,9 @@ namespace DevBase.Async.Task
             }
         }
 
+        /// <summary>
+        /// Suspends the task associated with this token.
+        /// </summary>
         public void Suspend()
         {
             this._suspended = true;
@@ -66,6 +85,9 @@ namespace DevBase.Async.Task
 
         }
 
+        /// <summary>
+        /// Resumes the task associated with this token.
+        /// </summary>
         public void Resume()
         {
             this._suspended = false;

@@ -9,6 +9,12 @@
     <TargetFrameworks>net9.0</TargetFrameworks>
   </PropertyGroup>
 
+  <!-- Exclude Docker MockApi from compilation (built separately in Docker) -->
+  <ItemGroup>
+    <Compile Remove="DevBaseRequests\Integration\Docker\MockApi\**" />
+    <None Include="DevBaseRequests\Integration\Docker\MockApi\**" />
+  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="11.3.10" />
     <PackageReference Include="Bogus" Version="35.6.5" />
@@ -24,6 +30,7 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Testcontainers" Version="4.1.0" />
   </ItemGroup>
 
   <ItemGroup>

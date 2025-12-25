@@ -14,7 +14,6 @@ namespace DevBase.Net.Core;
 
 public partial class Request
 {
-
     public Request WithUrl(string url)
     {
         this._requestBuilder.WithUrl(url);
@@ -175,66 +174,6 @@ public partial class Request
         return UseBearerAuthentication(token.RawToken);
     }
 
-    public Request WithRawBody(RequestRawBodyBuilder bodyBuilder)
-    {
-        this._requestBuilder.WithRaw(bodyBuilder);
-        return this;
-    }
-
-    public Request WithRawBody(string content, Encoding? encoding = null)
-    {
-        encoding ??= Encoding.UTF8;
-        RequestRawBodyBuilder builder = new RequestRawBodyBuilder();
-        builder.WithText(content, encoding);
-        return this.WithRawBody(builder);
-    }
-
-    public Request WithJsonBody(string jsonContent, Encoding? encoding = null)
-    {
-        encoding ??= Encoding.UTF8;
-        RequestRawBodyBuilder builder = new RequestRawBodyBuilder();
-        builder.WithJson(jsonContent, encoding);
-        return this.WithRawBody(builder);
-    }
-
-    public Request WithJsonBody<T>(T obj)
-    {
-        string json = JsonSerializer.Serialize(obj, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
-        return this.WithJsonBody(json, Encoding.UTF8);
-    }
-
-    public Request WithBufferBody(byte[] buffer)
-    {
-        RequestRawBodyBuilder builder = new RequestRawBodyBuilder();
-        builder.WithBuffer(buffer);
-        return this.WithRawBody(builder);
-    }
-
-    public Request WithBufferBody(Memory<byte> buffer) => this.WithBufferBody(buffer.ToArray());
-
-    public Request WithEncodedForm(RequestEncodedKeyValueListBodyBuilder formBuilder)
-    {
-        this._requestBuilder.WithEncodedForm(formBuilder);
-        return this;
-    }
-
-    public Request WithEncodedForm(params (string key, string value)[] formData)
-    {
-        RequestEncodedKeyValueListBodyBuilder builder = new RequestEncodedKeyValueListBodyBuilder();
-        foreach ((string key, string value) in formData)
-            builder.AddText(key, value);
-        return this.WithEncodedForm(builder);
-    }
-
-    public Request WithForm(RequestKeyValueListBodyBuilder formBuilder)
-    {
-        this._requestBuilder.WithForm(formBuilder);
-        return this;
-    }
-
     public Request WithTimeout(TimeSpan timeout)
     {
         ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(timeout, TimeSpan.Zero);
@@ -258,6 +197,19 @@ public partial class Request
     {
         this._proxy = new TrackedProxyInfo(proxy);
         return this;
+    }
+
+    /// <summary>
+    /// Sets a proxy using a proxy string in format: [protocol://][user:pass@]host:port
+    /// Supported protocols: http, https, socks4, socks5, socks5h, ssh
+    /// Examples:
+    /// - socks5://user:pass@host:port
+    /// - http://proxy.example.com:8080
+    /// - socks5h://user:pass@host:port (remote DNS resolution)
+    /// </summary>
+    public Request WithProxy(string proxyString)
+    {
+        return WithProxy(ProxyInfo.Parse(proxyString));
     }
 
     public Request WithRetryPolicy(RetryPolicy policy)

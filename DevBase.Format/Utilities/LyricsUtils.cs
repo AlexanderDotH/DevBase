@@ -3,9 +3,17 @@ using DevBase.Format.Structure;
 
 namespace DevBase.Format.Utilities
 {
+    /// <summary>
+    /// Provides utility methods for manipulating lyric text lines.
+    /// </summary>
     class LyricsUtils
     {
-        // TODO: Use this for global filtering(need to appy everywhere)
+        /// <summary>
+        /// Edits and cleans a lyric line, optionally replacing music symbols with a standard note symbol.
+        /// </summary>
+        /// <param name="line">The lyric line to edit.</param>
+        /// <param name="prettify">If true, replaces various music symbols with '♪' and ensures empty lines have a note symbol.</param>
+        /// <returns>The cleaned lyric line.</returns>
         public static string EditLine(string line, bool prettify = true)
         {
             string lineTrimmed = line.Trim();

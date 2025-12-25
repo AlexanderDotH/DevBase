@@ -15,22 +15,50 @@ namespace DevBase.Avalonia.Extension.Color.Image;
 
 using Color = global::Avalonia.Media.Color;
 
+/// <summary>
+/// Calculates dominant colors from an image using KMeans clustering on Lab values.
+/// This is the preferred calculator for better color accuracy closer to human perception.
+/// </summary>
 public class LabClusterColorCalculator
 {
+    /// <summary>
+    /// Gets or sets the small shift value for post-processing.
+    /// </summary>
     public double SmallShift { get; set; } = 1.0d;
     
+    /// <summary>
+    /// Gets or sets the big shift value for post-processing.
+    /// </summary>
     public double BigShift { get; set; } = 1.0d;
     
+    /// <summary>
+    /// Gets or sets the tolerance for KMeans clustering.
+    /// </summary>
     public double Tolerance { get; set; } = 1E-05d;
     
+    /// <summary>
+    /// Gets or sets the number of clusters to find.
+    /// </summary>
     public int Clusters { get; set; } = 10;
 
+    /// <summary>
+    /// Gets or sets the maximum range of clusters to consider for the result.
+    /// </summary>
     public int MaxRange { get; set; } = 5;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to use a predefined dataset of colors.
+    /// </summary>
     public bool UsePredefinedSet { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to return a fallback result if filtering removes all colors.
+    /// </summary>
     public bool AllowEdgeCase { get; set; } = false;
     
+    /// <summary>
+    /// Gets or sets the pre-processing configuration (e.g. blur).
+    /// </summary>
     public PreProcessingConfiguration PreProcessing { get; set; } =
         new PreProcessingConfiguration()
         {
@@ -39,6 +67,9 @@ public class LabClusterColorCalculator
             BlurPreProcessing = false
         };
     
+    /// <summary>
+    /// Gets or sets the filtering configuration (chroma, brightness).
+    /// </summary>
     public FilterConfiguration Filter { get; set; } =
         new FilterConfiguration()
         {
@@ -56,6 +87,9 @@ public class LabClusterColorCalculator
             }
         };
 
+    /// <summary>
+    /// Gets or sets the post-processing configuration (pastel, shifting).
+    /// </summary>
     public PostProcessingConfiguration PostProcessing { get; set; } =
         new PostProcessingConfiguration()
         {
@@ -72,19 +106,35 @@ public class LabClusterColorCalculator
     private RGBToLabConverter _converter;
 
 
+    /// <summary>
+    /// Gets or sets additional Lab colors to include in the clustering dataset.
+    /// </summary>
     public AList<LabColor> AdditionalColorDataset { get; set; } = new AList<LabColor>();
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="LabClusterColorCalculator"/> class.
+    /// </summary>
     public LabClusterColorCalculator()
     {
         this._converter = new RGBToLabConverter();
     }
 
+    /// <summary>
+    /// Calculates the dominant color from the provided bitmap.
+    /// </summary>
+    /// <param name="bitmap">The source bitmap.</param>
+    /// <returns>The calculated dominant color.</returns>
     public Color GetColorFromBitmap(Bitmap bitmap)
     {
         (KMeansClusterCollection, IOrderedEnumerable<IGrouping<int, int>>) clusters = ClusterCalculation(bitmap);
         return GetRangeAndCalcAverage(clusters.Item1, clusters.Item2, this.MaxRange);
     }
 
+    /// <summary>
+    /// Calculates a list of dominant colors from the provided bitmap.
+    /// </summary>
+    /// <param name="bitmap">The source bitmap.</param>
+    /// <returns>A list of calculated colors.</returns>
     public AList<Color> GetColorListFromBitmap(Bitmap bitmap)
     {
         (KMeansClusterCollection, IOrderedEnumerable<IGrouping<int, int>>) clusters = ClusterCalculation(bitmap);

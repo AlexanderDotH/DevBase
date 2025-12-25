@@ -5,8 +5,13 @@ using Org.BouncyCastle.Utilities;
 
 namespace DevBase.Cryptography.BouncyCastle.Hashing.Verification;
 
+/// <summary>
+/// Verifies HMAC-SHA signatures for tokens.
+/// </summary>
+/// <typeparam name="T">The digest algorithm to use (e.g., SHA256).</typeparam>
 public class ShaTokenVerifier<T> : SymmetricTokenVerifier where T : IDigest
 {
+    /// <inheritdoc />
     protected override bool VerifySignature(byte[] content, byte[] signature, byte[] secret)
     {
         IDigest digest = (IDigest)Activator.CreateInstance(typeof(T))!;

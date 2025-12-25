@@ -4,7 +4,7 @@ This guide helps AI agents effectively use the DevBase.Net HTTP client library.
 
 ## Overview
 
-DevBase.Net is the networking backbone of the DevBase solution. It provides a high-performance HTTP client with advanced features like SOCKS5 proxying, retry policies, interceptors, batch processing, proxy rotation, and detailed metrics.
+DevBase.Net is the networking backbone of the DevBase solution. It provides a high-performance HTTP client with advanced features like HTTP/HTTPS/SOCKS4/SOCKS5/SSH proxy support, retry policies, interceptors, batch processing, proxy rotation, and detailed metrics.
 
 **Target Framework:** .NET 9.0  
 **Current Version:** 1.1.0
@@ -69,7 +69,7 @@ DevBase.Net/
 | `Requests` | `DevBase.Net.Core` | Simple queue-based request processor |
 | `BatchRequests` | `DevBase.Net.Core` | Named batch processor with progress callbacks |
 | `ProxiedBatchRequests` | `DevBase.Net.Core` | Batch processor with proxy rotation and failure tracking |
-| `ProxyInfo` | `DevBase.Net.Proxy` | Proxy configuration with HTTP/HTTPS/SOCKS support |
+| `ProxyInfo` | `DevBase.Net.Proxy` | Proxy configuration with HTTP/HTTPS/SOCKS4/SOCKS5/SSH support |
 | `ProxyConfiguration` | `DevBase.Net.Proxy` | Fluent builder for provider-specific proxy settings |
 | `TrackedProxyInfo` | `DevBase.Net.Proxy` | Proxy wrapper with failure tracking |
 | `RetryPolicy` | `DevBase.Net.Configuration` | Retry configuration with backoff strategies |
@@ -167,13 +167,14 @@ Request WithTimeout(TimeSpan timeout)
 Request WithCancellationToken(CancellationToken cancellationToken)
 Request WithProxy(TrackedProxyInfo? proxy)
 Request WithProxy(ProxyInfo proxy)
+Request WithProxy(string proxyString)  // Parse from string: [protocol://][user:pass@]host:port
 Request WithRetryPolicy(RetryPolicy policy)
 Request WithCertificateValidation(bool validate)
 Request WithHeaderValidation(bool validate)
 Request WithFollowRedirects(bool follow, int maxRedirects = 50)
 
 // Advanced Configuration
-Request WithScrapingBypass(ScrapingBypassConfig config)
+Request WithScrapingBypass(ScrapingBypassConfig config)  // Browser spoofing and anti-detection
 Request WithJsonPathParsing(JsonPathConfig config)
 Request WithHostCheck(HostCheckConfig config)
 Request WithLogging(LoggingConfig config)
@@ -246,6 +247,9 @@ Task<XDocument> ParseXmlAsync(CancellationToken cancellationToken = default)
 Task<IDocument> ParseHtmlAsync(CancellationToken cancellationToken = default)
 Task<T> ParseJsonPathAsync<T>(string path, CancellationToken cancellationToken = default)
 Task<List<T>> ParseJsonPathListAsync<T>(string path, CancellationToken cancellationToken = default)
+Task<MultiSelectorResult> ParseMultipleJsonPathsAsync(MultiSelectorConfig config, CancellationToken cancellationToken = default)
+Task<MultiSelectorResult> ParseMultipleJsonPathsAsync(CancellationToken cancellationToken = default, params (string name, string path)[] selectors)
+Task<MultiSelectorResult> ParseMultipleJsonPathsOptimizedAsync(CancellationToken cancellationToken = default, params (string name, string path)[] selectors)
 ```
 
 #### Streaming Methods
@@ -389,15 +393,26 @@ Extends BatchRequests with proxy rotation, failure tracking, and proxy-specific 
 | `AvailableProxyCount` | `int` | Available proxies |
 | `ProxyFailureCount` | `int` | Total proxy failures |
 
-#### Proxy Configuration
+#### Proxy Configuration (Fluent - returns ProxiedBatchRequests)
 
 ```csharp
 ProxiedBatchRequests WithProxy(ProxyInfo proxy)
 ProxiedBatchRequests WithProxy(string proxyString)
 ProxiedBatchRequests WithProxies(IEnumerable<ProxyInfo> proxies)
 ProxiedBatchRequests WithProxies(IEnumerable<string> proxyStrings)
+ProxiedBatchRequests WithMaxProxyRetries(int maxRetries)  // Default: 3
 ProxiedBatchRequests ConfigureProxyTracking(int maxFailures = 3, TimeSpan? timeoutDuration = null)
-ProxiedBatchRequests ClearProxies()
+```
+
+#### Dynamic Proxy Addition (Thread-Safe - can be called during processing)
+
+```csharp
+void AddProxy(ProxyInfo proxy)
+void AddProxy(string proxyString)
+void AddProxies(IEnumerable<ProxyInfo> proxies)
+void AddProxies(IEnumerable<string> proxyStrings)
+void ClearProxies()
+void ResetAllProxies()
 ```
 
 #### Rotation Strategy
@@ -431,7 +446,7 @@ void ResetProxies()
 
 **Namespace:** `DevBase.Net.Proxy`
 
-Immutable proxy configuration with support for HTTP, HTTPS, SOCKS4, SOCKS5, and SOCKS5h.
+Immutable proxy configuration with support for HTTP, HTTPS, SOCKS4, SOCKS5, SOCKS5h, and SSH tunnels.
 
 #### Properties
 
@@ -578,10 +593,7 @@ Configures retry behavior with backoff strategies.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `MaxRetries` | `int` | 3 | Maximum retry attempts |
-| `RetryOnProxyError` | `bool` | true | Retry proxy errors |
-| `RetryOnTimeout` | `bool` | true | Retry timeouts |
-| `RetryOnNetworkError` | `bool` | true | Retry network errors |
+| `MaxRetries` | `int` | 3 | Maximum retry attempts (all errors count) |
 | `BackoffStrategy` | `EnumBackoffStrategy` | Exponential | Delay strategy |
 | `InitialDelay` | `TimeSpan` | 500ms | First retry delay |
 | `MaxDelay` | `TimeSpan` | 30s | Maximum delay |
@@ -603,6 +615,44 @@ TimeSpan GetDelay(int attemptNumber)
 
 ---
 
+### ScrapingBypassConfig Class
+
+**Namespace:** `DevBase.Net.Configuration`
+
+Configures browser spoofing and anti-detection features to bypass scraping protections.
+
+#### Properties
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `BrowserProfile` | `EnumBrowserProfile` | None | Browser to emulate (Chrome, Firefox, Edge, Safari) |
+| `RefererStrategy` | `EnumRefererStrategy` | None | Referer header strategy |
+
+> **Note:** Providing a `ScrapingBypassConfig` implies it is enabled. To disable browser spoofing, simply don't call `WithScrapingBypass()`.
+
+#### Static Presets
+
+```csharp
+static ScrapingBypassConfig Default  // Chrome profile with PreviousUrl referer
+```
+
+#### Browser Profiles
+
+- **Chrome**: Emulates Google Chrome with Chromium client hints (sec-ch-ua headers)
+- **Firefox**: Emulates Mozilla Firefox with appropriate headers
+- **Edge**: Emulates Microsoft Edge with Chromium client hints
+- **Safari**: Emulates Apple Safari with appropriate headers
+- **None**: No browser spoofing applied
+
+#### Referer Strategies
+
+- **None**: No Referer header added
+- **PreviousUrl**: Use previous request URL as referer (for sequential requests)
+- **BaseHost**: Use base host URL as referer (e.g., https://example.com/)
+- **SearchEngine**: Use random search engine URL as referer (Google, Bing, DuckDuckGo)
+
+---
+
 ### Enums
 
 #### EnumProxyType
@@ -616,7 +666,8 @@ public enum EnumProxyType
     Https,    // HTTPS/SSL proxy
     Socks4,   // SOCKS4 (no auth, local DNS)
     Socks5,   // SOCKS5 (auth support, configurable DNS)
-    Socks5h   // SOCKS5 with remote DNS resolution
+    Socks5h,  // SOCKS5 with remote DNS resolution
+    Ssh       // SSH tunnel (dynamic port forwarding)
 }
 ```
 
@@ -792,14 +843,21 @@ var response = await new Request("https://api.example.com")
 | `Socks4` | No | Local | Legacy systems, simple tunneling |
 | `Socks5` | Optional | Local | General purpose, UDP support |
 | `Socks5h` | Optional | Remote | Maximum privacy, bypass DNS leaks |
+| `Ssh` | Optional | Remote | SSH tunnel with dynamic port forwarding |
 
 **Parse proxy from string:**
 
 ```csharp
-// Supported formats:
+// Supported formats (all protocols: http, https, socks4, socks5, socks5h, ssh):
 var proxy1 = ProxyInfo.Parse("http://proxy.example.com:8080");
 var proxy2 = ProxyInfo.Parse("socks5://user:pass@proxy.example.com:1080");
-var proxy3 = ProxyInfo.Parse("socks5h://proxy.example.com:1080");
+var proxy3 = ProxyInfo.Parse("socks5h://user:pass@dc.oxylabs.io:8005");
+var proxy4 = ProxyInfo.Parse("ssh://admin:pass@ssh.example.com:22");
+
+// Use directly with Request
+var response = await new Request("https://api.example.com")
+    .WithProxy("socks5://paid1_563X7:rtVVhrth4545++A@dc.oxylabs.io:8005")
+    .SendAsync();
 
 // Safe parsing
 if (ProxyInfo.TryParse("socks5://...", out var proxy))
@@ -896,10 +954,98 @@ await foreach (string line in response.StreamLinesAsync())
 string userId = await response.ParseJsonPathAsync<string>("$.user.id");
 
 // Extract array
-List<string> names = await response.ParseJsonPathAsync<List<string>>("$.users[*].name");
+List<string> names = await response.ParseJsonPathListAsync<string>("$.users[*].name");
 
 // Extract nested value
 decimal price = await response.ParseJsonPathAsync<decimal>("$.product.pricing.amount");
+```
+
+### Pattern 5b: Multi-Selector JSON Path Extraction
+
+**Extract multiple values from the same JSON response efficiently with path reuse optimization:**
+
+```csharp
+using DevBase.Net.Configuration;
+using DevBase.Net.Parsing;
+
+// Standard extraction (no optimization) - disabled by default
+var result = await response.ParseMultipleJsonPathsAsync(
+    default,
+    ("userId", "$.user.id"),
+    ("userName", "$.user.name"),
+    ("userEmail", "$.user.email"),
+    ("city", "$.user.address.city")
+);
+
+// Access extracted values
+string userId = result.GetString("userId");
+string userName = result.GetString("userName");
+string userEmail = result.GetString("userEmail");
+string city = result.GetString("city");
+
+// Type-safe extraction
+int? age = result.GetInt("age");
+bool? isActive = result.GetBool("isActive");
+double? balance = result.GetDouble("balance");
+
+// Generic extraction
+var user = result.Get<UserDto>("user");
+
+// Optimized extraction with path reuse - navigates to $.user once, then extracts multiple fields
+var optimizedResult = await response.ParseMultipleJsonPathsOptimizedAsync(
+    default,
+    ("id", "$.user.id"),
+    ("name", "$.user.name"),
+    ("email", "$.user.email")  // Shares $.user prefix - only navigates once!
+);
+
+// Advanced: Full configuration control
+var config = MultiSelectorConfig.CreateOptimized(
+    ("productId", "$.data.product.id"),
+    ("productName", "$.data.product.name"),
+    ("productPrice", "$.data.product.price"),
+    ("categoryName", "$.data.category.name")
+);
+var configResult = await response.ParseMultipleJsonPathsAsync(config);
+
+// Check if value exists
+if (configResult.HasValue("productId"))
+{
+    string id = configResult.GetString("productId");
+}
+
+// Iterate over all extracted values
+foreach (string name in configResult.Names)
+{
+    Console.WriteLine($"{name}: {configResult.GetString(name)}");
+}
+```
+
+**Optimization Behavior:**
+
+- **Disabled by default**: `ParseMultipleJsonPathsAsync()` - No optimization, each path parsed independently
+- **Enabled when requested**: `ParseMultipleJsonPathsOptimizedAsync()` - Path reuse optimization enabled
+- **Path Reuse**: When multiple selectors share a common prefix (e.g., `$.user.id`, `$.user.name`), the parser navigates to `$.user` once and extracts both values without re-reading the entire path
+- **Performance**: Significant improvement for large JSON documents with multiple extractions from the same section
+
+**Configuration Options:**
+
+```csharp
+// Create config without optimization (default)
+var config = MultiSelectorConfig.Create(
+    ("field1", "$.path.to.field1"),
+    ("field2", "$.path.to.field2")
+);
+// OptimizePathReuse = false
+// OptimizeProperties = false
+
+// Create config with optimization
+var optimizedConfig = MultiSelectorConfig.CreateOptimized(
+    ("field1", "$.path.to.field1"),
+    ("field2", "$.path.to.field2")
+);
+// OptimizePathReuse = true
+// OptimizeProperties = true
 ```
 
 ### Pattern 6: Retry with Exponential Backoff
@@ -961,7 +1107,112 @@ var response = await new Request("https://api.example.com/upload")
     .SendAsync();
 ```
 
-### Pattern 10: Batch Requests with Rate Limiting
+### Pattern 10: Browser Spoofing and Anti-Detection
+
+**Bypass scraping protections by emulating real browsers:**
+
+```csharp
+using DevBase.Net.Configuration;
+using DevBase.Net.Configuration.Enums;
+
+// Simple Chrome emulation
+var response = await new Request("https://protected-site.com")
+    .WithScrapingBypass(ScrapingBypassConfig.Default)
+    .SendAsync();
+
+// Custom configuration
+var config = new ScrapingBypassConfig
+{
+    BrowserProfile = EnumBrowserProfile.Chrome,
+    RefererStrategy = EnumRefererStrategy.SearchEngine
+};
+
+var response = await new Request("https://target-site.com")
+    .WithScrapingBypass(config)
+    .SendAsync();
+
+// Different browser profiles
+var firefoxConfig = new ScrapingBypassConfig
+{
+    BrowserProfile = EnumBrowserProfile.Firefox,
+    RefererStrategy = EnumRefererStrategy.BaseHost
+};
+
+var edgeConfig = new ScrapingBypassConfig
+{
+    BrowserProfile = EnumBrowserProfile.Edge,
+    RefererStrategy = EnumRefererStrategy.PreviousUrl
+};
+
+// User headers always take priority
+var response = await new Request("https://api.example.com")
+    .WithScrapingBypass(ScrapingBypassConfig.Default)
+    .WithUserAgent("MyCustomBot/1.0")  // Overrides Chrome user agent
+    .WithHeader("Accept", "application/json")  // Overrides Chrome Accept header
+    .SendAsync();
+```
+
+**What gets applied:**
+
+- **Chrome Profile**: User-Agent, Accept, Accept-Language, Accept-Encoding, sec-ch-ua headers, sec-fetch-* headers
+- **Firefox Profile**: User-Agent, Accept, Accept-Language, Accept-Encoding, DNT, sec-fetch-* headers
+- **Edge Profile**: User-Agent, Accept, Accept-Language, Accept-Encoding, sec-ch-ua headers, sec-fetch-* headers
+- **Safari Profile**: User-Agent, Accept, Accept-Language, Accept-Encoding
+
+**Referer Strategies:**
+
+```csharp
+// No referer
+RefererStrategy = EnumRefererStrategy.None
+
+// Use previous URL (for sequential scraping)
+RefererStrategy = EnumRefererStrategy.PreviousUrl
+
+// Use base host (e.g., https://example.com/)
+RefererStrategy = EnumRefererStrategy.BaseHost
+
+// Random search engine (Google, Bing, DuckDuckGo, Yahoo, Ecosia)
+RefererStrategy = EnumRefererStrategy.SearchEngine
+```
+
+**Header Priority System:**
+
+User-defined headers **always take priority** over browser spoofing headers. This applies to:
+
+| Method | Priority | Description |
+|--------|----------|-------------|
+| `WithHeader("User-Agent", ...)` | User > Spoofing | Directly sets header in entries list |
+| `WithUserAgent(string)` | User > Spoofing | Uses `UserAgentHeaderBuilder` |
+| `WithBogusUserAgent()` | User > Spoofing | Random user agent from built-in generators |
+| `WithBogusUserAgent<T>()` | User > Spoofing | Specific bogus user agent generator |
+| `WithAccept(...)` | User > Spoofing | Accept header |
+| `WithReferer(...)` | User > Spoofing | Referer header |
+| All other `WithHeader()` calls | User > Spoofing | Any custom header |
+
+**Example: Custom User-Agent with Browser Spoofing**
+
+```csharp
+// Use Chrome browser profile but with custom User-Agent
+var response = await new Request("https://api.example.com")
+    .WithScrapingBypass(ScrapingBypassConfig.Default)
+    .WithBogusUserAgent<BogusFirefoxUserAgentGenerator>()  // Overrides Chrome UA
+    .SendAsync();
+
+// Or use a completely custom User-Agent
+var response = await new Request("https://api.example.com")
+    .WithUserAgent("MyBot/1.0")
+    .WithScrapingBypass(new ScrapingBypassConfig 
+    { 
+        BrowserProfile = EnumBrowserProfile.Chrome,
+        RefererStrategy = EnumRefererStrategy.SearchEngine
+    })
+    .SendAsync();
+// Result: User-Agent is "MyBot/1.0", but Chrome's sec-ch-ua and other headers are applied
+```
+
+The order of method calls does not matter - user headers are captured before spoofing and re-applied after.
+
+### Pattern 11: Batch Requests with Rate Limiting
 
 **For processing many requests with controlled concurrency:**
 
@@ -1096,6 +1347,10 @@ var responses = await proxiedBatch.ExecuteAllAsync();
 var stats = proxiedBatch.GetStatistics();
 Console.WriteLine($"Success rate: {stats.SuccessRate:F1}%");
 Console.WriteLine($"Proxy availability: {stats.ProxyAvailabilityRate:F1}%");
+
+// Dynamically add more proxies during processing (thread-safe)
+proxiedBatch.AddProxy("http://newproxy.example.com:8080");
+proxiedBatch.AddProxies(new[] { "socks5://proxy5:1080", "socks5://proxy6:1080" });
 ```
 
 ### Pattern 13: Proxy Rotation Strategies
@@ -1391,10 +1646,14 @@ if (m.TotalTime.TotalSeconds > 5)
 | POST JSON | `.AsPost().WithJsonBody(obj)` |
 | Add header | `.WithHeader(name, value)` |
 | Set timeout | `.WithTimeout(TimeSpan)` |
-| Use proxy | `.WithProxy(TrackedProxyInfo)` |
+| Use proxy | `.WithProxy(proxyInfo)` or `.WithProxy("socks5://user:pass@host:port")` |
 | Retry policy | `.WithRetryPolicy(RetryPolicy.Exponential(3))` |
+| Browser spoofing | `.WithScrapingBypass(ScrapingBypassConfig.Default)` |
 | Parse JSON | `await response.ParseJsonAsync<T>()` |
 | JSON Path | `await response.ParseJsonPathAsync<T>(path)` |
+| JSON Path List | `await response.ParseJsonPathListAsync<T>(path)` |
+| Multi-selector (no opt) | `await response.ParseMultipleJsonPathsAsync(default, ("name", "$.path")...)` |
+| Multi-selector (optimized) | `await response.ParseMultipleJsonPathsOptimizedAsync(default, ("name", "$.path")...)` |
 | Parse HTML | `await response.ParseHtmlAsync()` |
 | Stream lines | `await foreach (var line in response.StreamLinesAsync())` |
 | Get string | `await response.GetStringAsync()` |

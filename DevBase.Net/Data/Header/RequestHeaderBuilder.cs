@@ -27,6 +27,18 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         return this;
     }
     
+    /// <summary>
+    /// Gets the current User-Agent value from the UserAgentHeaderBuilder before final build.
+    /// Returns null if no user agent has been set.
+    /// </summary>
+    public string? GetPreBuildUserAgent()
+    {
+        if (this.UserAgentHeaderBuilder == null || !this.UserAgentHeaderBuilder.Usable)
+            return null;
+        
+        return this.UserAgentHeaderBuilder.UserAgent.ToString();
+    }
+    
     public RequestHeaderBuilder WithUserAgent(UserAgentHeaderBuilder agentHeaderBuilder)
     {
         this.UserAgentHeaderBuilder = agentHeaderBuilder;
@@ -107,7 +119,7 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         
         string combined = StringUtils.Separate(resolvedTypes);
         
-        base.AddEntry(HeaderConstants.Accept.ToString(), combined);
+        base.AddOrSetEntry(HeaderConstants.Accept.ToString(), combined);
         return this;
     }
 

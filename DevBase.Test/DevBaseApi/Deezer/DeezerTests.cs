@@ -7,12 +7,18 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseApi.Deezer;
 
+/// <summary>
+/// Tests for the Deezer API client.
+/// </summary>
 public class DeezerTests
 {
     private string _accessToken;
     private string _sessionToken;
     private string _arlToken;
     
+    /// <summary>
+    /// Sets up the test environment.
+    /// </summary>
     [SetUp]
     public void SetUp()
     {
@@ -21,6 +27,9 @@ public class DeezerTests
         this._arlToken = "";
     }
     
+    /// <summary>
+    /// Tests fetching a JWT token. Requires ARL token.
+    /// </summary>
     [Test]
     public async Task GetJwtTokenTest()
     {
@@ -37,6 +46,9 @@ public class DeezerTests
         }
     }
 
+    /// <summary>
+    /// Tests fetching lyrics. Requires ARL token.
+    /// </summary>
     [Test]
     public async Task GetLyricsTest()
     {
@@ -57,6 +69,9 @@ public class DeezerTests
         }
     }
 
+    /// <summary>
+    /// Tests fetching an access token via public API.
+    /// </summary>
     [Test]
     public async Task GetAccessTokenTest()
     {
@@ -81,6 +96,9 @@ public class DeezerTests
         }
     } 
     
+    /// <summary>
+    /// Tests fetching an access token using session ID.
+    /// </summary>
     [Test]
     public async Task GetAccessTokenFromSessionTest()
     {
@@ -97,6 +115,9 @@ public class DeezerTests
         }
     }
 
+    /// <summary>
+    /// Tests fetching an ARL token from session.
+    /// </summary>
     [Test]
     public async Task GetArlTokenFromSessionTest()
     {
@@ -113,6 +134,9 @@ public class DeezerTests
         }
     }
 
+    /// <summary>
+    /// Tests downloading a song.
+    /// </summary>
     [Test]
     public async Task DownloadSongTest()
     {
@@ -139,6 +163,9 @@ public class DeezerTests
         }
     }
 
+    /// <summary>
+    /// Tests fetching song metadata.
+    /// </summary>
     [Test]
     public async Task GetSongTest()
     {
@@ -167,6 +194,9 @@ public class DeezerTests
         }
     }
 
+    /// <summary>
+    /// Tests searching for tracks.
+    /// </summary>
     [Test]
     public async Task SearchTest()
     {
@@ -185,6 +215,9 @@ public class DeezerTests
         Assert.That(results, Is.Not.Null);
     }
 
+    /// <summary>
+    /// Tests searching for song data with limits.
+    /// </summary>
     [Test]
     public async Task SyncSearchTest()
     {

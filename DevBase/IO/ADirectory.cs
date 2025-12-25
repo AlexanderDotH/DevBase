@@ -7,8 +7,18 @@ using System.Threading.Tasks;
 
 namespace DevBase.IO
 {
+    /// <summary>
+    /// Provides utility methods for directory operations.
+    /// </summary>
     public class ADirectory
     {
+        /// <summary>
+        /// Gets a list of directory objects from a specified path.
+        /// </summary>
+        /// <param name="directory">The root directory path.</param>
+        /// <param name="filter">The search filter string.</param>
+        /// <returns>A list of directory objects.</returns>
+        /// <exception cref="SystemException">Thrown if the directory does not exist.</exception>
         public static List<ADirectoryObject> GetDirectories(string directory, string filter = "*.*")
         {
             if (!System.IO.Directory.Exists(directory))

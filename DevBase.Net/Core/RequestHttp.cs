@@ -4,9 +4,11 @@ using System.Net.NetworkInformation;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
+using DevBase.Net.Configuration;
 using DevBase.Net.Configuration.Enums;
 using DevBase.Net.Constants;
 using DevBase.Net.Exceptions;
+using DevBase.Net.Spoofing;
 using DevBase.Net.Metrics;
 using DevBase.Net.Proxy.Enums;
 using DevBase.Net.Utils;
@@ -16,11 +18,21 @@ namespace DevBase.Net.Core;
 
 public partial class Request
 {
-
-    public Request Build()
+    public override Request Build()
     {
         if (this._isBuilt)
             return this;
+        
+        List<KeyValuePair<string, string>>? userHeaders = null;
+        string? userDefinedUserAgent = null;
+        
+        if (this._requestBuilder.RequestHeaderBuilder != null)
+        {
+            userHeaders = this._requestBuilder.RequestHeaderBuilder.GetEntries().ToList();
+            userDefinedUserAgent = this._requestBuilder.RequestHeaderBuilder.GetPreBuildUserAgent();
+        }
+        
+        ApplyScrapingBypassIfConfigured(userHeaders, userDefinedUserAgent);
         
         this._requestBuilder.Build();
         
@@ -78,7 +90,7 @@ public partial class Request
         }
     }
 
-    public async Task<Response> SendAsync(CancellationToken cancellationToken = default)
+    public override async Task<Response> SendAsync(CancellationToken cancellationToken = default)
     {
         this.Build();
         
@@ -94,7 +106,7 @@ public partial class Request
             await interceptor.OnRequestAsync(this, token);
         }
 
-        if (this._hostCheckConfig?.Enabled == true)
+        if (this._hostCheckConfig != null)
         {
             await this.CheckHostReachabilityAsync(token);
         }
@@ -133,17 +145,11 @@ public partial class Request
                 {
                     RateLimitException rateLimitException = this.HandleRateLimitResponse(httpResponse);
                     
-                    if (attemptNumber <= this._retryPolicy.MaxRetries)
-                    {
-                        lastException = rateLimitException;
-                        
-                        if (rateLimitException.RetryAfter.HasValue)
-                            await Task.Delay(rateLimitException.RetryAfter.Value, token);
-                        
-                        continue;
-                    }
+                    if (attemptNumber > this._retryPolicy.MaxRetries)
+                        throw rateLimitException;
                     
-                    throw rateLimitException;
+                    lastException = rateLimitException;
+                    continue;
                 }
 
                 MemoryStream contentStream = new MemoryStream();
@@ -179,7 +185,7 @@ public partial class Request
             {
                 lastException = new RequestTimeoutException(this._timeout, new Uri(this.Uri.ToString()), attemptNumber);
                 
-                if (!this._retryPolicy.RetryOnTimeout || attemptNumber > this._retryPolicy.MaxRetries)
+                if (attemptNumber > this._retryPolicy.MaxRetries)
                     throw lastException;
             }
             catch (HttpRequestException ex) when (IsProxyError(ex))
@@ -187,7 +193,7 @@ public partial class Request
                 this._proxy?.ReportFailure();
                 lastException = new ProxyException(ex.Message, ex, this._proxy?.Proxy, attemptNumber);
                 
-                if (!this._retryPolicy.RetryOnProxyError || attemptNumber > this._retryPolicy.MaxRetries)
+                if (attemptNumber > this._retryPolicy.MaxRetries)
                     throw lastException;
             }
             catch (HttpRequestException ex)
@@ -196,7 +202,7 @@ public partial class Request
                 string host = new Uri(uri).Host;
                 lastException = new NetworkException(ex.Message, ex, host, attemptNumber);
                 
-                if (!this._retryPolicy.RetryOnNetworkError || attemptNumber > this._retryPolicy.MaxRetries)
+                if (attemptNumber > this._retryPolicy.MaxRetries)
                     throw lastException;
             }
             catch (System.Exception ex)
@@ -227,10 +233,17 @@ public partial class Request
             byte[] bodyArray = this.Body.ToArray();
             message.Content = new ByteArrayContent(bodyArray);
             
-            if (SharedMimeDictionary.TryGetMimeTypeAsString("json", out string jsonMime) && 
-                this._requestBuilder.RequestHeaderBuilder?.GetHeader("Content-Type") == null)
+            if (this._requestBuilder.RequestHeaderBuilder?.GetHeader("Content-Type") == null)
             {
-                message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(jsonMime);
+                if (this._formBuilder != null)
+                {
+                    message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(
+                        $"multipart/form-data; boundary={this._formBuilder.BoundaryString}");
+                }
+                else if (SharedMimeDictionary.TryGetMimeTypeAsString("json", out string jsonMime))
+                {
+                    message.Content.Headers.ContentType = MediaTypeHeaderValue.Parse(jsonMime);
+                }
             }
         }
 
@@ -299,14 +312,8 @@ public partial class Request
 
         if (this._proxy != null)
         {
-            Proxy.Enums.EnumProxyType proxyType = this._proxy.Proxy.Type;
-            
-            if (proxyType == EnumProxyType.Http || 
-                proxyType == EnumProxyType.Https)
-            {
-                handler.Proxy = this._proxy.ToWebProxy();
-                handler.UseProxy = true;
-            }
+            handler.Proxy = this._proxy.ToWebProxy();
+            handler.UseProxy = true;
         }
 
         return handler;
@@ -344,6 +351,38 @@ public partial class Request
         return message.Contains("proxy") || 
                message.Contains("407") ||
                ex.StatusCode == HttpStatusCode.ProxyAuthenticationRequired;
+    }
+
+    private void ApplyScrapingBypassIfConfigured(List<KeyValuePair<string, string>>? userHeaders, string? userDefinedUserAgent)
+    {
+        ScrapingBypassConfig? config = this._scrapingBypass;
+        if (config == null)
+            return;
+
+        if (config.BrowserProfile != EnumBrowserProfile.None)
+        {
+            BrowserSpoofing.ApplyBrowserProfile(this, config.BrowserProfile);
+        }
+
+        if (config.RefererStrategy != EnumRefererStrategy.None)
+        {
+            BrowserSpoofing.ApplyRefererStrategy(this, config.RefererStrategy);
+        }
+
+        if (userHeaders != null && userHeaders.Count > 0)
+        {
+            foreach (KeyValuePair<string, string> header in userHeaders)
+            {
+                this._requestBuilder.RequestHeaderBuilder!.SetHeader(header.Key, header.Value);
+            }
+        }
+        
+        // Re-apply user-defined User-Agent after browser spoofing (priority: user > spoofing)
+        // This handles WithUserAgent(), WithBogusUserAgent(), and WithBogusUserAgent<T>()
+        if (!string.IsNullOrEmpty(userDefinedUserAgent))
+        {
+            this.WithUserAgent(userDefinedUserAgent);
+        }
     }
 
     private RateLimitException HandleRateLimitResponse(HttpResponseMessage response)
@@ -385,11 +424,6 @@ public partial class Request
         if (maxConnections.HasValue)
             MaxConnectionsPerServer = maxConnections.Value;
     }
-
-    public static Request Create() => new();
-    public static Request Create(string url) => new(url);
-    public static Request Create(Uri uri) => new(uri);
-    public static Request Create(string url, HttpMethod method) => new(url, method);
 
     public static void ClearClientPool()
     {

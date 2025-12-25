@@ -7,8 +7,17 @@ using Newtonsoft.Json;
 
 namespace DevBase.Format.Formats.RmmlFormat;
 
+/// <summary>
+/// Parser for the RMML (Rich Musixmatch Lyric?) or similar JSON-based rich lyric format.
+/// Parses JSON content with character-level offsets.
+/// </summary>
 public class RmmlParser : FileFormat<string, AList<RichTimeStampedLyric>>
 {
+    /// <summary>
+    /// Parses the RMML JSON string content into a list of rich time-stamped lyrics.
+    /// </summary>
+    /// <param name="from">The JSON string content.</param>
+    /// <returns>A list of <see cref="RichTimeStampedLyric"/> objects.</returns>
     public override AList<RichTimeStampedLyric> Parse(string from)
     {
         RichSyncLine[] parsedLyrics = JsonConvert.DeserializeObject<RichSyncLine[]>(from);
@@ -64,6 +73,12 @@ public class RmmlParser : FileFormat<string, AList<RichTimeStampedLyric>>
         return richLyrics;
     }
 
+    /// <summary>
+    /// Attempts to parse the RMML JSON string content.
+    /// </summary>
+    /// <param name="from">The JSON string content.</param>
+    /// <param name="parsed">The parsed list of lyrics, or null if parsing fails.</param>
+    /// <returns>True if parsing was successful; otherwise, false.</returns>
     public override bool TryParse(string from, out AList<RichTimeStampedLyric> parsed)
     {
         AList<RichTimeStampedLyric> p = Parse(from);

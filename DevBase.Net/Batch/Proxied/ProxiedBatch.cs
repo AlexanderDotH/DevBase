@@ -3,12 +3,22 @@ using DevBase.Net.Core;
 
 namespace DevBase.Net.Batch.Proxied;
 
+/// <summary>
+/// Represents a named batch of proxied requests within a <see cref="ProxiedBatchRequests"/> engine.
+/// </summary>
 public sealed class ProxiedBatch
 {
     private readonly ConcurrentQueue<Request> _queue = new();
     private readonly ProxiedBatchRequests _parent;
 
+    /// <summary>
+    /// Gets the name of the batch.
+    /// </summary>
     public string Name { get; }
+    
+    /// <summary>
+    /// Gets the number of items currently in the queue.
+    /// </summary>
     public int QueueCount => _queue.Count;
 
     internal ProxiedBatch(string name, ProxiedBatchRequests parent)
@@ -17,6 +27,11 @@ public sealed class ProxiedBatch
         _parent = parent;
     }
 
+    /// <summary>
+    /// Adds a request to the batch.
+    /// </summary>
+    /// <param name="request">The request to add.</param>
+    /// <returns>The current batch instance.</returns>
     public ProxiedBatch Add(Request request)
     {
         ArgumentNullException.ThrowIfNull(request);
@@ -24,6 +39,11 @@ public sealed class ProxiedBatch
         return this;
     }
 
+    /// <summary>
+    /// Adds a collection of requests to the batch.
+    /// </summary>
+    /// <param name="requests">The requests to add.</param>
+    /// <returns>The current batch instance.</returns>
     public ProxiedBatch Add(IEnumerable<Request> requests)
     {
         foreach (Request request in requests)
@@ -31,11 +51,21 @@ public sealed class ProxiedBatch
         return this;
     }
 
+    /// <summary>
+    /// Adds a request by URL to the batch.
+    /// </summary>
+    /// <param name="url">The URL to request.</param>
+    /// <returns>The current batch instance.</returns>
     public ProxiedBatch Add(string url)
     {
         return Add(new Request(url));
     }
 
+    /// <summary>
+    /// Adds a collection of URLs to the batch.
+    /// </summary>
+    /// <param name="urls">The URLs to add.</param>
+    /// <returns>The current batch instance.</returns>
     public ProxiedBatch Add(IEnumerable<string> urls)
     {
         foreach (string url in urls)
@@ -43,11 +73,32 @@ public sealed class ProxiedBatch
         return this;
     }
 
+    /// <summary>
+    /// Enqueues a request (alias for Add).
+    /// </summary>
     public ProxiedBatch Enqueue(Request request) => Add(request);
+    
+    /// <summary>
+    /// Enqueues a request by URL (alias for Add).
+    /// </summary>
     public ProxiedBatch Enqueue(string url) => Add(url);
+    
+    /// <summary>
+    /// Enqueues a collection of requests (alias for Add).
+    /// </summary>
     public ProxiedBatch Enqueue(IEnumerable<Request> requests) => Add(requests);
+    
+    /// <summary>
+    /// Enqueues a collection of URLs (alias for Add).
+    /// </summary>
     public ProxiedBatch Enqueue(IEnumerable<string> urls) => Add(urls);
 
+    /// <summary>
+    /// Enqueues a request created from a URL and configured via an action.
+    /// </summary>
+    /// <param name="url">The URL.</param>
+    /// <param name="configure">Action to configure the request.</param>
+    /// <returns>The current batch instance.</returns>
     public ProxiedBatch Enqueue(string url, Action<Request> configure)
     {
         Request request = new Request(url);
@@ -55,11 +106,21 @@ public sealed class ProxiedBatch
         return Add(request);
     }
 
+    /// <summary>
+    /// Enqueues a request created by a factory function.
+    /// </summary>
+    /// <param name="requestFactory">The function to create the request.</param>
+    /// <returns>The current batch instance.</returns>
     public ProxiedBatch Enqueue(Func<Request> requestFactory)
     {
         return Add(requestFactory());
     }
 
+    /// <summary>
+    /// Attempts to dequeue a request from the batch.
+    /// </summary>
+    /// <param name="request">The dequeued request, if successful.</param>
+    /// <returns>True if a request was dequeued; otherwise, false.</returns>
     public bool TryDequeue(out Request? request)
     {
         return _queue.TryDequeue(out request);
@@ -73,10 +134,17 @@ public sealed class ProxiedBatch
         return requests;
     }
 
+    /// <summary>
+    /// Clears all requests from the batch queue.
+    /// </summary>
     public void Clear()
     {
         while (_queue.TryDequeue(out _)) { }
     }
 
+    /// <summary>
+    /// Returns to the parent <see cref="ProxiedBatchRequests"/> instance.
+    /// </summary>
+    /// <returns>The parent engine.</returns>
     public ProxiedBatchRequests EndBatch() => _parent;
 }

@@ -2,21 +2,27 @@ using DevBase.Net.Configuration.Enums;
 
 namespace DevBase.Net.Configuration;
 
+/// <summary>
+/// Configuration to bypass anti-scraping measures.
+/// </summary>
 public sealed class ScrapingBypassConfig
 {
-    public bool Enabled { get; init; }
+    /// <summary>
+    /// Gets the strategy for handling the Referer header. Defaults to None.
+    /// </summary>
     public EnumRefererStrategy RefererStrategy { get; init; } = EnumRefererStrategy.None;
+    
+    /// <summary>
+    /// Gets the browser profile to emulate. Defaults to None.
+    /// </summary>
     public EnumBrowserProfile BrowserProfile { get; init; } = EnumBrowserProfile.None;
-    public bool RandomizeUserAgent { get; init; } = true;
-    public bool PersistCookies { get; init; } = true;
-    public bool EnableTlsSpoofing { get; init; }
 
+    /// <summary>
+    /// Gets the default configuration.
+    /// </summary>
     public static ScrapingBypassConfig Default => new()
     {
-        Enabled = true,
         RefererStrategy = EnumRefererStrategy.PreviousUrl,
-        BrowserProfile = EnumBrowserProfile.Chrome,
-        RandomizeUserAgent = true,
-        PersistCookies = true
+        BrowserProfile = EnumBrowserProfile.Chrome
     };
 }

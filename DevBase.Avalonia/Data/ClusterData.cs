@@ -2,8 +2,14 @@
 
 using Color = global::Avalonia.Media.Color;
 
+/// <summary>
+/// Contains static data for color clustering.
+/// </summary>
 public class ClusterData
 {
+    /// <summary>
+    /// A pre-defined set of colors used for clustering or comparison.
+    /// </summary>
     public static Color[] RGB_DATA =
     {
         new Color(255, 242, 242, 233),

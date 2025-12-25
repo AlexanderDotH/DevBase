@@ -5,8 +5,14 @@ using Dumpify;
 
 namespace DevBase.Test.DevBase;
 
+/// <summary>
+/// Tests for the AList generic collection.
+/// </summary>
 public class AListTests
 {
+    /// <summary>
+    /// Tests the RemoveRange functionality of AList.
+    /// </summary>
     [Test]
     public void RemoveRangeTest()
     {
@@ -25,6 +31,10 @@ public class AListTests
         Assert.That(listOfStrings.Get(0), Is.EqualTo("Bird"));
     }
 
+    /// <summary>
+    /// Tests the Find functionality of AList with a large dataset.
+    /// Measures performance and verifies correctness.
+    /// </summary>
     [Test]
     public void FindTest()
     {

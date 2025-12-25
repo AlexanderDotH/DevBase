@@ -553,32 +553,6 @@ public class RequestTest
 
     #endregion
 
-    #region Static Factory Tests
-
-    [Test]
-    public void Create_Default_ReturnsNewRequest()
-    {
-        var request = Request.Create();
-        Assert.That(request, Is.Not.Null);
-    }
-
-    [Test]
-    public void Create_WithUrl_ReturnsRequestWithUrl()
-    {
-        var request = Request.Create("https://example.com");
-        Assert.That(request.Uri.ToString(), Is.EqualTo("https://example.com"));
-    }
-
-    [Test]
-    public void Create_WithUrlAndMethod_ReturnsRequestWithBoth()
-    {
-        var request = Request.Create("https://example.com", HttpMethod.Post);
-        Assert.That(request.Uri.ToString(), Is.EqualTo("https://example.com"));
-        Assert.That(request.Method, Is.EqualTo(HttpMethod.Post));
-    }
-
-    #endregion
-
     #region Disposal Tests
 
     [Test]

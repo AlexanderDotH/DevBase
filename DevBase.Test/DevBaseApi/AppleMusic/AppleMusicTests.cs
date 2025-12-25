@@ -2,16 +2,25 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseApi.AppleMusic;
 
+/// <summary>
+/// Tests for the Apple Music API client.
+/// </summary>
 public class AppleMusicTests
 {
     private string _userMediaToken;
     
+    /// <summary>
+    /// Sets up the test environment.
+    /// </summary>
     [SetUp]
     public void SetUp()
     {
         this._userMediaToken = "";
     }
     
+    /// <summary>
+    /// Tests raw search functionality.
+    /// </summary>
     [Test]
     public async Task RawSearchTest()
     {
@@ -37,6 +46,9 @@ public class AppleMusicTests
         }
     }
     
+    /// <summary>
+    /// Tests the simplified Search method.
+    /// </summary>
     [Test]
     public async Task SearchTest()
     {
@@ -63,6 +75,9 @@ public class AppleMusicTests
         }
     }
 
+    /// <summary>
+    /// Tests creation of the AppleMusic object and access token generation.
+    /// </summary>
     [Test]
     public async Task CreateObjectTest()
     {
@@ -87,6 +102,9 @@ public class AppleMusicTests
         }
     }
     
+    /// <summary>
+    /// Tests configuring the user media token from a cookie.
+    /// </summary>
     [Test]
     public async Task CreateObjectAndGetUserMediaTokenTest()
     {
@@ -102,6 +120,10 @@ public class AppleMusicTests
         Assert.That(appleMusic.ApiToken, Is.Not.Null);   
     }
 
+    /// <summary>
+    /// Tests fetching lyrics.
+    /// Requires a valid UserMediaToken.
+    /// </summary>
     [Test]
     public async Task GetLyricsTest()
     {

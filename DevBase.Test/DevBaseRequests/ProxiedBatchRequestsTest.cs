@@ -155,9 +155,10 @@ public class ProxiedBatchRequestsTest
     }
 
     [Test]
-    public void ProxiedBatch_Add_ShouldEnqueueRequest()
+    public async Task ProxiedBatch_Add_ShouldEnqueueRequest()
     {
         using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        await batchRequests.StopProcessingAsync();
         ProxiedBatch batch = batchRequests.CreateBatch("test-batch");
         
         batch.Add("https://example.com/1");
@@ -386,4 +387,243 @@ public class ProxiedBatchRequestsTest
         
         Assert.That(batch.QueueCount, Is.EqualTo(1));
     }
+
+    #region Dynamic Proxy Addition Tests
+
+    [Test]
+    public void ProxiedBatchRequests_AddProxy_ShouldAddProxyAtRuntime()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        batchRequests.AddProxy(new ProxyInfo("proxy.example.com", 8080));
+        
+        Assert.That(batchRequests.ProxyCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ProxiedBatchRequests_AddProxy_String_ShouldParseAndAdd()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        batchRequests.AddProxy("socks5://user:pass@proxy.example.com:1080");
+        
+        Assert.That(batchRequests.ProxyCount, Is.EqualTo(1));
+    }
+
+    [Test]
+    public void ProxiedBatchRequests_AddProxies_ShouldAddMultipleAtRuntime()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        batchRequests.AddProxies(new[]
+        {
+            new ProxyInfo("proxy1.example.com", 8080),
+            new ProxyInfo("proxy2.example.com", 8080)
+        });
+        
+        Assert.That(batchRequests.ProxyCount, Is.EqualTo(2));
+    }
+
+    [Test]
+    public void ProxiedBatchRequests_AddProxies_Strings_ShouldParseAndAddMultiple()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        batchRequests.AddProxies(new[]
+        {
+            "http://proxy1.example.com:8080",
+            "socks5://proxy2.example.com:1080",
+            "socks5://user:pass@proxy3.example.com:1080"
+        });
+        
+        Assert.That(batchRequests.ProxyCount, Is.EqualTo(3));
+    }
+
+    [Test]
+    public void ProxiedBatchRequests_AddProxy_AfterWithProxy_ShouldAccumulate()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests()
+            .WithProxy("http://proxy1.example.com:8080")
+            .WithProxy("http://proxy2.example.com:8080");
+        
+        batchRequests.AddProxy("http://proxy3.example.com:8080");
+        batchRequests.AddProxy("http://proxy4.example.com:8080");
+        
+        Assert.That(batchRequests.ProxyCount, Is.EqualTo(4));
+    }
+
+    [Test]
+    public void ProxiedBatchRequests_AddProxy_Null_ShouldThrow()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        Assert.Throws<ArgumentNullException>(() => batchRequests.AddProxy((ProxyInfo)null!));
+    }
+
+    [Test]
+    public void ProxiedBatchRequests_AddProxies_Null_ShouldThrow()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        Assert.Throws<ArgumentNullException>(() => batchRequests.AddProxies((IEnumerable<ProxyInfo>)null!));
+    }
+
+    #endregion
+
+    #region Max Proxy Retries Tests
+
+    [Test]
+    public void ProxiedBatchRequests_WithMaxProxyRetries_ShouldSetValue()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests()
+            .WithMaxProxyRetries(5);
+        
+        Assert.Pass(); // No public property to verify, but should not throw
+    }
+
+    [Test]
+    public void ProxiedBatchRequests_WithMaxProxyRetries_Zero_ShouldBeAllowed()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests()
+            .WithMaxProxyRetries(0);
+        
+        Assert.Pass();
+    }
+
+    [Test]
+    public void ProxiedBatchRequests_WithMaxProxyRetries_Negative_ShouldThrow()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        Assert.Throws<ArgumentOutOfRangeException>(() => batchRequests.WithMaxProxyRetries(-1));
+    }
+
+    [Test]
+    public void ProxiedBatchRequests_WithMaxProxyRetries_FluentChain_ShouldWork()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests()
+            .WithProxy("http://proxy.example.com:8080")
+            .WithMaxProxyRetries(3)
+            .WithRateLimit(5)
+            .WithRoundRobinRotation();
+        
+        Assert.That(batchRequests.ProxyCount, Is.EqualTo(1));
+        Assert.That(batchRequests.RateLimit, Is.EqualTo(5));
+    }
+
+    #endregion
+
+    #region Thread-Safety Tests
+
+    [Test]
+    public async Task ProxiedBatchRequests_AddProxy_ConcurrentAccess_ShouldBeThreadSafe()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        Task[] tasks = new Task[10];
+        for (int i = 0; i < 10; i++)
+        {
+            int index = i;
+            tasks[i] = Task.Run(() => batchRequests.AddProxy($"http://proxy{index}.example.com:8080"));
+        }
+        
+        await Task.WhenAll(tasks);
+        
+        Assert.That(batchRequests.ProxyCount, Is.EqualTo(10));
+    }
+
+    [Test]
+    public async Task ProxiedBatchRequests_AddProxies_ConcurrentAccess_ShouldBeThreadSafe()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        Task[] tasks = new Task[5];
+        for (int i = 0; i < 5; i++)
+        {
+            int index = i;
+            tasks[i] = Task.Run(() => batchRequests.AddProxies(new[]
+            {
+                $"http://proxy{index}a.example.com:8080",
+                $"http://proxy{index}b.example.com:8080"
+            }));
+        }
+        
+        await Task.WhenAll(tasks);
+        
+        Assert.That(batchRequests.ProxyCount, Is.EqualTo(10));
+    }
+
+    [Test]
+    public async Task ProxiedBatchRequests_ProxyCount_ConcurrentAccess_ShouldBeThreadSafe()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        Task addTask = Task.Run(() =>
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                batchRequests.AddProxy($"http://proxy{i}.example.com:8080");
+            }
+        });
+
+        Task readTask = Task.Run(() =>
+        {
+            for (int i = 0; i < 100; i++)
+            {
+                _ = batchRequests.ProxyCount;
+                _ = batchRequests.AvailableProxyCount;
+            }
+        });
+        
+        await Task.WhenAll(addTask, readTask);
+        
+        Assert.That(batchRequests.ProxyCount, Is.EqualTo(100));
+    }
+
+    [Test]
+    public async Task ProxiedBatchRequests_ClearProxies_ConcurrentWithAdd_ShouldNotThrow()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests();
+        
+        // Add some initial proxies
+        for (int i = 0; i < 10; i++)
+        {
+            batchRequests.AddProxy($"http://proxy{i}.example.com:8080");
+        }
+        
+        Task addTask = Task.Run(() =>
+        {
+            for (int i = 10; i < 50; i++)
+            {
+                batchRequests.AddProxy($"http://proxy{i}.example.com:8080");
+            }
+        });
+
+        Task clearTask = Task.Run(() =>
+        {
+            Thread.Sleep(5);
+            batchRequests.ClearProxies();
+        });
+        
+        await Task.WhenAll(addTask, clearTask);
+        
+        // After clear, count should be whatever was added after clear
+        Assert.Pass(); // Main assertion is that no exception was thrown
+    }
+
+    #endregion
+
+    #region AvailableProxyCount Tests
+
+    [Test]
+    public void ProxiedBatchRequests_AvailableProxyCount_InitiallyEqualsProxyCount()
+    {
+        using ProxiedBatchRequests batchRequests = new ProxiedBatchRequests()
+            .WithProxy("http://proxy1.example.com:8080")
+            .WithProxy("http://proxy2.example.com:8080");
+        
+        Assert.That(batchRequests.AvailableProxyCount, Is.EqualTo(batchRequests.ProxyCount));
+    }
+
+    #endregion
 }

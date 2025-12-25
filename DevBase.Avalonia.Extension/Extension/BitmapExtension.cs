@@ -4,8 +4,16 @@ using Bitmap = System.Drawing.Bitmap;
 
 namespace DevBase.Avalonia.Extension.Extension;
 
+/// <summary>
+/// Provides extension methods for converting between different Bitmap types.
+/// </summary>
 public static class BitmapExtension
 {
+    /// <summary>
+    /// Converts an Avalonia Bitmap to a System.Drawing.Bitmap.
+    /// </summary>
+    /// <param name="bitmap">The Avalonia bitmap.</param>
+    /// <returns>The System.Drawing.Bitmap.</returns>
     public static Bitmap ToBitmap(this global::Avalonia.Media.Imaging.Bitmap bitmap)
     {
         using MemoryStream stream = new MemoryStream();
@@ -14,6 +22,11 @@ public static class BitmapExtension
         return new Bitmap(stream);
     }
 
+    /// <summary>
+    /// Converts a System.Drawing.Bitmap to an Avalonia Bitmap.
+    /// </summary>
+    /// <param name="bitmap">The System.Drawing.Bitmap.</param>
+    /// <returns>The Avalonia Bitmap.</returns>
     public static global::Avalonia.Media.Imaging.Bitmap ToBitmap(this Bitmap bitmap)
     {
         using MemoryStream memoryStream = new MemoryStream();
@@ -22,6 +35,11 @@ public static class BitmapExtension
         return new global::Avalonia.Media.Imaging.Bitmap(memoryStream);
     }
     
+    /// <summary>
+    /// Converts a SixLabors ImageSharp Image to an Avalonia Bitmap.
+    /// </summary>
+    /// <param name="image">The ImageSharp Image.</param>
+    /// <returns>The Avalonia Bitmap.</returns>
     public static global::Avalonia.Media.Imaging.Bitmap ToBitmap(this SixLabors.ImageSharp.Image image)
     {
         using MemoryStream memoryStream = new MemoryStream();
@@ -30,6 +48,11 @@ public static class BitmapExtension
         return new global::Avalonia.Media.Imaging.Bitmap(memoryStream);
     }
 
+    /// <summary>
+    /// Converts an Avalonia Bitmap to a SixLabors ImageSharp Image.
+    /// </summary>
+    /// <param name="bitmap">The Avalonia Bitmap.</param>
+    /// <returns>The ImageSharp Image.</returns>
     public static SixLabors.ImageSharp.Image ToImage(this global::Avalonia.Media.Imaging.Bitmap bitmap)
     {
         using MemoryStream memoryStream = new MemoryStream();

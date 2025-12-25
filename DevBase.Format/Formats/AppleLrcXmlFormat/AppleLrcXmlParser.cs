@@ -10,8 +10,16 @@ using DevBase.Generics;
 
 namespace DevBase.Format.Formats.AppleLrcXmlFormat;
 
+/// <summary>
+/// Parser for Apple's LRC XML format (TTML based).
+/// </summary>
 public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
 {
+    /// <summary>
+    /// Parses the Apple LRC XML string content into a list of time-stamped lyrics.
+    /// </summary>
+    /// <param name="from">The XML string content.</param>
+    /// <returns>A list of <see cref="TimeStampedLyric"/> objects.</returns>
     public override AList<TimeStampedLyric> Parse(string from)
     {
         XmlSerializer serializer = new XmlSerializer(typeof(XmlTt));
@@ -65,6 +73,12 @@ public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
         return timeStampedLyrics;
     }
     
+    /// <summary>
+    /// Attempts to parse the Apple LRC XML string content.
+    /// </summary>
+    /// <param name="rawTtmlResponse">The XML string content.</param>
+    /// <param name="timeStamped">The parsed list of lyrics, or null if parsing fails.</param>
+    /// <returns>True if parsing was successful; otherwise, false.</returns>
     public override bool TryParse(string rawTtmlResponse, out AList<TimeStampedLyric> timeStamped)
     {
         string unescaped = Regex.Unescape(rawTtmlResponse);

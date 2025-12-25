@@ -3,6 +3,12 @@ using Org.BouncyCastle.Crypto.Digests;
 
 namespace DevBase.Test.DevBaseCryptographyBouncyCastle.Hashing;
 
+/// <summary>
+/// Tests for ES256 Token Verifier.
+/// </summary>
+/// <summary>
+/// Tests for ES256 Token Verifier.
+/// </summary>
 public class Es256TokenVerifierTest
 {
     private string Header { get; set; }
@@ -10,6 +16,9 @@ public class Es256TokenVerifierTest
     private string Signature { get; set; }
     private string PublicKey { get; set; }
     
+    /// <summary>
+    /// Sets up test data.
+    /// </summary>
     [SetUp]
     public void SetUp()
     {
@@ -25,6 +34,9 @@ DxnD54ZoQAj5Tkixe5fyp4EehhG6yqtyRauC9Fhcrky8+s2CuMHKpVZa7w==
 -----END PUBLIC KEY-----";
     }
 
+    /// <summary>
+    /// Tests verification of an ES256 signature.
+    /// </summary>
     [Test]
     public void VerifyEs256SignatureTest()
     {

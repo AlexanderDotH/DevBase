@@ -259,6 +259,12 @@ namespace DevBase.Generics
             return newArray;
         }
 
+        /// <summary>
+        /// Gets a range of items as AList.
+        /// </summary>
+        /// <param name="min">The minimum index.</param>
+        /// <param name="max">The maximum index.</param>
+        /// <returns>An AList of items in the range.</returns>
         public AList<T> GetRangeAsAList(int min, int max) => new AList<T>(GetRangeAsArray(min, max));
 
         /// <summary>
