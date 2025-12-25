@@ -8,13 +8,18 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseFormat.Formats.AppleXmlFormat;
 
+/// <summary>
+/// Tests for Apple XML format parsers.
+/// </summary>
 public class AppleXmlTester : FormatTest
 {
     private FileParser<AppleRichXmlParser, AList<RichTimeStampedLyric>> _richXmlParser;
     private FileParser<AppleLrcXmlParser, AList<TimeStampedLyric>> _lineXmlParser;
     private FileParser<AppleXmlParser, AList<RawLyric>> _rawXmlParser;
 
-
+    /// <summary>
+    /// Sets up the parsers.
+    /// </summary>
     [SetUp]
     public void Setup()
     {
@@ -23,6 +28,9 @@ public class AppleXmlTester : FormatTest
         this._rawXmlParser = new FileParser<AppleXmlParser, AList<RawLyric>>();
     }
 
+    /// <summary>
+    /// Tests parsing rich XML from file.
+    /// </summary>
     [Test]
     public void TestFormatFromFileRich()
     {
@@ -33,6 +41,9 @@ public class AppleXmlTester : FormatTest
         Assert.That(list.Get(0).Text, Is.EqualTo("We're no strangers to love"));
     }
     
+    /// <summary>
+    /// Tests TryParseFromDisk for rich XML.
+    /// </summary>
     [Test]
     public void TestTryParseRichXml()
     {
@@ -46,6 +57,9 @@ public class AppleXmlTester : FormatTest
         Assert.That(richTimeStampedLyrics.Get(0).Text, Is.EqualTo("We're no strangers to love"));
     }
     
+    /// <summary>
+    /// Tests parsing line XML from file.
+    /// </summary>
     [Test]
     public void TestFormatFromFileLine()
     {
@@ -57,6 +71,9 @@ public class AppleXmlTester : FormatTest
         Assert.That(list.Get(0).Text, Is.EqualTo("Die Sterne ziehen vorbei, Lichtgeschwindigkeit"));
     }
 
+    /// <summary>
+    /// Tests TryParseFromDisk for timestamped XML.
+    /// </summary>
     [Test]
     public void TestTryParseTimeStampedXml()
     {
@@ -70,6 +87,9 @@ public class AppleXmlTester : FormatTest
         Assert.That(timeStampedLyrics.Get(0).Text, Is.EqualTo("Die Sterne ziehen vorbei, Lichtgeschwindigkeit"));
     }
     
+    /// <summary>
+    /// Tests parsing raw XML from file.
+    /// </summary>
     [Test]
     public void TestFormatFromNone()
     {
@@ -80,6 +100,9 @@ public class AppleXmlTester : FormatTest
         Assert.That(list.Get(0).Text, Is.EqualTo("Move yourself"));
     }
     
+    /// <summary>
+    /// Tests TryParseFromDisk for raw XML.
+    /// </summary>
     [Test]
     public void TestTryParseFromNone()
     {

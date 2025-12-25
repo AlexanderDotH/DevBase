@@ -11,8 +11,16 @@ using DevBase.IO;
 
 namespace DevBase.Format.Formats.AppleRichXmlFormat;
 
+/// <summary>
+/// Parser for Apple's Rich XML format (TTML based with word-level timing).
+/// </summary>
 public class AppleRichXmlParser : FileFormat<string, AList<RichTimeStampedLyric>>
 {
+    /// <summary>
+    /// Parses the Apple Rich XML string content into a list of rich time-stamped lyrics.
+    /// </summary>
+    /// <param name="from">The XML string content.</param>
+    /// <returns>A list of <see cref="RichTimeStampedLyric"/> objects.</returns>
     public override AList<RichTimeStampedLyric> Parse(string from)
     {
         XmlSerializer serializer = new XmlSerializer(typeof(XmlTt));
@@ -102,6 +110,12 @@ public class AppleRichXmlParser : FileFormat<string, AList<RichTimeStampedLyric>
         return richLyric;
     }
     
+    /// <summary>
+    /// Attempts to parse the Apple Rich XML string content.
+    /// </summary>
+    /// <param name="rawTtmlResponse">The XML string content.</param>
+    /// <param name="richTimeStamped">The parsed list of lyrics, or null if parsing fails.</param>
+    /// <returns>True if parsing was successful; otherwise, false.</returns>
     public override bool TryParse(string rawTtmlResponse, out AList<RichTimeStampedLyric> richTimeStamped)
     {
         string unescaped = Regex.Unescape(rawTtmlResponse);

@@ -10,15 +10,27 @@ using DevBase.Typography;
 
 namespace DevBase.Format.Formats.ElrcFormat;
 
+/// <summary>
+/// Parser for the Enhanced LRC (ELRC) file format.
+/// Supports parsing structured blocks of lyrics with rich timing and word-level synchronization.
+/// </summary>
 public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyric>>
 {
     private readonly string _indent;
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ElrcParser"/> class.
+    /// </summary>
     public ElrcParser()
     {
         this._indent = "    ";
     }
     
+    /// <summary>
+    /// Parses the ELRC string content into a list of rich time-stamped lyrics.
+    /// </summary>
+    /// <param name="from">The ELRC string content.</param>
+    /// <returns>A list of <see cref="RichTimeStampedLyric"/> objects.</returns>
     public override AList<RichTimeStampedLyric> Parse(string from)
     {
         AString input = new AString(from);
@@ -35,6 +47,12 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
     }
 
     // TODO: Unit test
+    /// <summary>
+    /// Attempts to parse the ELRC string content.
+    /// </summary>
+    /// <param name="from">The ELRC string content.</param>
+    /// <param name="parsed">The parsed list of lyrics, or null if parsing fails.</param>
+    /// <returns>True if parsing was successful; otherwise, false.</returns>
     public override bool TryParse(string from, out AList<RichTimeStampedLyric> parsed)
     {
         AList<RichTimeStampedLyric> p = Parse(from);
@@ -49,6 +67,11 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         return true;
     }
 
+    /// <summary>
+    /// Reverts a list of rich time-stamped lyrics back to ELRC string format.
+    /// </summary>
+    /// <param name="to">The list of lyrics to revert.</param>
+    /// <returns>The ELRC string representation.</returns>
     public override string Revert(AList<RichTimeStampedLyric> to)
     {
         StringBuilder sb = new StringBuilder();
@@ -89,6 +112,12 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         return sb.ToString();
     }
 
+    /// <summary>
+    /// Attempts to revert a list of lyrics to ELRC string format.
+    /// </summary>
+    /// <param name="to">The list of lyrics to revert.</param>
+    /// <param name="from">The ELRC string representation, or null if reverting fails.</param>
+    /// <returns>True if reverting was successful; otherwise, false.</returns>
     public override bool TryRevert(AList<RichTimeStampedLyric> to, out string from)
     {
         string r = Revert(to);

@@ -7,16 +7,25 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseFormat.Formats.RlrcFormat;
 
+/// <summary>
+/// Tests for RLRC format parser.
+/// </summary>
 public class RlrcTester : FormatTest
 {
     private RlrcParser _rlrcParser;
 
+    /// <summary>
+    /// Sets up the RLRC parser.
+    /// </summary>
     [SetUp]
     public void Setup()
     {
         this._rlrcParser = new RlrcParser();
     }
 
+    /// <summary>
+    /// Tests parsing RLRC format.
+    /// </summary>
     [Test]
     public void TestToRlrc()
     {
@@ -28,6 +37,9 @@ public class RlrcTester : FormatTest
         Assert.That(list.Get(0).Text, Is.EqualTo("Never gonna, never gonna, never gonna, never gonna"));
     }
 
+    /// <summary>
+    /// Tests formatting back to RLRC format.
+    /// </summary>
     [Test]
     public void TestFromRlc()
     {

@@ -3,6 +3,9 @@ using DevBase.Generics;
 
 namespace DevBase.Async.Thread
 {
+    /// <summary>
+    /// Manages multiple threads, allowing for queuing and capacity management.
+    /// </summary>
     public class Multithreading
     {
         private readonly AList<AThread> _threads;
@@ -163,17 +166,17 @@ namespace DevBase.Async.Thread
             }
         }
 
-        /// <returns>
+        /// <summary>
         /// Returns the capacity
-        /// </returns>
+        /// </summary>
         public int Capacity
         {
             get { return this._capacity; }
         }
 
-        /// <returns>
+        /// <summary>
         /// Returns all active threads
-        /// </returns>
+        /// </summary>
         public AList<AThread> Threads
         {
             get { return this._threads; }

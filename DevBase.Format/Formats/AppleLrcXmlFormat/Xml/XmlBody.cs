@@ -2,6 +2,9 @@
 
 namespace DevBase.Format.Formats.AppleLrcXmlFormat.Xml;
 
+/// <summary>
+/// Represents the body of the Apple LRC XML.
+/// </summary>
 [XmlRoot(ElementName="body", Namespace="http://www.w3.org/ns/ttml")]
 public class XmlBody
 {

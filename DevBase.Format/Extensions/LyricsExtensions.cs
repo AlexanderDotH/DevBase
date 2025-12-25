@@ -5,8 +5,16 @@ using DevBase.Utilities;
 
 namespace DevBase.Format.Extensions;
 
+/// <summary>
+/// Provides extension methods for converting between different lyric structures and text formats.
+/// </summary>
 public static class LyricsExtensions
 {
+    /// <summary>
+    /// Converts a list of raw lyrics to a plain text string.
+    /// </summary>
+    /// <param name="rawElements">The list of raw lyrics.</param>
+    /// <returns>A string containing the lyrics.</returns>
     public static string ToPlainText(this AList<RawLyric> rawElements)
     {
         StringBuilder rawLyrics = new StringBuilder();
@@ -17,6 +25,11 @@ public static class LyricsExtensions
         return rawLyrics.ToString();
     }
     
+    /// <summary>
+    /// Converts a list of time-stamped lyrics to a plain text string.
+    /// </summary>
+    /// <param name="elements">The list of time-stamped lyrics.</param>
+    /// <returns>A string containing the lyrics.</returns>
     public static string ToPlainText(this AList<TimeStampedLyric> elements)
     {
         StringBuilder rawLyrics = new StringBuilder();
@@ -27,6 +40,11 @@ public static class LyricsExtensions
         return rawLyrics.ToString();
     }
     
+    /// <summary>
+    /// Converts a list of rich time-stamped lyrics to a plain text string.
+    /// </summary>
+    /// <param name="richElements">The list of rich time-stamped lyrics.</param>
+    /// <returns>A string containing the lyrics.</returns>
     public static string ToPlainText(this AList<RichTimeStampedLyric> richElements)
     {
         StringBuilder rawLyrics = new StringBuilder();
@@ -37,6 +55,11 @@ public static class LyricsExtensions
         return rawLyrics.ToString();
     }
     
+    /// <summary>
+    /// Converts a list of time-stamped lyrics to raw lyrics (removing timestamps).
+    /// </summary>
+    /// <param name="timeStampedLyrics">The list of time-stamped lyrics.</param>
+    /// <returns>A list of raw lyrics.</returns>
     public static AList<RawLyric> ToRawLyrics(this AList<TimeStampedLyric> timeStampedLyrics)
     {
         AList<RawLyric> rawLyrics = new AList<RawLyric>();
@@ -56,6 +79,11 @@ public static class LyricsExtensions
         return rawLyrics;
     }
     
+    /// <summary>
+    /// Converts a list of rich time-stamped lyrics to raw lyrics (removing timestamps and extra data).
+    /// </summary>
+    /// <param name="richTimeStampedLyrics">The list of rich time-stamped lyrics.</param>
+    /// <returns>A list of raw lyrics.</returns>
     public static AList<RawLyric> ToRawLyrics(this AList<RichTimeStampedLyric> richTimeStampedLyrics)
     {
         AList<RawLyric> rawLyrics = new AList<RawLyric>();
@@ -75,6 +103,11 @@ public static class LyricsExtensions
         return rawLyrics;
     }
     
+    /// <summary>
+    /// Converts a list of rich time-stamped lyrics to standard time-stamped lyrics (simplifying the structure).
+    /// </summary>
+    /// <param name="richElements">The list of rich time-stamped lyrics.</param>
+    /// <returns>A list of time-stamped lyrics.</returns>
     public static AList<TimeStampedLyric> ToTimeStampedLyrics(this AList<RichTimeStampedLyric> richElements)
     {
         AList<TimeStampedLyric> timeStampedLyrics = new AList<TimeStampedLyric>();

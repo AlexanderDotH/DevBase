@@ -2,6 +2,9 @@
 
 namespace DevBase.Format.Formats.AppleLrcXmlFormat.Xml;
 
+/// <summary>
+/// Represents metadata container in Apple LRC XML header.
+/// </summary>
 [XmlRoot(ElementName="metadata", Namespace="http://www.w3.org/ns/ttml")]
 public class XmlMetadata
 {

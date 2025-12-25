@@ -15,10 +15,23 @@ using Serilog;
 
 namespace DevBaseLive;
 
+/// <summary>
+/// Represents a person record.
+/// </summary>
+/// <param name="name">The name of the person.</param>
+/// <param name="age">The age of the person.</param>
 record Person(string name, int age);
 
+/// <summary>
+/// Entry point class for the DevBaseLive application.
+/// </summary>
 class Program
 {
+    /// <summary>
+    /// The main entry point of the application.
+    /// Demonstrates usage of DevBase networking, logging, and other utilities.
+    /// </summary>
+    /// <param name="args">Command line arguments.</param>
     public static async Task Main(string[] args)
     {
         Person p = new Person("alex", 1);
@@ -33,7 +46,6 @@ class Program
             Request request = new Request()
                 .AsGet()
                 .WithHostCheck(new HostCheckConfig())
-                .WithProxy(new ProxyInfo("isp.oxylabs.io", 8004, "user-isp_user_NXTYV", "rtVVhrth4545++A", EnumProxyType.Socks5h))
                 .UseBasicAuthentication("joe", "mama")
                 .WithRetryPolicy(new RetryPolicy()
                 {

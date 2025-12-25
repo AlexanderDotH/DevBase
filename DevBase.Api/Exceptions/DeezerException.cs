@@ -3,8 +3,15 @@ using DevBase.Exception;
 
 namespace DevBase.Api.Exceptions;
 
+/// <summary>
+/// Exception thrown for Deezer API related errors.
+/// </summary>
 public class DeezerException : System.Exception
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="DeezerException"/> class.
+    /// </summary>
+    /// <param name="type">The type of error.</param>
     public DeezerException(EnumDeezerExceptionType type) : base(GetMessage(type)) { }
 
     private static string GetMessage(EnumDeezerExceptionType type)

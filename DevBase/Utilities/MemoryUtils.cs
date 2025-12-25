@@ -10,10 +10,19 @@ using System.Threading.Tasks;
 
 namespace DevBase.Utilities
 {
+    /// <summary>
+    /// Provides utility methods for memory and serialization operations.
+    /// </summary>
     public class MemoryUtils
     {
         
         #pragma warning disable SYSLIB0011
+        /// <summary>
+        /// Calculates the approximate size of an object in bytes using serialization.
+        /// Returns 0 if serialization is not allowed or object is null.
+        /// </summary>
+        /// <param name="obj">The object to measure.</param>
+        /// <returns>The size in bytes.</returns>
         public static long GetSize(Object obj)
         {
             if (!Globals.ALLOW_SERIALIZATION)
@@ -30,6 +39,11 @@ namespace DevBase.Utilities
             }
         }
         
+        /// <summary>
+        /// Reads a stream and converts it to a byte array.
+        /// </summary>
+        /// <param name="input">The input stream.</param>
+        /// <returns>The byte array containing the stream data.</returns>
         public static byte[] StreamToByteArray(Stream input)
         {
             using (MemoryStream ms = new MemoryStream())

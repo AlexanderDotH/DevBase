@@ -4,6 +4,9 @@ using DevBase.Generics;
 
 namespace DevBase.Avalonia.Color.Image;
 
+/// <summary>
+/// Calculates the nearest color based on difference logic.
+/// </summary>
 public class NearestColorCalculator
 {
     private global::Avalonia.Media.Color _smallestDiff;
@@ -14,6 +17,9 @@ public class NearestColorCalculator
     private double _smallShift;
     private int _pixelSteps;
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NearestColorCalculator"/> class with default settings.
+    /// </summary>
     public NearestColorCalculator()
     {
         this._smallestDiff = new  global::Avalonia.Media.Color();
@@ -24,12 +30,22 @@ public class NearestColorCalculator
         this._pixelSteps = 10;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NearestColorCalculator"/> class with custom shift values.
+    /// </summary>
+    /// <param name="bigShift">The multiplier for dominant color components.</param>
+    /// <param name="smallShift">The multiplier for non-dominant color components.</param>
     public NearestColorCalculator(double bigShift, double smallShift) : this()
     {
         this._bigShift = bigShift;
         this._smallShift = smallShift;
     }
     
+    /// <summary>
+    /// Calculates the nearest color from the provided bitmap.
+    /// </summary>
+    /// <param name="bitmap">The source bitmap.</param>
+    /// <returns>The calculated color.</returns>
     public unsafe global::Avalonia.Media.Color GetColorFromBitmap(Bitmap bitmap)
     {
         AList<global::Avalonia.Media.Color> pixels = GetPixels(bitmap);
@@ -198,30 +214,45 @@ public class NearestColorCalculator
         return colors;
     }
 
+    /// <summary>
+    /// Gets or sets the color with the smallest difference found.
+    /// </summary>
     public global::Avalonia.Media.Color SmallestDiff
     {
         get => _smallestDiff;
         set => _smallestDiff = value;
     }
 
+    /// <summary>
+    /// Gets or sets the range within which colors are considered similar.
+    /// </summary>
     public double ColorRange
     {
         get => _colorRange;
         set => _colorRange = value;
     }
 
+    /// <summary>
+    /// Gets or sets the multiplier for dominant color components.
+    /// </summary>
     public double BigShift
     {
         get => _bigShift;
         set => _bigShift = value;
     }
 
+    /// <summary>
+    /// Gets or sets the multiplier for non-dominant color components.
+    /// </summary>
     public double SmallShift
     {
         get => _smallShift;
         set => _smallShift = value;
     }
 
+    /// <summary>
+    /// Gets or sets the step size for pixel sampling.
+    /// </summary>
     public int PixelSteps
     {
         get => _pixelSteps;

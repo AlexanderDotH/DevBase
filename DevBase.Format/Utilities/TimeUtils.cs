@@ -2,6 +2,9 @@
 
 namespace DevBase.Format.Utilities;
 
+/// <summary>
+/// Provides utility methods for parsing timestamps.
+/// </summary>
 public class TimeUtils
 {
     // Dude don't ask me why its 10pm and its too late for me but if you can fix that go ahead!
@@ -35,6 +38,12 @@ public class TimeUtils
         "s\\.fff"
     };
 
+    /// <summary>
+    /// Attempts to parse a timestamp string into a TimeSpan using a variety of formats.
+    /// </summary>
+    /// <param name="time">The timestamp string to parse.</param>
+    /// <param name="timeSpan">The parsed TimeSpan, or TimeSpan.MinValue on failure.</param>
+    /// <returns>True if parsing was successful; otherwise, false.</returns>
     public static bool TryParseTimeStamp(string time, out TimeSpan timeSpan)
     {
         for (int i = 0; i < _formats.Length; i++)
@@ -51,6 +60,12 @@ public class TimeUtils
         return false;
     }
     
+    /// <summary>
+    /// Parses a timestamp string into a TimeSpan. Throws an exception if parsing fails.
+    /// </summary>
+    /// <param name="time">The timestamp string to parse.</param>
+    /// <returns>The parsed TimeSpan.</returns>
+    /// <exception cref="System.Exception">Thrown if the timestamp cannot be parsed.</exception>
     public static TimeSpan ParseTimeStamp(string time)
     {
         TimeSpan timeSpan = TimeSpan.Zero;

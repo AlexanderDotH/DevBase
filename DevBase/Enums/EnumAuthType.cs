@@ -6,8 +6,19 @@ using System.Threading.Tasks;
 
 namespace DevBase.Enums
 {
+    /// <summary>
+    /// Specifies the authentication type.
+    /// </summary>
     public enum EnumAuthType
     {
-        OAUTH2, BASIC
+        /// <summary>
+        /// OAuth2 authentication.
+        /// </summary>
+        OAUTH2,
+        
+        /// <summary>
+        /// Basic authentication.
+        /// </summary>
+        BASIC
     }
 }

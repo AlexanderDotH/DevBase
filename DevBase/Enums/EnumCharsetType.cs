@@ -1,6 +1,17 @@
 ﻿namespace DevBase.Enums;
 
+/// <summary>
+/// Specifies the character set type.
+/// </summary>
 public enum EnumCharsetType
 {
-    UTF8, ALL
+    /// <summary>
+    /// UTF-8 character set.
+    /// </summary>
+    UTF8,
+    
+    /// <summary>
+    /// All character sets.
+    /// </summary>
+    ALL
 }

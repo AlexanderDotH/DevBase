@@ -11,16 +11,25 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseFormat.Formats.SrtFormat;
 
+/// <summary>
+/// Tests for SRT format parser.
+/// </summary>
 public class SrtTester : FormatTest
 {
     private FileParser<SrtParser, AList<RichTimeStampedLyric>> _srtParser;
 
+    /// <summary>
+    /// Sets up the SRT parser.
+    /// </summary>
     [SetUp]
     public void Setup()
     {
         this._srtParser = new FileParser<SrtParser, AList<RichTimeStampedLyric>>();
     }
 
+    /// <summary>
+    /// Tests parsing SRT format from a random file.
+    /// </summary>
     [Test]
     public void TestFormatFromFile()
     {

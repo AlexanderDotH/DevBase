@@ -10,8 +10,17 @@ using DevBase.Utilities;
 
 namespace DevBase.Format.Formats.KLyricsFormat;
 
+/// <summary>
+/// Parser for the KLyrics file format.
+/// Supports parsing KLyrics format which includes word-level synchronization embedded in the lines.
+/// </summary>
 public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
 {
+    /// <summary>
+    /// Parses the KLyrics string content into a list of rich time-stamped lyrics.
+    /// </summary>
+    /// <param name="from">The KLyrics string content.</param>
+    /// <returns>A list of <see cref="RichTimeStampedLyric"/> objects.</returns>
     public override AList<RichTimeStampedLyric> Parse(string from)
     {
         AList<RichTimeStampedLyric> richTimeStampedLyrics = new AList<RichTimeStampedLyric>();
@@ -28,6 +37,12 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
         return richTimeStampedLyrics;
     }
 
+    /// <summary>
+    /// Attempts to parse the KLyrics string content.
+    /// </summary>
+    /// <param name="from">The KLyrics string content.</param>
+    /// <param name="parsed">The parsed list of lyrics, or null if parsing fails.</param>
+    /// <returns>True if parsing was successful; otherwise, false.</returns>
     public override bool TryParse(string from, out AList<RichTimeStampedLyric> parsed)
     {
         AList<RichTimeStampedLyric> p = Parse(from);

@@ -9,8 +9,15 @@ using System.Runtime.Serialization;
 
 namespace DevBase.Exception
 {
+    /// <summary>
+    /// Exception thrown for errors related to AList entries.
+    /// </summary>
     public class AListEntryException : SystemException
     {
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AListEntryException"/> class.
+        /// </summary>
+        /// <param name="type">The type of error.</param>
         public AListEntryException(Type type)
         {
             switch (type)
@@ -34,11 +41,18 @@ namespace DevBase.Exception
             }
         }
 
+        /// <summary>
+        /// Specifies the type of list entry error.
+        /// </summary>
         public enum Type
         {
+            /// <summary>Entry not found.</summary>
             EntryNotFound,
+            /// <summary>List sizes are not equal.</summary>
             ListNotEqual,
+            /// <summary>Index out of bounds.</summary>
             OutOfBounds,
+            /// <summary>Invalid range.</summary>
             InvalidRange
         }
     }

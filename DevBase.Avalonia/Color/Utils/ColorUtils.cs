@@ -8,8 +8,16 @@ namespace DevBase.Avalonia.Color.Utils;
 
 using Color = global::Avalonia.Media.Color;
 
+/// <summary>
+/// Provides utility methods for handling colors.
+/// </summary>
 public class ColorUtils
 {
+    /// <summary>
+    /// Extracts all pixels from a bitmap as a list of colors.
+    /// </summary>
+    /// <param name="bitmap">The source bitmap.</param>
+    /// <returns>A list of colors, excluding fully transparent ones.</returns>
     public static AList<Color> GetPixels(Bitmap bitmap)
     {
         using MemoryStream memoryStream = new MemoryStream();

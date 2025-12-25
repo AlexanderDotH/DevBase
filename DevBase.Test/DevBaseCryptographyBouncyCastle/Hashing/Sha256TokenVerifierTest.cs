@@ -4,12 +4,21 @@ using Org.BouncyCastle.Crypto.Digests;
 
 namespace DevBase.Test.DevBaseCryptographyBouncyCastle.Hashing;
 
+/// <summary>
+/// Tests for SHA256 Token Verifier.
+/// </summary>
+/// <summary>
+/// Tests for SHA256 Token Verifier.
+/// </summary>
 public class Sha256TokenVerifierTest
 {
     private string Header { get; set; }
     private string Payload { get; set; }
     private string Secret { get; set; }
     
+    /// <summary>
+    /// Sets up test data.
+    /// </summary>
     [SetUp]
     public void SetUp()
     {
@@ -19,6 +28,9 @@ public class Sha256TokenVerifierTest
         this.Secret = "i-like-jwt";
     }
     
+    /// <summary>
+    /// Tests verification of a SHA256 signature (unencoded secret).
+    /// </summary>
     [Test]
     public void VerifySha256SignatureTest()
     {
@@ -33,6 +45,9 @@ public class Sha256TokenVerifierTest
                 false), Is.True);
     }
     
+    /// <summary>
+    /// Tests verification of a SHA256 signature (base64 encoded secret).
+    /// </summary>
     [Test]
     public void VerifySha256EncodedSignatureTest()
     {

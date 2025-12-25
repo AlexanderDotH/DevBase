@@ -4,9 +4,15 @@ using Dumpify;
 
 namespace DevBase.Test.DevBase.Typography;
 
+/// <summary>
+/// Tests for Base64EncodedAString class.
+/// </summary>
 public class Base64EncodedAStringTest
 {
     
+    /// <summary>
+    /// Tests decoding of a Base64 string.
+    /// </summary>
     [Test]
     public void DecodeTest()
     {
@@ -15,6 +21,9 @@ public class Base64EncodedAStringTest
         encodedAString.DumpConsole();
     }
     
+    /// <summary>
+    /// Tests encoding of a Base64 string to URL safe format.
+    /// </summary>
     [Test]
     public void EncodeTest()
     {
@@ -23,6 +32,9 @@ public class Base64EncodedAStringTest
         encodedAString.DumpConsole();
     }
     
+    /// <summary>
+    /// Tests that an invalid Base64 string throws an EncodingException.
+    /// </summary>
     [Test]
     public void InvalidStringTest()
     {

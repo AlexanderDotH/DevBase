@@ -1,8 +1,15 @@
 
 namespace DevBase.Test.DevBaseApi.OpenLyricsClient;
 
+/// <summary>
+/// Tests for OpenLyricsClient token refreshing.
+/// </summary>
 public class RefreshTokenTest
 {
+    /// <summary>
+    /// Tests the retrieval of a new access token.
+    /// Currently commented out as it seems to be manual/debug code.
+    /// </summary>
     [Test]
     public void GetNewAccessToken()
     {

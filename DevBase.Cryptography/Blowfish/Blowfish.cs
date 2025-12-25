@@ -12,11 +12,19 @@ public sealed class Blowfish
 {
     private readonly Codec codec;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Blowfish"/> class using a pre-configured codec.
+    /// </summary>
+    /// <param name="codec">The codec instance to use for encryption/decryption.</param>
     public Blowfish(Codec codec)
     {
         this.codec = codec;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="Blowfish"/> class with the specified key.
+    /// </summary>
+    /// <param name="key">The encryption key.</param>
     public Blowfish(byte[] key)
      : this(new Codec(key))
     {

@@ -3,8 +3,14 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseApi.NetEase;
 
+/// <summary>
+/// Tests for the NetEase API client.
+/// </summary>
 public class NetEaseTest
 {
+    /// <summary>
+    /// Tests searching for tracks.
+    /// </summary>
     [Test]
     public async Task SearchTest()
     {
@@ -24,6 +30,9 @@ public class NetEaseTest
         }
     }
     
+    /// <summary>
+    /// Tests fetching raw lyrics (LRC format).
+    /// </summary>
     [Test]
     public async Task RawLyricsTest()
     {
@@ -50,6 +59,9 @@ public class NetEaseTest
         }
     }
     
+    /// <summary>
+    /// Tests fetching processed lyrics.
+    /// </summary>
     [Test]
     public async Task LyricsTest()
     {
@@ -76,6 +88,9 @@ public class NetEaseTest
         }
     }
     
+    /// <summary>
+    /// Tests fetching karaoke lyrics.
+    /// </summary>
     [Test]
     public async Task KaraokeLyricsTest()
     {
@@ -102,6 +117,9 @@ public class NetEaseTest
         }
     }
 
+    /// <summary>
+    /// Tests fetching track details.
+    /// </summary>
     [Test]
     public async Task TrackDetailsTest()
     {
@@ -128,6 +146,9 @@ public class NetEaseTest
         }
     }
     
+    /// <summary>
+    /// Tests searching and receiving details in one go.
+    /// </summary>
     [Test]
     public async Task SearchAndReceiveDetailsTest()
     {
@@ -154,6 +175,9 @@ public class NetEaseTest
         }
     }
     
+    /// <summary>
+    /// Tests downloading a track.
+    /// </summary>
     [Test]
     public async Task DownloadTest()
     {
@@ -179,6 +203,9 @@ public class NetEaseTest
         }
     }
     
+    /// <summary>
+    /// Tests fetching the download URL for a track.
+    /// </summary>
     [Test]
     public async Task UrlTest()
     {

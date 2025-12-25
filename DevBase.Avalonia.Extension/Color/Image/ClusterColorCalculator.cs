@@ -9,23 +9,72 @@ namespace DevBase.Avalonia.Extension.Color.Image;
 
 using Color = global::Avalonia.Media.Color;
 
+/// <summary>
+/// Calculates dominant colors from an image using KMeans clustering on RGB values.
+/// </summary>
 [Obsolete("Use LabClusterColorCalculator instead")]
 public class ClusterColorCalculator
 {
+    /// <summary>
+    /// Gets or sets the minimum saturation threshold for filtering colors.
+    /// </summary>
     public double MinSaturation { get; set; } = 50d;
+    
+    /// <summary>
+    /// Gets or sets the minimum brightness threshold for filtering colors.
+    /// </summary>
     public double MinBrightness { get; set; } = 70d;
+    
+    /// <summary>
+    /// Gets or sets the small shift value.
+    /// </summary>
     public double SmallShift { get; set; } = 1.0d;
+    
+    /// <summary>
+    /// Gets or sets the big shift value.
+    /// </summary>
     public double BigShift { get; set; } = 1.0d;
+    
+    /// <summary>
+    /// Gets or sets the tolerance for KMeans clustering.
+    /// </summary>
     public double Tolerance { get; set; } = 0.5d;
+    
+    /// <summary>
+    /// Gets or sets the number of clusters to find.
+    /// </summary>
     public int Clusters { get; set; } = 20;
+    
+    /// <summary>
+    /// Gets or sets the maximum range of clusters to consider for the result.
+    /// </summary>
     public int MaxRange { get; set; } = 5;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to use a predefined dataset.
+    /// </summary>
     public bool PredefinedDataset { get; set; } = true;
+    
+    /// <summary>
+    /// Gets or sets a value indicating whether to filter by saturation.
+    /// </summary>
     public bool FilterSaturation { get; set; } = true;
+    
+    /// <summary>
+    /// Gets or sets a value indicating whether to filter by brightness.
+    /// </summary>
     public bool FilterBrightness { get; set; } = true;
 
+    /// <summary>
+    /// Gets or sets additional colors to include in the clustering dataset.
+    /// </summary>
     public AList<Color> AdditionalColorDataset { get; set; } = new AList<Color>();
 
+    /// <summary>
+    /// Calculates the dominant color from the provided bitmap.
+    /// </summary>
+    /// <param name="bitmap">The source bitmap.</param>
+    /// <returns>The calculated dominant color.</returns>
     public Color GetColorFromBitmap(Bitmap bitmap)
     {
         AList<Color> pixels = ColorUtils.GetPixels(bitmap);

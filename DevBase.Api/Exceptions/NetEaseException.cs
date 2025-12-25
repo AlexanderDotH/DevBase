@@ -3,8 +3,15 @@ using DevBase.Exception;
 
 namespace DevBase.Api.Exceptions;
 
+/// <summary>
+/// Exception thrown for NetEase API related errors.
+/// </summary>
 public class NetEaseException : System.Exception
 {
+    /// <summary>
+    /// Initializes a new instance of the <see cref="NetEaseException"/> class.
+    /// </summary>
+    /// <param name="type">The type of error.</param>
     public NetEaseException(EnumNetEaseExceptionType type) : base(GetMessage(type)) { }
 
     private static string GetMessage(EnumNetEaseExceptionType type)

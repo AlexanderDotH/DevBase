@@ -4,8 +4,14 @@ using Dumpify;
 
 namespace DevBase.Test.DevBaseApi.BeatifulLyrics;
 
+/// <summary>
+/// Tests for the BeautifulLyrics API client.
+/// </summary>
 public class BeautifulLyricsTests
 {
+    /// <summary>
+    /// Tests fetching raw lyrics from BeautifulLyrics.
+    /// </summary>
     [Test]
     public async Task GetRawLyricsTest()
     {
@@ -32,6 +38,9 @@ public class BeautifulLyricsTests
         }
     }
     
+    /// <summary>
+    /// Tests fetching timestamped lyrics.
+    /// </summary>
     [Test]
     public async Task GetTimeStampedLyricsTest()
     {
@@ -59,6 +68,9 @@ public class BeautifulLyricsTests
         }
     }
     
+    /// <summary>
+    /// Tests fetching rich timestamped lyrics.
+    /// </summary>
     [Test]
     public async Task GetRichTimeStampedLyricsTest()
     {

@@ -4,6 +4,9 @@ using DevBase.Generics;
 
 namespace DevBase.Avalonia.Color.Image;
 
+/// <summary>
+/// Calculates the dominant color by grouping similar colors together.
+/// </summary>
 public class GroupColorCalculator
 {
     private double _colorRange;
@@ -12,6 +15,9 @@ public class GroupColorCalculator
     private int _pixelSteps;
     private int _brightness;
     
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GroupColorCalculator"/> class with default settings.
+    /// </summary>
     public GroupColorCalculator()
     {
         this._colorRange = 70;
@@ -21,12 +27,22 @@ public class GroupColorCalculator
         this._brightness = 20;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="GroupColorCalculator"/> class with custom shift values.
+    /// </summary>
+    /// <param name="bigShift">The multiplier for dominant color components.</param>
+    /// <param name="smallShift">The multiplier for non-dominant color components.</param>
     public GroupColorCalculator(double bigShift, double smallShift) : this()
     {
         this._bigShift = bigShift;
         this._smallShift = smallShift;
     }
     
+    /// <summary>
+    /// Calculates the dominant color from the provided bitmap using color grouping.
+    /// </summary>
+    /// <param name="bitmap">The source bitmap.</param>
+    /// <returns>The calculated dominant color.</returns>
     public global::Avalonia.Media.Color GetColorFromBitmap(Bitmap bitmap)
     {
         ATupleList<global::Avalonia.Media.Color, AList<global::Avalonia.Media.Color>> colorGroups = GetColorGroups(bitmap);
@@ -203,30 +219,45 @@ public class GroupColorCalculator
         return colorGroups;
     }
 
+    /// <summary>
+    /// Gets or sets the color range to group colors.
+    /// </summary>
     public double ColorRange
     {
         get => _colorRange;
         set => _colorRange = value;
     }
 
+    /// <summary>
+    /// Gets or sets the multiplier for dominant color components.
+    /// </summary>
     public double BigShift
     {
         get => _bigShift;
         set => _bigShift = value;
     }
 
+    /// <summary>
+    /// Gets or sets the multiplier for non-dominant color components.
+    /// </summary>
     public double SmallShift
     {
         get => _smallShift;
         set => _smallShift = value;
     }
 
+    /// <summary>
+    /// Gets or sets the step size for pixel sampling.
+    /// </summary>
     public int PixelSteps
     {
         get => _pixelSteps;
         set => _pixelSteps = value;
     }
 
+    /// <summary>
+    /// Gets or sets the minimum brightness threshold.
+    /// </summary>
     public int Brightness
     {
         get => _brightness;

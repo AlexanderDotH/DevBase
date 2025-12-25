@@ -2,6 +2,9 @@
 
 namespace DevBase.Format.Formats.AppleLrcXmlFormat.Xml;
 
+/// <summary>
+/// Root element for Apple LRC XML (TTML).
+/// </summary>
 [XmlRoot(ElementName="tt", Namespace="http://www.w3.org/ns/ttml")]
 public class XmlTt
 {

@@ -2,6 +2,9 @@
 
 namespace DevBase.Format.Formats.AppleLrcXmlFormat.Xml;
 
+/// <summary>
+/// Represents a division in the Apple LRC XML body.
+/// </summary>
 [XmlRoot(ElementName="div", Namespace="http://www.w3.org/ns/ttml")]
 public class XmlDiv
 {
