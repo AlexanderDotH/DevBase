@@ -107,24 +107,4 @@ public class RetryPolicyTest
         Assert.That(delay, Is.LessThanOrEqualTo(TimeSpan.FromSeconds(10)));
     }
 
-    [Test]
-    public void RetryOnTimeout_DefaultTrue()
-    {
-        var policy = RetryPolicy.Default;
-        Assert.That(policy.RetryOnTimeout, Is.True);
-    }
-
-    [Test]
-    public void RetryOnNetworkError_DefaultTrue()
-    {
-        var policy = RetryPolicy.Default;
-        Assert.That(policy.RetryOnNetworkError, Is.True);
-    }
-
-    [Test]
-    public void RetryOnProxyError_DefaultTrue()
-    {
-        var policy = RetryPolicy.Default;
-        Assert.That(policy.RetryOnProxyError, Is.True);
-    }
 }

@@ -4,7 +4,7 @@ This guide helps AI agents effectively use the DevBase.Net HTTP client library.
 
 ## Overview
 
-DevBase.Net is the networking backbone of the DevBase solution. It provides a high-performance HTTP client with advanced features like SOCKS5 proxying, retry policies, interceptors, batch processing, proxy rotation, and detailed metrics.
+DevBase.Net is the networking backbone of the DevBase solution. It provides a high-performance HTTP client with advanced features like HTTP/HTTPS/SOCKS4/SOCKS5/SSH proxy support, retry policies, interceptors, batch processing, proxy rotation, and detailed metrics.
 
 **Target Framework:** .NET 9.0  
 **Current Version:** 1.1.0
@@ -69,7 +69,7 @@ DevBase.Net/
 | `Requests` | `DevBase.Net.Core` | Simple queue-based request processor |
 | `BatchRequests` | `DevBase.Net.Core` | Named batch processor with progress callbacks |
 | `ProxiedBatchRequests` | `DevBase.Net.Core` | Batch processor with proxy rotation and failure tracking |
-| `ProxyInfo` | `DevBase.Net.Proxy` | Proxy configuration with HTTP/HTTPS/SOCKS support |
+| `ProxyInfo` | `DevBase.Net.Proxy` | Proxy configuration with HTTP/HTTPS/SOCKS4/SOCKS5/SSH support |
 | `ProxyConfiguration` | `DevBase.Net.Proxy` | Fluent builder for provider-specific proxy settings |
 | `TrackedProxyInfo` | `DevBase.Net.Proxy` | Proxy wrapper with failure tracking |
 | `RetryPolicy` | `DevBase.Net.Configuration` | Retry configuration with backoff strategies |
@@ -167,6 +167,7 @@ Request WithTimeout(TimeSpan timeout)
 Request WithCancellationToken(CancellationToken cancellationToken)
 Request WithProxy(TrackedProxyInfo? proxy)
 Request WithProxy(ProxyInfo proxy)
+Request WithProxy(string proxyString)  // Parse from string: [protocol://][user:pass@]host:port
 Request WithRetryPolicy(RetryPolicy policy)
 Request WithCertificateValidation(bool validate)
 Request WithHeaderValidation(bool validate)
@@ -392,15 +393,26 @@ Extends BatchRequests with proxy rotation, failure tracking, and proxy-specific 
 | `AvailableProxyCount` | `int` | Available proxies |
 | `ProxyFailureCount` | `int` | Total proxy failures |
 
-#### Proxy Configuration
+#### Proxy Configuration (Fluent - returns ProxiedBatchRequests)
 
 ```csharp
 ProxiedBatchRequests WithProxy(ProxyInfo proxy)
 ProxiedBatchRequests WithProxy(string proxyString)
 ProxiedBatchRequests WithProxies(IEnumerable<ProxyInfo> proxies)
 ProxiedBatchRequests WithProxies(IEnumerable<string> proxyStrings)
+ProxiedBatchRequests WithMaxProxyRetries(int maxRetries)  // Default: 3
 ProxiedBatchRequests ConfigureProxyTracking(int maxFailures = 3, TimeSpan? timeoutDuration = null)
-ProxiedBatchRequests ClearProxies()
+```
+
+#### Dynamic Proxy Addition (Thread-Safe - can be called during processing)
+
+```csharp
+void AddProxy(ProxyInfo proxy)
+void AddProxy(string proxyString)
+void AddProxies(IEnumerable<ProxyInfo> proxies)
+void AddProxies(IEnumerable<string> proxyStrings)
+void ClearProxies()
+void ResetAllProxies()
 ```
 
 #### Rotation Strategy
@@ -434,7 +446,7 @@ void ResetProxies()
 
 **Namespace:** `DevBase.Net.Proxy`
 
-Immutable proxy configuration with support for HTTP, HTTPS, SOCKS4, SOCKS5, and SOCKS5h.
+Immutable proxy configuration with support for HTTP, HTTPS, SOCKS4, SOCKS5, SOCKS5h, and SSH tunnels.
 
 #### Properties
 
@@ -581,10 +593,7 @@ Configures retry behavior with backoff strategies.
 
 | Property | Type | Default | Description |
 |----------|------|---------|-------------|
-| `MaxRetries` | `int` | 3 | Maximum retry attempts |
-| `RetryOnProxyError` | `bool` | true | Retry proxy errors |
-| `RetryOnTimeout` | `bool` | true | Retry timeouts |
-| `RetryOnNetworkError` | `bool` | true | Retry network errors |
+| `MaxRetries` | `int` | 3 | Maximum retry attempts (all errors count) |
 | `BackoffStrategy` | `EnumBackoffStrategy` | Exponential | Delay strategy |
 | `InitialDelay` | `TimeSpan` | 500ms | First retry delay |
 | `MaxDelay` | `TimeSpan` | 30s | Maximum delay |
@@ -657,7 +666,8 @@ public enum EnumProxyType
     Https,    // HTTPS/SSL proxy
     Socks4,   // SOCKS4 (no auth, local DNS)
     Socks5,   // SOCKS5 (auth support, configurable DNS)
-    Socks5h   // SOCKS5 with remote DNS resolution
+    Socks5h,  // SOCKS5 with remote DNS resolution
+    Ssh       // SSH tunnel (dynamic port forwarding)
 }
 ```
 
@@ -833,14 +843,21 @@ var response = await new Request("https://api.example.com")
 | `Socks4` | No | Local | Legacy systems, simple tunneling |
 | `Socks5` | Optional | Local | General purpose, UDP support |
 | `Socks5h` | Optional | Remote | Maximum privacy, bypass DNS leaks |
+| `Ssh` | Optional | Remote | SSH tunnel with dynamic port forwarding |
 
 **Parse proxy from string:**
 
 ```csharp
-// Supported formats:
+// Supported formats (all protocols: http, https, socks4, socks5, socks5h, ssh):
 var proxy1 = ProxyInfo.Parse("http://proxy.example.com:8080");
 var proxy2 = ProxyInfo.Parse("socks5://user:pass@proxy.example.com:1080");
-var proxy3 = ProxyInfo.Parse("socks5h://proxy.example.com:1080");
+var proxy3 = ProxyInfo.Parse("socks5h://user:pass@dc.oxylabs.io:8005");
+var proxy4 = ProxyInfo.Parse("ssh://admin:pass@ssh.example.com:22");
+
+// Use directly with Request
+var response = await new Request("https://api.example.com")
+    .WithProxy("socks5://paid1_563X7:rtVVhrth4545++A@dc.oxylabs.io:8005")
+    .SendAsync();
 
 // Safe parsing
 if (ProxyInfo.TryParse("socks5://...", out var proxy))
@@ -1330,6 +1347,10 @@ var responses = await proxiedBatch.ExecuteAllAsync();
 var stats = proxiedBatch.GetStatistics();
 Console.WriteLine($"Success rate: {stats.SuccessRate:F1}%");
 Console.WriteLine($"Proxy availability: {stats.ProxyAvailabilityRate:F1}%");
+
+// Dynamically add more proxies during processing (thread-safe)
+proxiedBatch.AddProxy("http://newproxy.example.com:8080");
+proxiedBatch.AddProxies(new[] { "socks5://proxy5:1080", "socks5://proxy6:1080" });
 ```
 
 ### Pattern 13: Proxy Rotation Strategies
@@ -1625,7 +1646,7 @@ if (m.TotalTime.TotalSeconds > 5)
 | POST JSON | `.AsPost().WithJsonBody(obj)` |
 | Add header | `.WithHeader(name, value)` |
 | Set timeout | `.WithTimeout(TimeSpan)` |
-| Use proxy | `.WithProxy(TrackedProxyInfo)` |
+| Use proxy | `.WithProxy(proxyInfo)` or `.WithProxy("socks5://user:pass@host:port")` |
 | Retry policy | `.WithRetryPolicy(RetryPolicy.Exponential(3))` |
 | Browser spoofing | `.WithScrapingBypass(ScrapingBypassConfig.Default)` |
 | Parse JSON | `await response.ParseJsonAsync<T>()` |

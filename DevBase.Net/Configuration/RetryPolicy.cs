@@ -5,9 +5,6 @@ namespace DevBase.Net.Configuration;
 public sealed class RetryPolicy
 {
     public int MaxRetries { get; init; } = 3;
-    public bool RetryOnProxyError { get; init; } = true;
-    public bool RetryOnTimeout { get; init; } = true;
-    public bool RetryOnNetworkError { get; init; } = true;
     public EnumBackoffStrategy BackoffStrategy { get; init; } = EnumBackoffStrategy.Exponential;
     public TimeSpan InitialDelay { get; init; } = TimeSpan.FromMilliseconds(500);
     public TimeSpan MaxDelay { get; init; } = TimeSpan.FromSeconds(30);

@@ -18,7 +18,7 @@ namespace DevBase.Net.Core;
 
 public partial class Request
 {
-    public Request Build()
+    public override Request Build()
     {
         if (this._isBuilt)
             return this;
@@ -90,7 +90,7 @@ public partial class Request
         }
     }
 
-    public async Task<Response> SendAsync(CancellationToken cancellationToken = default)
+    public override async Task<Response> SendAsync(CancellationToken cancellationToken = default)
     {
         this.Build();
         
@@ -145,17 +145,11 @@ public partial class Request
                 {
                     RateLimitException rateLimitException = this.HandleRateLimitResponse(httpResponse);
                     
-                    if (attemptNumber <= this._retryPolicy.MaxRetries)
-                    {
-                        lastException = rateLimitException;
-                        
-                        if (rateLimitException.RetryAfter.HasValue)
-                            await Task.Delay(rateLimitException.RetryAfter.Value, token);
-                        
-                        continue;
-                    }
+                    if (attemptNumber > this._retryPolicy.MaxRetries)
+                        throw rateLimitException;
                     
-                    throw rateLimitException;
+                    lastException = rateLimitException;
+                    continue;
                 }
 
                 MemoryStream contentStream = new MemoryStream();
@@ -191,7 +185,7 @@ public partial class Request
             {
                 lastException = new RequestTimeoutException(this._timeout, new Uri(this.Uri.ToString()), attemptNumber);
                 
-                if (!this._retryPolicy.RetryOnTimeout || attemptNumber > this._retryPolicy.MaxRetries)
+                if (attemptNumber > this._retryPolicy.MaxRetries)
                     throw lastException;
             }
             catch (HttpRequestException ex) when (IsProxyError(ex))
@@ -199,7 +193,7 @@ public partial class Request
                 this._proxy?.ReportFailure();
                 lastException = new ProxyException(ex.Message, ex, this._proxy?.Proxy, attemptNumber);
                 
-                if (!this._retryPolicy.RetryOnProxyError || attemptNumber > this._retryPolicy.MaxRetries)
+                if (attemptNumber > this._retryPolicy.MaxRetries)
                     throw lastException;
             }
             catch (HttpRequestException ex)
@@ -208,7 +202,7 @@ public partial class Request
                 string host = new Uri(uri).Host;
                 lastException = new NetworkException(ex.Message, ex, host, attemptNumber);
                 
-                if (!this._retryPolicy.RetryOnNetworkError || attemptNumber > this._retryPolicy.MaxRetries)
+                if (attemptNumber > this._retryPolicy.MaxRetries)
                     throw lastException;
             }
             catch (System.Exception ex)
@@ -318,14 +312,8 @@ public partial class Request
 
         if (this._proxy != null)
         {
-            Proxy.Enums.EnumProxyType proxyType = this._proxy.Proxy.Type;
-            
-            if (proxyType == EnumProxyType.Http || 
-                proxyType == EnumProxyType.Https)
-            {
-                handler.Proxy = this._proxy.ToWebProxy();
-                handler.UseProxy = true;
-            }
+            handler.Proxy = this._proxy.ToWebProxy();
+            handler.UseProxy = true;
         }
 
         return handler;

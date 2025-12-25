@@ -32,6 +32,7 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
     private bool _persistCookies;
     private bool _persistReferer;
     private bool _disposed;
+    private int _maxProxyRetries = 3;
     private DateTime _windowStart = DateTime.UtcNow;
     private int _requestsInWindow;
 
@@ -52,8 +53,8 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
     public int ProcessedCount => _processedCount;
     public int ErrorCount => _errorCount;
     public int ProxyFailureCount => _proxyFailureCount;
-    public int ProxyCount => _proxyPool.Count;
-    public int AvailableProxyCount => _proxyPool.Count(p => p.IsAvailable());
+    public int ProxyCount { get { lock (_proxyPool) { return _proxyPool.Count; } } }
+    public int AvailableProxyCount { get { lock (_proxyPool) { return _proxyPool.Count(p => p.IsAvailable()); } } }
     public IReadOnlyList<string> BatchNames => _batches.Keys.ToList();
 
     public ProxiedBatchRequests()
@@ -66,7 +67,10 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
     public ProxiedBatchRequests WithProxy(ProxyInfo proxy)
     {
         ArgumentNullException.ThrowIfNull(proxy);
-        _proxyPool.Add(new TrackedProxyInfo(proxy));
+        lock (_proxyPool)
+        {
+            _proxyPool.Add(new TrackedProxyInfo(proxy));
+        }
         return this;
     }
 
@@ -77,16 +81,70 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     public ProxiedBatchRequests WithProxies(IEnumerable<ProxyInfo> proxies)
     {
-        foreach (ProxyInfo proxy in proxies)
-            WithProxy(proxy);
+        ArgumentNullException.ThrowIfNull(proxies);
+        lock (_proxyPool)
+        {
+            foreach (ProxyInfo proxy in proxies)
+                _proxyPool.Add(new TrackedProxyInfo(proxy));
+        }
         return this;
     }
 
     public ProxiedBatchRequests WithProxies(IEnumerable<string> proxyStrings)
     {
-        foreach (string proxyString in proxyStrings)
-            WithProxy(proxyString);
+        ArgumentNullException.ThrowIfNull(proxyStrings);
+        lock (_proxyPool)
+        {
+            foreach (string proxyString in proxyStrings)
+                _proxyPool.Add(new TrackedProxyInfo(ProxyInfo.Parse(proxyString)));
+        }
         return this;
+    }
+
+    /// <summary>
+    /// Adds a proxy to the pool at runtime. Thread-safe, can be called while processing.
+    /// </summary>
+    public void AddProxy(ProxyInfo proxy)
+    {
+        ArgumentNullException.ThrowIfNull(proxy);
+        lock (_proxyPool)
+        {
+            _proxyPool.Add(new TrackedProxyInfo(proxy));
+        }
+    }
+
+    /// <summary>
+    /// Adds a proxy to the pool at runtime using a proxy string. Thread-safe, can be called while processing.
+    /// </summary>
+    public void AddProxy(string proxyString)
+    {
+        AddProxy(ProxyInfo.Parse(proxyString));
+    }
+
+    /// <summary>
+    /// Adds multiple proxies to the pool at runtime. Thread-safe, can be called while processing.
+    /// </summary>
+    public void AddProxies(IEnumerable<ProxyInfo> proxies)
+    {
+        ArgumentNullException.ThrowIfNull(proxies);
+        lock (_proxyPool)
+        {
+            foreach (ProxyInfo proxy in proxies)
+                _proxyPool.Add(new TrackedProxyInfo(proxy));
+        }
+    }
+
+    /// <summary>
+    /// Adds multiple proxies to the pool at runtime using proxy strings. Thread-safe, can be called while processing.
+    /// </summary>
+    public void AddProxies(IEnumerable<string> proxyStrings)
+    {
+        ArgumentNullException.ThrowIfNull(proxyStrings);
+        lock (_proxyPool)
+        {
+            foreach (string proxyString in proxyStrings)
+                _proxyPool.Add(new TrackedProxyInfo(ProxyInfo.Parse(proxyString)));
+        }
     }
 
     public ProxiedBatchRequests WithRotationStrategy(IProxyRotationStrategy strategy)
@@ -122,9 +180,12 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     public ProxiedBatchRequests ConfigureProxyTracking(int maxFailures = 3, TimeSpan? timeoutDuration = null)
     {
-        foreach (TrackedProxyInfo proxy in _proxyPool)
+        lock (_proxyPool)
         {
-            proxy.ResetTimeout();
+            foreach (TrackedProxyInfo proxy in _proxyPool)
+            {
+                proxy.ResetTimeout();
+            }
         }
         return this;
     }
@@ -150,6 +211,13 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
     public ProxiedBatchRequests WithRefererPersistence(bool persist = true)
     {
         _persistReferer = persist;
+        return this;
+    }
+
+    public ProxiedBatchRequests WithMaxProxyRetries(int maxRetries)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegative(maxRetries);
+        _maxProxyRetries = maxRetries;
         return this;
     }
 
@@ -356,48 +424,61 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     private async Task ProcessProxiedRequestAsync(Request request, string batchName, ConcurrentBag<Response> responses, int[] completedHolder, int totalRequests, CancellationToken cancellationToken)
     {
-        TrackedProxyInfo? usedProxy = null;
-        try
+        System.Exception? lastException = null;
+        
+        for (int proxyAttempt = 0; proxyAttempt <= _maxProxyRetries; proxyAttempt++)
         {
-            ApplyPersistence(request);
-            usedProxy = await ApplyProxyAsync(request, cancellationToken).ConfigureAwait(false);
-
-            Response response = await request.SendAsync(cancellationToken).ConfigureAwait(false);
-
-            StorePersistence(request, response);
-            usedProxy?.ReportSuccess();
-
-            responses.Add(response);
-            _responseQueue.Enqueue(response);
-            Interlocked.Increment(ref _processedCount);
-            int currentCompleted = Interlocked.Increment(ref completedHolder[0]);
-
-            await InvokeCallbacksAsync(response).ConfigureAwait(false);
-            await InvokeProgressCallbacksAsync(new BatchProgressInfo(
-                batchName, currentCompleted, totalRequests, _errorCount)).ConfigureAwait(false);
-
-            RequeueDecision requeueDecision = EvaluateResponseRequeue(response, request);
-            if (requeueDecision.ShouldRequeue)
+            TrackedProxyInfo? usedProxy = null;
+            try
             {
-                ProxiedBatch? batch = GetBatch(batchName);
-                batch?.Add(requeueDecision.ModifiedRequest ?? request);
+                ApplyPersistence(request);
+                usedProxy = await ApplyProxyAsync(request, cancellationToken).ConfigureAwait(false);
+
+                Response response = await request.SendAsync(cancellationToken).ConfigureAwait(false);
+
+                StorePersistence(request, response);
+                usedProxy?.ReportSuccess();
+
+                responses.Add(response);
+                _responseQueue.Enqueue(response);
+                Interlocked.Increment(ref _processedCount);
+                int currentCompleted = Interlocked.Increment(ref completedHolder[0]);
+
+                await InvokeCallbacksAsync(response).ConfigureAwait(false);
+                await InvokeProgressCallbacksAsync(new BatchProgressInfo(
+                    batchName, currentCompleted, totalRequests, _errorCount)).ConfigureAwait(false);
+
+                RequeueDecision requeueDecision = EvaluateResponseRequeue(response, request);
+                if (requeueDecision.ShouldRequeue)
+                {
+                    ProxiedBatch? batch = GetBatch(batchName);
+                    batch?.Add(requeueDecision.ModifiedRequest ?? request);
+                }
+                return; // Success - exit retry loop
             }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (System.Exception ex)
-        {
-            Interlocked.Increment(ref _errorCount);
-            await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
-            await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
-
-            RequeueDecision requeueDecision = EvaluateErrorRequeue(request, ex);
-            if (requeueDecision.ShouldRequeue)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                ProxiedBatch? batch = GetBatch(batchName);
-                batch?.Add(requeueDecision.ModifiedRequest ?? request);
+                throw;
+            }
+            catch (System.Exception ex)
+            {
+                lastException = ex;
+                await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
+                
+                // If we have more proxies and retries left, try again with a different proxy
+                if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0)
+                    continue;
+                
+                // No more retries - report error
+                Interlocked.Increment(ref _errorCount);
+                await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
+
+                RequeueDecision requeueDecision = EvaluateErrorRequeue(request, ex);
+                if (requeueDecision.ShouldRequeue)
+                {
+                    ProxiedBatch? batch = GetBatch(batchName);
+                    batch?.Add(requeueDecision.ModifiedRequest ?? request);
+                }
             }
         }
     }
@@ -446,47 +527,55 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     private async Task ProcessEnumerableProxiedRequestAsync(Request request, string batchName, ConcurrentBag<Response> responseBag, int[] completedHolder, int totalRequests, CancellationToken cancellationToken)
     {
-        TrackedProxyInfo? usedProxy = null;
-        try
+        for (int proxyAttempt = 0; proxyAttempt <= _maxProxyRetries; proxyAttempt++)
         {
-            ApplyPersistence(request);
-            usedProxy = await ApplyProxyAsync(request, cancellationToken).ConfigureAwait(false);
-
-            Response response = await request.SendAsync(cancellationToken).ConfigureAwait(false);
-
-            StorePersistence(request, response);
-            usedProxy?.ReportSuccess();
-
-            responseBag.Add(response);
-            Interlocked.Increment(ref _processedCount);
-            int currentCompleted = Interlocked.Increment(ref completedHolder[0]);
-
-            await InvokeCallbacksAsync(response).ConfigureAwait(false);
-            await InvokeProgressCallbacksAsync(new BatchProgressInfo(
-                batchName, currentCompleted, totalRequests, _errorCount)).ConfigureAwait(false);
-
-            RequeueDecision requeueDecision = EvaluateResponseRequeue(response, request);
-            if (requeueDecision.ShouldRequeue)
+            TrackedProxyInfo? usedProxy = null;
+            try
             {
-                ProxiedBatch? batch = GetBatch(batchName);
-                batch?.Add(requeueDecision.ModifiedRequest ?? request);
+                ApplyPersistence(request);
+                usedProxy = await ApplyProxyAsync(request, cancellationToken).ConfigureAwait(false);
+
+                Response response = await request.SendAsync(cancellationToken).ConfigureAwait(false);
+
+                StorePersistence(request, response);
+                usedProxy?.ReportSuccess();
+
+                responseBag.Add(response);
+                Interlocked.Increment(ref _processedCount);
+                int currentCompleted = Interlocked.Increment(ref completedHolder[0]);
+
+                await InvokeCallbacksAsync(response).ConfigureAwait(false);
+                await InvokeProgressCallbacksAsync(new BatchProgressInfo(
+                    batchName, currentCompleted, totalRequests, _errorCount)).ConfigureAwait(false);
+
+                RequeueDecision requeueDecision = EvaluateResponseRequeue(response, request);
+                if (requeueDecision.ShouldRequeue)
+                {
+                    ProxiedBatch? batch = GetBatch(batchName);
+                    batch?.Add(requeueDecision.ModifiedRequest ?? request);
+                }
+                return; // Success
             }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (System.Exception ex)
-        {
-            Interlocked.Increment(ref _errorCount);
-            await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
-            await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
-
-            RequeueDecision requeueDecision = EvaluateErrorRequeue(request, ex);
-            if (requeueDecision.ShouldRequeue)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                ProxiedBatch? batch = GetBatch(batchName);
-                batch?.Add(requeueDecision.ModifiedRequest ?? request);
+                throw;
+            }
+            catch (System.Exception ex)
+            {
+                await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
+                
+                if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0)
+                    continue;
+                
+                Interlocked.Increment(ref _errorCount);
+                await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
+
+                RequeueDecision requeueDecision = EvaluateErrorRequeue(request, ex);
+                if (requeueDecision.ShouldRequeue)
+                {
+                    ProxiedBatch? batch = GetBatch(batchName);
+                    batch?.Add(requeueDecision.ModifiedRequest ?? request);
+                }
             }
         }
     }
@@ -502,37 +591,45 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
                 continue;
             }
 
-            TrackedProxyInfo? usedProxy = null;
-            try
+            for (int proxyAttempt = 0; proxyAttempt <= _maxProxyRetries; proxyAttempt++)
             {
-                ApplyPersistence(request);
-                usedProxy = await ApplyProxyAsync(request, cancellationToken).ConfigureAwait(false);
-
-                Response response = await SendWithRateLimitAsync(request, cancellationToken).ConfigureAwait(false);
-
-                StorePersistence(request, response);
-                usedProxy?.ReportSuccess();
-
-                _responseQueue.Enqueue(response);
-                Interlocked.Increment(ref _processedCount);
-
-                await InvokeCallbacksAsync(response).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-            {
-                break;
-            }
-            catch (System.Exception ex)
-            {
-                Interlocked.Increment(ref _errorCount);
-                await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
-                await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
-
-                RequeueDecision requeueDecision = EvaluateErrorRequeue(request, ex);
-                if (requeueDecision.ShouldRequeue && batchName != null)
+                TrackedProxyInfo? usedProxy = null;
+                try
                 {
-                    ProxiedBatch? batch = GetBatch(batchName);
-                    batch?.Add(requeueDecision.ModifiedRequest ?? request);
+                    ApplyPersistence(request);
+                    usedProxy = await ApplyProxyAsync(request, cancellationToken).ConfigureAwait(false);
+
+                    Response response = await SendWithRateLimitAsync(request, cancellationToken).ConfigureAwait(false);
+
+                    StorePersistence(request, response);
+                    usedProxy?.ReportSuccess();
+
+                    _responseQueue.Enqueue(response);
+                    Interlocked.Increment(ref _processedCount);
+
+                    await InvokeCallbacksAsync(response).ConfigureAwait(false);
+                    break; // Success
+                }
+                catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+                {
+                    throw;
+                }
+                catch (System.Exception ex)
+                {
+                    await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
+                    
+                    if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0)
+                        continue;
+                    
+                    Interlocked.Increment(ref _errorCount);
+                    await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
+
+                    RequeueDecision requeueDecision = EvaluateErrorRequeue(request, ex);
+                    if (requeueDecision.ShouldRequeue && batchName != null)
+                    {
+                        ProxiedBatch? batch = GetBatch(batchName);
+                        batch?.Add(requeueDecision.ModifiedRequest ?? request);
+                    }
                 }
             }
         }
@@ -574,46 +671,54 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     private async Task ProcessBatchProxiedRequestAsync(Request request, ProxiedBatch batch, ConcurrentBag<Response> responses, int[] completedHolder, int totalRequests, CancellationToken cancellationToken)
     {
-        TrackedProxyInfo? usedProxy = null;
-        try
+        for (int proxyAttempt = 0; proxyAttempt <= _maxProxyRetries; proxyAttempt++)
         {
-            ApplyPersistence(request);
-            usedProxy = await ApplyProxyAsync(request, cancellationToken).ConfigureAwait(false);
-
-            Response response = await request.SendAsync(cancellationToken).ConfigureAwait(false);
-
-            StorePersistence(request, response);
-            usedProxy?.ReportSuccess();
-
-            responses.Add(response);
-            _responseQueue.Enqueue(response);
-            Interlocked.Increment(ref _processedCount);
-            int currentCompleted = Interlocked.Increment(ref completedHolder[0]);
-
-            await InvokeCallbacksAsync(response).ConfigureAwait(false);
-            await InvokeProgressCallbacksAsync(new BatchProgressInfo(
-                batch.Name, currentCompleted, totalRequests, _errorCount)).ConfigureAwait(false);
-
-            RequeueDecision requeueDecision = EvaluateResponseRequeue(response, request);
-            if (requeueDecision.ShouldRequeue)
+            TrackedProxyInfo? usedProxy = null;
+            try
             {
-                batch.Add(requeueDecision.ModifiedRequest ?? request);
+                ApplyPersistence(request);
+                usedProxy = await ApplyProxyAsync(request, cancellationToken).ConfigureAwait(false);
+
+                Response response = await request.SendAsync(cancellationToken).ConfigureAwait(false);
+
+                StorePersistence(request, response);
+                usedProxy?.ReportSuccess();
+
+                responses.Add(response);
+                _responseQueue.Enqueue(response);
+                Interlocked.Increment(ref _processedCount);
+                int currentCompleted = Interlocked.Increment(ref completedHolder[0]);
+
+                await InvokeCallbacksAsync(response).ConfigureAwait(false);
+                await InvokeProgressCallbacksAsync(new BatchProgressInfo(
+                    batch.Name, currentCompleted, totalRequests, _errorCount)).ConfigureAwait(false);
+
+                RequeueDecision requeueDecision = EvaluateResponseRequeue(response, request);
+                if (requeueDecision.ShouldRequeue)
+                {
+                    batch.Add(requeueDecision.ModifiedRequest ?? request);
+                }
+                return; // Success
             }
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            throw;
-        }
-        catch (System.Exception ex)
-        {
-            Interlocked.Increment(ref _errorCount);
-            await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
-            await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
-
-            RequeueDecision requeueDecision = EvaluateErrorRequeue(request, ex);
-            if (requeueDecision.ShouldRequeue)
+            catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
             {
-                batch.Add(requeueDecision.ModifiedRequest ?? request);
+                throw;
+            }
+            catch (System.Exception ex)
+            {
+                await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
+                
+                if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0)
+                    continue;
+                
+                Interlocked.Increment(ref _errorCount);
+                await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
+
+                RequeueDecision requeueDecision = EvaluateErrorRequeue(request, ex);
+                if (requeueDecision.ShouldRequeue)
+                {
+                    batch.Add(requeueDecision.ModifiedRequest ?? request);
+                }
             }
         }
     }
@@ -652,18 +757,21 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     private async Task<TrackedProxyInfo?> ApplyProxyAsync(Request request, CancellationToken cancellationToken)
     {
-        if (_proxyPool.Count == 0)
-            return null;
-
         await _proxyLock.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
         {
-            TrackedProxyInfo? proxy = _rotationStrategy.SelectProxy(_proxyPool, ref _currentProxyIndex);
-            if (proxy != null)
+            lock (_proxyPool)
             {
-                request.WithProxy(proxy.Proxy);
+                if (_proxyPool.Count == 0)
+                    return null;
+
+                TrackedProxyInfo? proxy = _rotationStrategy.SelectProxy(_proxyPool, ref _currentProxyIndex);
+                if (proxy != null)
+                {
+                    request.WithProxy(proxy.Proxy);
+                }
+                return proxy;
             }
-            return proxy;
         }
         finally
         {
@@ -685,7 +793,7 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
             request,
             timedOut,
             proxy.FailureCount,
-            _proxyPool.Count(p => p.IsAvailable())
+            AvailableProxyCount
         );
 
         for (int i = 0; i < _proxyFailureCallbacks.Count; i++)
@@ -702,19 +810,28 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     public IReadOnlyList<TrackedProxyInfo> GetProxyStatistics()
     {
-        return _proxyPool.AsReadOnly();
+        lock (_proxyPool)
+        {
+            return _proxyPool.ToList().AsReadOnly();
+        }
     }
 
     public void ResetAllProxies()
     {
-        foreach (TrackedProxyInfo proxy in _proxyPool)
-            proxy.ResetTimeout();
+        lock (_proxyPool)
+        {
+            foreach (TrackedProxyInfo proxy in _proxyPool)
+                proxy.ResetTimeout();
+        }
     }
 
     public void ClearProxies()
     {
-        _proxyPool.Clear();
-        _currentProxyIndex = 0;
+        lock (_proxyPool)
+        {
+            _proxyPool.Clear();
+            _currentProxyIndex = 0;
+        }
     }
 
     #endregion
@@ -954,7 +1071,10 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         _responseCallbacks.Clear();
         _errorCallbacks.Clear();
         _progressCallbacks.Clear();
-        _proxyPool.Clear();
+        lock (_proxyPool)
+        {
+            _proxyPool.Clear();
+        }
     }
 
     public async ValueTask DisposeAsync()

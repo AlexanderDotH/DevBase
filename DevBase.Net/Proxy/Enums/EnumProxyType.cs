@@ -6,5 +6,6 @@ public enum EnumProxyType
     Https,
     Socks4,
     Socks5,
-    Socks5h
+    Socks5h,
+    Ssh
 }

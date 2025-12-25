@@ -86,6 +86,11 @@ public sealed class ProxyInfo
             type = EnumProxyType.Socks5;
             remaining = remaining[9..];
         }
+        else if (remaining.StartsWith("ssh://", StringComparison.OrdinalIgnoreCase))
+        {
+            type = EnumProxyType.Ssh;
+            remaining = remaining[6..];
+        }
 
         NetworkCredential? credentials = null;
         int atIndex = remaining.IndexOf('@');
@@ -150,6 +155,7 @@ public sealed class ProxyInfo
             EnumProxyType.Socks4 => "socks4",
             EnumProxyType.Socks5 => ResolveHostnamesLocally ? "socks5" : "socks5h",
             EnumProxyType.Socks5h => "socks5h",
+            EnumProxyType.Ssh => "ssh",
             _ => "http"
         };
         
@@ -175,6 +181,9 @@ public sealed class ProxyInfo
             case EnumProxyType.Socks5:
             case EnumProxyType.Socks5h:
                 return CreateSocks5Proxy();
+
+            case EnumProxyType.Ssh:
+                return CreateSshProxy();
 
             default:
                 throw new NotSupportedException($"Proxy type {Type} is not supported");
@@ -247,6 +256,34 @@ public sealed class ProxyInfo
         catch (System.Exception e)
         {
             throw new NotSupportedException($"SOCKS5 proxy creation failed: {e.Message}", e);
+        }
+    }
+
+    private HttpToSocks5Proxy CreateSshProxy()
+    {
+        // SSH tunnels typically use SOCKS5 protocol for dynamic port forwarding
+        // The SSH connection must be established externally (e.g., ssh -D local_port user@host)
+        // This creates a SOCKS5 proxy pointing to the local SSH tunnel endpoint
+        try
+        {
+            HttpToSocks5Proxy proxy;
+            if (Credentials != null)
+            {
+                // For SSH, credentials are used for the SSH connection itself
+                // The local SOCKS proxy created by SSH doesn't require auth
+                proxy = new HttpToSocks5Proxy(Host, Port, InternalServerPort);
+            }
+            else
+            {
+                proxy = new HttpToSocks5Proxy(Host, Port, InternalServerPort);
+            }
+
+            proxy.ResolveHostnamesLocally = false; // SSH tunnels resolve remotely
+            return proxy;
+        }
+        catch (System.Exception e)
+        {
+            throw new NotSupportedException($"SSH proxy creation failed: {e.Message}", e);
         }
     }
 
