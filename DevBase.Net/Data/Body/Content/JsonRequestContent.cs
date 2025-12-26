@@ -16,7 +16,8 @@ public class JsonRequestContent : StringRequestContent
 
         try
         {
-            JObject.Parse(stringContent);
+            // Use JToken.Parse to support both JSON objects {} and arrays []
+            JToken.Parse(stringContent);
             return true;
         }
         catch
