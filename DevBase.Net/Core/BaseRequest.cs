@@ -1,3 +1,4 @@
+using System.Net;
 using System.Text;
 using DevBase.Net.Configuration;
 using DevBase.Net.Data.Body;
@@ -20,6 +21,8 @@ public abstract class BaseRequest : IDisposable, IAsyncDisposable
     protected bool _validateCertificates = true;
     protected bool _followRedirects = true;
     protected int _maxRedirects = 50;
+    protected Version _httpVersion = new Version(3, 0);
+    protected HttpVersionPolicy _httpVersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
     protected bool _isBuilt;
     protected bool _disposed;
     
@@ -65,6 +68,16 @@ public abstract class BaseRequest : IDisposable, IAsyncDisposable
     /// Gets the maximum number of redirects to follow.
     /// </summary>
     public int MaxRedirects => this._maxRedirects;
+    
+    /// <summary>
+    /// Gets the HTTP version for this request.
+    /// </summary>
+    public Version HttpVersion => this._httpVersion;
+    
+    /// <summary>
+    /// Gets the HTTP version policy for this request.
+    /// </summary>
+    public HttpVersionPolicy HttpVersionPolicy => this._httpVersionPolicy;
     
     /// <summary>
     /// Gets whether the request has been built.

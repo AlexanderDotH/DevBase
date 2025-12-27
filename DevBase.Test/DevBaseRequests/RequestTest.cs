@@ -577,6 +577,89 @@ public class RequestTest
 
     #endregion
 
+    #region HTTP Version Tests
+
+    [Test]
+    public void WithHttpVersion_SetsHttpVersion()
+    {
+        var request = new Request("https://example.com")
+            .WithHttpVersion(HttpVersion.Version20);
+        
+        Assert.That(request.HttpVersion, Is.EqualTo(HttpVersion.Version20));
+    }
+
+    [Test]
+    public void WithHttpVersion_WithPolicy_SetsBoth()
+    {
+        var request = new Request("https://example.com")
+            .WithHttpVersion(HttpVersion.Version20, HttpVersionPolicy.RequestVersionExact);
+        
+        Assert.That(request.HttpVersion, Is.EqualTo(HttpVersion.Version20));
+        Assert.That(request.HttpVersionPolicy, Is.EqualTo(HttpVersionPolicy.RequestVersionExact));
+    }
+
+    [Test]
+    public void AsHttp11_SetsHttpVersion11()
+    {
+        var request = new Request("https://example.com")
+            .AsHttp11();
+        
+        Assert.That(request.HttpVersion, Is.EqualTo(HttpVersion.Version11));
+    }
+
+    [Test]
+    public void AsHttp2_SetsHttpVersion20()
+    {
+        var request = new Request("https://example.com")
+            .AsHttp2();
+        
+        Assert.That(request.HttpVersion, Is.EqualTo(HttpVersion.Version20));
+    }
+
+    [Test]
+    public void AsHttp3_SetsHttpVersion30()
+    {
+        var request = new Request("https://example.com")
+            .AsHttp3();
+        
+        Assert.That(request.HttpVersion, Is.EqualTo(HttpVersion.Version30));
+    }
+
+    [Test]
+    public void DefaultHttpVersion_IsHttp3()
+    {
+        var request = new Request("https://example.com");
+        
+        Assert.That(request.HttpVersion, Is.EqualTo(HttpVersion.Version30));
+        Assert.That(request.HttpVersionPolicy, Is.EqualTo(HttpVersionPolicy.RequestVersionOrLower));
+    }
+
+    [Test]
+    public void HttpVersion_CanBeSwitchedMultipleTimes()
+    {
+        var request = new Request("https://example.com")
+            .AsHttp3()
+            .AsHttp2()
+            .AsHttp11();
+        
+        Assert.That(request.HttpVersion, Is.EqualTo(HttpVersion.Version11));
+    }
+
+    [Test]
+    public void FluentApi_WithHttpVersion_ChainsCorrectly()
+    {
+        var request = new Request("https://example.com")
+            .AsPost()
+            .AsHttp2()
+            .WithHeader("X-Test", "Value")
+            .Build();
+        
+        Assert.That(request.Method, Is.EqualTo(HttpMethod.Post));
+        Assert.That(request.HttpVersion, Is.EqualTo(HttpVersion.Version20));
+    }
+
+    #endregion
+
     #region Fluent API Tests
 
     [Test]

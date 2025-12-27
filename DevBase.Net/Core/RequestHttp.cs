@@ -132,8 +132,8 @@ public partial class Request
                 metricsBuilder.SetProxy(this._proxy != null, this._proxy?.Key);
 
                 using HttpRequestMessage httpRequest = this.ToHttpRequestMessage();
-                httpRequest.Version = new Version(3, 0);
-                httpRequest.VersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
+                httpRequest.Version = this._httpVersion;
+                httpRequest.VersionPolicy = this._httpVersionPolicy;
 
                 metricsBuilder.MarkConnectStart();
                 HttpResponseMessage httpResponse = await client.SendAsync(httpRequest, 
@@ -284,6 +284,8 @@ public partial class Request
         sb.Append(this._validateCertificates);
         sb.Append("|redirect:");
         sb.Append(this._followRedirects);
+        sb.Append("|httpver:");
+        sb.Append(this._httpVersion);
         
         return sb.ToStringAndRelease();
     }
