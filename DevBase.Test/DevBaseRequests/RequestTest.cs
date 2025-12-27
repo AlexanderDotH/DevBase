@@ -599,10 +599,10 @@ public class RequestTest
     }
 
     [Test]
-    public void AsHttp11_SetsHttpVersion11()
+    public void AsHttp1_SetsHttpVersion11()
     {
         var request = new Request("https://example.com")
-            .AsHttp11();
+            .AsHttp1();
         
         Assert.That(request.HttpVersion, Is.EqualTo(HttpVersion.Version11));
     }
@@ -640,7 +640,7 @@ public class RequestTest
         var request = new Request("https://example.com")
             .AsHttp3()
             .AsHttp2()
-            .AsHttp11();
+            .AsHttp1();
         
         Assert.That(request.HttpVersion, Is.EqualTo(HttpVersion.Version11));
     }

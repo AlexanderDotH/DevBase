@@ -293,7 +293,7 @@ public partial class Request
     /// Configures the request to use HTTP/1.1.
     /// </summary>
     /// <returns>The request instance for method chaining.</returns>
-    public Request AsHttp11() => this.WithHttpVersion(System.Net.HttpVersion.Version11);
+    public Request AsHttp1() => this.WithHttpVersion(System.Net.HttpVersion.Version11);
 
     /// <summary>
     /// Configures the request to use HTTP/2.
