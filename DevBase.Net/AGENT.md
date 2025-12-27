@@ -154,8 +154,8 @@ Request UseJwtAuthentication(string rawToken)
 // Request Body
 Request WithRawBody(RequestRawBodyBuilder bodyBuilder)
 Request WithRawBody(string content, Encoding? encoding = null)
-Request WithJsonBody(string jsonContent, Encoding? encoding = null)
-Request WithJsonBody<T>(T obj)
+Request WithJsonBody(string jsonContent, Encoding? encoding = null)  // Supports both objects {} and arrays []
+Request WithJsonBody<T>(T obj)  // Serializes any object including List<T>, arrays, etc.
 Request WithBufferBody(byte[] buffer)
 Request WithBufferBody(Memory<byte> buffer)
 Request WithEncodedForm(RequestEncodedKeyValueListBodyBuilder formBuilder)
