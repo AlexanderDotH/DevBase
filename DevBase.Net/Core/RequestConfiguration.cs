@@ -274,4 +274,36 @@ public partial class Request
         this._responseInterceptors.Add(interceptor);
         return this;
     }
+
+    /// <summary>
+    /// Sets the HTTP version for the request.
+    /// </summary>
+    /// <param name="version">The HTTP version to use.</param>
+    /// <param name="policy">The version policy. Default is RequestVersionOrLower.</param>
+    /// <returns>The request instance for method chaining.</returns>
+    public Request WithHttpVersion(Version version, HttpVersionPolicy policy = HttpVersionPolicy.RequestVersionOrLower)
+    {
+        ArgumentNullException.ThrowIfNull(version);
+        this._httpVersion = version;
+        this._httpVersionPolicy = policy;
+        return this;
+    }
+
+    /// <summary>
+    /// Configures the request to use HTTP/1.1.
+    /// </summary>
+    /// <returns>The request instance for method chaining.</returns>
+    public Request AsHttp11() => this.WithHttpVersion(System.Net.HttpVersion.Version11);
+
+    /// <summary>
+    /// Configures the request to use HTTP/2.
+    /// </summary>
+    /// <returns>The request instance for method chaining.</returns>
+    public Request AsHttp2() => this.WithHttpVersion(System.Net.HttpVersion.Version20);
+
+    /// <summary>
+    /// Configures the request to use HTTP/3.
+    /// </summary>
+    /// <returns>The request instance for method chaining.</returns>
+    public Request AsHttp3() => this.WithHttpVersion(System.Net.HttpVersion.Version30);
 }
