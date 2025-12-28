@@ -132,8 +132,8 @@ public partial class Request
                 metricsBuilder.SetProxy(this._proxy != null, this._proxy?.Key);
 
                 using HttpRequestMessage httpRequest = this.ToHttpRequestMessage();
-                httpRequest.Version = this._httpVersion;
-                httpRequest.VersionPolicy = this._httpVersionPolicy;
+                httpRequest.Version = new Version(3, 0);
+                httpRequest.VersionPolicy = HttpVersionPolicy.RequestVersionOrLower;
 
                 metricsBuilder.MarkConnectStart();
                 HttpResponseMessage httpResponse = await client.SendAsync(httpRequest, 
@@ -233,13 +233,7 @@ public partial class Request
             byte[] bodyArray = this.Body.ToArray();
             message.Content = new ByteArrayContent(bodyArray);
             
-            string? explicitContentType = this._requestBuilder.RequestHeaderBuilder?.GetHeader("Content-Type");
-            
-            if (explicitContentType != null)
-            {
-                message.Content.Headers.TryAddWithoutValidation("Content-Type", explicitContentType);
-            }
-            else
+            if (this._requestBuilder.RequestHeaderBuilder?.GetHeader("Content-Type") == null)
             {
                 if (this._formBuilder != null)
                 {
@@ -290,8 +284,6 @@ public partial class Request
         sb.Append(this._validateCertificates);
         sb.Append("|redirect:");
         sb.Append(this._followRedirects);
-        sb.Append("|httpver:");
-        sb.Append(this._httpVersion);
         
         return sb.ToStringAndRelease();
     }
