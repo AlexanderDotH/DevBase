@@ -28,7 +28,7 @@ public partial class Request
         
         if (this._requestBuilder.RequestHeaderBuilder != null)
         {
-            userHeaders = this._requestBuilder.RequestHeaderBuilder.GetEntries().ToList();
+            userHeaders = [..this._requestBuilder.RequestHeaderBuilder.GetEntries()];
             userDefinedUserAgent = this._requestBuilder.RequestHeaderBuilder.GetPreBuildUserAgent();
         }
         
@@ -101,9 +101,12 @@ public partial class Request
         int attemptNumber = 0;
         System.Exception? lastException = null;
 
-        foreach (Interfaces.IRequestInterceptor interceptor in this._requestInterceptors.OrderBy(i => i.Order))
+        if (this._requestInterceptors.Count > 0)
         {
-            await interceptor.OnRequestAsync(this, token);
+            foreach (Interfaces.IRequestInterceptor interceptor in this._requestInterceptors)
+            {
+                await interceptor.OnRequestAsync(this, token);
+            }
         }
 
         if (this._hostCheckConfig != null)
@@ -122,6 +125,8 @@ public partial class Request
                 await Task.Delay(delay, token);
             }
 
+            Uri requestUri = this.GetUri()!;
+            
             try
             {
                 HttpClient client = this.GetOrCreateClient();
@@ -143,7 +148,7 @@ public partial class Request
 
                 if (httpResponse.StatusCode == HttpStatusCode.TooManyRequests)
                 {
-                    RateLimitException rateLimitException = this.HandleRateLimitResponse(httpResponse);
+                    RateLimitException rateLimitException = HandleRateLimitResponse(httpResponse, requestUri);
                     
                     if (attemptNumber > this._retryPolicy.MaxRetries)
                         throw rateLimitException;
@@ -166,13 +171,16 @@ public partial class Request
 
                 Response response = new Response(httpResponse, contentStream, metricsBuilder.Build())
                 {
-                    RequestUri = new Uri(this.Uri.ToString()),
+                    RequestUri = requestUri,
                     FromCache = false
                 };
 
-                foreach (Interfaces.IResponseInterceptor interceptor in this._responseInterceptors.OrderBy(i => i.Order))
+                if (this._responseInterceptors.Count > 0)
                 {
-                    await interceptor.OnResponseAsync(response, token);
+                    foreach (Interfaces.IResponseInterceptor interceptor in this._responseInterceptors)
+                    {
+                        await interceptor.OnResponseAsync(response, token);
+                    }
                 }
 
                 return response;
@@ -183,7 +191,7 @@ public partial class Request
             }
             catch (OperationCanceledException)
             {
-                lastException = new RequestTimeoutException(this._timeout, new Uri(this.Uri.ToString()), attemptNumber);
+                lastException = new RequestTimeoutException(this._timeout, requestUri, attemptNumber);
                 
                 if (attemptNumber > this._retryPolicy.MaxRetries)
                     throw lastException;
@@ -198,9 +206,7 @@ public partial class Request
             }
             catch (HttpRequestException ex)
             {
-                string uri = this.Uri.ToString();
-                string host = new Uri(uri).Host;
-                lastException = new NetworkException(ex.Message, ex, host, attemptNumber);
+                lastException = new NetworkException(ex.Message, ex, requestUri.Host, attemptNumber);
                 
                 if (attemptNumber > this._retryPolicy.MaxRetries)
                     throw lastException;
@@ -224,6 +230,9 @@ public partial class Request
         {
             foreach (KeyValuePair<string, string> entry in this._requestBuilder.RequestHeaderBuilder.GetEntries())
             {
+                if (entry.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase))
+                    continue;
+                
                 message.Headers.TryAddWithoutValidation(entry.Key, entry.Value);
             }
         }
@@ -233,7 +242,13 @@ public partial class Request
             byte[] bodyArray = this.Body.ToArray();
             message.Content = new ByteArrayContent(bodyArray);
             
-            if (this._requestBuilder.RequestHeaderBuilder?.GetHeader("Content-Type") == null)
+            string? explicitContentType = this._requestBuilder.RequestHeaderBuilder?.GetHeader("Content-Type");
+            
+            if (explicitContentType != null)
+            {
+                message.Content.Headers.TryAddWithoutValidation("Content-Type", explicitContentType);
+            }
+            else
             {
                 if (this._formBuilder != null)
                 {
@@ -284,8 +299,6 @@ public partial class Request
         sb.Append(this._validateCertificates);
         sb.Append("|redirect:");
         sb.Append(this._followRedirects);
-        sb.Append("|httpver:");
-        sb.Append(this._httpVersion);
         
         return sb.ToStringAndRelease();
     }
@@ -323,7 +336,7 @@ public partial class Request
 
     private async Task CheckHostReachabilityAsync(CancellationToken cancellationToken)
     {
-        Uri uri = new Uri(this.Uri.ToString());
+        Uri uri = this.GetUri()!;
         string host = uri.Host;
 
         if (this._hostCheckConfig!.Method == EnumHostCheckMethod.Ping)
@@ -349,10 +362,9 @@ public partial class Request
 
     private static bool IsProxyError(HttpRequestException ex)
     {
-        string message = ex.Message.ToLowerInvariant();
-        return message.Contains("proxy") || 
-               message.Contains("407") ||
-               ex.StatusCode == HttpStatusCode.ProxyAuthenticationRequired;
+        return ex.StatusCode == HttpStatusCode.ProxyAuthenticationRequired ||
+               ex.Message.Contains("proxy", StringComparison.OrdinalIgnoreCase) || 
+               ex.Message.Contains("407", StringComparison.Ordinal);
     }
 
     private void ApplyScrapingBypassIfConfigured(List<KeyValuePair<string, string>>? userHeaders, string? userDefinedUserAgent)
@@ -387,10 +399,8 @@ public partial class Request
         }
     }
 
-    private RateLimitException HandleRateLimitResponse(HttpResponseMessage response)
+    private static RateLimitException HandleRateLimitResponse(HttpResponseMessage response, Uri requestUri)
     {
-        Uri requestUri = new Uri(this.Uri.ToString());
-        
         if (response.Headers.TryGetValues("Retry-After", out IEnumerable<string>? retryAfterValues))
         {
             string? retryAfter = retryAfterValues.FirstOrDefault();

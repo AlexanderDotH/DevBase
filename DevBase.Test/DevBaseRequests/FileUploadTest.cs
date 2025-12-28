@@ -283,9 +283,8 @@ public class FileUploadTest
         request.Build();
         var httpMessage = request.ToHttpRequestMessage();
 
-        // Custom Content-Type is in request headers, not message headers
-        // The Content-Type should not be overwritten by multipart detection
-        Assert.That(httpMessage.Content!.Headers.ContentType, Is.Null);
+        // Custom Content-Type should be preserved in content headers, not overwritten by multipart detection
+        Assert.That(httpMessage.Content!.Headers.ContentType?.MediaType, Is.EqualTo("custom/type"));
     }
 
     #endregion

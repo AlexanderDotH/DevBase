@@ -78,8 +78,15 @@ public abstract class HttpKeyValueListBuilder<T, TKeyK, TKeyV>
     /// </summary>
     /// <param name="key">The key.</param>
     /// <returns>The value.</returns>
-    protected TKeyV GetEntryValue(TKeyK key) => 
-        this.Entries.FirstOrDefault(e => KeyEquals(e.Key, key)).Value;
+    protected TKeyV GetEntryValue(TKeyK key)
+    {
+        for (int i = 0; i < this.Entries.Count; i++)
+        {
+            if (KeyEquals(this.Entries[i].Key, key))
+                return this.Entries[i].Value;
+        }
+        return default!;
+    }
 
     /// <summary>
     /// Gets the value at the specified index.
@@ -96,13 +103,13 @@ public abstract class HttpKeyValueListBuilder<T, TKeyK, TKeyV>
     /// <param name="value">The new value.</param>
     protected void SetEntryValue(TKeyK key, TKeyV value)
     {
-        int index = this.Entries
-            .FindIndex(e => KeyEquals(e.Key, key));
-        
-        if (index >= 0)
+        for (int i = 0; i < this.Entries.Count; i++)
         {
-            TKeyK existingKey = this.Entries[index].Key;
-            this.Entries[index] = KeyValuePair.Create(existingKey, value);
+            if (KeyEquals(this.Entries[i].Key, key))
+            {
+                this.Entries[i] = KeyValuePair.Create(this.Entries[i].Key, value);
+                return;
+            }
         }
     }
     
@@ -122,8 +129,15 @@ public abstract class HttpKeyValueListBuilder<T, TKeyK, TKeyV>
     /// </summary>
     /// <param name="key">The key to check.</param>
     /// <returns>True if exists, false otherwise.</returns>
-    protected bool AnyEntry(TKeyK key) => 
-        this.Entries.Exists(e => KeyEquals(e.Key, key));
+    protected bool AnyEntry(TKeyK key)
+    {
+        for (int i = 0; i < this.Entries.Count; i++)
+        {
+            if (KeyEquals(this.Entries[i].Key, key))
+                return true;
+        }
+        return false;
+    }
     
     private static bool KeyEquals(TKeyK? a, TKeyK? b)
     {
