@@ -233,7 +233,13 @@ public partial class Request
             byte[] bodyArray = this.Body.ToArray();
             message.Content = new ByteArrayContent(bodyArray);
             
-            if (this._requestBuilder.RequestHeaderBuilder?.GetHeader("Content-Type") == null)
+            string? explicitContentType = this._requestBuilder.RequestHeaderBuilder?.GetHeader("Content-Type");
+            
+            if (explicitContentType != null)
+            {
+                message.Content.Headers.TryAddWithoutValidation("Content-Type", explicitContentType);
+            }
+            else
             {
                 if (this._formBuilder != null)
                 {
