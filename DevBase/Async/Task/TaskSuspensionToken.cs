@@ -17,6 +17,11 @@ namespace DevBase.Async.Task
         private TaskCompletionSource<bool> _resumeRequestTcs;
 
         /// <summary>
+        /// Gets whether the token is currently suspended.
+        /// </summary>
+        public bool IsSuspended => _suspended;
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="TaskSuspensionToken"/> class.
         /// </summary>
         /// <param name="cancellationToken">The cancellation token source (not currently used in constructor logic but kept for signature).</param>
