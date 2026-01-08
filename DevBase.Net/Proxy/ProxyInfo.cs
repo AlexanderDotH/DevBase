@@ -178,6 +178,34 @@ public sealed class ProxyInfo
         }
     }
 
+    public static bool TryCreate(string? host, string? port, EnumProxyType type, out ProxyInfo? proxyInfo)
+    {
+        proxyInfo = null;
+        
+        if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(port))
+            return false;
+            
+        if (!int.TryParse(port, out int portInt) || portInt <= 0 || portInt > 65535)
+            return false;
+            
+        proxyInfo = new ProxyInfo(host.Trim(), portInt, type);
+        return true;
+    }
+    
+    public static bool TryCreate(string? host, string? port, EnumProxyType type, string? username, string? password, out ProxyInfo? proxyInfo)
+    {
+        if (!TryCreate(host, port, type, out proxyInfo))
+            return false;
+            
+        if (!string.IsNullOrEmpty(username))
+        {
+            proxyInfo!.Username = username;
+            proxyInfo.Password = password ?? string.Empty;
+        }
+        
+        return true;
+    }
+
     public Uri ToUri()
     {
         string scheme = this.Type switch
