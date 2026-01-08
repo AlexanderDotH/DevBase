@@ -9,10 +9,38 @@ public sealed class ProxyInfo
 {
     private static readonly ConcurrentDictionary<string, IWebProxy> ProxyCache = new();
     
-    public string Host { get; }
-    public int Port { get; }
-    public EnumProxyType Type { get; }
-    public NetworkCredential? Credentials { get; }
+    public string Host { get; set; } = string.Empty;
+    public int Port { get; set; }
+    public EnumProxyType Type { get; set; } = EnumProxyType.Http;
+    public NetworkCredential? Credentials { get; set; }
+    
+    public string? Username
+    {
+        get => Credentials?.UserName;
+        set
+        {
+            if (value != null)
+            {
+                Credentials = new NetworkCredential(value, Credentials?.Password ?? string.Empty);
+            }
+        }
+    }
+    
+    public string? Password
+    {
+        get => Credentials?.Password;
+        set
+        {
+            if (Credentials != null)
+            {
+                Credentials = new NetworkCredential(Credentials.UserName, value ?? string.Empty);
+            }
+            else if (value != null)
+            {
+                Credentials = new NetworkCredential(string.Empty, value);
+            }
+        }
+    }
     
     public bool BypassLocalAddresses { get; init; }
     public string[]? BypassList { get; init; }
@@ -22,7 +50,11 @@ public sealed class ProxyInfo
     public int InternalServerPort { get; init; }
     
     public string Key => $"{this.Type}://{this.Host}:{this.Port}";
-    public bool HasAuthentication => Credentials != null;
+    public bool HasAuthentication => Credentials != null && !string.IsNullOrEmpty(Credentials.UserName);
+
+    public ProxyInfo()
+    {
+    }
 
     public ProxyInfo(string host, int port, EnumProxyType type = EnumProxyType.Http, NetworkCredential? credentials = null)
     {

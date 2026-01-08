@@ -2,16 +2,16 @@ using System.Net;
 
 namespace DevBase.Net.Proxy;
 
-public sealed class TrackedProxyInfo
+public class TrackedProxyInfo
 {
     private readonly object _lock = new();
     
     public ProxyInfo Proxy { get; }
-    public int FailureCount { get; private set; }
-    public DateTime? LastFailure { get; private set; }
-    public bool IsTimedOut { get; private set; }
-    public DateTime? TimeoutUntil { get; private set; }
-    public int TotalTimeouts { get; private set; }
+    public int FailureCount { get; protected set; }
+    public DateTime? LastFailure { get; protected set; }
+    public bool IsTimedOut { get; protected set; }
+    public DateTime? TimeoutUntil { get; protected set; }
+    public int TotalTimeouts { get; protected set; }
     public int MaxFailures { get; }
     public TimeSpan TimeoutDuration { get; }
     
@@ -41,7 +41,7 @@ public sealed class TrackedProxyInfo
         IsTimedOut = false;
     }
 
-    public bool ReportFailure()
+    public virtual bool ReportFailure()
     {
         lock (_lock)
         {
@@ -60,7 +60,7 @@ public sealed class TrackedProxyInfo
         }
     }
 
-    public void ReportSuccess()
+    public virtual void ReportSuccess()
     {
         lock (_lock)
         {
@@ -69,7 +69,7 @@ public sealed class TrackedProxyInfo
         }
     }
 
-    public bool IsAvailable()
+    public virtual bool IsAvailable()
     {
         lock (_lock)
         {
@@ -86,7 +86,7 @@ public sealed class TrackedProxyInfo
         }
     }
 
-    public void ResetTimeout()
+    public virtual void ResetTimeout()
     {
         lock (_lock)
         {
@@ -96,7 +96,7 @@ public sealed class TrackedProxyInfo
         }
     }
 
-    public IWebProxy ToWebProxy() => Proxy.ToWebProxy();
+    public virtual IWebProxy ToWebProxy() => Proxy.ToWebProxy();
 
     public override string ToString() => 
         $"{Key} [Failures: {FailureCount}/{MaxFailures}, TimedOut: {IsTimedOut}]";
