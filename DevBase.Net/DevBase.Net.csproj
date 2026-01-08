@@ -15,7 +15,7 @@
         <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
         <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <Version>1.4.8</Version>
+        <Version>1.4.10</Version>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
         <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
         <PackageTags>http;client;requests;proxy;socks5;jwt;authentication;fluent-api;async;retry;rate-limiting;json;html-parsing</PackageTags>

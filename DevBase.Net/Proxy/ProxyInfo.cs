@@ -49,7 +49,7 @@ public sealed class ProxyInfo
     public TimeSpan ReadWriteTimeout { get; init; } = TimeSpan.FromSeconds(60);
     public int InternalServerPort { get; init; }
     
-    public string Key => $"{this.Type}://{this.Host}:{this.Port}";
+    public string Key => $"{this.Type.ToString().ToLowerInvariant()}://{this.Host}:{this.Port}";
     public bool HasAuthentication => Credentials != null && !string.IsNullOrEmpty(Credentials.UserName);
 
     public ProxyInfo()
@@ -324,7 +324,10 @@ public sealed class ProxyInfo
         ProxyCache.Clear();
     }
 
-    public override string ToString() => this.Key;
+    public override string ToString() => 
+        HasAuthentication 
+            ? $"{this.Type.ToString().ToLowerInvariant()}://{this.Host}:{this.Port}:{this.Username}:{this.Password}"
+            : this.Key;
     
     public override int GetHashCode() => HashCode.Combine(this.Host, this.Port, this.Type);
     

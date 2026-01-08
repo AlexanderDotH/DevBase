@@ -449,7 +449,7 @@ public class ProxyTest
     {
         var proxy = new ProxyInfo("host", 8080, EnumProxyType.Socks5);
         
-        Assert.That(proxy.ToString(), Is.EqualTo("Socks5://host:8080"));
+        Assert.That(proxy.ToString(), Is.EqualTo("socks5://host:8080"));
     }
 
     #endregion
