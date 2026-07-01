@@ -94,15 +94,18 @@ public class ClusterColorCalculator
     {
         AList<Color> dominantColorSet = new AList<Color>();
         
-        if (this.PredefinedDataset)
+        if (this.PredefinedDataset) {
             dominantColorSet.AddRange(ClusterData.RGB_DATA);
-        
-        if (this.FilterSaturation)
+        }
+
+        if (this.FilterSaturation) {
             dominantColorSet.AddRange(colors.FilterSaturation(MinSaturation));
-        
-        if (this.FilterBrightness)
+        }
+
+        if (this.FilterBrightness) {
             dominantColorSet.AddRange(colors.FilterBrightness(MinBrightness));
-        
+        }
+
         dominantColorSet.AddRange(AdditionalColorDataset);
 
         double[][] initialCentroids = dominantColorSet.GetAsArray().Select(x => new double[] { x.R, x.G, x.B }).ToArray();
@@ -123,7 +126,9 @@ public class ClusterColorCalculator
         var values = clusters.ToList().GetRange(0, max);
         
         for (var i = 0; i < values.Count; i++)
+        {
             list.AddRange(ClusterToColor(cluster, values[i].Key).Shift(this.SmallShift, this.BigShift));
+        }
 
         return list.Average();
     }

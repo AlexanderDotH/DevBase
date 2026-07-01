@@ -46,8 +46,9 @@ public sealed class ResponseCache : IDisposable
     /// <returns>The cached response, or null if not found or caching is disabled.</returns>
     public async Task<CachedResponse?> GetAsync(Core.Request request, CancellationToken cancellationToken = default)
     {
-        if (!Enabled)
+        if (!Enabled) {
             return null;
+        }
 
         string key = GenerateCacheKey(request);
         return await _cache.GetOrDefaultAsync<CachedResponse>(key, token: cancellationToken);
@@ -62,8 +63,9 @@ public sealed class ResponseCache : IDisposable
     /// <param name="cancellationToken">Cancellation token.</param>
     public async Task SetAsync(Core.Request request, Response response, TimeSpan? expiration = null, CancellationToken cancellationToken = default)
     {
-        if (!Enabled)
+        if (!Enabled) {
             return;
+        }
 
         string key = GenerateCacheKey(request);
         CachedResponse cached = await CachedResponse.FromResponseAsync(response, cancellationToken);
@@ -108,10 +110,14 @@ public sealed class ResponseCache : IDisposable
     /// <inheritdoc />
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed) {
+            return;
+        }
+
         _disposed = true;
         
-        if (_cache is IDisposable disposable)
+        if (_cache is IDisposable disposable) {
             disposable.Dispose();
+        }
     }
 }

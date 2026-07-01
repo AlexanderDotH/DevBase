@@ -54,9 +54,10 @@ public partial class Request
     {
         ArgumentNullException.ThrowIfNull(fileInfo);
         
-        if (!fileInfo.Exists)
+        if (!fileInfo.Exists) {
             throw new FileNotFoundException("File not found", fileInfo.FullName);
-        
+        }
+
         Memory<byte> buffer = AFile.ReadFile(fileInfo);
         AFileObject fileObject = AFileObject.FromBuffer(buffer.ToArray(), fileInfo.Name);
         return this.WithFileContent(fileObject, fieldName);
@@ -108,9 +109,10 @@ public partial class Request
         RequestKeyValueListBodyBuilder formBuilder = new RequestKeyValueListBodyBuilder();
         foreach ((string fieldName, FileInfo fileInfo) in files)
         {
-            if (!fileInfo.Exists)
+            if (!fileInfo.Exists) {
                 throw new FileNotFoundException("File not found", fileInfo.FullName);
-            
+            }
+
             Memory<byte> buffer = AFile.ReadFile(fileInfo);
             AFileObject fileObject = AFileObject.FromBuffer(buffer.ToArray(), fileInfo.Name);
             MimeFileObject mimeFile = MimeFileObject.FromAFileObject(fileObject);
@@ -152,9 +154,10 @@ public partial class Request
         
         this.WithBufferBody(buffer);
         
-        if (!string.IsNullOrEmpty(contentType))
+        if (!string.IsNullOrEmpty(contentType)) {
             this.WithHeader("Content-Type", contentType);
-        
+        }
+
         return this;
     }
     
@@ -175,9 +178,10 @@ public partial class Request
         
         this.WithBufferBody(buffer);
         
-        if (!string.IsNullOrEmpty(contentType))
+        if (!string.IsNullOrEmpty(contentType)) {
             this.WithHeader("Content-Type", contentType);
-        
+        }
+
         return this;
     }
     
@@ -195,9 +199,10 @@ public partial class Request
     {
         this.WithBufferBody(buffer);
         
-        if (!string.IsNullOrEmpty(contentType))
+        if (!string.IsNullOrEmpty(contentType)) {
             this.WithHeader("Content-Type", contentType);
-        
+        }
+
         return this;
     }
     
@@ -211,9 +216,10 @@ public partial class Request
     {
         this.WithBufferBody(buffer.ToArray());
         
-        if (!string.IsNullOrEmpty(contentType))
+        if (!string.IsNullOrEmpty(contentType)) {
             this.WithHeader("Content-Type", contentType);
-        
+        }
+
         return this;
     }
     
@@ -227,9 +233,10 @@ public partial class Request
     {
         this.WithBufferBody(buffer.ToArray());
         
-        if (!string.IsNullOrEmpty(contentType))
+        if (!string.IsNullOrEmpty(contentType)) {
             this.WithHeader("Content-Type", contentType);
-        
+        }
+
         return this;
     }
     
@@ -341,7 +348,10 @@ public partial class Request
     {
         RequestEncodedKeyValueListBodyBuilder builder = new RequestEncodedKeyValueListBodyBuilder();
         foreach ((string key, string value) in formData)
+        {
             builder.AddText(key, value);
+        }
+
         return this.WithEncodedForm(builder);
     }
 

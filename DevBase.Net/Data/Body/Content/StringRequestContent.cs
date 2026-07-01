@@ -9,11 +9,13 @@ public class StringRequestContent : TypographyRequestContent
     
     public override bool IsValid(ReadOnlySpan<byte> content)
     {
-        if (content == null)
+        if (content == null) {
             return false;
-        
-        if (content.Length == 0)
+        }
+
+        if (content.Length == 0) {
             return false;
+        }
 
         return true;
     }

@@ -10,8 +10,9 @@ public sealed class RoundRobinStrategy : IProxyRotationStrategy
     /// <inheritdoc />
     public TrackedProxyInfo? SelectProxy(List<TrackedProxyInfo> proxies, ref int currentIndex)
     {
-        if (proxies.Count == 0)
+        if (proxies.Count == 0) {
             return null;
+        }
 
         int attempts = 0;
         while (attempts < proxies.Count)
@@ -19,8 +20,9 @@ public sealed class RoundRobinStrategy : IProxyRotationStrategy
             currentIndex = (currentIndex + 1) % proxies.Count;
             TrackedProxyInfo proxy = proxies[currentIndex];
 
-            if (proxy.IsAvailable())
+            if (proxy.IsAvailable()) {
                 return proxy;
+            }
 
             attempts++;
         }

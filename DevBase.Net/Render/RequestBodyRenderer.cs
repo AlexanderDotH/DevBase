@@ -10,8 +10,9 @@ public static class RequestBodyRenderer
         where K : class 
         where V : class
     {
-        if (request == null)
+        if (request == null) {
             throw new BuilderException();
+        }
 
         request.Build();
         return request.Buffer;
@@ -20,9 +21,10 @@ public static class RequestBodyRenderer
     public static Memory<byte> RenderBody<T>(HttpBodyBuilder<T> request) 
         where T : HttpBodyBuilder<T> 
     {
-        if (request == null)
+        if (request == null) {
             throw new BuilderException();
-        
+        }
+
         request.Build();
         return request.Buffer;
     }

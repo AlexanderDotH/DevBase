@@ -19,8 +19,10 @@ public class MimeDictionaryTest
         stopwatch.Start();
         
         for (int i = 0; i < amount; i++)
+        {
             mimeType = dictionary.GetMimeTypeAsSpan(".png");
-        
+        }
+
         stopwatch.Stop();
         
         Console.WriteLine($"Got the mime type {amount}times for .png({mimeType.ToString()})");

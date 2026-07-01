@@ -41,7 +41,9 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         AList<RichTimeStampedLyric> proceeded = new AList<RichTimeStampedLyric>();
 
         for (int i = 0; i < blocks.Length; i++)
+        {
             proceeded.Add(ProcessBlock(blocks.Get(i)));
+        }
 
         return proceeded;
     }
@@ -86,9 +88,10 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         
             sb.AppendLine($"[{startTime}] - [{endTime}] {t}");
             
-            if (line.Words.Length == 0)
+            if (line.Words.Length == 0) {
                 continue;
-        
+            }
+
             sb.AppendLine("[");
             
             for (var j = 0; j < line.Words.Length; j++)
@@ -97,18 +100,20 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         
                 string cLine = word.Word;
                 
-                if (cLine == null || cLine.Length == 0)
+                if (cLine == null || cLine.Length == 0) {
                     continue;
-        
+                }
+
                 sb.AppendLine($"{this._indent}[{word.StartTime}] - [{word.EndTime}] {cLine}");
             }
             
             sb.AppendLine("]");
         }
 
-        if (sb.Length == 0)
+        if (sb.Length == 0) {
             return Error<object>("Block not found");
-        
+        }
+
         return sb.ToString();
     }
 
@@ -136,13 +141,15 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
     {
         string first = block.Get(0);
 
-        if (!first.StartsWith("["))
+        if (!first.StartsWith("[")) {
             return Error<object>("Invalid block at block position 0");
+        }
 
         AList<string> entries = block.GetRangeAsAList(2, block.Length - 2);
 
-        if (!RegexHolder.RegexElrc.IsMatch(first))
+        if (!RegexHolder.RegexElrc.IsMatch(first)) {
             return Error<object>("Invalid head block");
+        }
 
         RichTimeStampedLyric head = ParseHead(first);
 
@@ -165,8 +172,9 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
             string current = lines.Get(i);
             string next = string.Empty;
 
-            if (i + 1 < lines.Length)
+            if (i + 1 < lines.Length) {
                 next = lines.Get(i + 1);
+            }
 
             if (current[0] == '[' && 
                 next.Length != 0 && next[0] == '[')
@@ -200,9 +208,10 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
 
         TimeSpan parsed;
 
-        if (!TimeUtils.TryParseTimeStamp(timeStamp.ToString(), out parsed))
+        if (!TimeUtils.TryParseTimeStamp(timeStamp.ToString(), out parsed)) {
             return Error<object>($"Cannot parse timespan {timeStamp.ToString()}");
-        
+        }
+
         return parsed;
     }
 

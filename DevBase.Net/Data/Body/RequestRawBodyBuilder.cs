@@ -29,30 +29,37 @@ public class RequestRawBodyBuilder : HttpBodyBuilder<RequestRawBodyBuilder>
     {
         byte[] byteBuffer = Array.Empty<byte>();
         
-        if (encoding == null)
+        if (encoding == null) {
             encoding = Encoding.UTF8;
-        
-        if (content is string text)
-            byteBuffer = encoding.GetBytes(text);
-        
-        if (content is byte[] buffer)
-            byteBuffer = buffer;
+        }
 
-        if (byteBuffer == null || byteBuffer.Length == 0)
+        if (content is string text) {
+            byteBuffer = encoding.GetBytes(text);
+        }
+
+        if (content is byte[] buffer) {
+            byteBuffer = buffer;
+        }
+
+        if (byteBuffer == null || byteBuffer.Length == 0) {
             throw new ElementValidationException(EnumValidationReason.DataMismatch);
-        
+        }
+
         if (this.ValidateInput)
         {
             TCv requestContent = default;
             
-            if (content is string)
+            if (content is string) {
                 requestContent = (TCv)Activator.CreateInstance(typeof(TCv), encoding)!;
-            
-            if (content is byte[])
+            }
+
+            if (content is byte[]) {
                 requestContent = (TCv)Activator.CreateInstance(typeof(TCv))!;
-            
-            if (!requestContent!.IsValid(byteBuffer))
+            }
+
+            if (!requestContent!.IsValid(byteBuffer)) {
                 throw new ElementValidationException(EnumValidationReason.InvalidData);
+            }
         }
 
         this.Buffer = byteBuffer;
@@ -62,7 +69,8 @@ public class RequestRawBodyBuilder : HttpBodyBuilder<RequestRawBodyBuilder>
     
     protected override Action BuildAction => () =>
     {
-        if (this.Buffer.IsEmpty)
+        if (this.Buffer.IsEmpty) {
             throw new ElementValidationException(EnumValidationReason.Empty);
+        }
     };
 }

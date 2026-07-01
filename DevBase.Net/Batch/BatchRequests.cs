@@ -80,9 +80,10 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
         
         Batch batch = new Batch(name, this);
-        if (!_batches.TryAdd(name, batch))
+        if (!_batches.TryAdd(name, batch)) {
             throw new InvalidOperationException($"Batch '{name}' already exists");
-        
+        }
+
         return batch;
     }
 
@@ -105,7 +106,10 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
     public BatchRequests ClearAllBatches()
     {
         foreach (Batch batch in _batches.Values)
+        {
             batch.Clear();
+        }
+
         return this;
     }
 
@@ -182,7 +186,10 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
     {
         List<Response> responses = new List<Response>(_responseQueue.Count);
         while (_responseQueue.TryDequeue(out Response? response))
+        {
             responses.Add(response);
+        }
+
         return responses;
     }
 
@@ -192,8 +199,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
 
     public void StartProcessing()
     {
-        if (_isProcessing)
+        if (_isProcessing) {
             return;
+        }
 
         _processingCts = new CancellationTokenSource();
         _isProcessing = true;
@@ -202,8 +210,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
 
     public async Task StopProcessingAsync()
     {
-        if (!_isProcessing)
+        if (!_isProcessing) {
             return;
+        }
 
         _processingCts?.Cancel();
 
@@ -229,8 +238,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
         ConcurrentBag<Response> responses = new ConcurrentBag<Response>();
         
         List<(Request Request, string BatchName)> allRequests = CollectAllRequests();
-        if (allRequests.Count == 0)
+        if (allRequests.Count == 0) {
             return new List<Response>();
+        }
 
         int totalRequests = allRequests.Count;
         int completed = 0;
@@ -305,8 +315,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
     public async Task<List<Response>> ExecuteBatchAsync(string batchName, CancellationToken cancellationToken = default)
     {
         Batch? batch = GetBatch(batchName);
-        if (batch == null)
+        if (batch == null) {
             throw new InvalidOperationException($"Batch '{batchName}' not found");
+        }
 
         return await ExecuteBatchInternalAsync(batch, cancellationToken).ConfigureAwait(false);
     }
@@ -340,7 +351,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
             completed = completedHolder[0];
 
             foreach (Response response in responseBag)
+            {
                 yield return response;
+            }
         }
     }
 
@@ -435,8 +448,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
         ConcurrentBag<Response> responses = new ConcurrentBag<Response>();
         List<Request> requests = batch.DequeueAll();
         
-        if (requests.Count == 0)
+        if (requests.Count == 0) {
             return new List<Response>();
+        }
 
         int totalRequests = requests.Count;
         int completed = 0;
@@ -546,8 +560,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
 
     private async Task EnforceRateLimitAsync(CancellationToken cancellationToken)
     {
-        if (_rateLimit <= 0)
+        if (_rateLimit <= 0) {
             return;
+        }
 
         await _rateLimitSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -563,8 +578,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
             if (_requestsInWindow >= _rateLimit)
             {
                 TimeSpan waitTime = _rateLimitWindow - (now - _windowStart);
-                if (waitTime > TimeSpan.Zero)
+                if (waitTime > TimeSpan.Zero) {
                     await Task.Delay(waitTime, cancellationToken).ConfigureAwait(false);
+                }
 
                 _windowStart = DateTime.UtcNow;
                 _requestsInWindow = 0;
@@ -585,8 +601,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
     private void ApplyPersistence(Request request)
     {
         Uri? uri = request.GetUri();
-        if (uri == null)
+        if (uri == null) {
             return;
+        }
 
         string host = uri.Host;
 
@@ -599,8 +616,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
 
                 for (int i = 0; i < cookies.Count; i++)
                 {
-                    if (i > 0)
+                    if (i > 0) {
                         sb.Append("; ");
+                    }
 
                     Cookie cookie = cookies[i];
                     sb.Append(cookie.Name);
@@ -621,8 +639,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
     private void StorePersistence(Request request, Response response)
     {
         Uri? uri = request.GetUri();
-        if (uri == null)
+        if (uri == null) {
             return;
+        }
 
         string host = uri.Host;
 
@@ -633,7 +652,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
             {
                 CookieContainer container = _cookies.GetOrAdd(host, _ => new CookieContainer());
                 foreach (Cookie cookie in responseCookies)
+                {
                     container.Add(uri, cookie);
+                }
             }
         }
 
@@ -696,8 +717,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
             try
             {
                 RequeueDecision decision = _reueueOnResponseCallbacks[i](response, request);
-                if (decision.ShouldRequeue)
+                if (decision.ShouldRequeue) {
                     return decision;
+                }
             }
             catch
             {
@@ -713,8 +735,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
             try
             {
                 RequeueDecision decision = _requeueOnErrorCallbacks[i](request, exception);
-                if (decision.ShouldRequeue)
+                if (decision.ShouldRequeue) {
                     return decision;
+                }
             }
             catch
             {
@@ -750,7 +773,10 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed) {
+            return;
+        }
+
         _disposed = true;
 
         _processingCts?.Cancel();
@@ -758,8 +784,10 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
         _rateLimitSemaphore.Dispose();
 
         foreach (Batch batch in _batches.Values)
+        {
             batch.Clear();
-        
+        }
+
         _batches.Clear();
         _cookies.Clear();
         _referers.Clear();
@@ -770,7 +798,9 @@ public sealed class BatchRequests : IDisposable, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (_disposed) return;
+        if (_disposed) {
+            return;
+        }
 
         await StopProcessingAsync();
         Dispose();

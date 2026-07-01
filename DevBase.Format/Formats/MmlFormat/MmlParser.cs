@@ -24,15 +24,17 @@ namespace DevBase.Format.Formats.MmlFormat
 
             MmlElement[] parsedElements = JsonConvert.DeserializeObject<MmlElement[]>(from);
 
-            if (parsedElements == null)
+            if (parsedElements == null) {
                 return default;
+            }
 
             for (int i = 0; i < parsedElements.Length; i++)
             {
                 MmlElement mmlElement = parsedElements[i];
 
-                if (mmlElement == null)
+                if (mmlElement == null) {
                     continue;
+                }
 
                 long timeStamp = 0;
                 timeStamp += (long)TimeSpan.FromMinutes(mmlElement.Time.Minutes).TotalMilliseconds;

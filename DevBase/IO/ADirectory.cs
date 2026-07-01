@@ -21,8 +21,9 @@ namespace DevBase.IO
         /// <exception cref="SystemException">Thrown if the directory does not exist.</exception>
         public static List<ADirectoryObject> GetDirectories(string directory, string filter = "*.*")
         {
-            if (!System.IO.Directory.Exists(directory))
+            if (!System.IO.Directory.Exists(directory)) {
                 throw new SystemException("Cannot get infos from directory, because the directory does not exist");
+            }
 
             List<ADirectoryObject> directoryObjects = new List<ADirectoryObject>();
 

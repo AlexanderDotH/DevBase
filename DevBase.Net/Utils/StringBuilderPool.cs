@@ -12,9 +12,10 @@ public static class StringBuilderPool
         StringBuilder sb = _instance ??= new StringBuilder(capacity);
         sb.Clear();
         
-        if (sb.Capacity < capacity)
+        if (sb.Capacity < capacity) {
             sb.Capacity = capacity;
-            
+        }
+
         return sb;
     }
 

@@ -1,7 +1,6 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
-using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
 using DevBase.Net.Configuration;
@@ -20,9 +19,10 @@ public partial class Request
 {
     public override Request Build()
     {
-        if (this._isBuilt)
+        if (this._isBuilt) {
             return this;
-        
+        }
+
         List<KeyValuePair<string, string>>? userHeaders = null;
         string? userDefinedUserAgent = null;
         
@@ -36,9 +36,10 @@ public partial class Request
         
         this._requestBuilder.Build();
         
-        if (this._validateHeaders)
+        if (this._validateHeaders) {
             ValidateHeaders();
-        
+        }
+
         this._isBuilt = true;
         return this;
     }
@@ -46,8 +47,9 @@ public partial class Request
     private void ValidateHeaders()
     {
         Data.Header.RequestHeaderBuilder? headers = this._requestBuilder.RequestHeaderBuilder;
-        if (headers == null)
+        if (headers == null) {
             return;
+        }
 
         foreach (KeyValuePair<string, string> header in headers.GetEntries())
         {
@@ -57,12 +59,17 @@ public partial class Request
 
             if (name.Equals("Authorization", StringComparison.OrdinalIgnoreCase))
             {
-                if (value.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
+                if (value.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase)) {
                     result = HeaderValidator.ValidateBasicAuth(value);
+                }
                 else if (value.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+                {
                     result = HeaderValidator.ValidateBearerAuth(value);
+                }
                 else
+                {
                     continue;
+                }
             }
             else if (name.Equals("Content-Type", StringComparison.OrdinalIgnoreCase))
             {
@@ -85,8 +92,9 @@ public partial class Request
                 continue;
             }
 
-            if (!result.IsValid)
+            if (!result.IsValid) {
                 throw new HeaderValidationException(name, result.ErrorMessage ?? "Validation failed");
+            }
         }
     }
 
@@ -150,9 +158,10 @@ public partial class Request
                 {
                     RateLimitException rateLimitException = HandleRateLimitResponse(httpResponse, requestUri);
                     
-                    if (attemptNumber > this._retryPolicy.MaxRetries)
+                    if (attemptNumber > this._retryPolicy.MaxRetries) {
                         throw rateLimitException;
-                    
+                    }
+
                     lastException = rateLimitException;
                     continue;
                 }
@@ -193,23 +202,26 @@ public partial class Request
             {
                 lastException = new RequestTimeoutException(this._timeout, requestUri, attemptNumber);
                 
-                if (attemptNumber > this._retryPolicy.MaxRetries)
+                if (attemptNumber > this._retryPolicy.MaxRetries) {
                     throw lastException;
+                }
             }
             catch (HttpRequestException ex) when (IsProxyError(ex))
             {
                 this._proxy?.ReportFailure();
                 lastException = new ProxyException(ex.Message, ex, this._proxy?.Proxy, attemptNumber);
                 
-                if (attemptNumber > this._retryPolicy.MaxRetries)
+                if (attemptNumber > this._retryPolicy.MaxRetries) {
                     throw lastException;
+                }
             }
             catch (HttpRequestException ex)
             {
                 lastException = new NetworkException(ex.Message, ex, requestUri.Host, attemptNumber);
                 
-                if (attemptNumber > this._retryPolicy.MaxRetries)
+                if (attemptNumber > this._retryPolicy.MaxRetries) {
                     throw lastException;
+                }
             }
             catch (System.Exception ex)
             {
@@ -230,9 +242,10 @@ public partial class Request
         {
             foreach (KeyValuePair<string, string> entry in this._requestBuilder.RequestHeaderBuilder.GetEntries())
             {
-                if (entry.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase))
+                if (entry.Key.Equals("Content-Type", StringComparison.OrdinalIgnoreCase)) {
                     continue;
-                
+                }
+
                 message.Headers.TryAddWithoutValidation(entry.Key, entry.Value);
             }
         }
@@ -271,8 +284,9 @@ public partial class Request
 
         lock (PoolLock)
         {
-            if (ClientPool.TryGetValue(key, out HttpClient? existingClient))
+            if (ClientPool.TryGetValue(key, out HttpClient? existingClient)) {
                 return existingClient;
+            }
 
             SocketsHttpHandler handler = this.CreateHandler();
             HttpClient client = new HttpClient(handler, disposeHandler: true);
@@ -290,11 +304,14 @@ public partial class Request
     {
         StringBuilder sb = StringBuilderPool.Acquire(128);
         
-        if (this._proxy != null)
+        if (this._proxy != null) {
             sb.Append(this._proxy.Key);
+        }
         else
+        {
             sb.Append(HttpConstants.DirectProxyKey.Span);
-            
+        }
+
         sb.Append("|validate:");
         sb.Append(this._validateCertificates);
         sb.Append("|redirect:");
@@ -317,12 +334,8 @@ public partial class Request
             ConnectTimeout = TimeSpan.FromSeconds(30)
         };
 
-        if (!this._validateCertificates)
-        {
-            handler.SslOptions = new SslClientAuthenticationOptions
-            {
-                RemoteCertificateValidationCallback = (_, _, _, _) => true
-            };
+        if (!this._validateCertificates) {
+            throw new NotSupportedException("Disabling TLS certificate validation is not supported.");
         }
 
         if (this._proxy != null)
@@ -344,8 +357,9 @@ public partial class Request
             using Ping ping = new Ping();
             PingReply reply = await ping.SendPingAsync(host, (int)this._hostCheckConfig.Timeout.TotalMilliseconds);
             
-            if (reply.Status != IPStatus.Success)
+            if (reply.Status != IPStatus.Success) {
                 throw new NetworkException($"Host {host} is not reachable (ping failed: {reply.Status})");
+            }
         }
         else
         {
@@ -353,8 +367,9 @@ public partial class Request
             int port = this._hostCheckConfig.Port > 0 ? this._hostCheckConfig.Port : uri.Port;
             Task connectTask = client.ConnectAsync(host, port);
             
-            if (await Task.WhenAny(connectTask, Task.Delay(this._hostCheckConfig.Timeout, cancellationToken)) != connectTask)
+            if (await Task.WhenAny(connectTask, Task.Delay(this._hostCheckConfig.Timeout, cancellationToken)) != connectTask) {
                 throw new NetworkException($"Host {host}:{port} is not reachable (connection timeout)");
+            }
 
             await connectTask;
         }
@@ -370,8 +385,9 @@ public partial class Request
     private void ApplyScrapingBypassIfConfigured(List<KeyValuePair<string, string>>? userHeaders, string? userDefinedUserAgent)
     {
         ScrapingBypassConfig? config = this._scrapingBypass;
-        if (config == null)
+        if (config == null) {
             return;
+        }
 
         if (config.BrowserProfile != EnumBrowserProfile.None)
         {
@@ -404,11 +420,13 @@ public partial class Request
         if (response.Headers.TryGetValues("Retry-After", out IEnumerable<string>? retryAfterValues))
         {
             string? retryAfter = retryAfterValues.FirstOrDefault();
-            if (int.TryParse(retryAfter, out int seconds))
+            if (int.TryParse(retryAfter, out int seconds)) {
                 return RateLimitException.FromRetryAfter(seconds, requestUri);
-            
-            if (DateTime.TryParse(retryAfter, out DateTime dateTime))
+            }
+
+            if (DateTime.TryParse(retryAfter, out DateTime dateTime)) {
                 return RateLimitException.FromResetTime(dateTime.ToUniversalTime(), requestUri);
+            }
         }
 
         if (response.Headers.TryGetValues("X-RateLimit-Reset", out IEnumerable<string>? resetValues))
@@ -429,12 +447,17 @@ public partial class Request
         TimeSpan? connectionIdleTimeout = null,
         int? maxConnections = null)
     {
-        if (connectionLifetime.HasValue)
+        if (connectionLifetime.HasValue) {
             PooledConnectionLifetime = connectionLifetime.Value;
-        if (connectionIdleTimeout.HasValue)
+        }
+
+        if (connectionIdleTimeout.HasValue) {
             PooledConnectionIdleTimeout = connectionIdleTimeout.Value;
-        if (maxConnections.HasValue)
+        }
+
+        if (maxConnections.HasValue) {
             MaxConnectionsPerServer = maxConnections.Value;
+        }
     }
 
     public static void ClearClientPool()
@@ -442,7 +465,10 @@ public partial class Request
         lock (PoolLock)
         {
             foreach (HttpClient client in ClientPool.Values)
+            {
                 client.Dispose();
+            }
+
             ClientPool.Clear();
         }
     }

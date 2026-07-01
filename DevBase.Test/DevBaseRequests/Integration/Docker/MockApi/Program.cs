@@ -86,8 +86,10 @@ app.MapGet("/api/headers", (HttpRequest request) =>
 
 app.MapGet("/api/echo-header/{headerName}", (string headerName, HttpRequest request) =>
 {
-    if (request.Headers.TryGetValue(headerName, out var value))
+    if (request.Headers.TryGetValue(headerName, out var value)) {
         return Results.Ok(new { header = headerName, value = value.ToString() });
+    }
+
     return Results.NotFound(new { error = $"Header '{headerName}' not found" });
 });
 
@@ -97,8 +99,9 @@ app.MapGet("/api/echo-header/{headerName}", (string headerName, HttpRequest requ
 
 app.MapPost("/api/upload", async (HttpRequest request) =>
 {
-    if (!request.HasFormContentType)
+    if (!request.HasFormContentType) {
         return Results.BadRequest(new { error = "Expected multipart/form-data" });
+    }
 
     var form = await request.ReadFormAsync();
     var files = form.Files.Select(f => new {
@@ -121,14 +124,16 @@ app.MapPost("/api/upload", async (HttpRequest request) =>
 
 app.MapPost("/api/upload-single", async (HttpRequest request) =>
 {
-    if (!request.HasFormContentType)
+    if (!request.HasFormContentType) {
         return Results.BadRequest(new { error = "Expected multipart/form-data" });
+    }
 
     var form = await request.ReadFormAsync();
     var file = form.Files.FirstOrDefault();
     
-    if (file == null)
+    if (file == null) {
         return Results.BadRequest(new { error = "No file uploaded" });
+    }
 
     using var ms = new MemoryStream();
     await file.CopyToAsync(ms);
@@ -389,7 +394,10 @@ app.MapGet("/api/stream/{chunks:int}", async (int chunks, HttpContext context) =
     
     for (int i = 0; i < Math.Min(chunks, 100); i++)
     {
-        if (i > 0) await context.Response.WriteAsync(",");
+        if (i > 0) {
+            await context.Response.WriteAsync(",");
+        }
+
         await context.Response.WriteAsync(JsonSerializer.Serialize(new { chunk = i, data = new string('x', 1000) }));
         await context.Response.Body.FlushAsync();
         await Task.Delay(10);

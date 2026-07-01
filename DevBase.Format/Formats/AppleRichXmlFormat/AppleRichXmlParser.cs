@@ -28,18 +28,21 @@ public class AppleRichXmlParser : FileFormat<string, AList<RichTimeStampedLyric>
         string unescaped = Regex.Unescape(from);
 
         using StringReader reader = new StringReader(unescaped);
-        using XmlReader xmlReader = XmlReader.Create(reader);
+        using XmlReader xmlReader = SecureXmlReaderFactory.Create(reader);
 
-        if (!serializer.CanDeserialize(xmlReader))
+        if (!serializer.CanDeserialize(xmlReader)) {
             return Error<object>("Cannot read Xml file");
+        }
 
         XmlTt tt = (XmlTt)serializer.Deserialize(xmlReader);
 
-        if (tt == null)
+        if (tt == null) {
             return Error<object>("Failed to parse xml file");
+        }
 
-        if (!tt.Timing.SequenceEqual("Word"))
+        if (!tt.Timing.SequenceEqual("Word")) {
             return Error<object>("Wrong timing format");
+        }
 
         AList<RichTimeStampedLyric> richLyrics = new AList<RichTimeStampedLyric>();
 
@@ -67,18 +70,21 @@ public class AppleRichXmlParser : FileFormat<string, AList<RichTimeStampedLyric>
             XmlLyricElement currentElement = lyricBlock.LyricElements[k];
 
             // TODO: Add background voices (ELRC v2?)
-            if (!String.IsNullOrEmpty(currentElement.Role))
+            if (!String.IsNullOrEmpty(currentElement.Role)) {
                 continue;
-            
+            }
+
             TimeSpan lStartTimeSpan;
             TimeSpan lEndTimeSpan;
 
-            if (!TimeUtils.TryParseTimeStamp(currentElement.Begin, out lStartTimeSpan))
+            if (!TimeUtils.TryParseTimeStamp(currentElement.Begin, out lStartTimeSpan)) {
                 return Error<object>($"Error parsing timestamp {currentElement.Begin}");
-            
-            if (!TimeUtils.TryParseTimeStamp(currentElement.End, out lEndTimeSpan))
+            }
+
+            if (!TimeUtils.TryParseTimeStamp(currentElement.End, out lEndTimeSpan)) {
                 return Error<object>($"Error parsing timestamp {currentElement.End}");
-            
+            }
+
             words.Add(new RichTimeStampedWord()
             {
                 StartTime = lStartTimeSpan,
@@ -93,12 +99,14 @@ public class AppleRichXmlParser : FileFormat<string, AList<RichTimeStampedLyric>
         TimeSpan sTimeSpan;
         TimeSpan eTimeSpan;
 
-        if (!TimeUtils.TryParseTimeStamp(lyricBlock.Begin, out sTimeSpan))
+        if (!TimeUtils.TryParseTimeStamp(lyricBlock.Begin, out sTimeSpan)) {
             return Error<object>($"Error parsing timestamp {lyricBlock.Begin}");
-        
-        if (!TimeUtils.TryParseTimeStamp(lyricBlock.End, out eTimeSpan))
+        }
+
+        if (!TimeUtils.TryParseTimeStamp(lyricBlock.End, out eTimeSpan)) {
             return Error<object>($"Error parsing timestamp {lyricBlock.End}");
-        
+        }
+
         RichTimeStampedLyric richLyric = new RichTimeStampedLyric()
         {
             StartTime = sTimeSpan,

@@ -92,7 +92,7 @@ public class JsonNetEaseDetailResponseSong
         public int s_id { get; set; }
 
         [JsonProperty("mark")]
-        public int mark { get; set; }
+        public long mark { get; set; }
 
         [JsonProperty("originCoverType")]
         public int originCoverType { get; set; }

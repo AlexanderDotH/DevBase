@@ -29,7 +29,7 @@ public class JsonNetEaseSearchResultEntrySongAlbum
     public object picId { get; set; }
 
     [JsonProperty("mark")]
-    public int mark { get; set; }
+    public long mark { get; set; }
 
     [JsonProperty("transNames")]
     public List<string> transNames { get; set; }

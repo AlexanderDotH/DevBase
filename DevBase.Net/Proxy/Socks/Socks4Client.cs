@@ -34,8 +34,9 @@ public sealed class Socks4Client : IDisposable
     private async Task SendConnectCommandAsync(NetworkStream stream, string host, int port, CancellationToken cancellationToken)
     {
         IPAddress[] addresses = await Dns.GetHostAddressesAsync(host, cancellationToken);
-        if (addresses.Length == 0)
+        if (addresses.Length == 0) {
             throw new InvalidOperationException($"Could not resolve hostname: {host}");
+        }
 
         IPAddress address = addresses.FirstOrDefault(a => a.AddressFamily == AddressFamily.InterNetwork)
             ?? throw new InvalidOperationException("SOCKS4 only supports IPv4 addresses");
@@ -58,8 +59,9 @@ public sealed class Socks4Client : IDisposable
         byte[] response = new byte[8];
         int bytesRead = await stream.ReadAsync(response, cancellationToken);
         
-        if (bytesRead < 8)
+        if (bytesRead < 8) {
             throw new InvalidOperationException("Invalid SOCKS4 response");
+        }
 
         if (response[1] != RequestGranted)
         {

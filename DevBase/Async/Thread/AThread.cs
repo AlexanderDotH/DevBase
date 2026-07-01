@@ -25,8 +25,9 @@
         /// <param name="condition">A given condition needs to get delivered which is essential to let this method work</param>
         public void StartIf(bool condition)
         {
-            if (condition && _thread != null && !_thread.IsAlive)
+            if (condition && _thread != null && !_thread.IsAlive) {
                 _thread.Start();
+            }
         }
 
         /// <summary>
@@ -36,8 +37,9 @@
         /// <param name="parameters">A parameter can be used to give a thread some start parameters</param>
         public void StartIf(bool condition, object parameters)
         {
-            if (condition && _thread != null && !_thread.IsAlive)
+            if (condition && _thread != null && !_thread.IsAlive) {
                 _thread.Start(parameters);
+            }
         }
 
         /// <summary>

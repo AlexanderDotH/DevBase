@@ -1,0 +1,19 @@
+{
+  "message": {
+    "header": {
+      "status_code": 200,
+      "execute_time": 0.018
+    },
+    "body": {
+      "lyrics": {
+        "lyrics_id": 303,
+        "instrumental": 0,
+        "restricted": 0,
+        "lyrics_body": "These are offline fixtures\\nThey never call the network",
+        "lyrics_language": "en",
+        "lyrics_language_description": "English",
+        "updated_time": "2024-01-03T00:00:00Z"
+      }
+    }
+  }
+}

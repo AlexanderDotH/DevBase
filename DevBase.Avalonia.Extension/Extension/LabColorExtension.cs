@@ -42,9 +42,10 @@ public static class LabColorExtension
         
         LabColor[] color = a.RemoveNullValues();
 
-        if (colors.Length == 0)
+        if (colors.Length == 0) {
             color = color.ToArray();
-        
+        }
+
         c.AddRange(color);
 
         return c;
@@ -105,9 +106,10 @@ public static class LabColorExtension
 
         LabColor[] color = a.RemoveNullValues();
 
-        if (colors.Length == 0)
+        if (colors.Length == 0) {
             color = color.ToArray();
-        
+        }
+
         c.AddRange(color);
 
         return c;
@@ -217,8 +219,9 @@ public static class LabColorExtension
         int cap = 0;
         for (var i = 0; i < colors.Length; i++)
         {
-            if (colors[i] != new LabColor(0,0,0))
+            if (colors[i] != new LabColor(0,0,0)) {
                 cap++;
+            }
         }
 
         LabColor[] c = new LabColor[cap];

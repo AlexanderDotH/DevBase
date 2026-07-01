@@ -82,8 +82,9 @@ public abstract class HttpKeyValueListBuilder<T, TKeyK, TKeyV>
     {
         for (int i = 0; i < this.Entries.Count; i++)
         {
-            if (KeyEquals(this.Entries[i].Key, key))
+            if (KeyEquals(this.Entries[i].Key, key)) {
                 return this.Entries[i].Value;
+            }
         }
         return default!;
     }
@@ -133,17 +134,19 @@ public abstract class HttpKeyValueListBuilder<T, TKeyK, TKeyV>
     {
         for (int i = 0; i < this.Entries.Count; i++)
         {
-            if (KeyEquals(this.Entries[i].Key, key))
+            if (KeyEquals(this.Entries[i].Key, key)) {
                 return true;
+            }
         }
         return false;
     }
     
     private static bool KeyEquals(TKeyK? a, TKeyK? b)
     {
-        if (a is string strA && b is string strB)
+        if (a is string strA && b is string strB) {
             return string.Equals(strA, strB, StringComparison.OrdinalIgnoreCase);
-        
+        }
+
         return EqualityComparer<TKeyK>.Default.Equals(a, b);
     }
 }

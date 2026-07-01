@@ -165,26 +165,31 @@ public class LabClusterColorCalculator
     {
         AList<LabColor> dominantColorSet = new AList<LabColor>();
         
-        if (this.Filter.ChromaConfiguration.FilterChroma)
+        if (this.Filter.ChromaConfiguration.FilterChroma) {
             dominantColorSet.AddRange(colors.FilterChroma(
                 this.Filter.ChromaConfiguration.MinChroma, 
                 this.Filter.ChromaConfiguration.MaxChroma));
-        
-        if (this.Filter.BrightnessConfiguration.FilterBrightness)
+        }
+
+        if (this.Filter.BrightnessConfiguration.FilterBrightness) {
             dominantColorSet.AddRange(colors.FilterBrightness(
                 this.Filter.BrightnessConfiguration.MinBrightness, 
                 this.Filter.BrightnessConfiguration.MaxBrightness));
-        
-        if (this.UsePredefinedSet)
+        }
+
+        if (this.UsePredefinedSet) {
             dominantColorSet.AddRange(ClusterData.RGB_DATA.ToAList().ToRgbColor().ToLabColor(this._converter));
-        
+        }
+
         dominantColorSet.AddRange(AdditionalColorDataset);
 
         // Edge-Case when everything got filtered out, ist just always want a result
-        if (this.AllowEdgeCase)
-            if (dominantColorSet.Length == 0)
+        if (this.AllowEdgeCase) {
+            if (dominantColorSet.Length == 0) {
                 dominantColorSet.AddRange(colors.GetAsArray().RemoveNullValues());
-        
+            }
+        }
+
         double[][] initialCentroids = dominantColorSet.GetAsArray().Select(x => new[] { x.L, x.a, x.b }).ToArray();
 
         KMeans means = new KMeans(k: this.Clusters)

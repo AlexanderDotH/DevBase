@@ -44,9 +44,10 @@ public abstract class HttpFieldBuilder<T> where T : HttpFieldBuilder<T>
     /// <exception cref="HttpHeaderException">Thrown if the field has already been built.</exception>
     public T Build()
     {
-        if (!TryBuild())
+        if (!TryBuild()) {
             throw new HttpHeaderException(EnumHttpHeaderExceptionTypes.AlreadyBuilt);
-        
+        }
+
         return (T)this;
     }
     
@@ -56,9 +57,10 @@ public abstract class HttpFieldBuilder<T> where T : HttpFieldBuilder<T>
     /// <returns>True if the build was successful; otherwise, false (if already built).</returns>
     public bool TryBuild()
     {
-        if (this.AlreadyBuilt)
+        if (this.AlreadyBuilt) {
             return false;
-        
+        }
+
         BuildAction.Invoke();
         
         this.AlreadyBuilt = true;

@@ -3,6 +3,7 @@ using System.Xml;
 using System.Xml.Serialization;
 using DevBase.Format.Formats.AppleXmlFormat.Xml;
 using DevBase.Format.Structure;
+using DevBase.Format.Utilities;
 using DevBase.Generics;
 
 namespace DevBase.Format.Formats.AppleXmlFormat;
@@ -24,23 +25,28 @@ public class AppleXmlParser : FileFormat<string, AList<RawLyric>>
         string unescaped = Regex.Unescape(from);
 
         using StringReader reader = new StringReader(unescaped);
-        using XmlReader xmlReader = XmlReader.Create(reader);
+        using XmlReader xmlReader = SecureXmlReaderFactory.Create(reader);
 
-        if (!serializer.CanDeserialize(xmlReader))
+        if (!serializer.CanDeserialize(xmlReader)) {
             return Error<object>("Cannot read Xml file");
+        }
 
         XmlTt tt = (XmlTt)serializer.Deserialize(xmlReader);
 
-        if (tt == null)
+        if (tt == null) {
             return Error<object>("Failed to parse xml file");
+        }
 
-        if (!tt.Timing.SequenceEqual("None"))
+        if (!tt.Timing.SequenceEqual("None")) {
             return Error<object>("Wrong timing format");
+        }
 
         AList<RawLyric> rawLyrics = new AList<RawLyric>();
 
         for (int i = 0; i < tt.Body.Div.Count; i++)
+        {
             rawLyrics.AddRange(ProcessBlock(tt.Body.Div[i]));
+        }
 
         return rawLyrics;
     }

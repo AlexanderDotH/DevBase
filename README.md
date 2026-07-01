@@ -1,92 +1,121 @@
 # DevBase
 
-DevBase is a versatile and multi-purpose library designed primarily for use with the OpenLyricsClient. The library features a collection of API endpoint implementations for popular services like Deezer, OpenAI, OpenLyricsClient, Replicate, and Tidal. In addition, DevBase offers various utilities, such as color calculation for images, cryptographic implementations, and parsers for various file formats.
+DevBase is a multi-project .NET 9 solution with reusable utilities, HTTP request infrastructure, music and lyrics API clients, parser packages, cryptography helpers, Avalonia color tools, and test harnesses.
 
-## Table of Contents
+## Project Map
 
-- [DevBase.Api](#devbaseapi)
-- [DevBase.Avalonia](#devbaseavalonia)
-- [DevBase.Cryptography and DevBase.Cryptography.BouncyCastle](#devbasecryptography-and-devbasecryptographybouncycastle)
-- [DevBase.Format](#devbaseformat)
-- [DevBase.Logging](#devbaselogging)
+| Project | Purpose |
+| --- | --- |
+| `DevBase/` | Dependency-free core utilities: `AList`, tuple lists, file/directory wrappers, typography helpers, cache helpers, async/thread helpers, enums, and shared utilities. |
+| `DevBase.Net/` | Fluent HTTP client library with `Request`/`Response`, retries, parsing, metrics, browser spoofing, batching, header/JWT validation, and HTTP/SOCKS proxy support. |
+| `DevBase.Api/` | Music and lyrics API clients for Deezer, Tidal, Apple Music, NetEase, BeautifulLyrics, and Musixmatch. Provider methods own request construction and parsing. |
+| `DevBase.Format/` | Parsers for lyric, subtitle, Apple XML/TTML, Musixmatch JSON-style, MML/RMML, KLyrics, and `.env` formats. |
+| `DevBase.Cryptography/` | Local cryptography helpers for Blowfish CBC and MD5 checksum/legacy hashing. |
+| `DevBase.Cryptography.BouncyCastle/` | BouncyCastle-backed AES-GCM, ECDH, sealing, random generation, key conversion, and token signature verification helpers. |
+| `DevBase.Avalonia/` | Avalonia bitmap color utilities, color math, framebuffer pixel access, and RGB color data. |
+| `DevBase.Avalonia.Extension/` | Advanced Avalonia color extraction with LAB/RGB K-means clustering, ImageSharp blur preprocessing, and color filtering/post-processing. |
+| `DevBase.Extensions/` | Stopwatch-focused extension package for formatting stopped elapsed-time values as Markdown tables. |
+| `DevBase.Logging/` | Minimal Debug-only generic logger with timestamped, type-scoped severity output. |
+| `DevBase.Test/` | Main NUnit test project for unit and local integration coverage across the libraries. |
+| `DevBase.IntegrationTests/` | Consolidated deterministic integration tests plus opt-in live API checks. |
+| `DevBase.Test.Avalonia/` | Manual Avalonia desktop harness for visual color-extraction checks. |
+| `DevBaseLive/` | Console playground for manual DevBase experiments, currently focused on `DevBase.Net` request flows and a sample Tidal track miner. |
+| `DevBase.Test/DevBaseRequests/Integration/Docker/MockApi/` | Standalone Docker-ready ASP.NET Core mock API for HTTP methods, uploads, auth, retries, rate limits, delays, errors, cookies, streaming, proxy headers, and batch behavior; it has its own `.csproj` and is not included in `DevBase.sln`. |
 
-## DevBase.Api
+## Requirements
 
-DevBase.Api contains API endpoint implementations for Deezer, OpenAI, OpenLyricsClient, Replicate, and Tidal. The library provides partial implementations that are tailored to meet the needs of the current project.
+- .NET SDK 9 or newer. `global.json` allows rolling forward to the latest major SDK.
+- Docker only for Docker-backed request integration tests.
+- Live API credentials only when explicitly running credentialed provider checks.
 
-## DevBase.Avalonia
+## Build
 
-DevBase.Avalonia features a color calculator for images. The calculator helps determine dominant and accent colors within an image, making it easier to create visually appealing and harmonious designs.
+Restore and build the whole solution:
 
-## DevBase.Cryptography and DevBase.Cryptography.BouncyCastle
-
-The DevBase.Cryptography and DevBase.Cryptography.BouncyCastle libraries offer a collection of cryptographic implementations for various use cases. They provide a wide range of cryptographic algorithms and tools, including encryption, decryption, hashing, and digital signatures.
-
-## DevBase.Format
-
-DevBase.Format contains parsers for the following file formats:
-
-- **.env**: Environment files used to store configuration variables for applications, typically key-value pairs.
-- **.lrc**: Lyric files used to store song lyrics and timestamps, allowing for synchronization between lyrics and audio playback.
-- **.srt**: SubRip Text files used to store subtitles and their associated timestamps for video playback.
-
-## DevBase.Logging
-
-DevBase.Logging is a lightweight logger that makes it easy to log and debug your application. It offers a simple interface for logging messages, errors, and other information at various levels of granularity.
-
-## DevBase.Net
-
-DevBase.Net is a high-performance HTTP client library featuring:
-
-- **Builder pattern** for fluent request construction
-- **Memory<>/Span<>** optimizations for performance
-- **SOCKS5 proxy support** with HTTP tunnel capability
-- **Connection pooling** and HTTP/3 support
-- **Retry policies** with exponential backoff
-- **Request/Response interceptors**
-
-### HttpToSocks5Proxy
-
-The `HttpToSocks5Proxy` component allows using SOCKS5 proxies with any HTTP client that supports `IWebProxy`. It creates a local HTTP proxy server that tunnels traffic through SOCKS5.
-
-```csharp
-using DevBase.Net.Proxy.HttpToSocks5;
-
-// Simple usage
-var proxy = new HttpToSocks5Proxy("socks-server.com", 1080);
-
-// With authentication
-var proxy = new HttpToSocks5Proxy("socks-server.com", 1080, "username", "password");
-
-// Chain multiple proxies
-var proxy = new HttpToSocks5Proxy(new[] {
-    new Socks5ProxyInfo("first-proxy.com", 1080),
-    new Socks5ProxyInfo("second-proxy.com", 1090)
-});
-
-// Use with HttpClient
-var handler = new HttpClientHandler { Proxy = proxy };
-var client = new HttpClient(handler);
+```bash
+dotnet restore DevBase.sln
+dotnet build DevBase.sln --no-restore -v:minimal
 ```
+
+Build a single project:
+
+```bash
+dotnet build DevBase.Net/DevBase.Net.csproj --no-restore -v:minimal
+```
+
+Build the nested mock API separately. It is a standalone support project and is not included in `DevBase.sln`:
+
+```bash
+dotnet build DevBase.Test/DevBaseRequests/Integration/Docker/MockApi/MockApi.csproj -v:minimal
+```
+
+## Tests
+
+Run the main test project:
+
+```bash
+dotnet test DevBase.Test/DevBase.Test.csproj --no-restore -v:minimal
+```
+
+Run deterministic integration tests:
+
+```bash
+dotnet test DevBase.IntegrationTests/DevBase.IntegrationTests.csproj --no-restore -v:minimal
+```
+
+Write JUnit-compatible reports:
+
+```bash
+mkdir -p TestResults/junit
+dotnet test DevBase.Test/DevBase.Test.csproj --logger:"junit;LogFilePath=TestResults/junit/DevBase.Test.junit.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+dotnet test DevBase.IntegrationTests/DevBase.IntegrationTests.csproj --logger:"junit;LogFilePath=TestResults/junit/DevBase.IntegrationTests.junit.xml;MethodFormat=Class;FailureBodyFormat=Verbose"
+```
+
+`TestResults/` is ignored by git.
+
+## Live API Tests
+
+Live provider checks are opt-in:
+
+```bash
+DEVBASE_API_INTEGRATION_LIVE=1 dotnet test DevBase.IntegrationTests/DevBase.IntegrationTests.csproj --filter "Category=LiveApi"
+```
+
+Optional credential variables:
+
+```bash
+DEVBASE_DEEZER_ARL=...
+DEVBASE_MUSIXMATCH_USER_TOKEN=...
+DEVBASE_APPLE_MUSIC_MEDIA_USER_TOKEN=...
+DEVBASE_TIDAL_ACCESS_TOKEN=...
+```
+
+Do not commit real tokens, cookies, ARLs, generated credentials, or account-specific data.
+
+## Package Projects
+
+Most library projects generate NuGet packages on build through `GeneratePackageOnBuild=true`. Project README files are packed as package readmes where configured.
+
+Build packages with:
+
+```bash
+dotnet build DevBase.sln -c Release -v:minimal
+```
+
+## Development Notes
+
+- Prefer project-local `AGENT.md` files for implementation guidance before editing a project.
+- Keep `DevBase.Api` request handling per method; `ApiClient` is not a unified send/parse abstraction.
+- Keep `DevBase.Net` security guarantees intact: no TLS validation bypasses, hardened XML parsing, and explicit JWT validation behavior.
+- Keep default test runs deterministic. External provider outages should skip live tests, not fail unrelated CI.
+- Keep generated `bin/`, `obj/`, package files, and test reports out of commits.
 
 ## Credits
 
-### HttpToSocks5Proxy
+The `DevBase.Net.Proxy.HttpToSocks5` implementation is based on Miha Zupan's `HttpToSocks5Proxy` library.
 
-The `HttpToSocks5Proxy` implementation is based on [MihaZupan's HttpToSocks5Proxy](https://github.com/MihaZupan/HttpToSocks5Proxy) library.
-
-**Original Author:** [Miha Zupan](https://github.com/MihaZupan)  
-**License:** MIT License  
-**Copyright:** © 2018 Miha Zupan
-
-The original library has been integrated and optimized for performance with:
-- Async/await patterns throughout
-- ArrayPool<byte> for buffer management
-- Span<T> for string parsing
-- Modern C# features and nullable reference types
-
-## 🌟 Join the DevBase Community and Contribute!
-
-We're excited to see DevBase grow and improve with the help of the community! If you'd like to contribute, we welcome your ideas, bug fixes, and enhancements. Join us in making DevBase even better, and let's build something amazing together!
+- Original author: Miha Zupan
+- License: MIT
+- Repository: https://github.com/MihaZupan/HttpToSocks5Proxy
 
 <!-- GitAds-Verify: VBE4GZBOLA67HUH4HIX2KZCK1C5NKGAL -->

@@ -20,7 +20,9 @@ public static class LyricsExtensions
         StringBuilder rawLyrics = new StringBuilder();
 
         for (int i = 0; i < rawElements.Length; i++)
+        {
             rawLyrics.AppendLine(rawElements.Get(i).Text);
+        }
 
         return rawLyrics.ToString();
     }
@@ -35,7 +37,9 @@ public static class LyricsExtensions
         StringBuilder rawLyrics = new StringBuilder();
 
         for (int i = 0; i < elements.Length; i++)
+        {
             rawLyrics.AppendLine(elements.Get(i).Text);
+        }
 
         return rawLyrics.ToString();
     }
@@ -50,7 +54,9 @@ public static class LyricsExtensions
         StringBuilder rawLyrics = new StringBuilder();
 
         for (int i = 0; i < richElements.Length; i++)
+        {
             rawLyrics.AppendLine(richElements.Get(i).Text);
+        }
 
         return rawLyrics.ToString();
     }

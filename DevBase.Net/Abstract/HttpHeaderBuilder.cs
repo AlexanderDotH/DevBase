@@ -43,9 +43,10 @@ public abstract class HttpHeaderBuilder<T> where T : HttpHeaderBuilder<T>
     /// <exception cref="HttpHeaderException">Thrown if the header has already been built.</exception>
     public T Build()
     {
-        if (this.AlreadyBuilt)
+        if (this.AlreadyBuilt) {
             throw new HttpHeaderException(EnumHttpHeaderExceptionTypes.AlreadyBuilt);
-        
+        }
+
         BuildAction.Invoke();
         
         this.AlreadyBuilt = true;

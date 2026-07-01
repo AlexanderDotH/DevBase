@@ -25,8 +25,9 @@ namespace DevBase.IO
         /// <exception cref="DirectoryNotFoundException">Thrown if the directory does not exist.</exception>
         public static AList<AFileObject> GetFiles(string directory, bool readContent = false, string filter = "*.txt")
         {
-            if (!System.IO.Directory.Exists(directory))
+            if (!System.IO.Directory.Exists(directory)) {
                 throw new DirectoryNotFoundException("Cannot get files from directory, because the directory does not exist");
+            }
 
             AList<AFileObject> fileHolders = new AList<AFileObject>();
 
@@ -112,8 +113,9 @@ namespace DevBase.IO
 
             int read = bufferedStream.Read(buffer);
 
-            if (read == 0 || read != fileStream.Length)
+            if (read == 0 || read != fileStream.Length) {
                 throw new IOException("Buffer is not full or empty");
+            }
 
             encoding = streamReader.CurrentEncoding;
             
@@ -128,8 +130,9 @@ namespace DevBase.IO
         /// <returns>True if the file can be accessed, false otherwise.</returns>
         public static bool CanFileBeAccessed(FileInfo fileInfo, FileAccess fileAccess = FileAccess.Read)
         {
-            if (!fileInfo.Exists)
+            if (!fileInfo.Exists) {
                 return false;
+            }
 
             try
             {

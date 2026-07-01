@@ -1,4 +1,4 @@
-using Dumpify;
+using MusixMatchClient = global::DevBase.Api.Apis.Musixmatch.MusixMatch;
 
 namespace DevBase.Test.DevBaseApi.MusixMatch;
 
@@ -16,8 +16,8 @@ public class MusixMatchTest
     [SetUp]
     public void Setup()
     {
-        this._username = "";
-        this._password = "";
+        this._username = Environment.GetEnvironmentVariable("DEVBASE_MUSIXMATCH_EMAIL") ?? "";
+        this._password = Environment.GetEnvironmentVariable("DEVBASE_MUSIXMATCH_PASSWORD") ?? "";
     }
     
     /// <summary>
@@ -27,17 +27,15 @@ public class MusixMatchTest
     [Test]
     public async Task LoginTest()
     {
-        Api.Apis.Musixmatch.MusixMatch musixMatch = new Api.Apis.Musixmatch.MusixMatch();
-
         if (string.IsNullOrEmpty(this._username) && 
             string.IsNullOrEmpty(this._password))
         {
-            Console.WriteLine("The username or password is empty and that is okay");
+            Assert.Ignore("DEVBASE_MUSIXMATCH_EMAIL and DEVBASE_MUSIXMATCH_PASSWORD are empty; skipping live Musixmatch login.");
         }
-        else
-        {
-            var auth = await musixMatch.Login(this._username, this._password);
-            Assert.That(auth.message.body.tokens.mxmprowebv10, Is.Not.Null);
-        }
+
+        MusixMatchClient musixMatch = new MusixMatchClient("offline-test-token");
+        var auth = await musixMatch.Login(this._username, this._password);
+
+        Assert.That(auth?.Tokens?.WebDesktopAppV10, Is.Not.Null);
     }
 }

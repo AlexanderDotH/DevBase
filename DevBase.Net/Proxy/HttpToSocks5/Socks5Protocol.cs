@@ -40,30 +40,36 @@ internal static class Socks5Protocol
             {
                 int received = await socket.ReceiveAsync(buffer.AsMemory(0, 2), SocketFlags.None, cancellationToken);
                 
-                if (received != 2)
+                if (received != 2) {
                     return Socks5ConnectionResult.InvalidProxyResponse;
-                
-                if (buffer[0] != SocksVersion)
+                }
+
+                if (buffer[0] != SocksVersion) {
                     return Socks5ConnectionResult.InvalidProxyResponse;
+                }
 
                 if (buffer[1] == UsernamePasswordAuth)
                 {
-                    if (!proxy.Authenticate)
+                    if (!proxy.Authenticate) {
                         return Socks5ConnectionResult.InvalidProxyResponse;
+                    }
 
                     // Authenticate with username/password
                     await socket.SendAsync(proxy.AuthenticationMessage, SocketFlags.None, cancellationToken);
                     
                     received = await socket.ReceiveAsync(buffer.AsMemory(0, 2), SocketFlags.None, cancellationToken);
                     
-                    if (received != 2)
+                    if (received != 2) {
                         return Socks5ConnectionResult.InvalidProxyResponse;
-                    
-                    if (buffer[0] != SubnegotiationVersion)
+                    }
+
+                    if (buffer[0] != SubnegotiationVersion) {
                         return Socks5ConnectionResult.InvalidProxyResponse;
-                    
-                    if (buffer[1] != 0)
+                    }
+
+                    if (buffer[1] != 0) {
                         return Socks5ConnectionResult.AuthenticationError;
+                    }
                 }
                 else if (buffer[1] != NoAuthentication)
                 {
@@ -78,9 +84,10 @@ internal static class Socks5Protocol
                     if (addressType == Socks5AddressType.DomainName)
                     {
                         IPAddress? ipAddress = dnsResolver.TryResolve(destAddress);
-                        if (ipAddress == null)
+                        if (ipAddress == null) {
                             return Socks5ConnectionResult.HostUnreachable;
-                        
+                        }
+
                         resolvedAddress = ipAddress.ToString();
                     }
                 }
@@ -92,20 +99,25 @@ internal static class Socks5Protocol
                 // Receive response
                 received = await socket.ReceiveAsync(buffer.AsMemory(0, 256), SocketFlags.None, cancellationToken);
                 
-                if (received < 8)
+                if (received < 8) {
                     return Socks5ConnectionResult.InvalidProxyResponse;
-                
-                if (buffer[0] != SocksVersion)
+                }
+
+                if (buffer[0] != SocksVersion) {
                     return Socks5ConnectionResult.InvalidProxyResponse;
-                
-                if (buffer[1] > 8)
+                }
+
+                if (buffer[1] > 8) {
                     return Socks5ConnectionResult.InvalidProxyResponse;
-                
-                if (buffer[1] != 0)
+                }
+
+                if (buffer[1] != 0) {
                     return (Socks5ConnectionResult)buffer[1];
-                
-                if (buffer[2] != 0)
+                }
+
+                if (buffer[2] != 0) {
                     return Socks5ConnectionResult.InvalidProxyResponse;
+                }
 
                 Socks5AddressType boundAddressType = (Socks5AddressType)buffer[3];
                 int expectedLength = boundAddressType switch
@@ -116,8 +128,9 @@ internal static class Socks5Protocol
                     _ => -1
                 };
 
-                if (expectedLength == -1 || received != expectedLength)
+                if (expectedLength == -1 || received != expectedLength) {
                     return Socks5ConnectionResult.InvalidProxyResponse;
+                }
 
                 return Socks5ConnectionResult.OK;
             }

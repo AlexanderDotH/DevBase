@@ -1,7 +1,6 @@
 ﻿using DevBase.Api.Apis.NetEase.Structure.Json;
 using DevBase.Api.Enums;
 using DevBase.Api.Exceptions;
-using DevBase.Api.Serializer;
 using DevBase.Format;
 using DevBase.Format.Formats.KLyricsFormat;
 using DevBase.Format.Formats.LrcFormat;
@@ -21,75 +20,101 @@ public class NetEase : ApiClient
         this._baseUrl = "https://music.xianqiao.wang/neteaseapiv2";
     }
 
-    #pragma warning disable SYSLIB0013
-    public async Task<JsonNetEaseDetailResponse> TrackDetails(params string[] trackIds)
+    public Task<JsonNetEaseDetailResponse> TrackDetails(params string[] trackIds)
     {
-        string separated = StringUtils.Separate(trackIds, ",");
+        return this.TrackDetails(trackIds.AsEnumerable());
+    }
 
-        Response response = await new Request($"{this._baseUrl}/song/detail?ids={separated}")
-            .WithTimeout(TimeSpan.FromMinutes(1))
-            .SendAsync();
+    #pragma warning disable SYSLIB0013
+    public async Task<JsonNetEaseDetailResponse> TrackDetails(
+        IEnumerable<string> trackIds,
+        CancellationToken cancellationToken = default)
+    {
+        string separated = StringUtils.Separate(trackIds.ToArray(), ",");
 
-        return await response.ParseJsonAsync<JsonNetEaseDetailResponse>(false);
+        Request request = new Request($"{this._baseUrl}/song/detail?ids={separated}")
+            .AsGet()
+            .WithTimeout(TimeSpan.FromMinutes(1));
+
+        Response response = await request.SendAsync(cancellationToken);
+        return await response.ParseJsonAsync<JsonNetEaseDetailResponse>(false, cancellationToken);
     }
     #pragma warning restore SYSLIB0013
 
     #pragma warning disable SYSLIB0013
-    public async Task<JsonNetEaseSearchResult> Search(string keyword, int limit = 50, int type = 1)
+    public async Task<JsonNetEaseSearchResult> Search(
+        string keyword,
+        int limit = 50,
+        int type = 1,
+        CancellationToken cancellationToken = default)
     {
-        Response response = await new Request($"{this._baseUrl}/search")
+        Request request = new Request($"{this._baseUrl}/search")
+            .AsGet()
             .WithParameters(
                 ("limit", limit.ToString()),
                 ("type", type.ToString()),
                 ("keywords", keyword)
-            )
-            .SendAsync();
+            );
 
-        return await response.ParseJsonAsync<JsonNetEaseSearchResult>(false);
+        Response response = await request.SendAsync(cancellationToken);
+        return await response.ParseJsonAsync<JsonNetEaseSearchResult>(false, cancellationToken);
     }
     #pragma warning restore SYSLIB0013
     
-    public async Task<JsonNetEaseDetailResponse> SearchAndReceiveDetails(string keyword, int limit = 50, int type = 1)
+    public async Task<JsonNetEaseDetailResponse> SearchAndReceiveDetails(
+        string keyword,
+        int limit = 50,
+        int type = 1,
+        CancellationToken cancellationToken = default)
     {
-        JsonNetEaseSearchResult searchResult = await Search(keyword, limit, type);
+        JsonNetEaseSearchResult searchResult = await Search(keyword, limit, type, cancellationToken);
 
-        if (searchResult == null)
+        if (searchResult == null) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptySearchResults));
-        
-        if (searchResult.result == null)
-            return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptySearchResults));
+        }
 
-        if (searchResult.result.songs == null || searchResult.result.songs.Count == 0)
+        if (searchResult.result == null) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptySearchResults));
-        
+        }
+
+        if (searchResult.result.songs == null || searchResult.result.songs.Count == 0) {
+            return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptySearchResults));
+        }
+
         AList<string> trackIds = new AList<string>();
         
         for (var i = 0; i < searchResult.result.songs.Count; i++)
+        {
             trackIds.Add(Convert.ToString(searchResult.result.songs[i].id));
+        }
 
-        if (trackIds.IsEmpty())
+        if (trackIds.IsEmpty()) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptySearchResults));
-        
-        return await TrackDetails(trackIds.GetAsArray());
+        }
+
+        return await TrackDetails(trackIds.GetAsArray(), cancellationToken);
     }
     
     #pragma warning disable S1751
-    public async Task<byte[]> Download(string trackId)
+    public async Task<byte[]> Download(string trackId, CancellationToken cancellationToken = default)
     {
-        JsonNetEaseUrlResponse urlResponse = await Url(trackId);
+        JsonNetEaseUrlResponse urlResponse = await Url(trackId, cancellationToken);
 
-        if (urlResponse == null)
+        if (urlResponse == null) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptyUrls));
+        }
 
-        if (urlResponse.data == null || urlResponse.data.Count == 0)
+        if (urlResponse.data == null || urlResponse.data.Count == 0) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptyUrls));
-        
+        }
+
         for (var i = 0; i < urlResponse.data.Count; i++)
         {
             JsonNetEaseUrlResponseData data = urlResponse.data[i];
 
-            Response response = await new Request(data.url).SendAsync();
-            return await response.GetBytesAsync();
+            Request request = new Request(data.url).AsGet();
+            Response response = await request.SendAsync(cancellationToken);
+            return await response.GetBytesAsync(cancellationToken);
         }
 
         return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.DownloadTrack));
@@ -97,59 +122,73 @@ public class NetEase : ApiClient
     #pragma warning restore S1751
     
     #pragma warning disable SYSLIB0013
-    public async Task<JsonNetEaseUrlResponse> Url(string trackId)
+    public async Task<JsonNetEaseUrlResponse> Url(string trackId, CancellationToken cancellationToken = default)
     {
-        Response response = await new Request($"{this._baseUrl}/song/url")
-            .WithParameter("id", trackId)
-            .SendAsync();
+        Request request = new Request($"{this._baseUrl}/song/url")
+            .AsGet()
+            .WithParameter("id", trackId);
 
-        return await response.ParseJsonAsync<JsonNetEaseUrlResponse>(false);
+        Response response = await request.SendAsync(cancellationToken);
+        return await response.ParseJsonAsync<JsonNetEaseUrlResponse>(false, cancellationToken);
     }
     #pragma warning restore SYSLIB0013
     
-    public async Task<AList<RichTimeStampedLyric>> KaraokeLyrics(string trackId)
+    public async Task<AList<RichTimeStampedLyric>> KaraokeLyrics(
+        string trackId,
+        CancellationToken cancellationToken = default)
     {
-        JsonNetEaseLyricResponse lyricResponse = await this.RawLyrics(trackId);
+        JsonNetEaseLyricResponse lyricResponse = await this.RawLyrics(trackId, cancellationToken);
 
-        if (lyricResponse == null)
+        if (lyricResponse == null) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptyLyrics));
+        }
 
-        if (lyricResponse.klyric == null)
+        if (lyricResponse.klyric == null) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptyLyrics));
+        }
 
-        if (String.IsNullOrEmpty(lyricResponse.klyric.lyric))
+        if (String.IsNullOrEmpty(lyricResponse.klyric.lyric)) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptyLyrics));
+        }
 
         AList<RichTimeStampedLyric> richLyrics = new KLyricsParser().Parse(lyricResponse.klyric.lyric);
         return richLyrics;
     }
     
-    public async Task<AList<TimeStampedLyric>> Lyrics(string trackId)
+    public async Task<AList<TimeStampedLyric>> Lyrics(
+        string trackId,
+        CancellationToken cancellationToken = default)
     {
-        JsonNetEaseLyricResponse lyricResponse = await this.RawLyrics(trackId);
+        JsonNetEaseLyricResponse lyricResponse = await this.RawLyrics(trackId, cancellationToken);
 
-        if (lyricResponse == null)
+        if (lyricResponse == null) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptyLyrics));
+        }
 
-        if (lyricResponse.lrc == null)
+        if (lyricResponse.lrc == null) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptyLyrics));
+        }
 
-        if (String.IsNullOrEmpty(lyricResponse.lrc.lyric))
+        if (String.IsNullOrEmpty(lyricResponse.lrc.lyric)) {
             return Throw<object>(new NetEaseException(EnumNetEaseExceptionType.EmptyLyrics));
-        
+        }
+
         AList<TimeStampedLyric> lyrics = new LrcParser().Parse(lyricResponse.lrc.lyric);
         return lyrics;
     }
     
     #pragma warning disable SYSLIB0013
-    public async Task<JsonNetEaseLyricResponse> RawLyrics(string trackId)
+    public async Task<JsonNetEaseLyricResponse> RawLyrics(
+        string trackId,
+        CancellationToken cancellationToken = default)
     {
-        Response response = await new Request($"{this._baseUrl}/lyric")
+        Request request = new Request($"{this._baseUrl}/lyric")
+            .AsGet()
             .WithParameter("id", trackId)
-            .WithTimeout(TimeSpan.FromMinutes(1))
-            .SendAsync();
+            .WithTimeout(TimeSpan.FromMinutes(1));
 
-        return await response.ParseJsonAsync<JsonNetEaseLyricResponse>(false);
+        Response response = await request.SendAsync(cancellationToken);
+        return await response.ParseJsonAsync<JsonNetEaseLyricResponse>(false, cancellationToken);
     }
     #pragma warning restore SYSLIB0013
 }

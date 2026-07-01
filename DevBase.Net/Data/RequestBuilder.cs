@@ -72,21 +72,25 @@ public class RequestBuilder : GenericBuilder<RequestBuilder>
     
     protected override Action BuildAction => () =>
     {
-        if (this.RenderedUri.IsEmpty)
+        if (this.RenderedUri.IsEmpty) {
             throw new ElementValidationException(EnumValidationReason.Empty);
+        }
 
-        if (this.RequestHeaderBuilder == null)
+        if (this.RequestHeaderBuilder == null) {
             this.RequestHeaderBuilder = new RequestHeaderBuilder();
-        
+        }
+
         this.RequestHeaderBuilder.Build();
         this.ParameterBuilder?.Build();
         
-        if (this.ParameterBuilder == null)
+        if (this.ParameterBuilder == null) {
             return;
+        }
 
-        if (this.ParameterBuilder.Parameters.IsEmpty)
+        if (this.ParameterBuilder.Parameters.IsEmpty) {
             return;
-        
+        }
+
         StringBuilder newUrlBuilder =
             new StringBuilder(this.RenderedUri.Length + this.ParameterBuilder.Parameters.Length);
 

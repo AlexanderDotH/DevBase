@@ -23,8 +23,9 @@ namespace DevBase.Utilities
         /// <returns>The estimated size in bytes, or 0 if measurement fails.</returns>
         public static long GetSize(Object obj)
         {
-            if (obj == null)
+            if (obj == null) {
                 return 0;
+            }
 
             try
             {
@@ -38,20 +39,50 @@ namespace DevBase.Utilities
 
         private static long EstimateSize(object obj, Type type)
         {
-            if (obj == null)
+            if (obj == null) {
                 return 0;
+            }
 
             // Primitives and value types with known sizes
-            if (type == typeof(bool)) return 1;
-            if (type == typeof(byte) || type == typeof(sbyte)) return 1;
-            if (type == typeof(char)) return 2;
-            if (type == typeof(short) || type == typeof(ushort)) return 2;
-            if (type == typeof(int) || type == typeof(uint)) return 4;
-            if (type == typeof(long) || type == typeof(ulong)) return 8;
-            if (type == typeof(float)) return 4;
-            if (type == typeof(double)) return 8;
-            if (type == typeof(decimal)) return 16;
-            if (type == typeof(IntPtr) || type == typeof(UIntPtr)) return IntPtr.Size;
+            if (type == typeof(bool)) {
+                return 1;
+            }
+
+            if (type == typeof(byte) || type == typeof(sbyte)) {
+                return 1;
+            }
+
+            if (type == typeof(char)) {
+                return 2;
+            }
+
+            if (type == typeof(short) || type == typeof(ushort)) {
+                return 2;
+            }
+
+            if (type == typeof(int) || type == typeof(uint)) {
+                return 4;
+            }
+
+            if (type == typeof(long) || type == typeof(ulong)) {
+                return 8;
+            }
+
+            if (type == typeof(float)) {
+                return 4;
+            }
+
+            if (type == typeof(double)) {
+                return 8;
+            }
+
+            if (type == typeof(decimal)) {
+                return 16;
+            }
+
+            if (type == typeof(IntPtr) || type == typeof(UIntPtr)) {
+                return IntPtr.Size;
+            }
 
             // String: 2 bytes per character + overhead
             if (type == typeof(string))
@@ -96,15 +127,42 @@ namespace DevBase.Utilities
 
         private static long GetPrimitiveSize(Type type)
         {
-            if (type == typeof(bool)) return 1;
-            if (type == typeof(byte) || type == typeof(sbyte)) return 1;
-            if (type == typeof(char)) return 2;
-            if (type == typeof(short) || type == typeof(ushort)) return 2;
-            if (type == typeof(int) || type == typeof(uint)) return 4;
-            if (type == typeof(long) || type == typeof(ulong)) return 8;
-            if (type == typeof(float)) return 4;
-            if (type == typeof(double)) return 8;
-            if (type == typeof(decimal)) return 16;
+            if (type == typeof(bool)) {
+                return 1;
+            }
+
+            if (type == typeof(byte) || type == typeof(sbyte)) {
+                return 1;
+            }
+
+            if (type == typeof(char)) {
+                return 2;
+            }
+
+            if (type == typeof(short) || type == typeof(ushort)) {
+                return 2;
+            }
+
+            if (type == typeof(int) || type == typeof(uint)) {
+                return 4;
+            }
+
+            if (type == typeof(long) || type == typeof(ulong)) {
+                return 8;
+            }
+
+            if (type == typeof(float)) {
+                return 4;
+            }
+
+            if (type == typeof(double)) {
+                return 8;
+            }
+
+            if (type == typeof(decimal)) {
+                return 16;
+            }
+
             if (type.IsValueType)
             {
                 try { return Marshal.SizeOf(type); } catch { }

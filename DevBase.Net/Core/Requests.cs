@@ -85,7 +85,10 @@ public sealed class Requests : IDisposable, IAsyncDisposable
     public Requests Add(IEnumerable<Request> requests)
     {
         foreach (Request request in requests)
+        {
             this.Add(request);
+        }
+
         return this;
     }
 
@@ -97,7 +100,10 @@ public sealed class Requests : IDisposable, IAsyncDisposable
     public Requests Add(IEnumerable<string> urls)
     {
         foreach (string url in urls)
+        {
             this.Add(url);
+        }
+
         return this;
     }
 
@@ -127,7 +133,10 @@ public sealed class Requests : IDisposable, IAsyncDisposable
     {
         List<Response> responses = new();
         while (this._responseQueue.TryDequeue(out Response? response))
+        {
             responses.Add(response);
+        }
+
         return responses;
     }
 
@@ -166,8 +175,9 @@ public sealed class Requests : IDisposable, IAsyncDisposable
 
     public void StartProcessing()
     {
-        if (this._isProcessing)
+        if (this._isProcessing) {
             return;
+        }
 
         this._processingCts = new CancellationTokenSource();
         this._isProcessing = true;
@@ -176,8 +186,9 @@ public sealed class Requests : IDisposable, IAsyncDisposable
 
     public async Task StopProcessingAsync()
     {
-        if (!this._isProcessing)
+        if (!this._isProcessing) {
             return;
+        }
 
         this._processingCts?.Cancel();
         
@@ -273,14 +284,17 @@ public sealed class Requests : IDisposable, IAsyncDisposable
         List<Request> requests = new List<Request>();
 
         while (this._queue.TryDequeue(out Request? request))
+        {
             requests.Add(request);
+        }
 
         if (this._parallelism <= 1)
         {
             foreach (Request request in requests)
             {
-                if (cancellationToken.IsCancellationRequested)
+                if (cancellationToken.IsCancellationRequested) {
                     break;
+                }
 
                 Response response = await this.SendWithRateLimitAsync(request, cancellationToken);
                 responses.Add(response);
@@ -298,8 +312,10 @@ public sealed class Requests : IDisposable, IAsyncDisposable
             {
                 foreach (Request request in requests)
                 {
-                    if (cancellationToken.IsCancellationRequested)
+                    if (cancellationToken.IsCancellationRequested) {
                         break;
+                    }
+
                     await channel.Writer.WriteAsync(request, cancellationToken);
                 }
                 channel.Writer.Complete();
@@ -340,8 +356,9 @@ public sealed class Requests : IDisposable, IAsyncDisposable
     {
         while (this._queue.TryDequeue(out Request? request))
         {
-            if (cancellationToken.IsCancellationRequested)
+            if (cancellationToken.IsCancellationRequested) {
                 yield break;
+            }
 
             Response response = await this.SendWithRateLimitAsync(request, cancellationToken);
             await this.InvokeCallbacksAsync(response);
@@ -364,8 +381,9 @@ public sealed class Requests : IDisposable, IAsyncDisposable
 
     private async Task EnforceRateLimitAsync(CancellationToken cancellationToken)
     {
-        if (this._rateLimit <= 0)
+        if (this._rateLimit <= 0) {
             return;
+        }
 
         await this._rateLimitSemaphore.WaitAsync(cancellationToken);
         try
@@ -381,9 +399,10 @@ public sealed class Requests : IDisposable, IAsyncDisposable
             if (this._requestsInWindow >= this._rateLimit)
             {
                 TimeSpan waitTime = this._rateLimitWindow - (now - this._windowStart);
-                if (waitTime > TimeSpan.Zero)
+                if (waitTime > TimeSpan.Zero) {
                     await Task.Delay(waitTime, cancellationToken);
-                
+                }
+
                 this._windowStart = DateTime.UtcNow;
                 this._requestsInWindow = 0;
             }
@@ -399,8 +418,9 @@ public sealed class Requests : IDisposable, IAsyncDisposable
     private void ApplyPersistence(Request request)
     {
         Uri? uri = request.GetUri();
-        if (uri == null)
+        if (uri == null) {
             return;
+        }
 
         string host = uri.Host;
 
@@ -413,9 +433,10 @@ public sealed class Requests : IDisposable, IAsyncDisposable
                 
                 for (int i = 0; i < cookies.Count; i++)
                 {
-                    if (i > 0)
+                    if (i > 0) {
                         sb.Append("; ");
-                    
+                    }
+
                     Cookie cookie = cookies[i];
                     sb.Append(cookie.Name);
                     sb.Append('=');
@@ -435,8 +456,9 @@ public sealed class Requests : IDisposable, IAsyncDisposable
     private void StorePersistence(Request request, Response response)
     {
         Uri? uri = request.GetUri();
-        if (uri == null)
+        if (uri == null) {
             return;
+        }
 
         string host = uri.Host;
 
@@ -447,7 +469,9 @@ public sealed class Requests : IDisposable, IAsyncDisposable
             {
                 CookieContainer container = this._cookies.GetOrAdd(host, _ => new CookieContainer());
                 foreach (Cookie cookie in responseCookies)
+                {
                     container.Add(uri, cookie);
+                }
             }
         }
 
@@ -480,7 +504,10 @@ public sealed class Requests : IDisposable, IAsyncDisposable
 
     public void Dispose()
     {
-        if (this._disposed) return;
+        if (this._disposed) {
+            return;
+        }
+
         this._disposed = true;
 
         this._processingCts?.Cancel();
@@ -495,8 +522,10 @@ public sealed class Requests : IDisposable, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (this._disposed) return;
-        
+        if (this._disposed) {
+            return;
+        }
+
         await this.StopProcessingAsync();
         this.Dispose();
     }

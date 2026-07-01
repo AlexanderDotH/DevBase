@@ -36,16 +36,18 @@ public sealed class ProxyService : IDisposable
     {
         lock (_lock)
         {
-            if (!HasProxies) 
+            if (!HasProxies) {
                 return null;
-            
+            }
+
             for (int i = 0; i < _trackedProxies.Count; i++)
             {
                 TrackedProxyInfo proxy = _trackedProxies[_currentIndex];
                 _currentIndex = (_currentIndex + 1) % _trackedProxies.Count;
                 
-                if (proxy.IsAvailable())
+                if (proxy.IsAvailable()) {
                     return proxy;
+                }
             }
             
             return _trackedProxies[Random.Shared.Next(_trackedProxies.Count)];
@@ -56,14 +58,16 @@ public sealed class ProxyService : IDisposable
     {
         lock (_lock)
         {
-            if (!HasProxies) 
+            if (!HasProxies) {
                 return null;
-            
+            }
+
             List<TrackedProxyInfo> availableProxies = _trackedProxies.Where(p => p.IsAvailable()).ToList();
             
-            if (availableProxies.Count > 0)
+            if (availableProxies.Count > 0) {
                 return availableProxies[Random.Shared.Next(availableProxies.Count)];
-            
+            }
+
             return _trackedProxies[Random.Shared.Next(_trackedProxies.Count)];
         }
     }
@@ -78,11 +82,14 @@ public sealed class ProxyService : IDisposable
             
             foreach (TrackedProxyInfo proxy in _trackedProxies)
             {
-                if (proxy.IsAvailable())
+                if (proxy.IsAvailable()) {
                     active++;
+                }
                 else
+                {
                     timedOut++;
-                    
+                }
+
                 totalTimeouts += proxy.TotalTimeouts;
             }
             
@@ -128,7 +135,9 @@ public sealed class ProxyService : IDisposable
         lock (_lock)
         {
             foreach (TrackedProxyInfo proxy in _trackedProxies)
+            {
                 proxy.ResetTimeout();
+            }
         }
     }
 

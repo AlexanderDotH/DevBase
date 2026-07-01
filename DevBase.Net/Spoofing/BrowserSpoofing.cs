@@ -184,8 +184,9 @@ public static class BrowserSpoofing
             _ => null
         };
 
-        if (referer != null)
+        if (referer != null) {
             request.WithReferer(referer);
+        }
     }
     
     private static string BuildBaseHostReferer(Uri uri)

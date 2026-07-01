@@ -38,13 +38,15 @@ public class AuthenticationToken
         string tokenSecret = ""
         )
     {
-        if (!rawToken.Contains("."))
+        if (!rawToken.Contains(".")) {
             return null;
-        
+        }
+
         string[] tokenElements = rawToken.Split(".");
 
-        if (tokenElements.Length != 3)
+        if (tokenElements.Length != 3) {
             return null;
+        }
 
         AuthenticationTokenHeader tokenHeader = ParseHeader(tokenElements[0].ToBase64())!;
         AuthenticationTokenPayload tokenPayload = ParsePayload(tokenElements[1].ToBase64())!;
@@ -63,14 +65,16 @@ public class AuthenticationToken
         string decodedSignature = signature.UrlDecoded().GetDecoded().ToString();
         byte[] bDecodedSignature = signature.UrlDecoded().GetDecodedBuffer();
 
-        if (string.IsNullOrEmpty(decodedSignature))
+        if (string.IsNullOrEmpty(decodedSignature)) {
             return null;
+        }
 
         bool isJwtVerified = false;
 
-        if (shouldVerify)
+        if (shouldVerify) {
             isJwtVerified = VerifyToken(tokenHeader, tokenPayload, decodedSignature, tokenSecret);
-        
+        }
+
         return new AuthenticationTokenSignature()
         {
             Signature = bDecodedSignature,
@@ -86,8 +90,9 @@ public class AuthenticationToken
         string tokenSignature, 
         string tokenSecret)
     {
-        if (string.IsNullOrEmpty(tokenHeader.Algorithm!))
+        if (string.IsNullOrEmpty(tokenHeader.Algorithm!)) {
             throw new TokenVerificationException(EnumTokenVerificationExceptionType.MissingField);
+        }
 
         dynamic verifier = ParseAlgorithmVerifier(tokenHeader.Algorithm);
 
@@ -99,8 +104,9 @@ public class AuthenticationToken
 
     private static dynamic ParseAlgorithmVerifier(string algorithm)
     {
-        if (algorithm.Length != 5)
+        if (algorithm.Length != 5) {
             throw new TokenVerificationException(EnumTokenVerificationExceptionType.InvalidLength);
+        }
 
         string algorithmName = algorithm.Substring(0, 2);
         string algorithmSize = algorithm.Substring(algorithm.Length - 3);
@@ -151,9 +157,10 @@ public class AuthenticationToken
     {
         string decoded = header.GetDecoded().ToString();
 
-        if (string.IsNullOrEmpty(decoded))
+        if (string.IsNullOrEmpty(decoded)) {
             return null;
-        
+        }
+
         JObject parsed = JObject.Parse(decoded);
 
         KeyValuePair<string, string> algorithm;
@@ -177,9 +184,10 @@ public class AuthenticationToken
     {
         string decoded = payload.GetDecoded().ToString();
 
-        if (string.IsNullOrEmpty(decoded))
+        if (string.IsNullOrEmpty(decoded)) {
             return null;
-        
+        }
+
         JObject parsed = JObject.Parse(decoded);
 
         KeyValuePair<string, string> issuer;

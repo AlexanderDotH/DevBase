@@ -32,8 +32,10 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
         AList<string> parsableLines = lines.GetRangeAsAList(firstLine, lines.Length - 1);
         
         for (int i = 0; i < parsableLines.Length; i++)
+        {
             richTimeStampedLyrics.Add(ParseSingleLine(parsableLines.Get(i)));
-        
+        }
+
         return richTimeStampedLyrics;
     }
 
@@ -61,8 +63,9 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
     {
         for (int i = 0; i < lines.Length; i++)
         {
-            if (RegexHolder.RegexKlyricsWord.IsMatch(lines.Get(i)))
+            if (RegexHolder.RegexKlyricsWord.IsMatch(lines.Get(i))) {
                 return i;
+            }
         }
 
         return Error<object>("Block not found");
@@ -70,12 +73,14 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
     
     private RichTimeStampedLyric ParseSingleLine(string line)
     {
-        if (!RegexHolder.RegexKlyricsTimeStamps.IsMatch(line))
+        if (!RegexHolder.RegexKlyricsTimeStamps.IsMatch(line)) {
             return Error<object>("Timestamp is missing");
+        }
 
-        if (!RegexHolder.RegexKlyricsWord.IsMatch(line))
+        if (!RegexHolder.RegexKlyricsWord.IsMatch(line)) {
             return Error<object>("Words are missing");
-        
+        }
+
         AList<RichTimeStampedWord> words = new AList<RichTimeStampedWord>();
         
         Match timeStamp = RegexHolder.RegexKlyricsTimeStamps.Match(line);
@@ -121,9 +126,10 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
         {
             RichTimeStampedWord word = words.Get(i);
             
-            if (String.IsNullOrEmpty(word.Word.Trim()))
+            if (String.IsNullOrEmpty(word.Word.Trim())) {
                 continue;
-            
+            }
+
             wordList.Add(word.Word);
         }
         

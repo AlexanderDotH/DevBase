@@ -1,0 +1,32 @@
+{
+  "message": {
+    "header": {
+      "status_code": 200,
+      "execute_time": 0.02
+    },
+    "body": {
+      "user": {
+        "user_id": "fixture-user",
+        "id": "fixture-user",
+        "name": "Fixture User",
+        "profile": {
+          "first_name": "Fixture",
+          "last_name": "User",
+          "email": "fixture@example.test",
+          "user_id": "fixture-user",
+          "name": "Fixture User"
+        },
+        "authorizations": {
+          "active": true,
+          "private": false,
+          "safe": "1",
+          "user_id": "fixture-user",
+          "mission_subscriber": true
+        }
+      },
+      "device": {
+        "device_id": "fixture-device"
+      }
+    }
+  }
+}

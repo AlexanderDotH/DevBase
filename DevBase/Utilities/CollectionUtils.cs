@@ -25,8 +25,9 @@ namespace DevBase.Utilities
         /// <returns>Returns a new list with the merged entries</returns>
         public static AList<string> MergeList(List<string> first, List<string> second, string marker = "")
         {
-            if (first.Count != second.Count)
+            if (first.Count != second.Count) {
                 throw new AListEntryException(AListEntryException.Type.ListNotEqual);
+            }
 
             AList<string> returnList = new AList<string>();
 

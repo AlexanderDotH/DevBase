@@ -24,8 +24,9 @@ public static class StopwatchExtension
     /// <exception cref="StopwatchException">Thrown if the stopwatch is still running.</exception>
     public static string GetTimeTable(this System.Diagnostics.Stopwatch stopwatch)
     {
-        if (stopwatch.IsRunning)
+        if (stopwatch.IsRunning) {
             throw new StopwatchException("The stopwatch should be stopped");
+        }
 
         ConsoleTable table = new ConsoleTable("Data", "Unit");
         table.Configure(c =>
@@ -40,23 +41,29 @@ public static class StopwatchExtension
         (long Microseconds, string Unit) microseconds = TimeUtils.GetMicroseconds(stopwatch);
         (long Nanoseconds, string Unit) nanoseconds = TimeUtils.GetNanoseconds(stopwatch);
 
-        if (hours.Hours > 0)
+        if (hours.Hours > 0) {
             table.AddRow(hours.Hours, hours.Unit);
+        }
 
-        if (minutes.Minutes > 0)
+        if (minutes.Minutes > 0) {
             table.AddRow(minutes.Minutes, minutes.Unit);
+        }
 
-        if (seconds.Seconds > 0)
+        if (seconds.Seconds > 0) {
             table.AddRow(seconds.Seconds, seconds.Unit);
+        }
 
-        if (milliseconds.Milliseconds > 0)
+        if (milliseconds.Milliseconds > 0) {
             table.AddRow(milliseconds.Milliseconds, milliseconds.Unit);
+        }
 
-        if (microseconds.Microseconds > 0)
+        if (microseconds.Microseconds > 0) {
             table.AddRow(microseconds.Microseconds, microseconds.Unit);
+        }
 
-        if (nanoseconds.Nanoseconds > 0)
+        if (nanoseconds.Nanoseconds > 0) {
             table.AddRow(nanoseconds.Nanoseconds, nanoseconds.Unit);
+        }
 
         return table.ToMarkDownString();
     } 

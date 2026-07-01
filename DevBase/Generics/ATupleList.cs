@@ -36,8 +36,9 @@ namespace DevBase.Generics
         /// <returns>The matching tuple, or null if not found.</returns>
         public Tuple<T1, T2> FindFullEntry(T1 t1)
         {
-            if (t1 == null)
+            if (t1 == null) {
                 return null;
+            }
 
             long size = MemoryUtils.GetSize(t1);
 
@@ -45,8 +46,9 @@ namespace DevBase.Generics
             {
                 T1 t1Object = this.Get(i).Item1;
 
-                if (t1Object == null)
+                if (t1Object == null) {
                     continue;
+                }
 
                 if (size == MemoryUtils.GetSize(t1Object))
                 {
@@ -67,8 +69,9 @@ namespace DevBase.Generics
         /// <returns>The matching tuple, or null if not found.</returns>
         public Tuple<T1, T2> FindFullEntry(T2 t2)
         {
-            if (t2 == null)
+            if (t2 == null) {
                 return null;
+            }
 
             long size = MemoryUtils.GetSize(t2);
 
@@ -76,8 +79,9 @@ namespace DevBase.Generics
             {
                 T2 t2Object = this.Get(i).Item2;
 
-                if (t2Object == null)
+                if (t2Object == null) {
                     continue;
+                }
 
                 if (size == MemoryUtils.GetSize(t2Object))
                 {
@@ -104,8 +108,9 @@ namespace DevBase.Generics
             {
                 T1 t1Object = this.Get(i).Item1;
 
-                if (t1Object == null)
+                if (t1Object == null) {
                     continue;
+                }
 
                 if (size == MemoryUtils.GetSize(t1Object))
                 {
@@ -132,8 +137,9 @@ namespace DevBase.Generics
             {
                 T2 t2Object = this.Get(i).Item2;
 
-                if (t2Object == null)
+                if (t2Object == null) {
                     continue;
+                }
 
                 if (size == MemoryUtils.GetSize(t2Object))
                 {
@@ -154,15 +160,17 @@ namespace DevBase.Generics
         /// <returns>The second item of the matching tuple, or null if not found.</returns>
         public dynamic FindEntrySafe(T1 t1)
         {
-            if (t1 == null)
+            if (t1 == null) {
                 return null;
+            }
 
             for (int i = 0; i < this.Length; i++)
             {
                 T1 t1Object = this.Get(i).Item1;
 
-                if (t1Object == null)
+                if (t1Object == null) {
                     continue;
+                }
 
                 if (t1.Equals(t1Object))
                 {
@@ -180,15 +188,17 @@ namespace DevBase.Generics
         /// <returns>The first item of the matching tuple, or null if not found.</returns>
         public dynamic FindEntrySafe(T2 t2)
         {
-            if (t2 == null)
+            if (t2 == null) {
                 return null;
+            }
 
             for (int i = 0; i < this.Length; i++)
             {
                 T2 t2Object = this.Get(i).Item2;
 
-                if (t2Object == null)
+                if (t2Object == null) {
                     continue;
+                }
 
                 if (t2.Equals(t2Object))
                 {
@@ -206,8 +216,9 @@ namespace DevBase.Generics
         /// <returns>A list of matching tuples.</returns>
         public AList<Tuple<T1, T2>> FindFullEntries(T2 t2)
         {
-            if (t2 == null)
+            if (t2 == null) {
                 return null;
+            }
 
             AList<Tuple<T1, T2>> t2AList = new AList<Tuple<T1, T2>>();
 
@@ -217,8 +228,9 @@ namespace DevBase.Generics
             {
                 T2 t2Object = this.Get(i).Item2;
 
-                if (t2Object == null)
+                if (t2Object == null) {
                     continue;
+                }
 
                 if (size == MemoryUtils.GetSize(t2Object))
                 {
@@ -239,8 +251,9 @@ namespace DevBase.Generics
         /// <returns>A list of matching tuples.</returns>
         public AList<Tuple<T1, T2>> FindFullEntries(T1 t1)
         {
-            if (t1 == null)
+            if (t1 == null) {
                 return null;
+            }
 
             AList<Tuple<T1, T2>> t1AList = new AList<Tuple<T1, T2>>();
 
@@ -250,8 +263,9 @@ namespace DevBase.Generics
             {
                 T1 t1Object = this.Get(i).Item1;
 
-                if (t1Object == null)
+                if (t1Object == null) {
                     continue;
+                }
 
                 if (size == MemoryUtils.GetSize(t1Object))
                 {
@@ -272,8 +286,9 @@ namespace DevBase.Generics
         /// <returns>A list of matching first items.</returns>
         public AList<T1> FindEntries(T2 t2)
         {
-            if (t2 == null)
+            if (t2 == null) {
                 return null;
+            }
 
             AList<T1> t1AList = new AList<T1>();
 
@@ -283,8 +298,9 @@ namespace DevBase.Generics
             {
                 T2 t2Object = this.Get(i).Item2;
 
-                if (t2Object == null)
+                if (t2Object == null) {
                     continue;
+                }
 
                 if (size == MemoryUtils.GetSize(t2Object))
                 {
@@ -305,8 +321,9 @@ namespace DevBase.Generics
         /// <returns>A list of matching second items.</returns>
         public AList<T2> FindEntries(T1 t1)
         {
-            if (t1 == null)
+            if (t1 == null) {
                 return null;
+            }
 
             AList<T2> t2AList = new AList<T2>();
 
@@ -316,8 +333,9 @@ namespace DevBase.Generics
             {
                 T1 t1Object = this.Get(i).Item1;
 
-                if (t1Object == null)
+                if (t1Object == null) {
                     continue;
+                }
 
                 if (size == MemoryUtils.GetSize(t1Object))
                 {

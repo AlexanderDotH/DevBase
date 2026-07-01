@@ -36,9 +36,10 @@ public class RequestEncodedKeyValueListBodyBuilder : HttpKeyValueListBuilder<Req
                 return;
             }
             
-            if (value == null || value.Length == 0)
+            if (value == null || value.Length == 0) {
                 return;
-            
+            }
+
             AddText(fieldName, value);
         }
     }

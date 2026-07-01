@@ -9,14 +9,16 @@ public sealed class MultiSelectorParser
     {
         MultiSelectorResult result = new MultiSelectorResult();
         
-        if (config.Selectors.Count == 0)
+        if (config.Selectors.Count == 0) {
             return result;
-        
+        }
+
         using JsonDocument document = JsonDocument.Parse(json.ToArray());
         
-        if (config.OptimizePathReuse)
+        if (config.OptimizePathReuse) {
             return ParseWithPathReuse(document.RootElement, config, result);
-        
+        }
+
         return ParseIndividual(document.RootElement, config, result);
     }
     
@@ -48,8 +50,10 @@ public sealed class MultiSelectorParser
     {
         Dictionary<string, List<PathSegment>> parsedPaths = new();
         foreach (KeyValuePair<string, string> selector in config.Selectors)
+        {
             parsedPaths[selector.Key] = ParsePath(selector.Value);
-        
+        }
+
         List<SelectorGroup> groups = GroupByCommonPrefix(parsedPaths);
         
         foreach (SelectorGroup group in groups)
@@ -59,7 +63,10 @@ public sealed class MultiSelectorParser
             if (!commonElement.HasValue)
             {
                 foreach (string name in group.Selectors.Keys)
+                {
                     result.Set(name, null);
+                }
+
                 continue;
             }
             
@@ -75,9 +82,10 @@ public sealed class MultiSelectorParser
     
     private List<SelectorGroup> GroupByCommonPrefix(Dictionary<string, List<PathSegment>> paths)
     {
-        if (paths.Count == 0)
+        if (paths.Count == 0) {
             return new List<SelectorGroup>();
-        
+        }
+
         if (paths.Count == 1)
         {
             KeyValuePair<string, List<PathSegment>> single = paths.First();
@@ -127,9 +135,10 @@ public sealed class MultiSelectorParser
     
     private List<PathSegment> FindCommonPrefix(List<List<PathSegment>> paths)
     {
-        if (paths.Count == 0)
+        if (paths.Count == 0) {
             return new List<PathSegment>();
-        
+        }
+
         List<PathSegment> first = paths[0];
         int minLength = paths.Min(p => p.Count);
         List<PathSegment> commonPrefix = new List<PathSegment>();
@@ -139,9 +148,10 @@ public sealed class MultiSelectorParser
             PathSegment segment = first[i];
             bool allMatch = paths.All(p => SegmentsEqual(p[i], segment));
             
-            if (!allMatch)
+            if (!allMatch) {
                 break;
-                
+            }
+
             commonPrefix.Add(segment);
         }
         
@@ -150,60 +160,76 @@ public sealed class MultiSelectorParser
     
     private bool SegmentsEqual(PathSegment a, PathSegment b)
     {
-        if (a.PropertyName != b.PropertyName)
+        if (a.PropertyName != b.PropertyName) {
             return false;
-        if (a.ArrayIndex != b.ArrayIndex)
+        }
+
+        if (a.ArrayIndex != b.ArrayIndex) {
             return false;
-        if (a.IsWildcard != b.IsWildcard)
+        }
+
+        if (a.IsWildcard != b.IsWildcard) {
             return false;
-        if (a.IsRecursive != b.IsRecursive)
+        }
+
+        if (a.IsRecursive != b.IsRecursive) {
             return false;
+        }
+
         return true;
     }
 
     private JsonElement? Navigate(JsonElement element, List<PathSegment> segments, int segmentIndex)
     {
-        if (segmentIndex >= segments.Count)
+        if (segmentIndex >= segments.Count) {
             return element;
+        }
 
         PathSegment segment = segments[segmentIndex];
 
-        if (segment.IsRecursive)
+        if (segment.IsRecursive) {
             return NavigateRecursive(element, segments, segmentIndex + 1);
+        }
 
         if (segment.PropertyName != null)
         {
-            if (element.ValueKind != JsonValueKind.Object)
+            if (element.ValueKind != JsonValueKind.Object) {
                 return null;
+            }
 
-            if (!element.TryGetProperty(segment.PropertyName, out JsonElement prop))
+            if (!element.TryGetProperty(segment.PropertyName, out JsonElement prop)) {
                 return null;
+            }
 
             return Navigate(prop, segments, segmentIndex + 1);
         }
 
         if (segment.ArrayIndex.HasValue)
         {
-            if (element.ValueKind != JsonValueKind.Array)
+            if (element.ValueKind != JsonValueKind.Array) {
                 return null;
+            }
 
             int index = segment.ArrayIndex.Value;
-            if (index < 0 || index >= element.GetArrayLength())
+            if (index < 0 || index >= element.GetArrayLength()) {
                 return null;
+            }
 
             return Navigate(element[index], segments, segmentIndex + 1);
         }
 
         if (segment.IsWildcard)
         {
-            if (element.ValueKind != JsonValueKind.Array)
+            if (element.ValueKind != JsonValueKind.Array) {
                 return null;
+            }
 
             foreach (JsonElement item in element.EnumerateArray())
             {
                 JsonElement? result = Navigate(item, segments, segmentIndex + 1);
-                if (result.HasValue)
+                if (result.HasValue) {
                     return result;
+                }
             }
         }
 
@@ -213,16 +239,18 @@ public sealed class MultiSelectorParser
     private JsonElement? NavigateRecursive(JsonElement element, List<PathSegment> segments, int segmentIndex)
     {
         JsonElement? result = Navigate(element, segments, segmentIndex);
-        if (result.HasValue)
+        if (result.HasValue) {
             return result;
+        }
 
         if (element.ValueKind == JsonValueKind.Object)
         {
             foreach (JsonProperty prop in element.EnumerateObject())
             {
                 result = NavigateRecursive(prop.Value, segments, segmentIndex);
-                if (result.HasValue)
+                if (result.HasValue) {
                     return result;
+                }
             }
         }
         else if (element.ValueKind == JsonValueKind.Array)
@@ -230,8 +258,9 @@ public sealed class MultiSelectorParser
             foreach (JsonElement item in element.EnumerateArray())
             {
                 result = NavigateRecursive(item, segments, segmentIndex);
-                if (result.HasValue)
+                if (result.HasValue) {
                     return result;
+                }
             }
         }
 
@@ -244,8 +273,9 @@ public sealed class MultiSelectorParser
         ReadOnlySpan<char> span = path.AsSpan();
         int i = 0;
 
-        if (span.Length > 0 && span[0] == '$')
+        if (span.Length > 0 && span[0] == '$') {
             i++;
+        }
 
         while (i < span.Length)
         {
@@ -261,7 +291,9 @@ public sealed class MultiSelectorParser
 
                 int start = i;
                 while (i < span.Length && span[i] != '.' && span[i] != '[')
+                {
                     i++;
+                }
 
                 if (i > start)
                 {
@@ -275,15 +307,20 @@ public sealed class MultiSelectorParser
                 int start = i;
                 
                 while (i < span.Length && span[i] != ']')
+                {
                     i++;
+                }
 
                 string indexStr = span[start..i].ToString().Trim();
                 i++;
 
-                if (indexStr == "*")
+                if (indexStr == "*") {
                     segments.Add(new PathSegment { IsWildcard = true });
+                }
                 else if (int.TryParse(indexStr, out int index))
+                {
                     segments.Add(new PathSegment { ArrayIndex = index });
+                }
             }
             else
             {

@@ -39,8 +39,9 @@ public sealed class RetryPolicy
     /// <returns>The time to wait before the next attempt.</returns>
     public TimeSpan GetDelay(int attemptNumber)
     {
-        if (attemptNumber <= 0)
+        if (attemptNumber <= 0) {
             return TimeSpan.Zero;
+        }
 
         TimeSpan delay = this.BackoffStrategy switch
         {

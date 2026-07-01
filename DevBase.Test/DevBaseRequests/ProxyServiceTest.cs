@@ -143,8 +143,9 @@ public class ProxyServiceTest
         var webProxy = tracked.ToWebProxy();
         
         Assert.That(webProxy, Is.Not.Null);
-        if (webProxy is System.Net.WebProxy wp)
+        if (webProxy is System.Net.WebProxy wp) {
             Assert.That(wp.Address?.Host, Is.EqualTo("proxy.example.com"));
+        }
     }
 
     #endregion

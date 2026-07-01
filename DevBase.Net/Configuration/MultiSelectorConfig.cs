@@ -39,8 +39,10 @@ public sealed class MultiSelectorConfig
         };
         
         foreach ((string name, string path) in selectors)
+        {
             config.Selectors[name] = path;
-            
+        }
+
         return config;
     }
     
@@ -58,8 +60,10 @@ public sealed class MultiSelectorConfig
         };
         
         foreach ((string name, string path) in selectors)
+        {
             config.Selectors[name] = path;
-            
+        }
+
         return config;
     }
 }

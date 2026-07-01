@@ -1,0 +1,11 @@
+{
+  "message": {
+    "header": {
+      "status_code": 404,
+      "execute_time": 0.004
+    },
+    "body": {
+      "error": "fixture not found"
+    }
+  }
+}

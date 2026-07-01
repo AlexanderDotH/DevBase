@@ -50,9 +50,10 @@ public class BeautifulLyricsTests
         {
             var timeStampedLyrics = await beautifulLyrics.GetLyrics("QZFZ32013014");
 
-            if (timeStampedLyrics is AList<TimeStampedLyric> stampedLyrics)
+            if (timeStampedLyrics is AList<TimeStampedLyric> stampedLyrics) {
                 stampedLyrics.DumpConsole();
-            
+            }
+
             if (timeStampedLyrics == null)
             {
                 Console.WriteLine("API returned null, but that's okay for external API tests");
@@ -80,9 +81,10 @@ public class BeautifulLyricsTests
         {
             var richTimeStampedLyrics = await beautifulLyrics.GetLyrics("GBARL9300135");
 
-            if (richTimeStampedLyrics is AList<RichTimeStampedLyric> richTimeStamped)
+            if (richTimeStampedLyrics is AList<RichTimeStampedLyric> richTimeStamped) {
                 richTimeStamped.DumpConsole();
-            
+            }
+
             if (richTimeStampedLyrics == null)
             {
                 Console.WriteLine("API returned null, but that's okay for external API tests");

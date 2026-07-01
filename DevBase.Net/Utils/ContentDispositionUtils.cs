@@ -71,8 +71,9 @@ public class ContentDispositionUtils
             combineBuilder.Append('=');
             combineBuilder.Append(HttpUtility.UrlEncode(kv.Value));
             
-            if (i != keyValuePairs.Count - 1)
+            if (i != keyValuePairs.Count - 1) {
                 combineBuilder.Append('&');
+            }
         }
         
         return Encoding.UTF8.GetBytes(combineBuilder.ToString());

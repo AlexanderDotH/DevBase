@@ -1,7 +1,4 @@
-using System.Diagnostics;
 using DevBase.Generics;
-using DevBase.Utilities;
-using Dumpify;
 
 namespace DevBase.Test.DevBase;
 
@@ -26,8 +23,6 @@ public class AListTests
 
         listOfStrings.RemoveRange(0, 2);
 
-        listOfStrings.DumpConsole();
-        
         Assert.That(listOfStrings.Get(0), Is.EqualTo("Bird"));
     }
 
@@ -39,25 +34,14 @@ public class AListTests
     public void FindTest()
     {
         AList<string> listOfString = new AList<string>();
+        listOfString.Add("alpha");
+        listOfString.Add("beta");
+        string searchFor = new("needle-target-unique".ToCharArray());
+        listOfString.Add(searchFor);
+        listOfString.Add("gamma");
 
-        for (int i = 0; i < 40000; i++)
-        {
-            listOfString.Add(StringUtils.RandomString(900));
-        }
+        string found = listOfString.Find(p => p.Contains("target-unique"));
 
-        Stopwatch sw = new Stopwatch();
-        sw.Start();
-        
-        string searchFor = listOfString.Get((int)Math.Floor(listOfString.Length / 2.0));
-
-        string found = listOfString.Find(p => p.Contains(searchFor.Substring(0, 5)));
-
-        sw.Stop();
-        
-        Console.WriteLine($"Took {sw.ElapsedMilliseconds}ms or {sw.ElapsedTicks}ticks to find the string");
-        
-        found.DumpConsole();
-        
         Assert.That(found, Is.SameAs(searchFor));
     }
 }

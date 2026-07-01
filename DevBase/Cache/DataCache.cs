@@ -55,8 +55,9 @@ namespace DevBase.Cache
 
             CacheElement<V> element = this._cache.FindEntrySafe(key);
 
-            if (element != null)
+            if (element != null) {
                 return element.Value;
+            }
 
             return default;
         }

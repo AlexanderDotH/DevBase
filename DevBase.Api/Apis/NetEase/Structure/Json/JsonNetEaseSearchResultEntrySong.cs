@@ -44,5 +44,5 @@ public class JsonNetEaseSearchResultEntrySong
     public object rUrl { get; set; }
 
     [JsonProperty("mark")]
-    public int mark { get; set; }
+    public long mark { get; set; }
 }

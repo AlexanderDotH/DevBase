@@ -19,6 +19,10 @@
     <PackageReference Include="Avalonia" Version="11.3.10" />
     <PackageReference Include="Bogus" Version="35.6.5" />
     <PackageReference Include="Dumpify" Version="0.6.6" />
+    <PackageReference Include="JunitXml.TestLogger" Version="8.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />
     <PackageReference Include="NUnit" Version="4.4.0" />
     <PackageReference Include="NUnit3TestAdapter" Version="6.0.0" />

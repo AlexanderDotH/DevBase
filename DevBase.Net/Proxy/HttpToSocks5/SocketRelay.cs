@@ -44,8 +44,10 @@ internal sealed class SocketRelay
 
     private void Cleanup()
     {
-        if (_disposed) return;
-        
+        if (_disposed) {
+            return;
+        }
+
         _disposed = _shouldDispose = true;
 
         if (Other != null)
@@ -80,8 +82,9 @@ internal sealed class SocketRelay
                     _receiving = false;
                     _sendingOffset = -1;
 
-                    if (_source.ReceiveAsync(_receiveArgs))
+                    if (_source.ReceiveAsync(_receiveArgs)) {
                         return;
+                    }
                 }
                 else
                 {
@@ -105,8 +108,9 @@ internal sealed class SocketRelay
                     {
                         _sendArgs.SetBuffer(_buffer, _sendingOffset, _received - _sendingOffset);
 
-                        if (_target.SendAsync(_sendArgs))
+                        if (_target.SendAsync(_sendArgs)) {
                             return;
+                        }
                     }
                     else
                     {

@@ -36,9 +36,10 @@ public class ColorUtils
             {
                 Span<byte> pixel = lockedBitmap.GetPixel(x, y);
 
-                if (pixel.Length != 4)
+                if (pixel.Length != 4) {
                     continue;
-                    
+                }
+
                 byte blue = pixel[0];
                 byte green = pixel[1];
                 byte red = pixel[2];

@@ -43,7 +43,9 @@ public class Random
         StringBuilder stringBuilder = new StringBuilder(length);
 
         for (int i = 0; i < length; i++)
+        {
             stringBuilder.Append(charset[this._secureRandom.Next(0, charset.Length)]);
+        }
 
         return stringBuilder.ToString();
     }

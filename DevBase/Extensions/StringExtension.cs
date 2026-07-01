@@ -18,7 +18,9 @@ public static class StringExtension
         StringBuilder stringBuilder = new StringBuilder();
         
         for (int i = 1; i <= amount; i++)
+        {
             stringBuilder.Append(value);
+        }
 
         return stringBuilder.ToString();
     }

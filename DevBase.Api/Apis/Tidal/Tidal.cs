@@ -1,14 +1,10 @@
 using System.Net;
-using System.Text;
 using DevBase.Api.Apis.Tidal.Structure.Json;
 using DevBase.Api.Enums;
 using DevBase.Api.Exceptions;
-using DevBase.Api.Serializer;
-using DevBase.Enums;
-using DevBase.Generics;
 using DevBase.Net.Core;
-using DevBase.Net.Data.Body;
 using DevBase.Net.Data.Parameters;
+using Newtonsoft.Json;
 
 namespace DevBase.Api.Apis.Tidal
 {
@@ -35,46 +31,53 @@ namespace DevBase.Api.Apis.Tidal
             this._scopeKeyPair = new FormKeypair("scope", "r_usr+w_usr+w_sub");
         }
 
-        public async Task<JsonTidalAuthDevice> RegisterDevice()
+        public async Task<JsonTidalAuthDevice> RegisterDevice(CancellationToken cancellationToken = default)
         {
-            string authToken = Convert.ToBase64String(Encoding.Default.GetBytes($"{this._clientId}:{this._clientSecret}"));
-
-            Response response = await new Request($"{this._authEndpoint}/oauth2/device_authorization")
+            Request request = new Request($"{this._authEndpoint}/oauth2/device_authorization")
                 .AsPost()
                 .WithEncodedForm(
                     ("client_id", this._clientIdKeyPair.Value),
                     ("scope", this._scopeKeyPair.Value)
                 )
-                .UseBasicAuthentication(this._clientId, this._clientSecret) // Actually wait, manual header or helper? Helper encodes it. Original did manual base64. Helper is cleaner.
-                // Original: requestData.AddAuthMethod(new Auth(authToken, EnumAuthType.BASIC)); where authToken was manually base64 encoded "client:secret".
-                // .UseBasicAuthentication(user, pass) does exactly that.
-                .SendAsync();
+                .UseBasicAuthentication(this._clientId, this._clientSecret);
 
-            return await response.ParseJsonAsync<JsonTidalAuthDevice>(false);
+            Response response = await request.SendAsync(cancellationToken);
+            return await response.ParseJsonAsync<JsonTidalAuthDevice>(false, cancellationToken);
         }
 
-        public async Task<JsonTidalAccountAccess> GetTokenFrom(string deviceCode)
+        public async Task<JsonTidalAccountAccess> GetTokenFrom(string deviceCode, CancellationToken cancellationToken = default)
         {
             try
             {
-                Response response = await new Request($"{this._authEndpoint}/oauth2/token")
+                Request request = new Request($"{this._authEndpoint}/oauth2/token")
                     .AsPost()
                     .WithEncodedForm(
                         ("client_id", this._clientIdKeyPair.Value),
                         ("device_code", deviceCode),
                         ("grant_type", "urn:ietf:params:oauth:grant-type:device_code"),
                         ("scope", this._scopeKeyPair.Value)
-                    )
-                    .SendAsync();
+                    );
 
-                if (response.StatusCode != HttpStatusCode.OK)
+                Response response = await request.SendAsync(cancellationToken);
+
+                if (response.StatusCode != HttpStatusCode.OK) {
                     return Throw<object>(new TidalException(EnumTidalExceptionType.NotOk));
+                }
 
-                string content = await response.GetStringAsync();
-                if (content.Contains("authorization_pending"))
+                string content = await response.GetStringAsync(cancellationToken: cancellationToken);
+                if (content.Contains("authorization_pending")) {
                     return Throw<object>(new TidalException(EnumTidalExceptionType.AuthorizationPending));
+                }
 
-                return await response.ParseJsonAsync<JsonTidalAccountAccess>(false);
+                return JsonConvert.DeserializeObject<JsonTidalAccountAccess>(content);
+            }
+            catch (TidalException exception)
+            {
+                return Throw<object>(exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch
             {
@@ -82,21 +85,31 @@ namespace DevBase.Api.Apis.Tidal
             }
         }
 
-        public async Task<JsonTidalSession> Login(string accessToken)
+        public async Task<JsonTidalSession> Login(string accessToken, CancellationToken cancellationToken = default)
         {
             try
             {
-                Response response = await new Request($"{this._apiEndpoint}/sessions")
+                Request request = new Request($"{this._apiEndpoint}/sessions")
                     .AsGet()
                     .WithAcceptJson()
                     .WithBogusUserAgent()
-                    .UseBearerAuthentication(accessToken)
-                    .SendAsync();
+                    .UseBearerAuthentication(accessToken);
 
-                if (response.StatusCode != HttpStatusCode.OK)
+                Response response = await request.SendAsync(cancellationToken);
+
+                if (response.StatusCode != HttpStatusCode.OK) {
                     return Throw<object>(new TidalException(EnumTidalExceptionType.NotOk));
+                }
 
-                return await response.ParseJsonAsync<JsonTidalSession>(false);
+                return await response.ParseJsonAsync<JsonTidalSession>(false, cancellationToken);
+            }
+            catch (TidalException exception)
+            {
+                return Throw<object>(exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch
             {
@@ -104,24 +117,38 @@ namespace DevBase.Api.Apis.Tidal
             }
         }
 
-        public async Task<JsonTidalSearchResult> Search(string query, string countryCode = "AS", int limit = 10)
+        public async Task<JsonTidalSearchResult> Search(
+            string query,
+            string countryCode = "AS",
+            int limit = 10,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                Response response = await new Request($"{this._apiEndpoint}/search/tracks")
+                Request request = new Request($"{this._apiEndpoint}/search/tracks")
                     .AsGet()
                     .WithParameters(
                         ("countryCode", countryCode),
                         ("query", query),
                         ("limit", limit.ToString())
                     )
-                    .WithHeader("x-tidal-token", this._clientId)
-                    .SendAsync();
+                    .WithHeader("x-tidal-token", this._clientId);
 
-                if (response.StatusCode != HttpStatusCode.OK)
+                Response response = await request.SendAsync(cancellationToken);
+
+                if (response.StatusCode != HttpStatusCode.OK) {
                     return Throw<object>(new TidalException(EnumTidalExceptionType.NotOk));
+                }
 
-                return await response.ParseJsonAsync<JsonTidalSearchResult>(false);
+                return await response.ParseJsonAsync<JsonTidalSearchResult>(false, cancellationToken);
+            }
+            catch (TidalException exception)
+            {
+                return Throw<object>(exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch
             {
@@ -129,11 +156,13 @@ namespace DevBase.Api.Apis.Tidal
             }
         }
 
-        public async Task<JsonTidalAuthAccess> AuthTokenToAccess(string authToken)
+        public async Task<JsonTidalAuthAccess> AuthTokenToAccess(
+            string authToken,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                Response response = await new Request($"{this._authEndpoint}/oauth2/token")
+                Request request = new Request($"{this._authEndpoint}/oauth2/token")
                     .AsPost()
                     .WithEncodedForm(
                         ("client_id", this._clientIdKeyPair.Value),
@@ -141,13 +170,23 @@ namespace DevBase.Api.Apis.Tidal
                         ("grant_type", "user_auth_token"),
                         ("scope", this._scopeKeyPair.Value)
                     )
-                    .WithAccept("*/*")
-                    .SendAsync();
+                    .WithAccept("*/*");
 
-                if (response.StatusCode != HttpStatusCode.OK)
+                Response response = await request.SendAsync(cancellationToken);
+
+                if (response.StatusCode != HttpStatusCode.OK) {
                     return Throw<object>(new TidalException(EnumTidalExceptionType.NotOk));
-                
-                return await response.ParseJsonAsync<JsonTidalAuthAccess>(false);
+                }
+
+                return await response.ParseJsonAsync<JsonTidalAuthAccess>(false, cancellationToken);
+            }
+            catch (TidalException exception)
+            {
+                return Throw<object>(exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch
             {
@@ -155,11 +194,13 @@ namespace DevBase.Api.Apis.Tidal
             }
         }
 
-        public async Task<JsonTidalAccountRefreshAccess> RefreshToken(string refreshToken)
+        public async Task<JsonTidalAccountRefreshAccess> RefreshToken(
+            string refreshToken,
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                Response response = await new Request($"{this._authEndpoint}/oauth2/token")
+                Request request = new Request($"{this._authEndpoint}/oauth2/token")
                     .AsPost()
                     .WithEncodedForm(
                         ("client_id", this._clientIdKeyPair.Value),
@@ -167,17 +208,28 @@ namespace DevBase.Api.Apis.Tidal
                         ("grant_type", "refresh_token"),
                         ("scope", this._scopeKeyPair.Value)
                     )
-                    .UseBasicAuthentication(this._clientId, this._clientSecret)
-                    .SendAsync();
+                    .UseBasicAuthentication(this._clientId, this._clientSecret);
 
-                if (response.StatusCode != HttpStatusCode.OK)
+                Response response = await request.SendAsync(cancellationToken);
+
+                if (response.StatusCode != HttpStatusCode.OK) {
                     return Throw<object>(new TidalException(EnumTidalExceptionType.NotOk));
+                }
 
-                string content = await response.GetStringAsync();
-                if (content.Contains("authorization_pending"))
+                string content = await response.GetStringAsync(cancellationToken: cancellationToken);
+                if (content.Contains("authorization_pending")) {
                     return Throw<object>(new TidalException(EnumTidalExceptionType.AuthorizationPending));
+                }
 
-                return await response.ParseJsonAsync<JsonTidalAccountRefreshAccess>(false);
+                return JsonConvert.DeserializeObject<JsonTidalAccountRefreshAccess>(content);
+            }
+            catch (TidalException exception)
+            {
+                return Throw<object>(exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch
             {
@@ -185,19 +237,33 @@ namespace DevBase.Api.Apis.Tidal
             }
         }
 
-        public async Task<JsonTidalLyricsResult> GetLyrics(string accessToken, string trackId, string countryCode = "US")
+        public async Task<JsonTidalLyricsResult> GetLyrics(
+            string accessToken,
+            string trackId,
+            string countryCode = "US",
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                Response response = await new Request($"{this._authEndpoint}/tracks/{trackId}/lyrics?countryCode={countryCode}")
+                Request request = new Request($"{this._authEndpoint}/tracks/{trackId}/lyrics?countryCode={countryCode}")
                     .AsGet()
-                    .UseBearerAuthentication(accessToken)
-                    .SendAsync();
+                    .UseBearerAuthentication(accessToken);
 
-                if (response.StatusCode != HttpStatusCode.OK)
+                Response response = await request.SendAsync(cancellationToken);
+
+                if (response.StatusCode != HttpStatusCode.OK) {
                     return Throw<object>(new TidalException(EnumTidalExceptionType.NotOk));
+                }
 
-                return await response.ParseJsonAsync<JsonTidalLyricsResult>(false);
+                return await response.ParseJsonAsync<JsonTidalLyricsResult>(false, cancellationToken);
+            }
+            catch (TidalException exception)
+            {
+                return Throw<object>(exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch
             {
@@ -205,19 +271,33 @@ namespace DevBase.Api.Apis.Tidal
             }
         }
         
-        public async Task<JsonTidalDownloadResult> DownloadSong(string accessToken, string trackId, string soundQuality = "LOW")
+        public async Task<JsonTidalDownloadResult> DownloadSong(
+            string accessToken,
+            string trackId,
+            string soundQuality = "LOW",
+            CancellationToken cancellationToken = default)
         {
             try
             {
-                Response response = await new Request($"{this._authEndpoint}/tracks/{trackId}/streamUrl?soundQuality={soundQuality}")
+                Request request = new Request($"{this._authEndpoint}/tracks/{trackId}/streamUrl?soundQuality={soundQuality}")
                     .AsGet()
-                    .UseBearerAuthentication(accessToken)
-                    .SendAsync();
+                    .UseBearerAuthentication(accessToken);
 
-                if (response.StatusCode != HttpStatusCode.OK)
+                Response response = await request.SendAsync(cancellationToken);
+
+                if (response.StatusCode != HttpStatusCode.OK) {
                     return Throw<object>(new TidalException(EnumTidalExceptionType.NotOk));
+                }
 
-                return await response.ParseJsonAsync<JsonTidalDownloadResult>(false);
+                return await response.ParseJsonAsync<JsonTidalDownloadResult>(false, cancellationToken);
+            }
+            catch (TidalException exception)
+            {
+                return Throw<object>(exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
             }
             catch
             {
@@ -225,21 +305,37 @@ namespace DevBase.Api.Apis.Tidal
             }
         }
         
-        public async Task<byte[]> DownloadSongData(string accessToken, string trackId, string soundQuality = "LOW")
+        public async Task<byte[]> DownloadSongData(
+            string accessToken,
+            string trackId,
+            string soundQuality = "LOW",
+            CancellationToken cancellationToken = default)
         {
-            JsonTidalDownloadResult result = await this.DownloadSong(accessToken, trackId, soundQuality);
+            JsonTidalDownloadResult result = await this.DownloadSong(accessToken, trackId, soundQuality, cancellationToken);
 
-            if (result?.url == null || result.url.Length == 0)
-                return new byte[0];
+            if (result?.url == null || result.url.Length == 0) {
+                return ThrowBytes(new TidalException(EnumTidalExceptionType.MissingDownloadUrl));
+            }
 
-            Response response = await new Request(result.url)
-                .AsGet()
-                .SendAsync();
+            try
+            {
+                Request request = new Request(result.url).AsGet();
+                Response response = await request.SendAsync(cancellationToken);
 
-            if (response.StatusCode != HttpStatusCode.OK)
-                return Throw<object>(new TidalException(EnumTidalExceptionType.NotOk));
-            
-            return await response.GetBytesAsync();
+                if (response.StatusCode != HttpStatusCode.OK) {
+                    return Throw<object>(new TidalException(EnumTidalExceptionType.NotOk));
+                }
+
+                return await response.GetBytesAsync(cancellationToken);
+            }
+            catch (TidalException exception)
+            {
+                return Throw<object>(exception);
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
         }
     }
 }

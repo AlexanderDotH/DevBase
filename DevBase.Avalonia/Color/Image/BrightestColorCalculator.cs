@@ -110,23 +110,29 @@ public class BrightestColorCalculator
 
     private global::Avalonia.Media.Color CorrectColor(double r, double g, double b)
     {
-        if (Double.IsNaN(r))
+        if (Double.IsNaN(r)) {
             r = 0;
+        }
 
-        if (Double.IsNaN(g))
+        if (Double.IsNaN(g)) {
             g = 0;
+        }
 
-        if (Double.IsNaN(b))
+        if (Double.IsNaN(b)) {
             b = 0;
-        
-        if (r > 255)
+        }
+
+        if (r > 255) {
             r = 255;
+        }
 
-        if (g > 255)
+        if (g > 255) {
             g = 255;
+        }
 
-        if (b > 255)
+        if (b > 255) {
             b = 255;
+        }
 
         byte rB = Convert.ToByte(r);
         byte gB = Convert.ToByte(g);
@@ -160,9 +166,10 @@ public class BrightestColorCalculator
                 {
                     var pixel = lockedBitmap.GetPixel(x, y);
 
-                    if (pixel.Length != 4)
+                    if (pixel.Length != 4) {
                         continue;
-                    
+                    }
+
                     byte red = pixel[0];
                     byte green = pixel[1];
                     byte blue = pixel[2];

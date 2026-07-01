@@ -1,0 +1,21 @@
+{
+  "message": {
+    "header": {
+      "status_code": 200,
+      "execute_time": 0.013
+    },
+    "body": {
+      "album": {
+        "album_id": 702,
+        "album_name": "Fixture Album",
+        "album_rating": 77,
+        "album_track_count": 12,
+        "album_release_date": "2024-01-01",
+        "album_release_type": "Album",
+        "artist_id": 902,
+        "artist_name": "Fixture Artist",
+        "updated_time": "2024-01-07T00:00:00Z"
+      }
+    }
+  }
+}

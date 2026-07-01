@@ -24,7 +24,9 @@ public class ParameterBuilderTest
         ParameterBuilder builder = new ParameterBuilder();
 
         for (int i = 0; i < count; i++)
+        {
             builder.AddParameter(keys[i], values[i]);
+        }
 
         builder.Build();
         

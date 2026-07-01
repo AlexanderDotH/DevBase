@@ -106,9 +106,10 @@ public class RequestRawBodyBuilderTest
             };
         }
         
-        if (penetrationAction == null)
+        if (penetrationAction == null) {
             throw new InvalidTestFixtureException("Wrong builder type provided");
-        
+        }
+
         Stopwatch stopwatch = PenetrationTest.Run(penetrationAction, _count);
         
         Console.WriteLine($"Validation: {useValidation}\nBuilt {_count} raw form body. Last entry: \n{Encoding.UTF8.GetString(buffer.ToArray())}\n");

@@ -143,14 +143,16 @@ public sealed class ProxyInfo
         }
 
         int portSeparatorIndex = remaining.LastIndexOf(':');
-        if (portSeparatorIndex <= 0)
+        if (portSeparatorIndex <= 0) {
             throw new FormatException("Invalid proxy format. Expected: [protocol://][user:pass@]host:port");
+        }
 
         string host = remaining[..portSeparatorIndex].ToString();
         ReadOnlySpan<char> portStr = remaining[(portSeparatorIndex + 1)..];
         
-        if (!int.TryParse(portStr, out int port))
+        if (!int.TryParse(portStr, out int port)) {
             throw new FormatException($"Invalid port number: {portStr.ToString()}");
+        }
 
         return new ProxyInfo(host, port, type, credentials)
         {
@@ -182,21 +184,24 @@ public sealed class ProxyInfo
     {
         proxyInfo = null;
         
-        if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(port))
+        if (string.IsNullOrWhiteSpace(host) || string.IsNullOrWhiteSpace(port)) {
             return false;
-            
-        if (!int.TryParse(port, out int portInt) || portInt <= 0 || portInt > 65535)
+        }
+
+        if (!int.TryParse(port, out int portInt) || portInt <= 0 || portInt > 65535) {
             return false;
-            
+        }
+
         proxyInfo = new ProxyInfo(host.Trim(), portInt, type);
         return true;
     }
     
     public static bool TryCreate(string? host, string? port, EnumProxyType type, string? username, string? password, out ProxyInfo? proxyInfo)
     {
-        if (!TryCreate(host, port, type, out proxyInfo))
+        if (!TryCreate(host, port, type, out proxyInfo)) {
             return false;
-            
+        }
+
         if (!string.IsNullOrEmpty(username))
         {
             proxyInfo!.Username = username;
@@ -258,11 +263,13 @@ public sealed class ProxyInfo
             BypassProxyOnLocal = BypassLocalAddresses
         };
 
-        if (BypassList != null && BypassList.Length > 0)
+        if (BypassList != null && BypassList.Length > 0) {
             httpProxy.BypassList = BypassList;
+        }
 
-        if (Credentials != null)
+        if (Credentials != null) {
             httpProxy.Credentials = Credentials;
+        }
 
         return httpProxy;
     }

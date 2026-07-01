@@ -479,12 +479,21 @@ public class RequestTest
     }
 
     [Test]
-    public void WithCertificateValidation_SetsCertificateValidation()
+    public void WithCertificateValidation_WhenDisabled_Throws()
+    {
+        NotSupportedException? exception = Assert.Throws<NotSupportedException>(() =>
+            new Request("https://example.com").WithCertificateValidation(false));
+
+        Assert.That(exception?.Message, Does.Contain("TLS certificate validation"));
+    }
+
+    [Test]
+    public void WithCertificateValidation_WhenEnabled_KeepsCertificateValidationEnabled()
     {
         var request = new Request("https://example.com")
-            .WithCertificateValidation(false);
-        
-        Assert.That(request.ValidateCertificates, Is.False);
+            .WithCertificateValidation(true);
+
+        Assert.That(request.ValidateCertificates, Is.True);
     }
 
     [Test]

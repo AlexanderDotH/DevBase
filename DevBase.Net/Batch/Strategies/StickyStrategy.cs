@@ -10,14 +10,16 @@ public sealed class StickyStrategy : IProxyRotationStrategy
     /// <inheritdoc />
     public TrackedProxyInfo? SelectProxy(List<TrackedProxyInfo> proxies, ref int currentIndex)
     {
-        if (proxies.Count == 0)
+        if (proxies.Count == 0) {
             return null;
+        }
 
         if (currentIndex >= 0 && currentIndex < proxies.Count)
         {
             TrackedProxyInfo current = proxies[currentIndex];
-            if (current.IsAvailable())
+            if (current.IsAvailable()) {
                 return current;
+            }
         }
 
         for (int i = 0; i < proxies.Count; i++)

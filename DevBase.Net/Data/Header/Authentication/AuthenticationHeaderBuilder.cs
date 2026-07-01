@@ -29,14 +29,17 @@ public class AuthenticationHeaderBuilder : HttpFieldBuilder<AuthenticationHeader
     
     protected override Action BuildAction => () =>
     {
-        if (this.AuthenticationHeader == null)
+        if (this.AuthenticationHeader == null) {
             return;
-        
-        if (this.AuthenticationHeader.Prefix.IsEmpty)
+        }
+
+        if (this.AuthenticationHeader.Prefix.IsEmpty) {
             return;
-        
-        if (this.AuthenticationHeader.Token.IsEmpty)
+        }
+
+        if (this.AuthenticationHeader.Token.IsEmpty) {
             return;
+        }
 
         int size = this.Prefix.Length + this.Token.Length + 1;
         

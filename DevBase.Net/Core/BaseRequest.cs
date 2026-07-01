@@ -116,7 +116,10 @@ public abstract class BaseRequest : IDisposable, IAsyncDisposable
 
     public virtual void Dispose()
     {
-        if (this._disposed) return;
+        if (this._disposed) {
+            return;
+        }
+
         this._disposed = true;
         
         this._requestInterceptors.Clear();

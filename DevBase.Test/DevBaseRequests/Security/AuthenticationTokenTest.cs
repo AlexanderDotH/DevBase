@@ -1,4 +1,5 @@
 using DevBase.Net.Security.Token;
+using DevBase.Net.Validation;
 using Dumpify;
 
 namespace DevBase.Test.DevBaseRequests.Security;
@@ -40,5 +41,29 @@ public class AuthenticationTokenTest
         Assert.That(authenticationToken?.Payload.Claims?["custom-claim"], Is.EquivalentTo("The cake is a lie"));
 
         authenticationToken.DumpConsole();
+    }
+
+    [Test]
+    public void ValidateBearerAuth_WithOpaqueTokenAndJwtChecksDisabled_Succeeds()
+    {
+        ValidationResult result = HeaderValidator.ValidateBearerAuth("Bearer opaque-token-12345");
+
+        Assert.That(result.IsValid, Is.True);
+    }
+
+    [Test]
+    public void ValidateBearerAuth_WithOpaqueTokenAndJwtChecksEnabled_Fails()
+    {
+        ValidationResult result = HeaderValidator.ValidateBearerAuth(
+            "Bearer opaque-token-12345",
+            verifySignature: false,
+            secret: null,
+            checkExpiration: true);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(result.IsValid, Is.False);
+            Assert.That(result.ErrorMessage, Does.Contain("valid JWT"));
+        });
     }
 }

@@ -9,13 +9,15 @@ public class BufferUtils
     {
         ReadOnlySpan<byte> preamble = encoding.GetPreamble();
 
-        if (buffer.Length < preamble.Length)
+        if (buffer.Length < preamble.Length) {
             throw new EvaluateException("The buffer is < than the preamble");
-        
+        }
+
         for (int i = 0; i < preamble.Length; i++)
         {
-            if (!preamble[i].Equals(buffer[i]))
+            if (!preamble[i].Equals(buffer[i])) {
                 return false;
+            }
         }
 
         return true;
@@ -26,7 +28,9 @@ public class BufferUtils
         List<byte> combined = new List<byte>();
 
         foreach (Memory<byte> memory in buffer)
+        {
             combined.AddRange(memory.ToArray());
+        }
 
         return combined.ToArray();
     }

@@ -1,0 +1,21 @@
+{
+  "message": {
+    "header": {
+      "status_code": 200,
+      "execute_time": 0.014
+    },
+    "body": {
+      "music_genre_list": [
+        {
+          "music_genre": {
+            "music_genre_id": 14,
+            "music_genre_parent_id": 0,
+            "music_genre_name": "Fixture Genre",
+            "music_genre_name_extended": "Fixture Genre Extended",
+            "music_genre_vanity": "fixture-genre"
+          }
+        }
+      ]
+    }
+  }
+}

@@ -1,3 +1,4 @@
+using System.Xml;
 using DevBase.Format;
 using DevBase.Format.Formats.AppleLrcXmlFormat;
 using DevBase.Format.Formats.AppleRichXmlFormat;
@@ -114,5 +115,24 @@ public class AppleXmlTester : FormatTest
 
         rawLyrics.GetAsList().DumpConsole();
         Assert.That(rawLyrics.Get(0).Text, Is.EqualTo("Move yourself"));
+    }
+
+    [Test]
+    public void TestRawXmlRejectsDtd()
+    {
+        const string xml = """
+                           <!DOCTYPE tt [
+                             <!ENTITY unsafe "expanded">
+                           ]>
+                           <tt xmlns="http://www.w3.org/ns/ttml" xmlns:itunes="http://music.apple.com/lyric-ttml-internal" itunes:timing="None">
+                             <body>
+                               <div>
+                                 <p>&unsafe;</p>
+                               </div>
+                             </body>
+                           </tt>
+                           """;
+
+        Assert.Throws<XmlException>(() => this._rawXmlParser.ParseFromString(xml));
     }
 }

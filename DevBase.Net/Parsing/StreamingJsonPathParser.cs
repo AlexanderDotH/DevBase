@@ -94,14 +94,22 @@ public sealed class StreamingJsonPathParser
                 case JsonTokenType.Number:
                     if (expectValue)
                     {
-                        if (typeof(T) == typeof(int) && reader.TryGetInt32(out int intVal))
+                        if (typeof(T) == typeof(int) && reader.TryGetInt32(out int intVal)) {
                             results.Add((T)(object)intVal);
+                        }
                         else if (typeof(T) == typeof(long) && reader.TryGetInt64(out long longVal))
+                        {
                             results.Add((T)(object)longVal);
+                        }
                         else if (typeof(T) == typeof(double) && reader.TryGetDouble(out double doubleVal))
+                        {
                             results.Add((T)(object)doubleVal);
+                        }
                         else if (typeof(T) == typeof(decimal) && reader.TryGetDecimal(out decimal decVal))
+                        {
                             results.Add((T)(object)decVal);
+                        }
+
                         expectValue = false;
                     }
                     break;
@@ -138,8 +146,9 @@ public sealed class StreamingJsonPathParser
             while (true)
             {
                 int bytesRead = await stream.ReadAsync(buffer.AsMemory(bytesInBuffer, _bufferSize - bytesInBuffer), cancellationToken);
-                if (bytesRead == 0 && bytesInBuffer == 0)
+                if (bytesRead == 0 && bytesInBuffer == 0) {
                     break;
+                }
 
                 bytesInBuffer += bytesRead;
                 int consumed = ProcessBuffer(buffer.AsSpan(0, bytesInBuffer), ref state, segments, resultBuffer, optimizeProperties);
@@ -148,8 +157,9 @@ public sealed class StreamingJsonPathParser
                 {
                     resultBuffer.Position = 0;
                     T? result = await JsonSerializer.DeserializeAsync<T>(resultBuffer, cancellationToken: cancellationToken);
-                    if (result != null)
+                    if (result != null) {
                         yield return result;
+                    }
 
                     resultBuffer.SetLength(0);
                     state.HasCompleteResult = false;
@@ -165,8 +175,9 @@ public sealed class StreamingJsonPathParser
                     bytesInBuffer = 0;
                 }
 
-                if (bytesRead == 0)
+                if (bytesRead == 0) {
                     break;
+                }
             }
         }
         finally
@@ -183,8 +194,9 @@ public sealed class StreamingJsonPathParser
 
         ProcessBuffer(json, ref state, segments, resultBuffer, optimizeProperties);
 
-        if (resultBuffer.Length == 0)
+        if (resultBuffer.Length == 0) {
             return default!;
+        }
 
         resultBuffer.Position = 0;
         return JsonSerializer.Deserialize<T>(resultBuffer.ToArray())!;
@@ -207,15 +219,17 @@ public sealed class StreamingJsonPathParser
             {
                 resultBuffer.Position = 0;
                 T? result = JsonSerializer.Deserialize<T>(resultBuffer.ToArray());
-                if (result != null)
+                if (result != null) {
                     results.Add(result);
+                }
 
                 resultBuffer.SetLength(0);
                 state.HasCompleteResult = false;
             }
 
-            if (consumed == 0)
+            if (consumed == 0) {
                 break;
+            }
         }
 
         return results;
@@ -255,8 +269,10 @@ public sealed class StreamingJsonPathParser
 
                     case JsonTokenType.EndObject:
                         state.Depth--;
-                        if (state.MatchDepth > 0 && state.DepthAtMatch[state.MatchDepth - 1] == state.Depth)
+                        if (state.MatchDepth > 0 && state.DepthAtMatch[state.MatchDepth - 1] == state.Depth) {
                             state.MatchDepth--;
+                        }
+
                         break;
 
                     case JsonTokenType.StartArray:
@@ -271,8 +287,10 @@ public sealed class StreamingJsonPathParser
 
                     case JsonTokenType.EndArray:
                         state.Depth--;
-                        if (state.MatchDepth > 0 && state.DepthAtMatch[state.MatchDepth - 1] == state.Depth)
+                        if (state.MatchDepth > 0 && state.DepthAtMatch[state.MatchDepth - 1] == state.Depth) {
                             state.MatchDepth--;
+                        }
+
                         state.ArrayIndex = 0;
                         break;
 
@@ -286,8 +304,10 @@ public sealed class StreamingJsonPathParser
                         else if (optimizeProperties && state.MatchDepth < segments.Count)
                         {
                             // Use TrySkip for faster skipping
-                            if (reader.Read())
+                            if (reader.Read()) {
                                 reader.TrySkip();
+                            }
+
                             consumed = (int)reader.BytesConsumed;
                         }
                         break;
@@ -344,10 +364,14 @@ public sealed class StreamingJsonPathParser
                 break;
 
             case JsonTokenType.Number:
-                if (reader.TryGetInt64(out long longValue))
+                if (reader.TryGetInt64(out long longValue)) {
                     writer.WriteNumberValue(longValue);
+                }
                 else if (reader.TryGetDouble(out double doubleValue))
+                {
                     writer.WriteNumberValue(doubleValue);
+                }
+
                 break;
 
             case JsonTokenType.True:
@@ -366,8 +390,9 @@ public sealed class StreamingJsonPathParser
 
     private static void SkipValue(ref Utf8JsonReader reader)
     {
-        if (!reader.Read())
+        if (!reader.Read()) {
             return;
+        }
 
         if (reader.TokenType == JsonTokenType.StartObject || reader.TokenType == JsonTokenType.StartArray)
         {
@@ -376,7 +401,9 @@ public sealed class StreamingJsonPathParser
             {
                 if ((reader.TokenType == JsonTokenType.EndObject || reader.TokenType == JsonTokenType.EndArray)
                     && reader.CurrentDepth == depth)
+                {
                     break;
+                }
             }
         }
     }
@@ -387,8 +414,9 @@ public sealed class StreamingJsonPathParser
         ReadOnlySpan<char> span = path.AsSpan();
         int i = 0;
 
-        if (span.Length > 0 && span[0] == '$')
+        if (span.Length > 0 && span[0] == '$') {
             i++;
+        }
 
         while (i < span.Length)
         {
@@ -403,7 +431,9 @@ public sealed class StreamingJsonPathParser
 
                 int start = i;
                 while (i < span.Length && span[i] != '.' && span[i] != '[')
+                {
                     i++;
+                }
 
                 if (i > start)
                 {
@@ -416,15 +446,20 @@ public sealed class StreamingJsonPathParser
                 i++;
                 int start = i;
                 while (i < span.Length && span[i] != ']')
+                {
                     i++;
+                }
 
                 string indexStr = span[start..i].ToString().Trim();
                 i++;
 
-                if (indexStr == "*")
+                if (indexStr == "*") {
                     segments.Add(new PathSegment { IsWildcard = true });
+                }
                 else if (int.TryParse(indexStr, out int index))
+                {
                     segments.Add(new PathSegment { ArrayIndex = index });
+                }
             }
             else
             {

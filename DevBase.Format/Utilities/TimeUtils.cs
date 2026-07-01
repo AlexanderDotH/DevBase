@@ -48,11 +48,13 @@ public class TimeUtils
     {
         for (int i = 0; i < _formats.Length; i++)
         {
-            if (TimeSpan.TryParseExact(time, _formats[i], null, TimeSpanStyles.None, out timeSpan))
+            if (TimeSpan.TryParseExact(time, _formats[i], null, TimeSpanStyles.None, out timeSpan)) {
                 return true;
+            }
 
-            if (TimeSpan.TryParse(time, out timeSpan))
+            if (TimeSpan.TryParse(time, out timeSpan)) {
                 return true;
+            }
         }
 
         timeSpan = TimeSpan.MinValue;
@@ -70,9 +72,10 @@ public class TimeUtils
     {
         TimeSpan timeSpan = TimeSpan.Zero;
 
-        if (TryParseTimeStamp(time, out timeSpan))
+        if (TryParseTimeStamp(time, out timeSpan)) {
             return timeSpan;
-       
+        }
+
         throw new System.Exception("Cannot format timestamp");
     }
 }

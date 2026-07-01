@@ -16,8 +16,9 @@ public class JsonUtils
         
         foreach (KeyValuePair<string, JToken?> current in parsedDocument)
         {
-            if (exceptSet != null && exceptSet.Contains(current.Key))
+            if (exceptSet != null && exceptSet.Contains(current.Key)) {
                 continue;
+            }
 
             KeyValuePair<string, dynamic> dynamic = GetDynamic(current.Key, current.Value!);
             jsonEntriesList.Add(dynamic.Key, dynamic.Value);
@@ -127,10 +128,11 @@ public class JsonUtils
             {
                 string rawToken = jObject.Value<string>()!;
 
-                if (string.IsNullOrEmpty(rawToken))
-                    return ToPair(fieldName, DateTime.MinValue);
+                if (string.IsNullOrEmpty(rawToken)) {
+                        return ToPair(fieldName, DateTime.MinValue);
+                    }
 
-                if (long.TryParse(rawToken, out long convertedLong))
+                    if (long.TryParse(rawToken, out long convertedLong))
                 {
                     DateTimeOffset dateTimeOffset = DateTimeOffset.FromUnixTimeSeconds(convertedLong);
                     return ToPair(fieldName, dateTimeOffset.Date);

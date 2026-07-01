@@ -25,7 +25,11 @@ namespace DevBase.Test.Avalonia
         {
             try
             {
-                AList<AFileObject> files = AFile.GetFiles($"C:\\Users\\alex\\AppData\\Roaming\\OpenLyricsClient\\Cache", true, filter:"*.png");
+                string cacheDirectory = Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    "DevBase",
+                    "Cache");
+                AList<AFileObject> files = AFile.GetFiles(cacheDirectory, true, filter:"*.png");
                 AFileObject file = files.Get(new Random().Next(0, files.Length - 1));
                 Console.WriteLine(file.FileInfo.FullName);
 

@@ -47,7 +47,10 @@ public sealed class ProxiedBatch
     public ProxiedBatch Add(IEnumerable<Request> requests)
     {
         foreach (Request request in requests)
+        {
             Add(request);
+        }
+
         return this;
     }
 
@@ -69,7 +72,10 @@ public sealed class ProxiedBatch
     public ProxiedBatch Add(IEnumerable<string> urls)
     {
         foreach (string url in urls)
+        {
             Add(url);
+        }
+
         return this;
     }
 
@@ -130,7 +136,10 @@ public sealed class ProxiedBatch
     {
         List<Request> requests = new List<Request>(_queue.Count);
         while (_queue.TryDequeue(out Request? request))
+        {
             requests.Add(request);
+        }
+
         return requests;
     }
 

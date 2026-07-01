@@ -57,20 +57,23 @@ public class UserAgentHeaderBuilder : BogusHttpHeaderBuilder<UserAgentHeaderBuil
     
     protected override Action BuildAction => () =>
     {
-        if (this.HeaderStringBuilder.Length != 0)
+        if (this.HeaderStringBuilder.Length != 0) {
             return;
-        
+        }
+
         Assembly assembly = typeof(Core.Request).Assembly;
         AssemblyName assemblyName = assembly.GetName();
         
         ReadOnlySpan<char> productName = this._productName;
         ReadOnlySpan<char> productVersion = this._productVersion;
         
-        if (productName.IsEmpty)
+        if (productName.IsEmpty) {
             productName = assemblyName.Name;
+        }
 
-        if (productVersion.IsEmpty)
+        if (productVersion.IsEmpty) {
             productVersion = assemblyName.Version!.ToString();
+        }
 
         this.HeaderStringBuilder.Append(productName);
         this.HeaderStringBuilder.Append('/');

@@ -1,0 +1,36 @@
+{
+  "message": {
+    "header": {
+      "status_code": 200,
+      "execute_time": 0.022
+    },
+    "body": {
+      "feedback_list": [
+        {
+          "feedback": {
+            "type_id": "lyrics_ok",
+            "description": "Lyrics verified",
+            "app_id": "web-desktop-app-v1.0",
+            "artist_id": 902,
+            "lyrics_id": 303,
+            "friendly_type_id": "lyrics_ok",
+            "commontrack_id": 502,
+            "track": {
+              "track_id": 202,
+              "track_name": "Fixture Track",
+              "artist_name": "Fixture Artist"
+            },
+            "user": {
+              "user_id": "fixture-user",
+              "user_name": "Fixture User",
+              "score": 100
+            },
+            "created_date": "2024-01-08T00:00:00Z",
+            "updated_time": "2024-01-08T00:00:00Z",
+            "last_updated": "2024-01-08T00:00:00Z"
+          }
+        }
+      ]
+    }
+  }
+}

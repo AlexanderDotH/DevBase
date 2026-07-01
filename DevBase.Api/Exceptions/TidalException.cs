@@ -24,6 +24,8 @@ public class TidalException : System.Exception
                 return "Authorization is still pending";
             case EnumTidalExceptionType.ParsingError:
                 return "Failed to parse data";
+            case EnumTidalExceptionType.MissingDownloadUrl:
+                return "Download url is missing";
         }
 
         throw new ErrorStatementException();

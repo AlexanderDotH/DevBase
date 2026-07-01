@@ -143,8 +143,9 @@ public partial class Request
 
     private void EnsureHeaderBuilder()
     {
-        if (this._requestBuilder.RequestHeaderBuilder == null)
+        if (this._requestBuilder.RequestHeaderBuilder == null) {
             this._requestBuilder.WithHeaders(new RequestHeaderBuilder());
+        }
     }
 
     public Request UseBasicAuthentication(string username, string password)
@@ -169,8 +170,10 @@ public partial class Request
     public Request UseJwtAuthentication(string rawToken)
     {
         AuthenticationToken? token = AuthenticationToken.FromString(rawToken);
-        if (token == null)
+        if (token == null) {
             throw new ArgumentException("Invalid JWT token format", nameof(rawToken));
+        }
+
         return UseBearerAuthentication(token.RawToken);
     }
 
@@ -244,7 +247,11 @@ public partial class Request
 
     public Request WithCertificateValidation(bool validate)
     {
-        this._validateCertificates = validate;
+        if (!validate) {
+            throw new NotSupportedException("Disabling TLS certificate validation is not supported.");
+        }
+
+        this._validateCertificates = true;
         return this;
     }
 

@@ -100,15 +100,18 @@ namespace DevBase.Format.Formats.LrcFormat
 
         private TimeStampedLyric? ParseStringToLyrics(string lyricLine)
         {
-            if (lyricLine == null)
+            if (lyricLine == null) {
                 return null;
+            }
 
-            if (RegexHolder.RegexGarbage.IsMatch(lyricLine))
+            if (RegexHolder.RegexGarbage.IsMatch(lyricLine)) {
                 return null;
-            
-            if (!RegexHolder.RegexLrc.IsMatch(lyricLine))
+            }
+
+            if (!RegexHolder.RegexLrc.IsMatch(lyricLine)) {
                 return Error<object>("LRC regex does not match");
-            
+            }
+
             Match match = RegexHolder.RegexLrc.Match(lyricLine);
 
             string rawLine = match.Groups[9].Value;
@@ -118,9 +121,10 @@ namespace DevBase.Format.Formats.LrcFormat
             string groupTime = match.Groups[1].Value;
             string rawTime = groupTime.Substring(1, groupTime.Length - 2);
             
-            if (!TimeUtils.TryParseTimeStamp(rawTime, out startTime))
+            if (!TimeUtils.TryParseTimeStamp(rawTime, out startTime)) {
                 return Error<object>("Cannot parse timestamp");
-            
+            }
+
             string text = LyricsUtils.EditLine(rawLine);
             
             TimeStampedLyric timeStampedLyric = new TimeStampedLyric()

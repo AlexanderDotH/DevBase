@@ -59,7 +59,9 @@ internal static class HttpHelpers
 
     public static void TryDispose(this Socket? socket)
     {
-        if (socket is null) return;
+        if (socket is null) {
+            return;
+        }
 
         if (socket.Connected)
         {
@@ -71,7 +73,9 @@ internal static class HttpHelpers
 
     public static void TryDispose(this SocketAsyncEventArgs? saea)
     {
-        if (saea is null) return;
+        if (saea is null) {
+            return;
+        }
 
         try
         {

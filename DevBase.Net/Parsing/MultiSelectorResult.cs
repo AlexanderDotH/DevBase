@@ -8,19 +8,23 @@ public sealed class MultiSelectorResult
     
     public void Set(string name, JsonElement? value)
     {
-        if (value.HasValue)
+        if (value.HasValue) {
             _results[name] = value.Value.Clone().GetRawText();
+        }
         else
+        {
             _results[name] = null;
+        }
     }
     
     public bool HasValue(string name) => _results.TryGetValue(name, out string? value) && value != null;
     
     public T? Get<T>(string name)
     {
-        if (!_results.TryGetValue(name, out string? json) || json == null)
+        if (!_results.TryGetValue(name, out string? json) || json == null) {
             return default;
-            
+        }
+
         return JsonSerializer.Deserialize<T>(json, new JsonSerializerOptions
         {
             PropertyNameCaseInsensitive = true
@@ -29,9 +33,10 @@ public sealed class MultiSelectorResult
     
     public string? GetString(string name)
     {
-        if (!_results.TryGetValue(name, out string? json) || json == null)
+        if (!_results.TryGetValue(name, out string? json) || json == null) {
             return null;
-        
+        }
+
         try
         {
             using JsonDocument doc = JsonDocument.Parse(json);
@@ -47,9 +52,10 @@ public sealed class MultiSelectorResult
     
     public int? GetInt(string name)
     {
-        if (!_results.TryGetValue(name, out string? json) || json == null)
+        if (!_results.TryGetValue(name, out string? json) || json == null) {
             return null;
-        
+        }
+
         try
         {
             using JsonDocument doc = JsonDocument.Parse(json);
@@ -63,9 +69,10 @@ public sealed class MultiSelectorResult
     
     public long? GetLong(string name)
     {
-        if (!_results.TryGetValue(name, out string? json) || json == null)
+        if (!_results.TryGetValue(name, out string? json) || json == null) {
             return null;
-        
+        }
+
         try
         {
             using JsonDocument doc = JsonDocument.Parse(json);
@@ -79,9 +86,10 @@ public sealed class MultiSelectorResult
     
     public double? GetDouble(string name)
     {
-        if (!_results.TryGetValue(name, out string? json) || json == null)
+        if (!_results.TryGetValue(name, out string? json) || json == null) {
             return null;
-        
+        }
+
         try
         {
             using JsonDocument doc = JsonDocument.Parse(json);
@@ -95,9 +103,10 @@ public sealed class MultiSelectorResult
     
     public bool? GetBool(string name)
     {
-        if (!_results.TryGetValue(name, out string? json) || json == null)
+        if (!_results.TryGetValue(name, out string? json) || json == null) {
             return null;
-        
+        }
+
         try
         {
             using JsonDocument doc = JsonDocument.Parse(json);

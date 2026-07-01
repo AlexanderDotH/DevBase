@@ -1,0 +1,19 @@
+{
+  "message": {
+    "header": {
+      "status_code": 200,
+      "execute_time": 0.019
+    },
+    "body": {
+      "richsync": {
+        "richsync_id": 505,
+        "restricted": 0,
+        "richsync_body": "[{\"ts\":1.0,\"te\":2.5,\"l\":[{\"c\":\"H\",\"o\":0.0},{\"c\":\"i\",\"o\":0.2}],\"x\":\"Hi\"}]",
+        "richsync_length": 1,
+        "richsync_language": "en",
+        "richsync_language_description": "English",
+        "updated_time": "2024-01-05T00:00:00Z"
+      }
+    }
+  }
+}

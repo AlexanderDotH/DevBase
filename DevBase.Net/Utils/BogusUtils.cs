@@ -125,9 +125,10 @@ public static class BogusUtils
     
     public static char[] RandomNumber(int min, int max)
     {
-        if (min > max)
+        if (min > max) {
             throw new ArgumentOutOfRangeException(nameof(min), min, "Min is bigger than max");
-        
+        }
+
         int randomNumber = _random.Next(min, max);
         
         int length = GetDigits(randomNumber);
@@ -140,9 +141,10 @@ public static class BogusUtils
             randomNumber = (int)(randomNumber * 0.1);
         }
 
-        if (numberSpan[0] == '0')
+        if (numberSpan[0] == '0') {
             return RandomNumber(min, max);
-        
+        }
+
         return numberSpan;
     }
 

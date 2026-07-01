@@ -44,8 +44,9 @@ namespace DevBase.Async.Task
         /// <param name="startAfterCreation">Whether to start the task immediately if not already started.</param>
         public void RegisterTask(System.Threading.Tasks.Task task, Object type, bool startAfterCreation = true)
         {
-            if (startAfterCreation)
+            if (startAfterCreation) {
                 task.Start();
+            }
 
             GenerateNewToken(type);
 
@@ -76,8 +77,9 @@ namespace DevBase.Async.Task
         {
             token = GenerateNewToken(type);
 
-            if (startAfterCreation)
+            if (startAfterCreation) {
                 task.Start();
+            }
 
             RegisterTask(task, type);
         }

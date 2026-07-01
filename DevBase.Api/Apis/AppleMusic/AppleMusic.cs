@@ -1,15 +1,11 @@
-﻿using System.Net;
-using System.Text.RegularExpressions;
-using DevBase.Net.Core;
-using DevBase.Net.Security.Token;
+﻿using System.Text.RegularExpressions;
 using DevBase.Api.Apis.AppleMusic.Structure.Json;
 using DevBase.Api.Apis.AppleMusic.Structure.Objects;
 using DevBase.Api.Enums;
 using DevBase.Api.Exceptions;
-using DevBase.Api.Serializer;
-using DevBase.Enums;
+using DevBase.Net.Core;
+using DevBase.Net.Security.Token;
 using HtmlAgilityPack;
-using Newtonsoft.Json;
 
 namespace DevBase.Api.Apis.AppleMusic;
 
@@ -34,35 +30,39 @@ public class AppleMusic : ApiClient
         this._apiToken = AuthenticationToken.FromString(apiToken);
     }
 
+    private AppleMusic()
+    {
+        this._baseUrl = "https://amp-api.music.apple.com";
+        this._apiToken = null!;
+    }
+
     public AppleMusic WithMediaUserToken(GenericAuthenticationToken userMediaToken)
     {
         this._userMediaToken = userMediaToken;
         return this;
     }
     
-    public async Task WithMediaUserTokenFromCookie(string myacinfoCookie)
+    public async Task WithMediaUserTokenFromCookie(string myacinfoCookie, CancellationToken cancellationToken = default)
     {
         string url = $"{_webAuthUrl}/account/web/auth";
 
-        Response response = await new Request(url)
+        Request request = new Request(url)
             .AsPost()
             .WithHeader("Origin", this._baseUrl)
             .WithAccept("*/*")
-            .WithCookie($"myacinfo={myacinfoCookie}")
-            .SendAsync();
+            .WithCookie($"myacinfo={myacinfoCookie}");
 
-        this._userMediaToken = GetMediaUserToken(response.Headers);
+        Response response = await request.SendAsync(cancellationToken);
+
+        this._userMediaToken = GetMediaUserToken(response.GetHeaderValues("Set-Cookie"));
     }
 
-    private GenericAuthenticationToken GetMediaUserToken(System.Net.Http.Headers.HttpResponseHeaders headerCollection)
+    private GenericAuthenticationToken GetMediaUserToken(IEnumerable<string> setCookieHeaders)
     {
-        if (!headerCollection.TryGetValues("Set-Cookie", out IEnumerable<string> values))
-            return new GenericAuthenticationToken();
-        
         string parsedToken = string.Empty;
         string parsedExpiresIn = string.Empty;
 
-        foreach (string element in values)
+        foreach (string element in setCookieHeaders)
         {
             if (element.Contains("media-user-token"))
             {
@@ -72,8 +72,9 @@ public class AppleMusic : ApiClient
                 {
                     string trimmed = part.Trim();
                     
-                    if (trimmed.StartsWith("media-user-token="))
+                    if (trimmed.StartsWith("media-user-token=")) {
                         parsedToken = trimmed.Split("=")[1];
+                    }
 
                     if (trimmed.StartsWith("Max-Age="))
                     {
@@ -97,29 +98,33 @@ public class AppleMusic : ApiClient
         return authenticationToken;
     }
     
-    public static async Task<AppleMusic> WithAccessToken()
+    public static async Task<AppleMusic> WithAccessToken(CancellationToken cancellationToken = default)
     {
         string url = $"{_baseWebsite}/us/browse";
+        AppleMusic tokenClient = new AppleMusic();
 
-        Response response = await new Request(url).SendAsync();
-        string content = await response.GetStringAsync();
+        Request request = new Request(url)
+            .AsGet()
+            .WithAccept("*/*");
+        Response response = await request.SendAsync(cancellationToken);
+        string content = await response.GetStringAsync(cancellationToken: cancellationToken);
 
         HtmlDocument htmlDocument = new HtmlDocument();
         htmlDocument.LoadHtml(content);
 
-        HtmlDocument assetDocument = await GetAssetContent(htmlDocument);
-
-        if (assetDocument == null)
-            return null;
+        HtmlDocument assetDocument = await tokenClient.GetAssetContent(htmlDocument, cancellationToken);
 
         string accessToken = GetAccessToken(assetDocument);
         
         return new AppleMusic(accessToken);
     }
 
-    public async Task<List<AppleMusicTrack>> Search(string searchTerm, int limit = 10)
+    public async Task<List<AppleMusicTrack>> Search(
+        string searchTerm,
+        int limit = 10,
+        CancellationToken cancellationToken = default)
     {
-        JsonAppleMusicSearchResult searchResult = await RawSearch(searchTerm, limit);
+        JsonAppleMusicSearchResult searchResult = await RawSearch(searchTerm, limit, cancellationToken);
 
         List<AppleMusicTrack> appleMusicTracks = new List<AppleMusicTrack>();
         
@@ -128,7 +133,7 @@ public class AppleMusic : ApiClient
             searchResult.SearchResults.SongResult == null || 
             searchResult.SearchResults.SongResult.Songs == null)
         {
-            return Throw<object>(new AppleMusicException(EnumAppleMusicExceptionType.SearchResultsEmpty));
+            return Throw<List<AppleMusicTrack>>(new AppleMusicException(EnumAppleMusicExceptionType.SearchResultsEmpty));
         }
 
         for (int i = 0; i < searchResult.SearchResults.SongResult.Songs.Count; i++)
@@ -145,48 +150,58 @@ public class AppleMusic : ApiClient
     }
     
     // The apple search api is really dynamic. I just can't mirror it in my code
-    public async Task<JsonAppleMusicSearchResult> RawSearch(string searchTerm, int limit = 10)
+    public async Task<JsonAppleMusicSearchResult> RawSearch(
+        string searchTerm,
+        int limit = 10,
+        CancellationToken cancellationToken = default)
     {
         string url =
             $"{this._baseUrl}/v1/catalog/de/search?fields[artists]=url,name,artwork&include[songs]=artists&limit={limit}&types=songs&with=lyricHighlights,lyrics,serverBubbles&term={searchTerm}";
 
-        Response response = await new Request(url)
+        Request request = new Request(url)
             .AsGet()
             .WithHeader("Origin", this._baseUrl)
-            .UseBearerAuthentication(this._apiToken.RawToken)
-            .SendAsync();
+            .UseBearerAuthentication(this._apiToken.RawToken);
 
-        return await response.ParseJsonAsync<JsonAppleMusicSearchResult>(false);
+        Response response = await request.SendAsync(cancellationToken);
+        return await response.ParseJsonAsync<JsonAppleMusicSearchResult>(false, cancellationToken);
     }
     
-    public async Task<JsonAppleMusicLyricsResponse> GetLyrics(string trackId)
+    public async Task<JsonAppleMusicLyricsResponse> GetLyrics(
+        string trackId,
+        CancellationToken cancellationToken = default)
     {
-        if (string.IsNullOrEmpty(this._userMediaToken?.Token))
+        if (string.IsNullOrEmpty(this._userMediaToken?.Token)) {
             throw new AppleMusicException(EnumAppleMusicExceptionType.UnprovidedUserMediaToken);
-        
+        }
+
         string url = $"{this._baseUrl}/v1/catalog/de/songs/{trackId}/syllable-lyrics";
 
-        Response response = await new Request(url)
+        Request request = new Request(url)
             .AsGet()
             .WithHeader("Origin", this._baseUrl)
             .WithHeader("Media-User-Token", this._userMediaToken.Token)
-            .UseBearerAuthentication(this._apiToken.RawToken)
-            .SendAsync();
+            .UseBearerAuthentication(this._apiToken.RawToken);
 
-        return await response.ParseJsonAsync<JsonAppleMusicLyricsResponse>(false);
+        Response response = await request.SendAsync(cancellationToken);
+        return await response.ParseJsonAsync<JsonAppleMusicLyricsResponse>(false, cancellationToken);
     }
 
-    private static async Task<HtmlDocument> GetAssetContent(HtmlDocument htmlDocument)
+    private async Task<HtmlDocument> GetAssetContent(
+        HtmlDocument htmlDocument,
+        CancellationToken cancellationToken = default)
     {
-        if (htmlDocument == null)
-            return null;
+        if (htmlDocument == null) {
+            throw new AppleMusicException(EnumAppleMusicExceptionType.AccessTokenUnavailable);
+        }
 
         string htmlParsedHead = htmlDocument.ParsedText;
 
         Regex assetRegex = new Regex("(/assets/index-[a-zA-Z0-9]*.js)");
 
-        if (!assetRegex.IsMatch(htmlParsedHead))
-            return null;
+        if (!assetRegex.IsMatch(htmlParsedHead)) {
+            throw new AppleMusicException(EnumAppleMusicExceptionType.AccessTokenUnavailable);
+        }
 
         Match assetMatch = assetRegex.Match(htmlParsedHead);
 
@@ -194,8 +209,11 @@ public class AppleMusic : ApiClient
 
         string url = $"{_baseWebsite}{assetPath}";
 
-        Response response = await new Request(url).SendAsync();
-        string content = await response.GetStringAsync();
+        Request request = new Request(url)
+            .AsGet()
+            .WithAccept("*/*");
+        Response response = await request.SendAsync(cancellationToken);
+        string content = await response.GetStringAsync(cancellationToken: cancellationToken);
         
         HtmlDocument doc = new HtmlDocument();
         doc.LoadHtml(content);
@@ -209,8 +227,9 @@ public class AppleMusic : ApiClient
         
         Regex accessTokenRegex = new Regex("(\\D)(eyJh[^\"]*)(\\D)");
 
-        if (!accessTokenRegex.IsMatch(rawDocument))
-            return null;
+        if (!accessTokenRegex.IsMatch(rawDocument)) {
+            throw new AppleMusicException(EnumAppleMusicExceptionType.AccessTokenUnavailable);
+        }
 
         Match accessTokenMatch = accessTokenRegex.Match(rawDocument);
 

@@ -50,11 +50,13 @@ public sealed class Socks5Client : IDisposable
         byte[] response = new byte[2];
         int bytesRead = await stream.ReadAsync(response, cancellationToken);
         
-        if (bytesRead != 2)
+        if (bytesRead != 2) {
             throw new InvalidOperationException("Invalid SOCKS5 authentication response");
+        }
 
-        if (response[0] != Socks5Version)
+        if (response[0] != Socks5Version) {
             throw new InvalidOperationException($"Unexpected SOCKS version: {response[0]}");
+        }
 
         switch (response[1])
         {
@@ -93,8 +95,9 @@ public sealed class Socks5Client : IDisposable
         byte[] response = new byte[2];
         int bytesRead = await stream.ReadAsync(response, cancellationToken);
         
-        if (bytesRead != 2 || response[1] != 0x00)
+        if (bytesRead != 2 || response[1] != 0x00) {
             throw new InvalidOperationException("SOCKS5 username/password authentication failed");
+        }
     }
 
     private async Task SendConnectCommandAsync(NetworkStream stream, string host, int port, CancellationToken cancellationToken)
@@ -104,8 +107,9 @@ public sealed class Socks5Client : IDisposable
         if (_resolveHostnameLocally && IPAddress.TryParse(host, out _) == false)
         {
             IPAddress[] addresses = await Dns.GetHostAddressesAsync(host, cancellationToken);
-            if (addresses.Length == 0)
+            if (addresses.Length == 0) {
                 throw new InvalidOperationException($"Could not resolve hostname: {host}");
+            }
 
             IPAddress address = addresses.First(a => a.AddressFamily == AddressFamily.InterNetwork);
             byte[] addressBytes = address.GetAddressBytes();
@@ -138,11 +142,13 @@ public sealed class Socks5Client : IDisposable
         byte[] response = new byte[10];
         int bytesRead = await stream.ReadAsync(response.AsMemory(0, 4), cancellationToken);
         
-        if (bytesRead < 4)
+        if (bytesRead < 4) {
             throw new InvalidOperationException("Invalid SOCKS5 connect response");
+        }
 
-        if (response[0] != Socks5Version)
+        if (response[0] != Socks5Version) {
             throw new InvalidOperationException($"Unexpected SOCKS version: {response[0]}");
+        }
 
         if (response[1] != 0x00)
         {

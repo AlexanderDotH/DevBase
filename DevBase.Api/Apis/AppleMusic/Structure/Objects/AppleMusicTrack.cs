@@ -47,12 +47,14 @@ public class AppleMusicTrack
         {
             JsonAppleMusicSearchResultResultsSongData songData = artistResponse.Data[i];
             
-            if (songData.Attributes == null)
+            if (songData.Attributes == null) {
                 continue;
-            
-            if (string.IsNullOrEmpty(songData.Attributes.Name))
+            }
+
+            if (string.IsNullOrEmpty(songData.Attributes.Name)) {
                 continue;
-            
+            }
+
             artists.Add(songData.Attributes.Name);
         }
 

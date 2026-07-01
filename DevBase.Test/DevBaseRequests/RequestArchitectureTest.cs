@@ -315,8 +315,9 @@ public class RequestArchitectureTest
         }
         finally
         {
-            if (File.Exists(tempPath))
+            if (File.Exists(tempPath)) {
                 File.Delete(tempPath);
+            }
         }
     }
     
@@ -384,8 +385,9 @@ public class RequestArchitectureTest
         }
         finally
         {
-            if (File.Exists(tempPath))
+            if (File.Exists(tempPath)) {
                 File.Delete(tempPath);
+            }
         }
     }
     
@@ -414,8 +416,9 @@ public class RequestArchitectureTest
         }
         finally
         {
-            if (File.Exists(tempPath))
+            if (File.Exists(tempPath)) {
                 File.Delete(tempPath);
+            }
         }
     }
     
@@ -436,7 +439,9 @@ public class RequestArchitectureTest
                     break;
                 }
             }
-            if (found) return true;
+            if (found) {
+                return true;
+            }
         }
         return false;
     }

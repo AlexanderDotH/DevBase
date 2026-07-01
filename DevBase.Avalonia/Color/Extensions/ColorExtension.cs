@@ -261,8 +261,9 @@ public static class ColorExtension
         int cap = 0;
         for (var i = 0; i < colors.Length; i++)
         {
-            if (colors[i] != global::Avalonia.Media.Color.FromArgb(0,0,0,0))
+            if (colors[i] != global::Avalonia.Media.Color.FromArgb(0,0,0,0)) {
                 cap++;
+            }
         }
 
         global::Avalonia.Media.Color[] c = new global::Avalonia.Media.Color[cap];

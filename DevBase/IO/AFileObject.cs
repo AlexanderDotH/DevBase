@@ -41,9 +41,10 @@ namespace DevBase.IO
         {
             FileInfo = fileInfo;
             
-            if (!readFile)
+            if (!readFile) {
                 return;
-            
+            }
+
             Memory<byte> buffer = AFile.ReadFile(fileInfo, out Encoding encoding);
 
             this.Buffer = buffer;
@@ -90,8 +91,9 @@ namespace DevBase.IO
         /// <returns>An AList of strings.</returns>
         public AList<string> ToList()
         {
-            if (this.Buffer.IsEmpty)
+            if (this.Buffer.IsEmpty) {
                 return new AList<string>();
+            }
 
             AList<string> genericList = new AList<string>();
 
@@ -113,8 +115,9 @@ namespace DevBase.IO
         /// <returns>The decoded string.</returns>
         public string ToStringData()
         {
-            if (this.Buffer.IsEmpty)
+            if (this.Buffer.IsEmpty) {
                 return string.Empty;
+            }
 
             return this.Encoding.GetString(this.Buffer.Span);
         }

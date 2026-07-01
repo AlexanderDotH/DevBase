@@ -702,17 +702,19 @@ public class MimeDictionary
     
     public ReadOnlyMemory<char> GetMimeTypeAsMemory(string mimeType)
     {
-        if (TryGetMimeTypeAsMemory(mimeType, out ReadOnlyMemory<char> result))
+        if (TryGetMimeTypeAsMemory(mimeType, out ReadOnlyMemory<char> result)) {
             return result;
-            
+        }
+
         return DefaultMimeType;
     }
 
     public ReadOnlySpan<char> GetMimeTypeAsSpan(string mimeType)
     {
-        if (TryGetMimeTypeAsSpan(mimeType, out ReadOnlySpan<char> result))
+        if (TryGetMimeTypeAsSpan(mimeType, out ReadOnlySpan<char> result)) {
             return result;
-            
+        }
+
         return DefaultMimeType.Span;
     }
 
@@ -732,16 +734,18 @@ public class MimeDictionary
     
     private static string FilterQuery(string query)
     {
-        if (query.Length > 0 && query[0] == '.')
+        if (query.Length > 0 && query[0] == '.') {
             return query.Substring(1);
+        }
 
         return query;
     }
 
     private static ReadOnlySpan<char> FilterQuerySpan(ReadOnlySpan<char> query)
     {
-        if (query.Length > 0 && query[0] == '.')
+        if (query.Length > 0 && query[0] == '.') {
             return query.Slice(1);
+        }
 
         return query;
     }

@@ -22,8 +22,9 @@ public class RmmlParser : FileFormat<string, AList<RichTimeStampedLyric>>
     {
         RichSyncLine[] parsedLyrics = JsonConvert.DeserializeObject<RichSyncLine[]>(from);
         
-        if (parsedLyrics == null)
+        if (parsedLyrics == null) {
             return default;
+        }
 
         AList<RichTimeStampedLyric> richLyrics = new AList<RichTimeStampedLyric>();
 

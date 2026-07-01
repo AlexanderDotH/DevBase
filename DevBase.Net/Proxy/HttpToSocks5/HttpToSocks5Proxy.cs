@@ -66,11 +66,13 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
         ArgumentOutOfRangeException.ThrowIfGreaterThan(internalServerPort, 65535);
         ArgumentNullException.ThrowIfNull(proxyList);
         
-        if (proxyList.Length == 0)
+        if (proxyList.Length == 0) {
             throw new ArgumentException("proxyList is empty", nameof(proxyList));
-        
-        if (proxyList.Any(p => p == null))
+        }
+
+        if (proxyList.Any(p => p == null)) {
             throw new ArgumentNullException(nameof(proxyList), "Proxy in proxyList is null");
+        }
 
         _proxyList = proxyList;
         InternalServerPort = internalServerPort;
@@ -79,8 +81,9 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
         _internalServerSocket = new Socket(SocketType.Stream, ProtocolType.Tcp);
         _internalServerSocket.Bind(new IPEndPoint(IPAddress.Loopback, InternalServerPort));
 
-        if (InternalServerPort == 0)
+        if (InternalServerPort == 0) {
             InternalServerPort = ((IPEndPoint)_internalServerSocket.LocalEndPoint!).Port;
+        }
 
         StringBuilder sb = StringBuilderPool.Acquire(64);
         sb.Append(HttpConstants.HttpSchemePrefix.Span);
@@ -227,8 +230,9 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
         HttpRequestParseResult result = new HttpRequestParseResult();
         
         HeadersParseResult headersResult = await TryReadHeadersAsync(clientSocket);
-        if (!headersResult.Success)
+        if (!headersResult.Success) {
             return result;
+        }
 
         string headerString = headersResult.Headers!;
         List<string> headerLines = headerString.Split('\n')
@@ -282,8 +286,10 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
             for (int i = 1; i < headerLines.Count; i++)
             {
                 int colonIndex = headerLines[i].IndexOf(':');
-                if (colonIndex == -1) continue;
-                
+                if (colonIndex == -1) {
+                    continue;
+                }
+
                 string headerName = headerLines[i].AsSpan(0, colonIndex).Trim().ToString();
 
                 if (headerName.Equals("Host", StringComparison.OrdinalIgnoreCase))
@@ -378,8 +384,9 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
                 int offset = received;
                 int read = await clientSocket.ReceiveAsync(buffer.AsMemory(received, left), SocketFlags.None);
                 
-                if (read == 0)
+                if (read == 0) {
                     return result;
+                }
 
                 received += read;
                 left -= read;
@@ -440,7 +447,10 @@ public sealed class HttpToSocks5Proxy : IWebProxy, IDisposable
 
     public void StopInternalServer()
     {
-        if (_stopped) return;
+        if (_stopped) {
+            return;
+        }
+
         _stopped = true;
         _internalServerSocket.Close();
     }

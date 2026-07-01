@@ -10,8 +10,9 @@ public sealed class DefaultDnsResolver : IDnsResolver
 {
     public IPAddress? TryResolve(string hostname)
     {
-        if (IPAddress.TryParse(hostname, out IPAddress? address))
+        if (IPAddress.TryParse(hostname, out IPAddress? address)) {
             return address;
+        }
 
         try
         {

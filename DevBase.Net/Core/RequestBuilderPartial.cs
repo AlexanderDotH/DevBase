@@ -137,9 +137,10 @@ public class MultipartFormBuilder
         ArgumentException.ThrowIfNullOrWhiteSpace(filePath);
         
         FileInfo fileInfo = new FileInfo(filePath);
-        if (!fileInfo.Exists)
+        if (!fileInfo.Exists) {
             throw new FileNotFoundException("File not found", filePath);
-        
+        }
+
         Memory<byte> buffer = AFile.ReadFile(fileInfo);
         AFileObject fileObject = AFileObject.FromBuffer(buffer.ToArray(), fileInfo.Name);
         MimeFileObject mimeFile = MimeFileObject.FromAFileObject(fileObject);
@@ -159,9 +160,10 @@ public class MultipartFormBuilder
         ArgumentException.ThrowIfNullOrWhiteSpace(fieldName);
         ArgumentNullException.ThrowIfNull(fileInfo);
         
-        if (!fileInfo.Exists)
+        if (!fileInfo.Exists) {
             throw new FileNotFoundException("File not found", fileInfo.FullName);
-        
+        }
+
         Memory<byte> buffer = AFile.ReadFile(fileInfo);
         AFileObject fileObject = AFileObject.FromBuffer(buffer.ToArray(), fileInfo.Name);
         MimeFileObject mimeFile = MimeFileObject.FromAFileObject(fileObject);

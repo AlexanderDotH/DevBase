@@ -1,0 +1,21 @@
+{
+  "message": {
+    "header": {
+      "status_code": 200,
+      "execute_time": 0.011
+    },
+    "body": {
+      "artist_list": [
+        {
+          "artist": {
+            "artist_id": 901,
+            "artist_name": "Fixture Artist",
+            "artist_country": "US",
+            "artist_rating": 100,
+            "updated_time": "2024-01-06T00:00:00Z"
+          }
+        }
+      ]
+    }
+  }
+}

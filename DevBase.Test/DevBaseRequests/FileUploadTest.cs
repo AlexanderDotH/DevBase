@@ -387,7 +387,9 @@ public class FileUploadTest
                     break;
                 }
             }
-            if (found) return true;
+            if (found) {
+                return true;
+            }
         }
         return false;
     }

@@ -33,8 +33,9 @@ public class Base64EncodedAString : EncodedAString
             base._value += "=".Repeat(diff);
         }
         
-        if (!IsEncoded())
+        if (!IsEncoded()) {
             throw new EncodingException("The given string is not a base64 encoded string");
+        }
     }
 
     /// <summary>

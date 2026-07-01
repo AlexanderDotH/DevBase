@@ -6,14 +6,16 @@
     <TargetFrameworks>net9.0</TargetFrameworks>
     <Title>DevBase.Api</Title>
     <Authors>AlexanderDotH</Authors>
-    <Description>DevBase.Api is designed to connect to certain api endpoints including Replicate.com, Tidal and Deezer</Description>
+    <Description>DevBase.Api provides API clients for music and lyrics services using per-method DevBase.Net request handling, narrow ApiClient error defaults, and expanded MusixmatchClientLib-equivalent support.</Description>
     <Copyright>AlexanderDotH</Copyright>
     <PackageProjectUrl>https://github.com/AlexanderDotH/DevBase.git</PackageProjectUrl>
     <RepositoryUrl>https://github.com/AlexanderDotH/DevBase.git</RepositoryUrl>
-    <Version>1.5.1</Version>
+    <Version>2.0.0</Version>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>api;http;music;lyrics;musixmatch;musixmatchclientlib;subtitles;richsync;devbase;per-method-requests;async;cancellation</PackageTags>
+    <PackageReleaseNotes>2.0.0 uses per-method request ownership: each API method builds and sends its DevBase.Net request, validates responses, and parses results locally while ApiClient remains limited to strict/lenient error defaults. This release expands Musixmatch toward a MusixmatchClientLib-equivalent surface, including token/auth, search, lyrics, subtitles, richsync, translations, catalog, user/crowd, contribution, and mission APIs.</PackageReleaseNotes>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
@@ -27,7 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DevBase.Cryptography.BouncyCastle\DevBase.Cryptography.BouncyCastle.csproj" />
     <ProjectReference Include="..\DevBase.Cryptography\DevBase.Cryptography.csproj" />
     <ProjectReference Include="..\DevBase.Format\DevBase.Format.csproj" />
     <ProjectReference Include="..\DevBase.Net\DevBase.Net.csproj" />

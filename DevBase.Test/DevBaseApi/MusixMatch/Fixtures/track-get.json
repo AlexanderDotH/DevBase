@@ -1,0 +1,26 @@
+{
+  "message": {
+    "header": {
+      "status_code": 200,
+      "execute_time": 0.021
+    },
+    "body": {
+      "track": {
+        "track_id": 202,
+        "commontrack_id": 502,
+        "track_name": "Fixture Track",
+        "track_rating": 95,
+        "track_length": 198,
+        "artist_id": 902,
+        "artist_name": "Fixture Artist",
+        "album_id": 702,
+        "album_name": "Fixture Album",
+        "has_lyrics": 1,
+        "has_subtitles": 1,
+        "has_richsync": 1,
+        "track_spotify_id": "spotify:track:fixture",
+        "updated_time": "2024-01-02T00:00:00Z"
+      }
+    }
+  }
+}

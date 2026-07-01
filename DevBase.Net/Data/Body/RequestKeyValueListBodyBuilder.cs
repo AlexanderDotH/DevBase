@@ -34,18 +34,21 @@ public class RequestKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestKey
         {
             KeyValuePair<string, object> formEntry = this.Entries[i];
 
-            if (!(formEntry.Value is string || formEntry.Value is MimeFileObject))
+            if (!(formEntry.Value is string || formEntry.Value is MimeFileObject)) {
                 continue;
-            
+            }
+
             buffer.Add(ContentDispositionUtils.NewLine);
             buffer.Add(this.Separator);
             buffer.Add(ContentDispositionUtils.NewLine);
             
-            if (formEntry.Value is MimeFileObject mimeEntry) 
+            if (formEntry.Value is MimeFileObject mimeEntry) {
                 buffer.Add(ContentDispositionUtils.FromFile(formEntry.Key, mimeEntry));
+            }
 
-            if (formEntry.Value is string textEntry)
+            if (formEntry.Value is string textEntry) {
                 buffer.Add(ContentDispositionUtils.FromValue(formEntry.Key, textEntry));
+            }
         }
  
         buffer.Add(ContentDispositionUtils.NewLine);
@@ -107,17 +110,21 @@ public class RequestKeyValueListBodyBuilder : HttpKeyValueListBuilder<RequestKey
                 return;
             }
             
-            if (!(value is MimeFileObject || value is string || value is byte[]))
+            if (!(value is MimeFileObject || value is string || value is byte[])) {
                 throw new ElementValidationException(EnumValidationReason.DataMismatch);
+            }
 
-            if (value is byte[] buffer)
+            if (value is byte[] buffer) {
                 this.AddFile(fieldName, buffer);
-            
-            if (value is MimeFileObject mimeFileContent)
-                this.AddFile(fieldName, mimeFileContent);
+            }
 
-            if (value is string textContent)
+            if (value is MimeFileObject mimeFileContent) {
+                this.AddFile(fieldName, mimeFileContent);
+            }
+
+            if (value is string textContent) {
                 this.AddText(fieldName, textContent);
+            }
         }
     }
 }

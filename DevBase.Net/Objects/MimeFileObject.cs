@@ -13,16 +13,18 @@ public class MimeFileObject : AFileObject
     
     public MimeFileObject(FileInfo fileInfo, Memory<byte> buffer) : base(fileInfo, buffer)
     {
-        if (fileInfo == null || buffer.IsEmpty)
+        if (fileInfo == null || buffer.IsEmpty) {
             throw new ElementValidationException(EnumValidationReason.Empty);
+        }
 
         MimeType = _mimeDictionary.GetMimeTypeAsMemory(fileInfo.Extension);
     }
 
     public MimeFileObject(FileInfo fileInfo) : base(fileInfo, true)
     {
-        if (!fileInfo.Exists)
+        if (!fileInfo.Exists) {
             throw new FileNotFoundException();
+        }
 
         MimeType = _mimeDictionary.GetMimeTypeAsMemory(fileInfo.Extension);
     }

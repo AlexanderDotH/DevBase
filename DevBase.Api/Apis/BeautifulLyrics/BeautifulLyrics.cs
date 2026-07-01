@@ -20,41 +20,59 @@ public class BeautifulLyrics : ApiClient
         this._baseUrl = "https://beautiful-lyrics.socalifornian.live";
     }
 
-    public async Task<dynamic> GetLyrics(string isrc)
+    public async Task<dynamic> GetLyrics(string isrc, CancellationToken cancellationToken = default)
     {
-        (string RawLyric, bool IsRichSync) rawLyrics = await this.GetRawLyrics(isrc);
-
-        if (string.IsNullOrEmpty(rawLyrics.RawLyric))
-            return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
-
-        if (rawLyrics.IsRichSync)
+        try
         {
-            return ParseRichSyncStampedLyrics(rawLyrics.RawLyric);
+            (string RawLyric, bool IsRichSync) rawLyrics = await this.GetRawLyrics(isrc, cancellationToken);
+
+            if (string.IsNullOrEmpty(rawLyrics.RawLyric)) {
+                return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
+            }
+
+            if (rawLyrics.IsRichSync)
+            {
+                return ParseRichSyncStampedLyrics(rawLyrics.RawLyric);
+            }
+            else
+            {
+                return ParseTimeStampedLyrics(rawLyrics.RawLyric);
+            }
         }
-        else
+        catch (System.Exception exception) when (exception is not OperationCanceledException)
         {
-            return ParseTimeStampedLyrics(rawLyrics.RawLyric);
+            return Throw<object>(exception);
         }
     }
 
-    public async Task<(string RawLyrics, bool IsRichSync)> GetRawLyrics(string isrc)
+    public async Task<(string RawLyrics, bool IsRichSync)> GetRawLyrics(string isrc, CancellationToken cancellationToken = default)
     {
-        string url = $"{this._baseUrl}/lyrics/{isrc}";
+        try
+        {
+            string url = $"{this._baseUrl}/lyrics/{isrc}";
 
-        Response response = await new Request(url).SendAsync();
+            Request request = new Request(url);
+            Response response = await request.SendAsync(cancellationToken);
 
-        if (response.StatusCode != HttpStatusCode.OK)
-            return ThrowTuple(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
-        
-        string rawData = await response.GetStringAsync();
+            if (response.StatusCode != HttpStatusCode.OK) {
+                return ThrowTuple(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
+            }
 
-        if (string.IsNullOrEmpty(rawData))
-            return ThrowTuple(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
+            string rawData = await response.GetStringAsync(cancellationToken: cancellationToken);
+
+            if (string.IsNullOrEmpty(rawData)) {
+                return ThrowTuple(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsNotFound));
+            }
+
+            JObject responseObject = JObject.Parse(rawData);
+            bool isRichSync = responseObject.Value<string>("Type") == "Syllable";
         
-        JObject responseObject = JObject.Parse(rawData);
-        bool isRichSync = responseObject.Value<string>("Type") == "Syllable";
-        
-        return (rawData, isRichSync);
+            return (rawData, isRichSync);
+        }
+        catch (System.Exception exception) when (exception is not OperationCanceledException)
+        {
+            return ThrowTuple(exception);
+        }
     }
     
     private AList<TimeStampedLyric> ParseTimeStampedLyrics(string rawLyrics)
@@ -64,12 +82,14 @@ public class BeautifulLyrics : ApiClient
 
         AList<TimeStampedLyric> timeStampedLyrics = new AList<TimeStampedLyric>();
 
-        if (timeStampedLyricsResponse == null)
+        if (timeStampedLyricsResponse == null) {
             return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsParsed));
-        
-        if (timeStampedLyricsResponse.VocalGroups == null || timeStampedLyricsResponse.VocalGroups.Count == 0)
+        }
+
+        if (timeStampedLyricsResponse.VocalGroups == null || timeStampedLyricsResponse.VocalGroups.Count == 0) {
             return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsParsed));
-        
+        }
+
         for (var i = 0; i < timeStampedLyricsResponse.VocalGroups.Count; i++)
         {
             JsonBeautifulLyricsLineLyricsResponseVocalGroup vocal = timeStampedLyricsResponse.VocalGroups[i];
@@ -97,19 +117,22 @@ public class BeautifulLyrics : ApiClient
 
         AList<RichTimeStampedLyric> richLyrics = new AList<RichTimeStampedLyric>();
 
-        if (richLyricsResponse == null)
+        if (richLyricsResponse == null) {
             return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsParsed));
-        
-        if (richLyricsResponse.VocalGroups == null || richLyricsResponse.VocalGroups.Count == 0)
+        }
+
+        if (richLyricsResponse.VocalGroups == null || richLyricsResponse.VocalGroups.Count == 0) {
             return Throw<object>(new BeautifulLyricsException(EnumBeautifulLyricsExceptionType.LyricsParsed));
-        
+        }
+
         for (int i = 0; i < richLyricsResponse.VocalGroups.Count; i++)
         {
             JsonBeautifulLyricsRichLyricsResponseVocalGroups vocal = richLyricsResponse.VocalGroups[i];
 
-            if (vocal.Lead == null || vocal.Lead.Count == 0)
+            if (vocal.Lead == null || vocal.Lead.Count == 0) {
                 continue;
-            
+            }
+
             TimeSpan lineStartTime = TimeSpan.FromSeconds(vocal.StartTime);
             TimeSpan lineEndTime = TimeSpan.FromSeconds(vocal.StartTime);
 

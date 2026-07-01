@@ -1,0 +1,30 @@
+{
+  "message": {
+    "header": {
+      "status_code": 200,
+      "execute_time": 0.012
+    },
+    "body": {
+      "track_list": [
+        {
+          "track": {
+            "track_id": 101,
+            "commontrack_id": 501,
+            "track_name": "Fixture Search Track",
+            "track_rating": 88,
+            "track_length": 211,
+            "artist_id": 901,
+            "artist_name": "Fixture Artist",
+            "album_id": 701,
+            "album_name": "Fixture Album",
+            "has_lyrics": 1,
+            "has_subtitles": 1,
+            "has_richsync": 1,
+            "track_share_url": "https://example.test/search-track",
+            "updated_time": "2024-01-01T00:00:00Z"
+          }
+        }
+      ]
+    }
+  }
+}

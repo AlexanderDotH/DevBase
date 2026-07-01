@@ -19,9 +19,10 @@ public class TrackedProxyInfo
     {
         get
         {
-            if (!IsTimedOut || TimeoutUntil == null)
+            if (!IsTimedOut || TimeoutUntil == null) {
                 return null;
-                
+            }
+
             TimeSpan remaining = TimeoutUntil.Value - DateTime.UtcNow;
             return remaining > TimeSpan.Zero ? remaining : null;
         }
@@ -73,9 +74,10 @@ public class TrackedProxyInfo
     {
         lock (_lock)
         {
-            if (!IsTimedOut)
+            if (!IsTimedOut) {
                 return true;
-                
+            }
+
             if (TimeoutUntil.HasValue && DateTime.UtcNow >= TimeoutUntil.Value)
             {
                 ResetTimeout();

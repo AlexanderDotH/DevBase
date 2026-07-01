@@ -1,0 +1,20 @@
+{
+  "message": {
+    "header": {
+      "status_code": 200,
+      "execute_time": 0.017
+    },
+    "body": {
+      "subtitle": {
+        "subtitle_id": 404,
+        "restricted": 0,
+        "subtitle_body": "[{\"text\":\"First timed line\",\"time\":{\"total\":1.25,\"minutes\":0,\"seconds\":1,\"hundredths\":25}}]",
+        "subtitle_avg_count": 1,
+        "subtitle_length": 1,
+        "subtitle_language": "en",
+        "subtitle_language_description": "English",
+        "updated_time": "2024-01-04T00:00:00Z"
+      }
+    }
+  }
+}

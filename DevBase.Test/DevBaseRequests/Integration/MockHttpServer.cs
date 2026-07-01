@@ -460,8 +460,9 @@ public sealed class MockHttpServer : IDisposable
         {
             response.StatusCode = mockResponse.StatusCode;
             
-            if (mockResponse.ContentType != null)
+            if (mockResponse.ContentType != null) {
                 response.ContentType = mockResponse.ContentType;
+            }
 
             foreach (var header in mockResponse.Headers)
             {

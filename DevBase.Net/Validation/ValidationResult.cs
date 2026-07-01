@@ -19,7 +19,8 @@ public readonly struct ValidationResult
 
     public void ThrowIfInvalid()
     {
-        if (!IsValid)
+        if (!IsValid) {
             throw new Exceptions.ValidationException("Url", ErrorMessage ?? "Validation failed");
+        }
     }
 }

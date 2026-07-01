@@ -119,7 +119,10 @@ public partial class Request : BaseRequest
 
     public override void Dispose()
     {
-        if (this._disposed) return;
+        if (this._disposed) {
+            return;
+        }
+
         base.Dispose();
     }
 

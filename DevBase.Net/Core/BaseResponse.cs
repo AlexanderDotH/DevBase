@@ -91,8 +91,9 @@ public abstract class BaseResponse : IDisposable, IAsyncDisposable
     /// </summary>
     public virtual async Task<byte[]> GetBytesAsync(CancellationToken cancellationToken = default)
     {
-        if (this._cachedContent != null)
+        if (this._cachedContent != null) {
             return this._cachedContent;
+        }
 
         this._contentStream.Position = 0;
         this._cachedContent = this._contentStream.ToArray();
@@ -125,8 +126,9 @@ public abstract class BaseResponse : IDisposable, IAsyncDisposable
     {
         CookieCollection cookies = new CookieCollection();
 
-        if (!this.Headers.TryGetValues("Set-Cookie", out IEnumerable<string>? cookieHeaders))
+        if (!this.Headers.TryGetValues("Set-Cookie", out IEnumerable<string>? cookieHeaders)) {
             return cookies;
+        }
 
         foreach (string header in cookieHeaders)
         {
@@ -153,8 +155,9 @@ public abstract class BaseResponse : IDisposable, IAsyncDisposable
     protected Encoding? DetectEncoding()
     {
         string? charset = this.ContentHeaders?.ContentType?.CharSet;
-        if (string.IsNullOrEmpty(charset))
+        if (string.IsNullOrEmpty(charset)) {
             return null;
+        }
 
         try
         {
@@ -171,11 +174,13 @@ public abstract class BaseResponse : IDisposable, IAsyncDisposable
     /// </summary>
     public virtual string? GetHeader(string name)
     {
-        if (this.Headers.TryGetValues(name, out IEnumerable<string>? values))
+        if (this.Headers.TryGetValues(name, out IEnumerable<string>? values)) {
             return string.Join(", ", values);
+        }
 
-        if (this.ContentHeaders?.TryGetValues(name, out values) == true)
+        if (this.ContentHeaders?.TryGetValues(name, out values) == true) {
             return string.Join(", ", values);
+        }
 
         return null;
     }
@@ -185,14 +190,16 @@ public abstract class BaseResponse : IDisposable, IAsyncDisposable
     /// </summary>
     public virtual void EnsureSuccessStatusCode()
     {
-        if (!this.IsSuccessStatusCode)
+        if (!this.IsSuccessStatusCode) {
             throw new HttpRequestException($"Response status code does not indicate success: {(int)this.StatusCode} ({this.ReasonPhrase})");
+        }
     }
 
     public virtual void Dispose()
     {
-        if (this._disposed)
+        if (this._disposed) {
             return;
+        }
 
         this._disposed = true;
         this._contentStream.Dispose();
@@ -202,8 +209,9 @@ public abstract class BaseResponse : IDisposable, IAsyncDisposable
 
     public virtual async ValueTask DisposeAsync()
     {
-        if (this._disposed)
+        if (this._disposed) {
             return;
+        }
 
         this._disposed = true;
         await this._contentStream.DisposeAsync();

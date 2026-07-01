@@ -72,9 +72,10 @@ public class EcdhEngineBuilder
     /// <exception cref="KeypairNotFoundException">Thrown if no key pair has been generated or loaded.</exception>
     public byte[] DeriveKeyPairs(AsymmetricKeyParameter publicKey)
     {
-        if (this._keyPair == null)
+        if (this._keyPair == null) {
             throw new KeypairNotFoundException("Keypair not found use \"GenerateKeyPair\" to generate a keypair");
-        
+        }
+
         IBasicAgreement agreement = AgreementUtilities.GetBasicAgreement("ECDH");
         agreement.Init(this._keyPair.Private);
         

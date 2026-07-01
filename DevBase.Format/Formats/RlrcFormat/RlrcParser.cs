@@ -71,8 +71,9 @@ public class RlrcParser : RevertableFileFormat<string, AList<RawLyric>>
         {
             RawLyric rawLyric = to.Get(i);
             
-            if (rawLyric == null)
+            if (rawLyric == null) {
                 continue;
+            }
 
             revertedLyrics.AppendLine(rawLyric.Text);
         }

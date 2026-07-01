@@ -48,9 +48,10 @@ public abstract class BogusHttpHeaderBuilder<T> where T : BogusHttpHeaderBuilder
     /// <exception cref="HttpHeaderException">Thrown if the header has already been built.</exception>
     public T Build()
     {
-        if (!TryBuild())
+        if (!TryBuild()) {
             throw new HttpHeaderException(EnumHttpHeaderExceptionTypes.AlreadyBuilt);
-        
+        }
+
         return (T)this;
     }
 
@@ -60,9 +61,10 @@ public abstract class BogusHttpHeaderBuilder<T> where T : BogusHttpHeaderBuilder
     /// <returns>True if the build was successful; otherwise, false (if already built).</returns>
     public bool TryBuild()
     {
-        if (this.AlreadyBuilt)
+        if (this.AlreadyBuilt) {
             return false;
-        
+        }
+
         BuildAction.Invoke();
         
         this.AlreadyBuilt = true;

@@ -85,7 +85,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         lock (_proxyPool)
         {
             foreach (ProxyInfo proxy in proxies)
+            {
                 _proxyPool.Add(new TrackedProxyInfo(proxy));
+            }
         }
         return this;
     }
@@ -96,7 +98,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         lock (_proxyPool)
         {
             foreach (string proxyString in proxyStrings)
+            {
                 _proxyPool.Add(new TrackedProxyInfo(ProxyInfo.Parse(proxyString)));
+            }
         }
         return this;
     }
@@ -130,7 +134,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         lock (_proxyPool)
         {
             foreach (ProxyInfo proxy in proxies)
+            {
                 _proxyPool.Add(new TrackedProxyInfo(proxy));
+            }
         }
     }
 
@@ -143,7 +149,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         lock (_proxyPool)
         {
             foreach (string proxyString in proxyStrings)
+            {
                 _proxyPool.Add(new TrackedProxyInfo(ProxyInfo.Parse(proxyString)));
+            }
         }
     }
 
@@ -230,8 +238,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         ArgumentException.ThrowIfNullOrWhiteSpace(name);
 
         ProxiedBatch batch = new ProxiedBatch(name, this);
-        if (!_batches.TryAdd(name, batch))
+        if (!_batches.TryAdd(name, batch)) {
             throw new InvalidOperationException($"Batch '{name}' already exists");
+        }
 
         return batch;
     }
@@ -255,7 +264,10 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
     public ProxiedBatchRequests ClearAllBatches()
     {
         foreach (ProxiedBatch batch in _batches.Values)
+        {
             batch.Clear();
+        }
+
         return this;
     }
 
@@ -346,7 +358,10 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
     {
         List<Response> responses = new List<Response>(_responseQueue.Count);
         while (_responseQueue.TryDequeue(out Response? response))
+        {
             responses.Add(response);
+        }
+
         return responses;
     }
 
@@ -356,8 +371,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     public void StartProcessing()
     {
-        if (_isProcessing)
+        if (_isProcessing) {
             return;
+        }
 
         _processingCts = new CancellationTokenSource();
         _isProcessing = true;
@@ -366,8 +382,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     public async Task StopProcessingAsync()
     {
-        if (!_isProcessing)
+        if (!_isProcessing) {
             return;
+        }
 
         _processingCts?.Cancel();
 
@@ -393,8 +410,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         ConcurrentBag<Response> responses = new ConcurrentBag<Response>();
 
         List<(Request Request, string BatchName)> allRequests = CollectAllRequests();
-        if (allRequests.Count == 0)
+        if (allRequests.Count == 0) {
             return new List<Response>();
+        }
 
         int totalRequests = allRequests.Count;
         int completed = 0;
@@ -466,9 +484,10 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
                 await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
                 
                 // If we have more proxies and retries left, try again with a different proxy
-                if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0)
+                if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0) {
                     continue;
-                
+                }
+
                 // No more retries - report error
                 Interlocked.Increment(ref _errorCount);
                 await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
@@ -486,8 +505,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
     public async Task<List<Response>> ExecuteBatchAsync(string batchName, CancellationToken cancellationToken = default)
     {
         ProxiedBatch? batch = GetBatch(batchName);
-        if (batch == null)
+        if (batch == null) {
             throw new InvalidOperationException($"Batch '{batchName}' not found");
+        }
 
         return await ExecuteBatchInternalAsync(batch, cancellationToken).ConfigureAwait(false);
     }
@@ -521,7 +541,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
             completed = completedHolder[0];
 
             foreach (Response response in responseBag)
+            {
                 yield return response;
+            }
         }
     }
 
@@ -564,9 +586,10 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
             {
                 await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
                 
-                if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0)
+                if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0) {
                     continue;
-                
+                }
+
                 Interlocked.Increment(ref _errorCount);
                 await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
 
@@ -618,9 +641,10 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
                 {
                     await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
                     
-                    if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0)
+                    if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0) {
                         continue;
-                    
+                    }
+
                     Interlocked.Increment(ref _errorCount);
                     await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
 
@@ -640,8 +664,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         ConcurrentBag<Response> responses = new ConcurrentBag<Response>();
         List<Request> requests = batch.DequeueAll();
 
-        if (requests.Count == 0)
+        if (requests.Count == 0) {
             return new List<Response>();
+        }
 
         int totalRequests = requests.Count;
         int completed = 0;
@@ -708,9 +733,10 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
             {
                 await HandleProxyFailureAsync(usedProxy, ex, request).ConfigureAwait(false);
                 
-                if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0)
+                if (proxyAttempt < _maxProxyRetries && AvailableProxyCount > 0) {
                     continue;
-                
+                }
+
                 Interlocked.Increment(ref _errorCount);
                 await InvokeErrorCallbacksAsync(request, ex).ConfigureAwait(false);
 
@@ -762,8 +788,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         {
             lock (_proxyPool)
             {
-                if (_proxyPool.Count == 0)
+                if (_proxyPool.Count == 0) {
                     return null;
+                }
 
                 TrackedProxyInfo? proxy = _rotationStrategy.SelectProxy(_proxyPool, ref _currentProxyIndex);
                 if (proxy != null)
@@ -781,8 +808,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     private async Task HandleProxyFailureAsync(TrackedProxyInfo? proxy, System.Exception exception, Request request)
     {
-        if (proxy == null)
+        if (proxy == null) {
             return;
+        }
 
         bool timedOut = proxy.ReportFailure();
         Interlocked.Increment(ref _proxyFailureCount);
@@ -821,7 +849,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         lock (_proxyPool)
         {
             foreach (TrackedProxyInfo proxy in _proxyPool)
+            {
                 proxy.ResetTimeout();
+            }
         }
     }
 
@@ -846,8 +876,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     private async Task EnforceRateLimitAsync(CancellationToken cancellationToken)
     {
-        if (_rateLimit <= 0)
+        if (_rateLimit <= 0) {
             return;
+        }
 
         await _rateLimitSemaphore.WaitAsync(cancellationToken).ConfigureAwait(false);
         try
@@ -863,8 +894,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
             if (_requestsInWindow >= _rateLimit)
             {
                 TimeSpan waitTime = _rateLimitWindow - (now - _windowStart);
-                if (waitTime > TimeSpan.Zero)
+                if (waitTime > TimeSpan.Zero) {
                     await Task.Delay(waitTime, cancellationToken).ConfigureAwait(false);
+                }
 
                 _windowStart = DateTime.UtcNow;
                 _requestsInWindow = 0;
@@ -885,8 +917,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
     private void ApplyPersistence(Request request)
     {
         Uri? uri = request.GetUri();
-        if (uri == null)
+        if (uri == null) {
             return;
+        }
 
         string host = uri.Host;
 
@@ -899,8 +932,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
                 for (int i = 0; i < cookies.Count; i++)
                 {
-                    if (i > 0)
+                    if (i > 0) {
                         sb.Append("; ");
+                    }
 
                     Cookie cookie = cookies[i];
                     sb.Append(cookie.Name);
@@ -921,8 +955,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
     private void StorePersistence(Request request, Response response)
     {
         Uri? uri = request.GetUri();
-        if (uri == null)
+        if (uri == null) {
             return;
+        }
 
         string host = uri.Host;
 
@@ -933,7 +968,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
             {
                 CookieContainer container = _cookies.GetOrAdd(host, _ => new CookieContainer());
                 foreach (Cookie cookie in responseCookies)
+                {
                     container.Add(uri, cookie);
+                }
             }
         }
 
@@ -996,8 +1033,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
             try
             {
                 RequeueDecision decision = _requeueOnResponseCallbacks[i](response, request);
-                if (decision.ShouldRequeue)
+                if (decision.ShouldRequeue) {
                     return decision;
+                }
             }
             catch
             {
@@ -1013,8 +1051,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
             try
             {
                 RequeueDecision decision = _requeueOnErrorCallbacks[i](request, exception);
-                if (decision.ShouldRequeue)
+                if (decision.ShouldRequeue) {
                     return decision;
+                }
             }
             catch
             {
@@ -1054,7 +1093,10 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     public void Dispose()
     {
-        if (_disposed) return;
+        if (_disposed) {
+            return;
+        }
+
         _disposed = true;
 
         _processingCts?.Cancel();
@@ -1063,7 +1105,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
         _proxyLock.Dispose();
 
         foreach (ProxiedBatch batch in _batches.Values)
+        {
             batch.Clear();
+        }
 
         _batches.Clear();
         _cookies.Clear();
@@ -1079,7 +1123,9 @@ public sealed class ProxiedBatchRequests : IDisposable, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (_disposed) return;
+        if (_disposed) {
+            return;
+        }
 
         await StopProcessingAsync();
         Dispose();

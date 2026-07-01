@@ -4,6 +4,7 @@ namespace DevBase.Api.Apis;
 
 /// <summary>
 /// Base class for API clients, providing common error handling and type conversion utilities.
+/// Request construction and sending stay in each API method.
 /// </summary>
 public class ApiClient
 {
@@ -11,7 +12,7 @@ public class ApiClient
     /// Gets or sets a value indicating whether to throw exceptions on errors or return default values.
     /// </summary>
     public bool StrictErrorHandling { get; set; }
-    
+
     /// <summary>
     /// Throws an exception if strict error handling is enabled, otherwise returns a default value for type T.
     /// </summary>
@@ -23,16 +24,27 @@ public class ApiClient
     /// <returns>The default value of T if exception is not thrown.</returns>
     protected dynamic Throw<T>(
         System.Exception exception,
-        [CallerMemberName] string callerMember = "", 
-        [CallerFilePath] string callerFilePath = "", 
+        [CallerMemberName] string callerMember = "",
+        [CallerFilePath] string callerFilePath = "",
         [CallerLineNumber] int callerLineNumber = 0)
     {
-        if (StrictErrorHandling)
+        if (StrictErrorHandling) {
             throw exception;
-        
-        return ToType<T>();
+        }
+
+        return ToType(typeof(T));
     }
-    
+
+    protected string ThrowString(System.Exception exception)
+    {
+        return this.Throw<string>(exception);
+    }
+
+    protected byte[] ThrowBytes(System.Exception exception)
+    {
+        return this.Throw<byte[]>(exception);
+    }
+
     /// <summary>
     /// Throws an exception if strict error handling is enabled, otherwise returns a default tuple (empty string, false).
     /// </summary>
@@ -43,29 +55,35 @@ public class ApiClient
     /// <returns>A tuple (string.Empty, false) if exception is not thrown.</returns>
     protected (string, bool) ThrowTuple(
         System.Exception exception,
-        [CallerMemberName] string callerMember = "", 
-        [CallerFilePath] string callerFilePath = "", 
+        [CallerMemberName] string callerMember = "",
+        [CallerFilePath] string callerFilePath = "",
         [CallerLineNumber] int callerLineNumber = 0)
     {
-        if (StrictErrorHandling)
+        if (StrictErrorHandling) {
             throw exception;
-        
+        }
+
         return (string.Empty, false);
     }
-    
-    private dynamic ToType<T>()
+
+    private static dynamic? ToType(Type type)
     {
-        T type = (T)Activator.CreateInstance(typeof(T));
-        
-        if (type?.GetType() == typeof(bool))
-            return false;
-
-        if (type?.GetType() == typeof(object))
+        if (Nullable.GetUnderlyingType(type) != null) {
             return null;
+        }
 
-        if (type?.GetType() == typeof(string))
+        if (type == typeof(string)) {
             return string.Empty;
-        
+        }
+
+        if (type.IsArray) {
+            return Array.CreateInstance(type.GetElementType()!, 0);
+        }
+
+        if (type.IsValueType) {
+            return Activator.CreateInstance(type);
+        }
+
         return null;
     }
 }

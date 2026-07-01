@@ -25,8 +25,9 @@ namespace DevBase.Utilities
         /// <returns>A random string.</returns>
         public static string RandomString(int length, string charset = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz")
         {
-            if (length < 0)
+            if (length < 0) {
                 return string.Empty;
+            }
 
             return new string(Enumerable.Repeat(charset, length)
                 .Select(s => s[_random.Next(s.Length)]).ToArray());
@@ -53,8 +54,10 @@ namespace DevBase.Utilities
             string pretty = string.Empty;
         
             for (int i = 0; i < elements.Length; i++)
+            {
                 pretty += i == 0 ? elements[i] : separator + elements[i];
-        
+            }
+
             return pretty;
         }
         #pragma warning restore S1643

@@ -4,5 +4,6 @@ public enum EnumTidalExceptionType
 {
     NotOk,
     AuthorizationPending,
-    ParsingError
+    ParsingError,
+    MissingDownloadUrl
 }

@@ -48,8 +48,9 @@ namespace DevBase.Async.Thread
                         {
                             this._threads.Add(aThreadDequeued);
 
-                            if (aThreadDequeued.StartAfterCreation)
+                            if (aThreadDequeued.StartAfterCreation) {
                                 aThreadDequeued.Thread.Start();
+                            }
                         }
                     }
                 }
@@ -67,8 +68,9 @@ namespace DevBase.Async.Thread
 
             this._threads.ForEach(t =>
             {
-                if (t.Thread.IsAlive)
+                if (t.Thread.IsAlive) {
                     tList.Add(t);
+                }
             });
 
             return tList;
@@ -84,8 +86,9 @@ namespace DevBase.Async.Thread
 
             this._threads.ForEach(t =>
             {
-                if (!t.Thread.IsAlive)
+                if (!t.Thread.IsAlive) {
                     tList.Add(t);
+                }
             });
 
             return tList;

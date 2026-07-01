@@ -33,9 +33,10 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
     /// </summary>
     public string? GetPreBuildUserAgent()
     {
-        if (this.UserAgentHeaderBuilder == null || !this.UserAgentHeaderBuilder.Usable)
+        if (this.UserAgentHeaderBuilder == null || !this.UserAgentHeaderBuilder.Usable) {
             return null;
-        
+        }
+
         return this.UserAgentHeaderBuilder.UserAgent.ToString();
     }
     
@@ -111,9 +112,10 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         {
             string currentTyoe = acceptTypes[i];
 
-            if (SharedMimeDictionary.TryGetMimeTypeAsString(currentTyoe, out string result))
+            if (SharedMimeDictionary.TryGetMimeTypeAsString(currentTyoe, out string result)) {
                 currentTyoe = result;
-            
+            }
+
             resolvedTypes[i] = currentTyoe;
         }
         
@@ -140,11 +142,13 @@ public class RequestHeaderBuilder : HttpKeyValueListBuilder<RequestHeaderBuilder
         this.UserAgentHeaderBuilder?.TryBuild();
         this.AuthenticationHeaderBuilder?.TryBuild(); 
 
-        if (!base.AnyEntry(HeaderConstants.Accept.ToString()))
+        if (!base.AnyEntry(HeaderConstants.Accept.ToString())) {
             this.WithAccept(MimeConstants.Wildcard.ToString());
+        }
 
-        if (this.UserAgentHeaderBuilder!.Usable)
+        if (this.UserAgentHeaderBuilder!.Usable) {
             base.AddOrSetEntry(HeaderConstants.UserAgent.ToString(), this.UserAgentHeaderBuilder.UserAgent.ToString());
+        }
 
         if (this.AuthenticationHeaderBuilder!.Usable)
         {

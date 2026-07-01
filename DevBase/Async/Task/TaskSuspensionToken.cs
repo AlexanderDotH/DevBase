@@ -45,16 +45,18 @@ namespace DevBase.Async.Task
         /// <returns>A task representing the wait operation.</returns>
         public async System.Threading.Tasks.Task WaitForRelease(int delay = 0, CancellationToken token = default(CancellationToken))
         {
-            if (delay != 0)
+            if (delay != 0) {
                 await System.Threading.Tasks.Task.Delay(delay);
-            
+            }
+
             System.Threading.Tasks.Task resumeRequestTask = null;
 
             await _lock.WaitAsync(token);
             try
             {
-                if (!_suspended)
+                if (!_suspended) {
                     return;
+                }
 
                 resumeRequestTask = WaitForResumeRequestAsync(token);
             }

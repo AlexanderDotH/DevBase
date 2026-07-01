@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using System.Xml;
 using System.Xml.Linq;
 using AngleSharp;
 using AngleSharp.Dom;
@@ -47,23 +48,29 @@ public sealed class Response : BaseResponse
     {
         Type targetType = typeof(T);
 
-        if (targetType == typeof(string))
+        if (targetType == typeof(string)) {
             return (T)(object)await this.GetStringAsync(cancellationToken: cancellationToken);
+        }
 
-        if (targetType == typeof(byte[]))
+        if (targetType == typeof(byte[])) {
             return (T)(object)await this.GetBytesAsync(cancellationToken);
+        }
 
-        if (targetType == typeof(Stream) || targetType == typeof(MemoryStream))
+        if (targetType == typeof(Stream) || targetType == typeof(MemoryStream)) {
             return (T)(object)this.GetStream();
+        }
 
-        if (targetType == typeof(XDocument))
+        if (targetType == typeof(XDocument)) {
             return (T)(object)await this.ParseXmlAsync(cancellationToken);
+        }
 
-        if (targetType == typeof(IDocument))
+        if (targetType == typeof(IDocument)) {
             return (T)(object)await this.ParseHtmlAsync(cancellationToken);
+        }
 
-        if (targetType == typeof(JsonDocument))
+        if (targetType == typeof(JsonDocument)) {
             return (T)(object)await this.ParseJsonDocumentAsync(cancellationToken);
+        }
 
         return await this.ParseJsonAsync<T>(true, cancellationToken);
     }
@@ -92,7 +99,19 @@ public sealed class Response : BaseResponse
     public async Task<XDocument> ParseXmlAsync(CancellationToken cancellationToken = default)
     {
         this._contentStream.Position = 0;
-        return await XDocument.LoadAsync(this._contentStream, LoadOptions.None, cancellationToken);
+        using XmlReader xmlReader = XmlReader.Create(this._contentStream, CreateSecureXmlReaderSettings());
+        return await XDocument.LoadAsync(xmlReader, LoadOptions.None, cancellationToken);
+    }
+
+    private static XmlReaderSettings CreateSecureXmlReaderSettings()
+    {
+        return new XmlReaderSettings
+        {
+            DtdProcessing = DtdProcessing.Prohibit,
+            XmlResolver = null,
+            MaxCharactersInDocument = 10_000_000,
+            MaxCharactersFromEntities = 1024
+        };
     }
 
     public async Task<IDocument> ParseHtmlAsync(CancellationToken cancellationToken = default)
@@ -117,19 +136,30 @@ public sealed class Response : BaseResponse
         // Use fast path for primitive types (string, int, long, double, decimal, bool)
         StreamingJsonPathParser fastParser = new StreamingJsonPathParser();
         
-        if (typeof(T) == typeof(string))
+        if (typeof(T) == typeof(string)) {
             return (List<T>)(object)fastParser.ParseAllFast<string>(bytes, path);
-        if (typeof(T) == typeof(int))
+        }
+
+        if (typeof(T) == typeof(int)) {
             return (List<T>)(object)fastParser.ParseAllFast<int>(bytes, path);
-        if (typeof(T) == typeof(long))
+        }
+
+        if (typeof(T) == typeof(long)) {
             return (List<T>)(object)fastParser.ParseAllFast<long>(bytes, path);
-        if (typeof(T) == typeof(double))
+        }
+
+        if (typeof(T) == typeof(double)) {
             return (List<T>)(object)fastParser.ParseAllFast<double>(bytes, path);
-        if (typeof(T) == typeof(decimal))
+        }
+
+        if (typeof(T) == typeof(decimal)) {
             return (List<T>)(object)fastParser.ParseAllFast<decimal>(bytes, path);
-        if (typeof(T) == typeof(bool))
+        }
+
+        if (typeof(T) == typeof(bool)) {
             return (List<T>)(object)fastParser.ParseAllFast<bool>(bytes, path);
-        
+        }
+
         JsonPathParser parser = new JsonPathParser();
         return parser.ParseList<T>(bytes, path);
     }
@@ -169,8 +199,9 @@ public sealed class Response : BaseResponse
         while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
         {
             string? line = await reader.ReadLineAsync(cancellationToken);
-            if (line != null)
+            if (line != null) {
                 yield return line;
+            }
         }
     }
 
@@ -199,11 +230,13 @@ public sealed class Response : BaseResponse
 
     public IEnumerable<string> GetHeaderValues(string name)
     {
-        if (this.Headers.TryGetValues(name, out IEnumerable<string>? values))
+        if (this.Headers.TryGetValues(name, out IEnumerable<string>? values)) {
             return values;
+        }
 
-        if (this.ContentHeaders?.TryGetValues(name, out values) == true)
+        if (this.ContentHeaders?.TryGetValues(name, out values) == true) {
             return values;
+        }
 
         return [];
     }
@@ -211,12 +244,14 @@ public sealed class Response : BaseResponse
     public AuthenticationToken? ParseBearerToken()
     {
         string? authHeader = this.GetHeader("Authorization");
-        if (string.IsNullOrWhiteSpace(authHeader))
+        if (string.IsNullOrWhiteSpace(authHeader)) {
             return null;
-        
-        if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        }
+
+        if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) {
             return null;
-        
+        }
+
         string token = authHeader.Substring(7);
         return HeaderValidator.ParseJwtToken(token);
     }
@@ -224,12 +259,14 @@ public sealed class Response : BaseResponse
     public AuthenticationToken? ParseAndVerifyBearerToken(string secret)
     {
         string? authHeader = this.GetHeader("Authorization");
-        if (string.IsNullOrWhiteSpace(authHeader))
+        if (string.IsNullOrWhiteSpace(authHeader)) {
             return null;
-        
-        if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        }
+
+        if (!authHeader.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) {
             return null;
-        
+        }
+
         string token = authHeader.Substring(7);
         return HeaderValidator.ParseAndVerifyJwtToken(token, secret);
     }

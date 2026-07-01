@@ -13,8 +13,9 @@ public sealed class RandomStrategy : IProxyRotationStrategy
     public TrackedProxyInfo? SelectProxy(List<TrackedProxyInfo> proxies, ref int currentIndex)
     {
         List<TrackedProxyInfo> available = proxies.Where(p => p.IsAvailable()).ToList();
-        if (available.Count == 0)
+        if (available.Count == 0) {
             return null;
+        }
 
         int index = Random.Next(available.Count);
         TrackedProxyInfo selected = available[index];

@@ -22,8 +22,10 @@ public class PenetrationTest
         stopwatch.Start();
         
         for (int i = 0; i < count; i++)
+        {
             runAction.Invoke();
-        
+        }
+
         stopwatch.Stop();
 
         return stopwatch;
@@ -45,7 +47,9 @@ public class PenetrationTest
         
         // For gods sake please don't specify count = 0 or some bs :)
         for (int i = 0; i < count - 1; i++)
+        {
             lastActionOutput = runAction.Invoke();
+        }
 
         lastActionOutput = runAction.Invoke();
         

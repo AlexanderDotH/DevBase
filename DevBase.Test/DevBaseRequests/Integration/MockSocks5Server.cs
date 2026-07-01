@@ -333,7 +333,10 @@ public sealed class MockSocks5Server : IDisposable
             while (!_cts.Token.IsCancellationRequested)
             {
                 var read = await source.ReadAsync(buffer, _cts.Token);
-                if (read == 0) break;
+                if (read == 0) {
+                    break;
+                }
+
                 await destination.WriteAsync(buffer.AsMemory(0, read), _cts.Token);
             }
         }

@@ -70,8 +70,9 @@ namespace DevBase.Generics
         {
             T? result = Array.Find(this._array, predicate);
 
-            if (result == null)
+            if (result == null) {
                 return default;
+            }
 
             return result;
         }
@@ -103,14 +104,17 @@ namespace DevBase.Generics
         /// <param name="comparer">The given comparer</param>
         public void Sort(int index, int count, IComparer<T> comparer)
         {
-            if (index < 0)
+            if (index < 0) {
                 throw new AListEntryException(AListEntryException.Type.OutOfBounds);
+            }
 
-            if (count < 0)
+            if (count < 0) {
                 throw new AListEntryException(AListEntryException.Type.OutOfBounds);
+            }
 
-            if (this._array.Length - index < count)
+            if (this._array.Length - index < count) {
                 throw new AListEntryException(AListEntryException.Type.InvalidRange);
+            }
 
             Array.Sort<T>(this._array, index, count, comparer);
         }
@@ -245,8 +249,9 @@ namespace DevBase.Generics
         /// <exception cref="AListEntryException">When the min value is bigger than the max value</exception>
         public T[] GetRangeAsArray(int min, int max)
         {
-            if (min > max)
+            if (min > max) {
                 throw new AListEntryException(AListEntryException.Type.InvalidRange);
+            }
 
             T[] newArray = new T[max - min + 1];
 
@@ -276,8 +281,9 @@ namespace DevBase.Generics
         /// <exception cref="AListEntryException">When the min value is bigger than the max value</exception>
         public List<T> GetRangeAsList(int min, int max)
         {
-            if (min > max)
+            if (min > max) {
                 throw new AListEntryException(AListEntryException.Type.InvalidRange);
+            }
 
             return new List<T>(GetRangeAsArray(min, max));
         }
@@ -304,7 +310,9 @@ namespace DevBase.Generics
             this._array.CopyTo(newArray, 0);
 
             for (int i = 0; i < array.Length; i++)
+            {
                 newArray[this._array.Length + i] = array[i];
+            }
 
             this._array = newArray;
         }
@@ -327,8 +335,9 @@ namespace DevBase.Generics
         /// <param name="item">The given item which will be removed</param>
         public void Remove(T item)
         {
-            if (!Contains(item))
+            if (!Contains(item)) {
                 return;
+            }
 
             long sizeOfItem = MemoryUtils.GetSize(item);
 
@@ -360,8 +369,9 @@ namespace DevBase.Generics
         /// <param name="item">The item which will be deleted</param>
         public void SafeRemove(T item)
         {
-            if (!SafeContains(item))
+            if (!SafeContains(item)) {
                 return;
+            }
 
             T[] newArray = new T[this._array.Length - 1];
 
@@ -388,8 +398,9 @@ namespace DevBase.Generics
         /// <param name="index">The given index</param>
         public void Remove(int index)
         {
-            if (index > this._array.Length)
+            if (index > this._array.Length) {
                 return;
+            }
 
             T[] newArray = new T[this._array.Length - 1];
 
@@ -416,13 +427,15 @@ namespace DevBase.Generics
         /// <exception cref="AListEntryException">Throws if the range is invalid</exception>
         public void RemoveRange(int minIndex, int maxIndex)
         {
-            if (minIndex > maxIndex)
+            if (minIndex > maxIndex) {
                 throw new AListEntryException(AListEntryException.Type.InvalidRange);
+            }
 
             int diff = maxIndex - minIndex + 1;
     
-            if (minIndex < 0 || maxIndex >= this._array.Length)
+            if (minIndex < 0 || maxIndex >= this._array.Length) {
                 throw new AListEntryException(AListEntryException.Type.InvalidRange);
+            }
 
             int newSize = this._array.Length - diff;
 

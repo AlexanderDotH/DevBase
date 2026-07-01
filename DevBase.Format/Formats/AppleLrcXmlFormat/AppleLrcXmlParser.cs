@@ -27,23 +27,28 @@ public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
         string unescaped = Regex.Unescape(from);
 
         using StringReader reader = new StringReader(unescaped);
-        using XmlReader xmlReader = XmlReader.Create(reader);
+        using XmlReader xmlReader = SecureXmlReaderFactory.Create(reader);
 
-        if (!serializer.CanDeserialize(xmlReader))
+        if (!serializer.CanDeserialize(xmlReader)) {
             return Error<object>("Cannot read Xml file");
+        }
 
         XmlTt tt = (XmlTt)serializer.Deserialize(xmlReader);
 
-        if (tt == null)
+        if (tt == null) {
             return Error<object>("Failed to parse xml file");
+        }
 
-        if (!tt.Timing.SequenceEqual("Line"))
+        if (!tt.Timing.SequenceEqual("Line")) {
             return Error<object>("Wrong timing format");
+        }
 
         AList<TimeStampedLyric> timeStampedLyrics = new AList<TimeStampedLyric>();
 
         for (int i = 0; i < tt.Body.Div.Count; i++)
+        {
             timeStampedLyrics.AddRange(ProcessBlock(tt.Body.Div[i]));
+        }
 
         return timeStampedLyrics;
     }
@@ -58,9 +63,10 @@ public class AppleLrcXmlParser : FileFormat<string, AList<TimeStampedLyric>>
 
             TimeSpan startTime;
             
-            if (!TimeUtils.TryParseTimeStamp(part.Begin, out startTime))
+            if (!TimeUtils.TryParseTimeStamp(part.Begin, out startTime)) {
                 return Error<object>($"Error parsing timestamp {part.Begin}");
-            
+            }
+
             TimeStampedLyric timeStampedLyric = new TimeStampedLyric()
             {
                 StartTime = startTime,

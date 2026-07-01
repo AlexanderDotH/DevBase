@@ -9,8 +9,9 @@ public class JsonRequestContent : StringRequestContent
     
     public override bool IsValid(ReadOnlySpan<byte> content)
     {
-        if (!base.IsValid(content))
+        if (!base.IsValid(content)) {
             return false;
+        }
 
         string stringContent = this.Encoding.GetString(content);
 

@@ -50,8 +50,10 @@ public class DockerTestFixture
         await _semaphore.WaitAsync();
         try
         {
-            if (_setupCompleted) return;
-            
+            if (_setupCompleted) {
+                return;
+            }
+
             TestContext.Progress.WriteLine("=== Testcontainers Integration Test Setup ===");
             
             if (!await IsDockerAvailableAsync())
@@ -300,8 +302,10 @@ public class DockerTestFixture
     /// </summary>
     public static async Task ResetMockApiStateAsync()
     {
-        if (!_containersStarted || MockApiPort == 0) return;
-        
+        if (!_containersStarted || MockApiPort == 0) {
+            return;
+        }
+
         try
         {
             using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(5) };
