@@ -1,23 +1,6 @@
 # DevBase.Format
 
-**DevBase.Format** is a comprehensive file format parsing library for .NET 9.0, specializing in lyrics formats (LRC, SRT, ELRC, etc.) and configuration files (ENV). It provides a unified API for parsing various text-based formats with strong typing and error handling.
-
-## Supported Formats
-
-### Lyrics Formats
-- **LRC** - Standard LRC lyrics with timestamps `[mm:ss.xx]`
-- **ELRC** - Enhanced LRC with word-level timing
-- **RLRC** - Rich LRC format
-- **SRT** - SubRip subtitle format
-- **Apple XML** - Apple Music lyrics XML format
-- **Apple LRC XML** - Apple's LRC-based XML format
-- **Apple Rich XML** - Apple's rich-synced lyrics format
-- **MML** - Music Markup Language
-- **RMML** - Rich Music Markup Language
-- **KLyrics** - Karaoke lyrics format
-
-### Configuration Formats
-- **ENV** - Environment variable files (`.env`)
+`DevBase.Format` parses lyric and configuration text formats for .NET 9.0. Use `FileParser<P, T>` to parse either an in-memory string or a file on disk.
 
 ## Installation
 
@@ -25,495 +8,368 @@
 dotnet add package DevBase.Format
 ```
 
-## Features
+## Supported formats
 
-- **Type-Safe Parsing** - Strongly-typed result objects
-- **Error Handling** - Try-parse pattern for safe parsing
-- **File & String Input** - Parse from disk or in-memory strings
-- **Timestamp Conversion** - Automatic timestamp parsing and conversion
-- **Rich Metadata** - Extract metadata tags from lyrics files
-- **Revertable Formats** - Convert parsed data back to original format
+| Format | Parser | Result |
+| --- | --- | --- |
+| LRC | `LrcParser` | `AList<TimeStampedLyric>` |
+| ELRC | `ElrcParser` | `AList<RichTimeStampedLyric>` |
+| RLRC | `RlrcParser` | `AList<RawLyric>` |
+| SRT | `SrtParser` | `AList<RichTimeStampedLyric>` |
+| KLyrics | `KLyricsParser` | `AList<RichTimeStampedLyric>` |
+| MML JSON | `MmlParser` | `AList<TimeStampedLyric>` |
+| RMML JSON | `RmmlParser` | `AList<RichTimeStampedLyric>` |
+| Apple XML | `AppleXmlParser` | `AList<RawLyric>` |
+| Apple LRC XML | `AppleLrcXmlParser` | `AList<TimeStampedLyric>` |
+| Apple Rich XML | `AppleRichXmlParser` | `AList<RichTimeStampedLyric>` |
+| ENV | `EnvParser` | `ATupleList<string, string>` |
 
-## Quick Start
+`LrcParser`, `ElrcParser`, and `RlrcParser` are reversible and also implement `Revert` and `TryRevert`.
 
-### Parsing LRC Lyrics
+## Parser examples
+
+Every example uses the same `FileParser<P, T>` API for both a source string and a disk file. `ParseFromDisk` reads the file; callers do not need to read it themselves first.
+
+### LRC
+
+Leading and trailing whitespace around each source line is trimmed. Metadata-style lines are ignored rather than returned as metadata objects.
 
 ```csharp
 using DevBase.Format;
 using DevBase.Format.Formats.LrcFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
 
-// Parse from string
 string lrcContent = @"
-[00:12.00]First line
-[00:15.50]Second line
-[00:20.00]Third line
-";
+    [00:12.00]First line
+    [00:15.50]Second line
+    [00:20.00]Third line
+    ";
 
-var parser = new FileParser<LrcFormat, AList<TimeStampedLyric>>();
-var lyrics = parser.ParseFromString(lrcContent);
-
-foreach (var line in lyrics)
-{
-    Console.WriteLine($"[{line.StartTime}] {line.Text}");
-}
-
-// Parse from file
-var lyricsFromFile = parser.ParseFromDisk("song.lrc");
+var parser = new FileParser<LrcParser, AList<TimeStampedLyric>>();
+AList<TimeStampedLyric> lyrics = parser.ParseFromString(lrcContent);
+AList<TimeStampedLyric> lyricsFromFile = parser.ParseFromDisk("song.lrc");
 ```
 
-### Parsing SRT Subtitles
+### ELRC
 
-```csharp
-using DevBase.Format.Formats.SrtFormat;
-
-var parser = new FileParser<SrtFormat, AList<TimeStampedLyric>>();
-var subtitles = parser.ParseFromDisk("movie.srt");
-
-foreach (var subtitle in subtitles)
-{
-    Console.WriteLine($"{subtitle.StartTime}: {subtitle.Text}");
-}
-```
-
-### Parsing ENV Files
-
-```csharp
-using DevBase.Format.Formats.EnvFormat;
-
-var parser = new FileParser<EnvFormat, Dictionary<string, string>>();
-var config = parser.ParseFromDisk(".env");
-
-string dbHost = config["DB_HOST"];
-string apiKey = config["API_KEY"];
-```
-
-### Safe Parsing with Try-Parse
-
-```csharp
-var parser = new FileParser<LrcFormat, AList<TimeStampedLyric>>();
-
-if (parser.TryParseFromString(lrcContent, out var lyrics))
-{
-    Console.WriteLine($"Parsed {lyrics.Length} lines");
-}
-else
-{
-    Console.WriteLine("Failed to parse lyrics");
-}
-```
-
-## Usage Examples
-
-### Working with Timestamps
-
-```csharp
-using DevBase.Format.Structure;
-
-var lyric = new TimeStampedLyric
-{
-    Text = "Hello world",
-    StartTime = TimeSpan.FromSeconds(12.5)
-};
-
-// Get timestamp in milliseconds
-long ms = lyric.StartTimestamp;  // 12500
-
-// Format for display
-Console.WriteLine($"[{lyric.StartTime:mm\\:ss\\.ff}] {lyric.Text}");
-```
-
-### Rich-Synced Lyrics (Word-Level Timing)
-
-```csharp
-using DevBase.Format.Structure;
-
-var richLyric = new RichTimeStampedLyric
-{
-    StartTime = TimeSpan.FromSeconds(10),
-    Words = new AList<RichTimeStampedWord>
-    {
-        new RichTimeStampedWord { Text = "Hello", StartTime = TimeSpan.FromSeconds(10.0) },
-        new RichTimeStampedWord { Text = "world", StartTime = TimeSpan.FromSeconds(10.5) }
-    }
-};
-
-foreach (var word in richLyric.Words)
-{
-    Console.WriteLine($"[{word.StartTime}] {word.Text}");
-}
-```
-
-### Parsing Apple Music Lyrics
-
-```csharp
-using DevBase.Format.Formats.AppleXmlFormat;
-
-var parser = new FileParser<AppleXmlFormat, AList<TimeStampedLyric>>();
-var lyrics = parser.ParseFromString(appleMusicXml);
-
-// Apple XML includes metadata
-foreach (var line in lyrics)
-{
-    Console.WriteLine($"{line.StartTime}: {line.Text}");
-}
-```
-
-### Creating Custom Format Parser
+ELRC stores a line's start/end time and individual word timings.
 
 ```csharp
 using DevBase.Format;
+using DevBase.Format.Formats.ElrcFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
 
-public class MyFormat : FileFormat<string, AList<string>>
+string elrcContent = @"
+    [00:00:12.000] - [00:00:13.000] First line
+    [
+        [00:00:12.000] - [00:00:12.500] First
+        [00:00:12.500] - [00:00:13.000] line
+    ]
+    ";
+
+var parser = new FileParser<ElrcParser, AList<RichTimeStampedLyric>>();
+AList<RichTimeStampedLyric> lyrics = parser.ParseFromString(elrcContent);
+AList<RichTimeStampedLyric> lyricsFromFile = parser.ParseFromDisk("song.elrc");
+```
+
+### RLRC
+
+RLRC is a list of raw lyric lines.
+
+```csharp
+using DevBase.Format;
+using DevBase.Format.Formats.RlrcFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
+
+string rlrcContent = "First line\nSecond line";
+
+var parser = new FileParser<RlrcParser, AList<RawLyric>>();
+AList<RawLyric> lyrics = parser.ParseFromString(rlrcContent);
+AList<RawLyric> lyricsFromFile = parser.ParseFromDisk("song.rlrc");
+```
+
+### SRT
+
+`SrtParser` produces rich lyrics, including both a start and an end time.
+
+```csharp
+using DevBase.Format;
+using DevBase.Format.Formats.SrtFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
+
+string srtContent = "1\n00:00:12,000 --> 00:00:15,000\nFirst subtitle\n\n";
+
+var parser = new FileParser<SrtParser, AList<RichTimeStampedLyric>>();
+AList<RichTimeStampedLyric> subtitles = parser.ParseFromString(srtContent);
+AList<RichTimeStampedLyric> subtitlesFromFile = parser.ParseFromDisk("movie.srt");
+```
+
+### KLyrics
+
+```csharp
+using DevBase.Format;
+using DevBase.Format.Formats.KLyricsFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
+
+string kLyricsContent = "[12000,1000](0,500)First(0,500)line";
+
+var parser = new FileParser<KLyricsParser, AList<RichTimeStampedLyric>>();
+AList<RichTimeStampedLyric> lyrics = parser.ParseFromString(kLyricsContent);
+AList<RichTimeStampedLyric> lyricsFromFile = parser.ParseFromDisk("song.klyrics");
+```
+
+### MML JSON
+
+`MmlParser` currently keeps only entries whose `text` matches the library's metadata-style pattern. Ordinary lyric text such as `First line` is filtered out; the example below reflects the parser's current behavior.
+
+```csharp
+using DevBase.Format;
+using DevBase.Format.Formats.MmlFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
+
+string mmlContent = """
+    [{"text":"[ar:Artist]","time":{"total":1250,"minutes":0,"seconds":1,"hundredths":25}}]
+    """;
+
+var parser = new FileParser<MmlParser, AList<TimeStampedLyric>>();
+AList<TimeStampedLyric> lyrics = parser.ParseFromString(mmlContent);
+AList<TimeStampedLyric> lyricsFromFile = parser.ParseFromDisk("song.mml");
+```
+
+### RMML JSON
+
+```csharp
+using DevBase.Format;
+using DevBase.Format.Formats.RmmlFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
+
+string rmmlContent = """
+    [{"ts":12.0,"te":13.0,"l":[{"c":"First","o":0},{"c":" line","o":1}],"x":"First line"}]
+    """;
+
+var parser = new FileParser<RmmlParser, AList<RichTimeStampedLyric>>();
+AList<RichTimeStampedLyric> lyrics = parser.ParseFromString(rmmlContent);
+AList<RichTimeStampedLyric> lyricsFromFile = parser.ParseFromDisk("song.rmml");
+```
+
+### Apple XML
+
+Apple XML uses TTML with `itunes:timing="None"` and produces raw lyric lines.
+
+```csharp
+using DevBase.Format;
+using DevBase.Format.Formats.AppleXmlFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
+
+string appleXmlContent = """
+    <tt xmlns="http://www.w3.org/ns/ttml" xmlns:itunes="http://music.apple.com/lyric-ttml-internal" itunes:timing="None">
+      <body><div><p>First line</p></div></body>
+    </tt>
+    """;
+
+var parser = new FileParser<AppleXmlParser, AList<RawLyric>>();
+AList<RawLyric> lyrics = parser.ParseFromString(appleXmlContent);
+AList<RawLyric> lyricsFromFile = parser.ParseFromDisk("song-raw.xml");
+```
+
+### Apple LRC XML
+
+Apple LRC XML uses TTML with `itunes:timing="Line"` and produces timestamped lines.
+
+```csharp
+using DevBase.Format;
+using DevBase.Format.Formats.AppleLrcXmlFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
+
+string appleLrcXmlContent = """
+    <tt xmlns="http://www.w3.org/ns/ttml" xmlns:itunes="http://music.apple.com/lyric-ttml-internal" itunes:timing="Line">
+      <body><div><p begin="00:00:12.000" end="00:00:13.000">First line</p></div></body>
+    </tt>
+    """;
+
+var parser = new FileParser<AppleLrcXmlParser, AList<TimeStampedLyric>>();
+AList<TimeStampedLyric> lyrics = parser.ParseFromString(appleLrcXmlContent);
+AList<TimeStampedLyric> lyricsFromFile = parser.ParseFromDisk("song-line.xml");
+```
+
+### Apple Rich XML
+
+Apple Rich XML uses TTML with `itunes:timing="Word"` and produces word-timed lyrics.
+
+```csharp
+using DevBase.Format;
+using DevBase.Format.Formats.AppleRichXmlFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
+
+string appleRichXmlContent = """
+    <tt xmlns="http://www.w3.org/ns/ttml" xmlns:itunes="http://music.apple.com/lyric-ttml-internal" itunes:timing="Word">
+      <body><div><p begin="00:00:12.000" end="00:00:13.000"><span begin="00:00:12.000" end="00:00:12.500">First</span><span begin="00:00:12.500" end="00:00:13.000">line</span></p></div></body>
+    </tt>
+    """;
+
+var parser = new FileParser<AppleRichXmlParser, AList<RichTimeStampedLyric>>();
+AList<RichTimeStampedLyric> lyrics = parser.ParseFromString(appleRichXmlContent);
+AList<RichTimeStampedLyric> lyricsFromFile = parser.ParseFromDisk("song-word.xml");
+```
+
+### ENV
+
+`EnvParser` returns an `ATupleList<string, string>`. Its current grammar expects quoted word values.
+
+```csharp
+using DevBase.Format;
+using DevBase.Format.Formats.EnvFormat;
+using DevBase.Generics;
+
+string envContent = @"
+    DB_HOST=""localhost""
+    API_KEY=""secret123""
+    ";
+
+var parser = new FileParser<EnvParser, ATupleList<string, string>>();
+ATupleList<string, string> config = parser.ParseFromString(envContent);
+ATupleList<string, string> configFromFile = parser.ParseFromDisk(".env");
+
+string dbHost = config.Get(0).Item2;
+string apiKey = config.Get(1).Item2;
+```
+
+## Safe parsing
+
+`FileParser<P, T>` creates a fresh parser with strict error handling enabled. To receive `false` for validation failures routed through `FileFormat.Error` instead of a `ParsingException`, use the concrete parser and set `StrictErrorHandling` to `false`.
+
+```csharp
+using DevBase.Format.Formats.LrcFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
+
+const string lrcContent = "[00:12.00]First line";
+var parser = new LrcParser { StrictErrorHandling = false };
+
+if (parser.TryParse(lrcContent, out AList<TimeStampedLyric> lyrics))
+    Console.WriteLine($"Parsed {lyrics.Length} lines");
+else
+    Console.WriteLine("Failed to parse LRC lyrics");
+```
+
+## Reverting parsed formats
+
+Use the concrete reversible parser to serialize parsed data. SRT does not currently support reversion.
+
+```csharp
+using DevBase.Format.Formats.LrcFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
+
+const string lrcContent = "[00:12.00]First line";
+var parser = new LrcParser();
+AList<TimeStampedLyric> lyrics = parser.Parse(lrcContent);
+string lrcContentAgain = parser.Revert(lyrics);
+
+if (parser.TryRevert(lyrics, out string reverted))
+    Console.WriteLine(reverted);
+```
+
+## Implement a custom parser
+
+```csharp
+using DevBase.Format;
+using DevBase.Generics;
+
+var parser = new FileParser<PlainTextParser, AList<string>>();
+AList<string> result = parser.ParseFromString("line1\nline2\nline3");
+
+public class PlainTextParser : FileFormat<string, AList<string>>
 {
     public override AList<string> Parse(string input)
     {
-        var lines = new AList<string>();
-        foreach (var line in input.Split('\n'))
+        AList<string> lines = new AList<string>();
+
+        foreach (string line in input.Split('\n'))
         {
-            if (!string.IsNullOrWhiteSpace(line))
-                lines.Add(line.Trim());
+            string trimmed = line.Trim();
+
+            if (!string.IsNullOrEmpty(trimmed))
+                lines.Add(trimmed);
         }
+
         return lines;
     }
 
     public override bool TryParse(string input, out AList<string> parsed)
     {
-        try
-        {
-            parsed = Parse(input);
-            return true;
-        }
-        catch
-        {
-            parsed = null;
-            return false;
-        }
+        parsed = Parse(input);
+        return !parsed.IsEmpty();
     }
 }
-
-// Use custom format
-var parser = new FileParser<MyFormat, AList<string>>();
-var result = parser.ParseFromString("line1\nline2\nline3");
 ```
 
-### Revertable Formats (Convert Back to String)
+## Data structures and extensions
 
-```csharp
-using DevBase.Format;
-
-// Some formats implement RevertableFileFormat
-public class LrcFormat : RevertableFileFormat<string, AList<TimeStampedLyric>>
-{
-    public override string Revert(AList<TimeStampedLyric> parsed)
-    {
-        StringBuilder sb = new StringBuilder();
-        foreach (var lyric in parsed)
-        {
-            int minutes = (int)lyric.StartTime.TotalMinutes;
-            double seconds = lyric.StartTime.TotalSeconds % 60;
-            sb.AppendLine($"[{minutes:D2}:{seconds:00.00}]{lyric.Text}");
-        }
-        return sb.ToString();
-    }
-}
-
-// Parse and revert
-var parser = new FileParser<LrcFormat, AList<TimeStampedLyric>>();
-var lyrics = parser.ParseFromString(lrcContent);
-
-var format = new LrcFormat();
-string lrcString = format.Revert(lyrics);
-```
-
-## Format-Specific Details
-
-### LRC Format
-
-**Structure:**
-```
-[mm:ss.xx]Lyric text
-[mm:ss.xx]Another line
-```
-
-**Metadata Tags:**
-```
-[ar:Artist Name]
-[ti:Song Title]
-[al:Album Name]
-[by:Creator]
-[offset:+/-milliseconds]
-```
-
-**Example:**
-```csharp
-string lrc = @"
-[ar:Rick Astley]
-[ti:Never Gonna Give You Up]
-[al:Whenever You Need Somebody]
-[00:12.00]We're no strangers to love
-[00:16.00]You know the rules and so do I
-";
-
-var parser = new FileParser<LrcFormat, AList<TimeStampedLyric>>();
-var lyrics = parser.ParseFromString(lrc);
-```
-
-### SRT Format
-
-**Structure:**
-```
-1
-00:00:12,000 --> 00:00:15,000
-First subtitle
-
-2
-00:00:16,000 --> 00:00:20,000
-Second subtitle
-```
-
-**Example:**
-```csharp
-var parser = new FileParser<SrtFormat, AList<TimeStampedLyric>>();
-var subtitles = parser.ParseFromDisk("movie.srt");
-```
-
-### ENV Format
-
-**Structure:**
-```
-KEY=value
-DATABASE_URL=postgresql://localhost/mydb
-API_KEY=secret123
-# Comments are supported
-```
-
-**Example:**
-```csharp
-var parser = new FileParser<EnvFormat, Dictionary<string, string>>();
-var config = parser.ParseFromString("DB_HOST=localhost\nDB_PORT=5432");
-
-Console.WriteLine(config["DB_HOST"]);  // "localhost"
-Console.WriteLine(config["DB_PORT"]);  // "5432"
-```
-
-## Core Classes
-
-### FileParser<P, T>
-
-Generic parser that works with any format:
-
-```csharp
-public class FileParser<P, T> where P : FileFormat<string, T>
-{
-    T ParseFromString(string content);
-    bool TryParseFromString(string content, out T parsed);
-    T ParseFromDisk(string filePath);
-    bool TryParseFromDisk(string filePath, out T parsed);
-}
-```
-
-### FileFormat<TInput, TOutput>
-
-Base class for all format parsers:
-
-```csharp
-public abstract class FileFormat<TInput, TOutput>
-{
-    abstract TOutput Parse(TInput input);
-    abstract bool TryParse(TInput input, out TOutput parsed);
-}
-```
-
-### RevertableFileFormat<TInput, TOutput>
-
-For formats that can be converted back:
-
-```csharp
-public abstract class RevertableFileFormat<TInput, TOutput> : FileFormat<TInput, TOutput>
-{
-    abstract TInput Revert(TOutput parsed);
-}
-```
-
-### Data Structures
-
-| Class | Description |
-|-------|-------------|
-| `TimeStampedLyric` | Single lyric line with timestamp |
-| `RichTimeStampedLyric` | Lyric line with word-level timing |
-| `RichTimeStampedWord` | Individual word with timestamp |
-| `RawLyric` | Unparsed lyric data |
-
-## Utilities
-
-### LyricsUtils
-
-```csharp
-using DevBase.Format.Utilities;
-
-// Utility methods for lyrics manipulation
-string cleaned = LyricsUtils.CleanLyrics(rawLyrics);
-bool hasTimestamps = LyricsUtils.HasTimestamps(lrcContent);
-```
-
-### TimeUtils
-
-```csharp
-using DevBase.Format.Utilities;
-
-// Time conversion utilities
-TimeSpan time = TimeUtils.ParseLrcTimestamp("[00:12.50]");
-string formatted = TimeUtils.FormatLrcTimestamp(TimeSpan.FromSeconds(12.5));
-```
-
-## Extensions
-
-### LyricsExtensions
+| Class | Purpose |
+| --- | --- |
+| `TimeStampedLyric` | Text plus a start time |
+| `RichTimeStampedLyric` | Text plus start/end times and timed words |
+| `RichTimeStampedWord` | A word plus start/end times |
+| `RawLyric` | A raw lyric line |
 
 ```csharp
 using DevBase.Format.Extensions;
+using DevBase.Format.Structure;
+using DevBase.Generics;
 
-var lyrics = new AList<TimeStampedLyric>();
-// Extension methods for lyrics manipulation
-var sorted = lyrics.SortByTimestamp();
-var filtered = lyrics.FilterByTimeRange(TimeSpan.Zero, TimeSpan.FromMinutes(2));
+AList<TimeStampedLyric> timedLyrics = new AList<TimeStampedLyric>();
+string plainText = timedLyrics.ToPlainText();
+AList<RawLyric> rawLyrics = timedLyrics.ToRawLyrics();
+
+AList<RichTimeStampedLyric> richLyrics = new AList<RichTimeStampedLyric>();
+AList<TimeStampedLyric> simplifiedLyrics = richLyrics.ToTimeStampedLyrics();
 ```
 
-## Error Handling
-
-### Using Try-Parse Pattern
+## Timestamp utility
 
 ```csharp
-var parser = new FileParser<LrcFormat, AList<TimeStampedLyric>>();
+using DevBase.Format.Utilities;
 
-if (parser.TryParseFromDisk("song.lrc", out var lyrics))
-{
-    // Success
-    ProcessLyrics(lyrics);
-}
-else
-{
-    // Handle parsing failure
-    Console.WriteLine("Invalid LRC format");
-}
-```
+if (TimeUtils.TryParseTimeStamp("00:12.50", out TimeSpan time))
+    Console.WriteLine(time);
 
-### Catching Exceptions
-
-```csharp
-try
-{
-    var lyrics = parser.ParseFromString(content);
-}
-catch (ParsingException ex)
-{
-    Console.WriteLine($"Parsing error: {ex.Message}");
-}
-catch (FileNotFoundException ex)
-{
-    Console.WriteLine($"File not found: {ex.Message}");
-}
+TimeSpan anotherTime = TimeUtils.ParseTimeStamp("00:12.50");
 ```
 
 ## Integration with DevBase.Api
 
-Many API clients return lyrics that can be parsed:
+When the `DevBase.Api` package or project is also referenced, `Deezer.GetLyrics` returns both raw lyric text and parsed timestamped lyrics.
 
 ```csharp
 using DevBase.Api.Apis.Deezer;
-using DevBase.Format;
-using DevBase.Format.Formats.LrcFormat;
+using DevBase.Format.Structure;
+using DevBase.Generics;
 
 var deezer = new Deezer();
-var lyricsString = await deezer.GetLyrics("123456");
+(string rawLyrics, AList<TimeStampedLyric> lyrics) = await deezer.GetLyrics("123456");
 
-var parser = new FileParser<LrcFormat, AList<TimeStampedLyric>>();
-var lyrics = parser.ParseFromString(lyricsString);
-
-foreach (var line in lyrics)
-{
+foreach (TimeStampedLyric line in lyrics)
     Console.WriteLine($"[{line.StartTime}] {line.Text}");
-}
 ```
 
-## Performance Tips
+## Target framework
 
-1. **Reuse parser instances** for multiple files
-2. **Use Try-Parse** for better performance (no exceptions)
-3. **Parse from string** when data is already in memory
-4. **Use appropriate format** - don't parse LRC as SRT
-5. **Cache parsed results** for frequently accessed files
-
-## Common Patterns
-
-### Pattern 1: Multi-Format Lyrics Parser
-
-```csharp
-AList<TimeStampedLyric> ParseLyrics(string content)
-{
-    // Try LRC first
-    var lrcParser = new FileParser<LrcFormat, AList<TimeStampedLyric>>();
-    if (lrcParser.TryParseFromString(content, out var lrcLyrics))
-        return lrcLyrics;
-    
-    // Try SRT
-    var srtParser = new FileParser<SrtFormat, AList<TimeStampedLyric>>();
-    if (srtParser.TryParseFromString(content, out var srtLyrics))
-        return srtLyrics;
-    
-    // Try Apple XML
-    var appleParser = new FileParser<AppleXmlFormat, AList<TimeStampedLyric>>();
-    if (appleParser.TryParseFromString(content, out var appleLyrics))
-        return appleLyrics;
-    
-    return null;
-}
-```
-
-### Pattern 2: Lyrics Synchronization
-
-```csharp
-void SyncLyricsToAudio(AList<TimeStampedLyric> lyrics, TimeSpan currentTime)
-{
-    var currentLyric = lyrics.Find(l => 
-        l.StartTime <= currentTime && 
-        (lyrics.IndexOf(l) == lyrics.Length - 1 || 
-         lyrics[lyrics.IndexOf(l) + 1].StartTime > currentTime)
-    );
-    
-    if (currentLyric != null)
-        DisplayLyric(currentLyric.Text);
-}
-```
-
-### Pattern 3: Format Conversion
-
-```csharp
-// Convert LRC to SRT
-var lrcParser = new FileParser<LrcFormat, AList<TimeStampedLyric>>();
-var lyrics = lrcParser.ParseFromDisk("song.lrc");
-
-var srtFormat = new SrtFormat();
-string srtContent = srtFormat.Revert(lyrics);
-File.WriteAllText("song.srt", srtContent);
-```
-
-## Target Framework
-
-- **.NET 9.0**
-
-## Dependencies
-
-- **DevBase** - Core utilities and collections
-- **System.Text.RegularExpressions** - Pattern matching
+- .NET 9.0
 
 ## License
 
-MIT License - See LICENSE file for details
-
-## Author
-
-AlexanderDotH
+MIT License — see the repository license.
 
 ## Repository
 

@@ -32,7 +32,7 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
         AList<string> parsableLines = lines.GetRangeAsAList(firstLine, lines.Length - 1);
         
         for (int i = 0; i < parsableLines.Length; i++)
-            richTimeStampedLyrics.Add(ParseSingleLine(parsableLines.Get(i)));
+            richTimeStampedLyrics.Add(ParseSingleLine(parsableLines.Get(i).Trim()));
         
         return richTimeStampedLyrics;
     }
@@ -61,7 +61,7 @@ public class KLyricsParser : FileFormat<string, AList<RichTimeStampedLyric>>
     {
         for (int i = 0; i < lines.Length; i++)
         {
-            if (RegexHolder.RegexKlyricsWord.IsMatch(lines.Get(i)))
+            if (RegexHolder.RegexKlyricsWord.IsMatch(lines.Get(i).Trim()))
                 return i;
         }
 

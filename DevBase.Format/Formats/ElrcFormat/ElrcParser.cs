@@ -134,7 +134,7 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
 
     private RichTimeStampedLyric ProcessBlock(AList<string> block)
     {
-        string first = block.Get(0);
+        string first = block.Get(0).TrimStart();
 
         if (!first.StartsWith("["))
             return Error<object>("Invalid block at block position 0");
@@ -149,7 +149,7 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         for (int i = 0; i < entries.Length; i++)
         {
             // A bit unclean but I'm too lazy for now
-            string bodyElement = entries.Get(i).Replace(this._indent, string.Empty);
+            string bodyElement = entries.Get(i).TrimStart();
             head.Words.Add(ParseElement(bodyElement));
         }
         
@@ -162,20 +162,19 @@ public class ElrcParser : RevertableFileFormat<string, AList<RichTimeStampedLyri
         
         for (int i = 0; i < lines.Length; i++)
         {
-            string current = lines.Get(i);
+            string current = lines.Get(i).TrimStart();
             string next = string.Empty;
 
             if (i + 1 < lines.Length)
-                next = lines.Get(i + 1);
+                next = lines.Get(i + 1).Trim();
 
-            if (current[0] == '[' && 
-                next.Length != 0 && next[0] == '[')
+            if (RegexHolder.RegexElrc.IsMatch(current) && next == "[")
             {
                 for (int j = i + 1; j < lines.Length; j++)
                 {
-                    string cSeek = lines.Get(j);
+                    string cSeek = lines.Get(j).Trim();
 
-                    if (cSeek[0] == ']')
+                    if (cSeek == "]")
                     {
                         blocks.AddRange(lines.GetRangeAsAList(i, j));
                         break;

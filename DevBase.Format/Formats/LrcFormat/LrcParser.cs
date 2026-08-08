@@ -27,14 +27,14 @@ namespace DevBase.Format.Formats.LrcFormat
 
             for (int i = 0; i < linesAList.Length; i++)
             {
-                string lineInList = linesAList.Get(i);
+                string lineInList = linesAList.Get(i).TrimStart();
 
                 TimeStampedLyric? lyricElement = ParseStringToLyrics(lineInList);
                 
-                if (lyricElement != null)
-                {
-                    lyricElements.Add(lyricElement);
-                }
+                if (lyricElement == null)
+                    continue;
+
+                lyricElements.Add(lyricElement);
             }
 
             return lyricElements;
@@ -49,7 +49,7 @@ namespace DevBase.Format.Formats.LrcFormat
         public override bool TryParse(string from, out AList<TimeStampedLyric> parsed)
         {
             AList<TimeStampedLyric> p = Parse(from);
-            
+
             if (p == null || p.IsEmpty())
             {
                 parsed = null;
@@ -103,12 +103,15 @@ namespace DevBase.Format.Formats.LrcFormat
             if (lyricLine == null)
                 return null;
 
+            if (string.IsNullOrEmpty(lyricLine))
+                return null;
+
             if (RegexHolder.RegexGarbage.IsMatch(lyricLine))
                 return null;
-            
+
             if (!RegexHolder.RegexLrc.IsMatch(lyricLine))
                 return Error<object>("LRC regex does not match");
-            
+
             Match match = RegexHolder.RegexLrc.Match(lyricLine);
 
             string rawLine = match.Groups[9].Value;

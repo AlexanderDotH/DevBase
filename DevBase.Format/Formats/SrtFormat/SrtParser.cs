@@ -1,4 +1,5 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Globalization;
+using System.Text.RegularExpressions;
 using DevBase.Format.Structure;
 using DevBase.Generics;
 using DevBase.IO;
@@ -30,16 +31,16 @@ public class SrtParser : FileFormat<string, AList<RichTimeStampedLyric>>
 
             if (currentList.Length == 4)
             {
-                Match match = RegexHolder.RegexSrtTimeStamps.Match(currentList.Get(1));
+                Match match = RegexHolder.RegexSrtTimeStamps.Match(currentList.Get(1).Trim());
                 
-                TimeSpan startTime = TimeSpan.Parse(match.Groups[1].Value);
-                TimeSpan endTime = TimeSpan.Parse(match.Groups[4].Value);
+                TimeSpan startTime = ParseTimestamp(match.Groups[1].Value);
+                TimeSpan endTime = ParseTimestamp(match.Groups[4].Value);
 
                 RichTimeStampedLyric timeStampedLyric = new RichTimeStampedLyric()
                 {
                     StartTime = startTime,
                     EndTime = endTime,
-                    Text = currentList.Get(2)
+                    Text = currentList.Get(2).Trim()
                 };
 
                 richTimeStampedLyrics.Add(timeStampedLyric);
@@ -48,6 +49,9 @@ public class SrtParser : FileFormat<string, AList<RichTimeStampedLyric>>
 
         return richTimeStampedLyrics;
     }
+
+    private static TimeSpan ParseTimestamp(string timestamp) =>
+        TimeSpan.ParseExact(timestamp, @"hh\:mm\:ss\,fff", CultureInfo.InvariantCulture);
 
     /// <summary>
     /// Attempts to parse the SRT string content.
