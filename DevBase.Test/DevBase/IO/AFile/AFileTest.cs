@@ -8,7 +8,7 @@ namespace DevBase.Test.DevBase.IO.AFile;
 public class AFileTest
 {
     [Test]
-    public void ReadFileTest()
+    public void TestReadFileTest()
     {
         AFileObject buffer = global::DevBase.IO.AFile.ReadFileToObject(
             $"..{Path.DirectorySeparatorChar}" +
@@ -16,7 +16,7 @@ public class AFileTest
             $"..{Path.DirectorySeparatorChar}" +
             $"DevBaseFormatData{Path.DirectorySeparatorChar}" +
             $"LRC{Path.DirectorySeparatorChar}" +
-            $"MÜNCHEN.lrc");
+            $"MUENCHEN.lrc");
         
         Assert.That(buffer.Buffer.ToArray(), Is.Not.Empty);
     }

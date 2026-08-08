@@ -46,4 +46,14 @@ public class SrtTester : FormatTest
         Assert.That(list.Length, Is.GreaterThan(0));
         Assert.That(list.Get(0).Text, Is.Not.Empty);
     }
+
+    [Test]
+    public void TestParseIndentedContentTrimsLineWhitespace()
+    {
+        string content = "    1    \n    00:00:12,000 --> 00:00:13,000    \n    First line    \n\n";
+
+        AList<RichTimeStampedLyric> lyrics = this._srtParser.ParseFromString(content);
+
+        Assert.That(lyrics.Get(0).Text, Is.EqualTo("First line"));
+    }
 }

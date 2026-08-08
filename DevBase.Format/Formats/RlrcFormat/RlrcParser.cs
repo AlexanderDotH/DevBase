@@ -25,7 +25,7 @@ public class RlrcParser : RevertableFileFormat<string, AList<RawLyric>>
 
         for (int i = 0; i < lines.Length; i++)
         {
-            string line = lines.Get(i);
+            string line = lines.Get(i).Trim();
 
             RawLyric rawLyric = new RawLyric()
             {

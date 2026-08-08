@@ -53,4 +53,21 @@ public class ElrcTester : FormatTest
         formatted.DumpConsole();
         Assert.That(formatted, Is.EqualTo(content));
     }
+
+    [Test]
+    public void TestParseIndentedContentTrimsLineWhitespace()
+    {
+        string content = @"
+            [00:00:12.000] - [00:00:13.000] First line
+            [
+                [00:00:12.000] - [00:00:12.500] First
+                [00:00:12.500] - [00:00:13.000] line
+            ]
+            ";
+
+        AList<RichTimeStampedLyric> lyrics = this._elrcParser.Parse(content);
+
+        Assert.That(lyrics.Get(0).Text, Is.EqualTo("First line"));
+        Assert.That(lyrics.Get(0).Words.Length, Is.EqualTo(2));
+    }
 }

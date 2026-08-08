@@ -34,4 +34,14 @@ public class KLyricsTester : FormatTest
         list.DumpConsole();
         Assert.That(list.Get(0).Text, Is.EqualTo("Rick Astley"));
     }
+
+    [Test]
+    public void TestParseIndentedContentTrimsLineWhitespace()
+    {
+        string content = @"    [12000,1000](0,500)First(0,500)line    ";
+
+        AList<RichTimeStampedLyric> lyrics = this._klyricsParser.ParseFromString(content);
+
+        Assert.That(lyrics.Get(0).Text, Is.EqualTo("First line"));
+    }
 }

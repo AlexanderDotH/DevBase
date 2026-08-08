@@ -26,6 +26,8 @@ namespace DevBase.Format.Formats.EnvFormat
 
             lines.ForEach(s =>
             {
+                s = s.Trim();
+
                 if (s.Contains("="))
                 {
                     if (RegexHolder.RegexEnv.IsMatch(s))

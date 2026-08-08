@@ -62,4 +62,12 @@ public class RlrcTester : FormatTest
         formated.DumpConsole();
         Assert.That(formated, Is.EqualTo(content));
     }
+
+    [Test]
+    public void TestParseIndentedContentTrimsLineWhitespace()
+    {
+        AList<RawLyric> lyrics = this._rlrcParser.Parse("    First line    ");
+
+        Assert.That(lyrics.Get(0).Text, Is.EqualTo("First line"));
+    }
 }
